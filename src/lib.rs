@@ -14,12 +14,8 @@ use libc::{c_char, c_void, c_int};
 extern "C" {
     fn xmlParseFile(filename: *const c_char) -> *mut c_void;
     fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
-}
-
-///An xml document
-pub struct XmlDoc {
-    ///It's libxml's xmlDocPtr
-    xml_doc_ptr : *mut c_void,
+    fn xmlFreeDoc(cur: *mut c_void);
+    fn xmlCleanupParser();
 }
 
 ///Parser Errors
@@ -36,8 +32,23 @@ impl fmt::Debug for XmlParseError {
     }
 }
 
+///An xml document
+pub struct XmlDoc {
+    ///It's libxml's xmlDocPtr
+    xml_doc_ptr : *mut c_void,
+}
+
+impl Drop for XmlDoc {
+    ///Free document when it goes out of scope
+    fn drop(&mut self) {
+        unsafe {
+            xmlFreeDoc(self.xml_doc_ptr);
+        }
+    }
+}
+
 impl XmlDoc {
-    ///parses the file `filename` to generate a new `XmlDoc`
+    ///Parses the file `filename` to generate a new `XmlDoc`
     pub fn parse_file(filename : &str) -> std::result::Result<XmlDoc, XmlParseError> {
         let c_filename = CString::new(filename).unwrap().as_ptr();
         unsafe {
@@ -64,3 +75,10 @@ impl XmlDoc {
     }
 }
 
+///Free global memory of parser
+///Do not call this function before all parsing is done!
+pub fn xml_cleanup_parser() {
+    unsafe {
+        xmlCleanupParser();
+    }
+}
