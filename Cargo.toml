@@ -1,0 +1,12 @@
+[package]
+
+name = "rust-libxml"
+version = "0.0.1"
+authors = ["Jan Frederik Schaefer <j.schaefer@jacobs-university.de>"]
+
+[dependencies]
+libc = "~0.1"
+
+[lib]
+name = "rustlibxml"
+
