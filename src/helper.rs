@@ -35,6 +35,14 @@ impl XmlNodeRef {
         inserted_node_if_not_null(ptr)
     }
 
+    pub fn is_text_node(&self) -> bool {
+        match unsafe {xmlIsTextNode(self.node_ptr)} {
+            0 => false,
+            1 => true,
+            _ => panic!("xmlIsTextNode returned neither 0 nor 1"),
+        }
+    }
+
     pub fn get_name(&self) -> String {
         let name_ptr = unsafe { xmlNodeGetName(self.node_ptr) };
         if name_ptr.is_null() { return String::new() }  //empty string
