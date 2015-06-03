@@ -9,8 +9,16 @@ extern "C" {
     pub fn xmlFreeDoc(cur: *mut c_void);
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
 
+    //helper
+    pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
+    pub fn xmlPrevSibling(cur: *const c_void) -> *mut c_void;
+    pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
+    pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
+    pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;
+
     //parser
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
     pub fn xmlCleanupParser();
+
 }
 

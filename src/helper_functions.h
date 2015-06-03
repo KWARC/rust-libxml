@@ -7,7 +7,17 @@
 
 
 //returns cur->next
-xmlNodePtr xmlNextSibling(xmlNodePtr cur);
+xmlNodePtr xmlNextSibling(const xmlNodePtr cur);
 
 //returns cur->prev
-xmlNodePtr xmlPrevSibling(xmlNodePtr cur);
+xmlNodePtr xmlPrevSibling(const xmlNodePtr cur);
+
+//returns cur->children
+xmlNodePtr xmlGetFirstChild(const xmlNodePtr cur);
+
+//returns cur->name
+const char * xmlNodeGetName(const xmlNodePtr cur);
+
+//returns cur->content
+//(Different from xmlNodeGetContent)
+const char * xmlNodeGetContentPointer(const xmlNodePtr cur);

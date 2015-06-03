@@ -7,5 +7,6 @@ extern crate libc;
 
 mod c_signatures;
 pub mod tree;
+pub mod helper;
 pub mod parser;
 

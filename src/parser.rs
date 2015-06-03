@@ -31,7 +31,7 @@ impl XmlDoc {
                 return Err(XmlParseError::GotNullPointer);
             }
             Ok(XmlDoc {
-                xml_doc_ptr : docptr
+                doc_ptr : docptr
             })
         }
     }
