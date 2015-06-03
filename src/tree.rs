@@ -6,6 +6,8 @@ use std::ffi::CString;
 use libc::{c_void, c_int};
 
 ///An xml node
+#[allow(raw_pointer_derive)]
+#[derive(Clone, Copy)]
 pub struct XmlNodeRef {
     ///libxml's xmlNodePtr
     pub node_ptr : *mut c_void,
@@ -14,6 +16,7 @@ pub struct XmlNodeRef {
     ///to a node and unlink one of them. So please be reasonable.
     pub node_is_inserted : bool,
 }
+
 
 ///An xml document
 pub struct XmlDoc {
