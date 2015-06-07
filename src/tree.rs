@@ -4,6 +4,7 @@ use c_signatures::*;
 
 use std::ffi::CString;
 use libc::{c_void, c_int};
+use std::hash::{Hash, Hasher};
 
 ///An xml node
 #[allow(raw_pointer_derive)]
@@ -17,6 +18,12 @@ pub struct XmlNodeRef {
     pub node_is_inserted : bool,
 }
 
+impl Hash for XmlNodeRef {
+    /// Generates a hash value from the `node_ptr` value.
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.node_ptr.hash(state);
+    }
+}
 
 ///An xml document
 pub struct XmlDoc {
