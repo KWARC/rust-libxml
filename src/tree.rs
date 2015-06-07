@@ -25,6 +25,15 @@ impl Hash for XmlNodeRef {
     }
 }
 
+impl PartialEq for XmlNodeRef {
+    /// Two nodes are considered equal, if they point to the same xmlNode.
+    fn eq(&self, other: &XmlNodeRef) -> bool {
+        self.node_ptr == other.node_ptr
+    }
+}
+
+impl Eq for XmlNodeRef { }
+
 ///An xml document
 pub struct XmlDoc {
     ///libxml's xmlDocPtr

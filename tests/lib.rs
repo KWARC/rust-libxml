@@ -22,6 +22,7 @@ fn child_of_root_has_different_hash() {
     let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
     let root = doc.get_root_element().unwrap();
     if let Some(child) = root.get_first_child() {
+        assert!(root != child);
         assert!((hash::<XmlNodeRef, SipHasher>(&root)) !=
                 (hash::<XmlNodeRef, SipHasher>(&child)));
 //        assert!((hash::<XmlNodeRef, SipHasher>(&root)) != hash(&child));
