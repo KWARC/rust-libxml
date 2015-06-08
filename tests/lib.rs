@@ -12,7 +12,7 @@ use std::hash::{hash, SipHasher};
 /// Duplicate an xml file
 fn duplicate_file() {
     let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
-    doc.save_file("tests/resources/copy.xml").unwrap();
+    doc.save_file("tests/results/copy.xml").unwrap();
 }
 
 #[test]
