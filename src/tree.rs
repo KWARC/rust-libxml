@@ -8,7 +8,7 @@ use std::hash::{Hash, Hasher};
 
 ///An xml node
 #[allow(raw_pointer_derive)]
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct XmlNodeRef {
     ///libxml's xmlNodePtr
     pub node_ptr : *mut c_void,
@@ -33,6 +33,17 @@ impl PartialEq for XmlNodeRef {
 }
 
 impl Eq for XmlNodeRef { }
+
+impl Drop for XmlNodeRef {
+    ///Free node if it isn't inserted in some document
+    fn drop(&mut self) {
+        if !self.node_is_inserted {
+            unsafe {
+                xmlFreeNode(self.node_ptr);
+            }
+        }
+    }
+}
 
 ///An xml document
 pub struct XmlDoc {
