@@ -23,9 +23,8 @@ xmlNodePtr xmlGetFirstChild(const xmlNodePtr cur);
 //returns cur->name
 const char * xmlNodeGetName(const xmlNodePtr cur);
 
-
-//returns 1 if text node, 0 otherwise
-int xmlIsTextNode(const xmlNodePtr cur);
+//returns cur->type
+int xmlGetNodeType(const xmlNodePtr cur);
 
 //returns cur->content
 //(Different from xmlNodeGetContent)

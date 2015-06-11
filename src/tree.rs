@@ -92,7 +92,6 @@ impl XmlDoc {
 
 
 
-
 // The helper functions for trees
 
 #[inline(always)]
@@ -104,6 +103,61 @@ fn inserted_node_unless_null(ptr: *mut c_void) -> Option<XmlNodeRef> {
         node_ptr : ptr,
         node_is_inserted : true,
     })
+}
+
+pub enum XmlElementType {
+    ElementNode,
+    AttributeNode,
+    TextNode,
+    CDataSectionNode,
+    EntityRefNode,
+    EntityNode,
+    PiNode,
+    CommentNode,
+    DocumentNode,
+    DocumentTypeNode,
+    DocumentFragNode,
+    NotationNode,
+    HtmlDocumentNode,
+    DTDNode,
+    ElementDecl,
+    AttributeDecl,
+    EntityDecl,
+    NamespaceDecl,
+    XIncludeStart,
+    XIncludeEnd,
+    DOCBDocumentNode,
+}
+
+impl XmlElementType {
+    /// converts an integer from libxml's `enum xmlElementType`
+    /// to an instance of our `XmlElementType`
+    pub fn from_c_int(i : c_int) -> Result<XmlElementType, ()> {
+        match i {
+            1  => Ok(XmlElementType::ElementNode),
+            2  => Ok(XmlElementType::AttributeNode),
+            3  => Ok(XmlElementType::TextNode),
+            4  => Ok(XmlElementType::CDataSectionNode),
+            5  => Ok(XmlElementType::EntityRefNode),
+            6  => Ok(XmlElementType::EntityNode),
+            7  => Ok(XmlElementType::PiNode),
+            8  => Ok(XmlElementType::CommentNode),
+            9  => Ok(XmlElementType::DocumentNode),
+            10 => Ok(XmlElementType::DocumentTypeNode),
+            11 => Ok(XmlElementType::DocumentFragNode),
+            12 => Ok(XmlElementType::NotationNode),
+            13 => Ok(XmlElementType::HtmlDocumentNode),
+            14 => Ok(XmlElementType::DTDNode),
+            15 => Ok(XmlElementType::ElementDecl),
+            16 => Ok(XmlElementType::AttributeDecl),
+            17 => Ok(XmlElementType::EntityDecl),
+            18 => Ok(XmlElementType::NamespaceDecl),
+            19 => Ok(XmlElementType::XIncludeStart),
+            20 => Ok(XmlElementType::XIncludeEnd),
+            21 => Ok(XmlElementType::DOCBDocumentNode),
+            _ => Err(()),
+        }
+    }
 }
 
 impl XmlNodeRef {
@@ -125,12 +179,16 @@ impl XmlNodeRef {
         inserted_node_unless_null(ptr)
     }
 
+    ///Get the node type
+    pub fn get_type(&self) -> Result<XmlElementType, ()> {
+        XmlElementType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
+    }
+
     ///Returns true iff it is a text node
     pub fn is_text_node(&self) -> bool {
-        match unsafe {xmlIsTextNode(self.node_ptr)} {
-            0 => false,
-            1 => true,
-            _ => panic!("xmlIsTextNode returned neither 0 nor 1"),
+        match self.get_type() {
+            Ok(XmlElementType::TextNode) => true,
+            _ => false,
         }
     }
 

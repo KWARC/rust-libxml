@@ -16,7 +16,7 @@ extern "C" {
     pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
     pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
     pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;
-    pub fn xmlIsTextNode(cur: *const c_void) -> c_int;
+    pub fn xmlGetNodeType(cur: *const c_void) -> c_int;
 
     //parser
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
@@ -32,4 +32,3 @@ extern "C" {
     pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;
     pub fn xmlFreeXPathObject(val: *const c_void);
 }
-
