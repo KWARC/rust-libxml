@@ -6,6 +6,7 @@
 extern crate rustlibxml;
 
 use rustlibxml::tree::{XmlDoc, XmlNodeRef};
+use rustlibxml::xpath::{XmlXPathContext};
 use std::hash::{hash, SipHasher};
 
 #[test]
@@ -29,4 +30,18 @@ fn child_of_root_has_different_hash() {
     } else {
         assert!(false);   //test failed - child doesn't exist
     }
+}
+
+
+#[test]
+/// Test the evaluation of an xpath expression yields the correct number of nodes
+fn test_xpath_result_number_correct() {
+    let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
+    let context = XmlXPathContext::new(&doc).unwrap();
+    let result1 = context.evaluate("//child").unwrap();
+    assert_eq!(result1.get_number_of_nodes(), 2);
+    assert_eq!(result1.get_nodes_as_vec().len(), 2);
+    let result2 = context.evaluate("//nonexistent").unwrap();
+    assert_eq!(result2.get_number_of_nodes(), 0);
+    assert_eq!(result2.get_nodes_as_vec().len(), 0);
 }

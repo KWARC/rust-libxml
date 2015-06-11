@@ -56,6 +56,7 @@ impl XmlXPathContext {
 }
 
 impl Drop for XmlXPathObject {
+    /// free the memory allocated
     fn drop(&mut self) {
         unsafe {
             xmlFreeXPathObject(self.ptr);
@@ -73,6 +74,7 @@ impl XmlXPathObject {
         v as usize
     }
 
+    /// returns the result set as a vector of node references
     pub fn get_nodes_as_vec(&self) -> Vec<XmlNodeRef> {
         let n = self.get_number_of_nodes();
         let mut vec : Vec<XmlNodeRef> = Vec::with_capacity(n);
