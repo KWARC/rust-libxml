@@ -28,3 +28,17 @@ const char * xmlNodeGetName(const xmlNodePtr cur) {
 const char * xmlNodeGetContentPointer(const xmlNodePtr cur) {
     return (char *) cur->content;
 }
+
+
+
+/*
+ * helper functions for xpath
+ */
+
+int xmlXPathObjectNumberOfNodes(const xmlXPathObjectPtr val) {
+    return val->nodesetval->nodeNr;
+}
+
+xmlNodePtr xmlXPathObjectGetNode(const xmlXPathObjectPtr val, size_t index) {
+    return val->nodesetval->nodeTab[index];
+}

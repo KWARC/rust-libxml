@@ -4,6 +4,8 @@
  * which prevents some very basic actions
  */
 #include <libxml/tree.h>
+#include <libxml/xpath.h>
+#include <stdlib.h>
 
 /*
  * helper functions for tree
@@ -28,3 +30,14 @@ int xmlIsTextNode(const xmlNodePtr cur);
 //returns cur->content
 //(Different from xmlNodeGetContent)
 const char * xmlNodeGetContentPointer(const xmlNodePtr cur);
+
+
+/*
+ * helper functions for xpath
+ */
+
+//returns val->nodesetval->nodeNr
+int xmlXPathObjectNumberOfNodes(const xmlXPathObjectPtr val);
+
+//returns val->nodesetval->nodeTab[index]
+xmlNodePtr xmlXPathObjectGetNode(const xmlXPathObjectPtr val, size_t index);

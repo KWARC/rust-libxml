@@ -1,6 +1,6 @@
 //! The signatures of the c functions we'll call
 
-use libc::{c_char, c_void, c_int};
+use libc::{c_char, c_void, c_int, size_t};
 
 #[link(name = "xml2")]
 extern "C" {
@@ -25,5 +25,10 @@ extern "C" {
     //xpath
     pub fn xmlXPathFreeContext(ctxt: *mut c_void);
     pub fn xmlXPathNewContext(doc: *mut c_void) -> *mut c_void;
+    pub fn xmlXPathEvalExpression(str: *const c_char, ctxt: *mut c_void) -> *mut c_void;
+
+    //helper for xpath
+    pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
+    pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;
 }
 

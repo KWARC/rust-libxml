@@ -1,8 +1,9 @@
 //! The XPath functionality
 
 use c_signatures::*;
-use libc::c_void;
-use tree::XmlDoc;
+use libc::{c_void, size_t};
+use tree::{XmlDoc, XmlNodeRef};
+use std::ffi::{CString};
 
 ///The xpath context
 #[allow(raw_pointer_derive)]
@@ -22,9 +23,17 @@ impl Drop for XmlXPathContext {
     }
 }
 
+///Essentially, the result of the evaluation of some xpath expression
+#[allow(raw_pointer_derive)]
+#[derive(Clone)]
+pub struct XmlXPathObject {
+    ///libxml's `xmlXpathObjectPtr`
+    pub ptr : *mut c_void,
+}
+
 
 impl XmlXPathContext {
-    ///create xpath context for a document
+    ///create the xpath context for a document
     pub fn new(doc : &XmlDoc) -> Result<XmlXPathContext, ()> {
         let ctxtptr : *mut c_void = unsafe {
             xmlXPathNewContext(doc.doc_ptr) };
@@ -33,5 +42,40 @@ impl XmlXPathContext {
         } else {
             Ok(XmlXPathContext {context_ptr : ctxtptr })
         }
+    }
+    ///evaluate an xpath
+    pub fn evaluate(&self, xpath: &str) -> Result<XmlXPathObject, ()> {
+        let c_xpath = CString::new(xpath).unwrap().as_ptr();
+        let result = unsafe { xmlXPathEvalExpression(c_xpath, self.context_ptr) };
+        if result.is_null() {
+            Err(())
+        } else {
+            Ok(XmlXPathObject {ptr : result})
+        }
+    }
+}
+
+impl XmlXPathObject {
+    ///get the number of nodes in the result set
+    pub fn get_number_of_nodes(&self) -> usize {
+        let v = unsafe { xmlXPathObjectNumberOfNodes(self.ptr) };
+        if v < 0 {
+            panic!("rust-libxml: xpath: expected non-negative number of result nodes");
+        }
+        v as usize
+    }
+
+    pub fn get_nodes_as_vec(&self) -> Vec<XmlNodeRef> {
+        let n = self.get_number_of_nodes();
+        let mut vec : Vec<XmlNodeRef> = Vec::with_capacity(n);
+        for i in 0..n {
+            let ptr : *mut c_void = unsafe {
+                xmlXPathObjectGetNode(self.ptr, i as size_t) };
+            if ptr.is_null() {
+                panic!("rust-libxml: xpath: found null pointer result set");
+            }
+            vec.push(XmlNodeRef { node_ptr : ptr, node_is_inserted : true });
+        }
+        vec
     }
 }
