@@ -10,7 +10,7 @@ extern "C" {
     pub fn xmlFreeNode(cur: *mut c_void);
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
 
-    //helper
+    //helper for tree
     pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
     pub fn xmlPrevSibling(cur: *const c_void) -> *mut c_void;
     pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
@@ -22,5 +22,8 @@ extern "C" {
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
     pub fn xmlCleanupParser();
 
+    //xpath
+    pub fn xmlXPathFreeContext(ctxt: *mut c_void);
+    pub fn xmlXPathNewContext(doc: *mut c_void) -> *mut c_void;
 }
 

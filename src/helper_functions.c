@@ -1,6 +1,10 @@
 #include "helper_functions.h"
 
 
+/*
+ * Helper functions for tree
+ */
+
 xmlNodePtr xmlNextSibling(const xmlNodePtr cur) {
     return cur->next;
 }
@@ -13,11 +17,9 @@ xmlNodePtr xmlGetFirstChild(const xmlNodePtr cur) {
     return cur->children;
 }
 
-
 int xmlIsTextNode(const xmlNodePtr cur) {
     return cur->type == XML_TEXT_NODE ? 1 : 0;
 }
-
 
 const char * xmlNodeGetName(const xmlNodePtr cur) {
     return (char *) cur->name;

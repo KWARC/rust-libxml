@@ -5,6 +5,9 @@
  */
 #include <libxml/tree.h>
 
+/*
+ * helper functions for tree
+ */
 
 //returns cur->next
 xmlNodePtr xmlNextSibling(const xmlNodePtr cur);

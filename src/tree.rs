@@ -2,9 +2,10 @@
 
 use c_signatures::*;
 
-use std::ffi::CString;
+use std::ffi::{CString, CStr};
 use libc::{c_void, c_int};
 use std::hash::{Hash, Hasher};
+use std::str;
 
 ///An xml node
 #[allow(raw_pointer_derive)]
@@ -47,8 +48,8 @@ impl Drop for XmlNodeRef {
 
 ///An xml document
 pub struct XmlDoc {
-    ///libxml's xmlDocPtr
-    pub doc_ptr : *mut c_void,  //Can we change the visibility somehow?
+    ///libxml's `xmlDocPtr`
+    pub doc_ptr : *mut c_void,
 }
 
 
@@ -88,3 +89,66 @@ impl XmlDoc {
         }
     }
 }
+
+
+
+
+// The helper functions for trees
+
+#[inline(always)]
+fn inserted_node_unless_null(ptr: *mut c_void) -> Option<XmlNodeRef> {
+    if ptr.is_null() {
+        return None
+    }
+    Some(XmlNodeRef {
+        node_ptr : ptr,
+        node_is_inserted : true,
+    })
+}
+
+impl XmlNodeRef {
+    ///Returns the next sibling if it exists
+    pub fn get_next_sibling(&self) -> Option<XmlNodeRef> {
+        let ptr = unsafe { xmlNextSibling(self.node_ptr) };
+        inserted_node_unless_null(ptr)
+    }
+
+    ///Returns the previous sibling if it exists
+    pub fn get_prev_sibling(&self) -> Option<XmlNodeRef> {
+        let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
+        inserted_node_unless_null(ptr)
+    }
+
+    ///Returns the first child if it exists
+    pub fn get_first_child(&self) -> Option<XmlNodeRef> {
+        let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
+        inserted_node_unless_null(ptr)
+    }
+
+    ///Returns true iff it is a text node
+    pub fn is_text_node(&self) -> bool {
+        match unsafe {xmlIsTextNode(self.node_ptr)} {
+            0 => false,
+            1 => true,
+            _ => panic!("xmlIsTextNode returned neither 0 nor 1"),
+        }
+    }
+
+    ///Returns the name of the node (empty string if name pointer is `NULL`)
+    pub fn get_name(&self) -> String {
+        let name_ptr = unsafe { xmlNodeGetName(self.node_ptr) };
+        if name_ptr.is_null() { return String::new() }  //empty string
+        let c_string = unsafe { CStr::from_ptr(name_ptr) };
+        str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+    }
+
+    ///Returns the content of the node
+    ///(empty string if content pointer is `NULL`)
+    pub fn get_content(&self) -> String {
+        let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
+        if content_ptr.is_null() { return String::new() }  //empty string
+        let c_string = unsafe { CStr::from_ptr(content_ptr) };
+        str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+   }
+}
+
