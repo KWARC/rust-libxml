@@ -7,6 +7,7 @@ extern crate rustlibxml;
 
 use rustlibxml::tree::{XmlDoc, XmlNodeRef};
 use rustlibxml::xpath::{XmlXPathContext};
+use rustlibxml::parser::xml_cleanup_parser;
 use std::hash::{hash, SipHasher};
 
 #[test]
@@ -14,6 +15,7 @@ use std::hash::{hash, SipHasher};
 fn duplicate_file() {
     let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
     doc.save_file("tests/results/copy.xml").unwrap();
+    xml_cleanup_parser();
 }
 
 #[test]
@@ -22,6 +24,7 @@ fn duplicate_file() {
 fn child_of_root_has_different_hash() {
     let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
     let root = doc.get_root_element().unwrap();
+    assert!(!root.is_text_node());
     if let Some(child) = root.get_first_child() {
         assert!(root != child);
         assert!((hash::<XmlNodeRef, SipHasher>(&root)) !=
@@ -30,6 +33,7 @@ fn child_of_root_has_different_hash() {
     } else {
         assert!(false);   //test failed - child doesn't exist
     }
+    xml_cleanup_parser();
 }
 
 
@@ -44,4 +48,5 @@ fn test_xpath_result_number_correct() {
     let result2 = context.evaluate("//nonexistent").unwrap();
     assert_eq!(result2.get_number_of_nodes(), 0);
     assert_eq!(result2.get_nodes_as_vec().len(), 0);
+    xml_cleanup_parser();
 }
