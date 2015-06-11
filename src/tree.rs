@@ -105,6 +105,7 @@ fn inserted_node_unless_null(ptr: *mut c_void) -> Option<XmlNodeRef> {
     })
 }
 
+#[derive(PartialEq)]
 pub enum XmlElementType {
     ElementNode,
     AttributeNode,
