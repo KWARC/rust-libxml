@@ -30,5 +30,6 @@ extern "C" {
     //helper for xpath
     pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
     pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;
+    pub fn xmlFreeXPathObject(val: *const c_void);
 }
 

@@ -55,6 +55,14 @@ impl XmlXPathContext {
     }
 }
 
+impl Drop for XmlXPathObject {
+    fn drop(&mut self) {
+        unsafe {
+            xmlFreeXPathObject(self.ptr);
+        }
+    }
+}
+
 impl XmlXPathObject {
     ///get the number of nodes in the result set
     pub fn get_number_of_nodes(&self) -> usize {

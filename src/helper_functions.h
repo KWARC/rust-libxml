@@ -41,3 +41,6 @@ int xmlXPathObjectNumberOfNodes(const xmlXPathObjectPtr val);
 
 //returns val->nodesetval->nodeTab[index]
 xmlNodePtr xmlXPathObjectGetNode(const xmlXPathObjectPtr val, size_t index);
+
+//frees the memory of an xmlXPathObject
+void xmlFreeXPathObject(xmlXPathObject val);
