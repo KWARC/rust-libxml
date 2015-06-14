@@ -1,6 +1,6 @@
 //! The signatures of the c functions we'll call
 
-use libc::{c_char, c_void, c_int, size_t};
+use libc::{c_char, c_void, c_int, c_uint, size_t};
 
 #[link(name = "xml2")]
 extern "C" {
@@ -20,7 +20,8 @@ extern "C" {
 
     //parser
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
-    pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
+    // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
+    pub fn htmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
     pub fn xmlCleanupParser();
 
     //xpath
