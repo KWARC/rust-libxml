@@ -20,6 +20,7 @@ extern "C" {
 
     //parser
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
+    pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
     pub fn xmlCleanupParser();
 
     //xpath

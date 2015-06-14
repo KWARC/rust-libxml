@@ -22,11 +22,25 @@ impl fmt::Debug for XmlParseError {
 
 
 impl XmlDoc {
-    ///Parses the file `filename` to generate a new `XmlDoc`
+    ///Parses the XML file `filename` to generate a new `XmlDoc`
     pub fn parse_file(filename : &str) -> Result<XmlDoc, XmlParseError> {
         let c_filename = CString::new(filename).unwrap().as_ptr();
         unsafe {
             let docptr = xmlParseFile(c_filename);
+            if docptr.is_null() {
+                return Err(XmlParseError::GotNullPointer);
+            }
+            Ok(XmlDoc {
+                doc_ptr : docptr
+            })
+        }
+    }
+
+    ///Parses the HTML file `filename` to generate a new `XmlDoc`
+    pub fn parse_html_file(filename : &str) -> Result<XmlDoc, XmlParseError> {
+        let c_filename = CString::new(filename).unwrap().as_ptr();
+        unsafe {
+            let docptr = htmlParseFile(c_filename, CString::new("utf-8").unwrap().as_ptr());
             if docptr.is_null() {
                 return Err(XmlParseError::GotNullPointer);
             }

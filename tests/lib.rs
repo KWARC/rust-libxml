@@ -19,6 +19,14 @@ fn duplicate_file() {
 }
 
 #[test]
+/// Can load an HTML file
+fn can_load_html_file() {
+    let doc = XmlDoc::parse_html_file("tests/resources/example.html").unwrap();
+    assert_eq!(doc.get_root_element().unwrap().get_name(),"html");
+    xml_cleanup_parser();
+}
+
+#[test]
 /// Root node and first child of root node have different hash values.
 /// (There is a tiny chance this might fail for a correct program)
 fn child_of_root_has_different_hash() {
