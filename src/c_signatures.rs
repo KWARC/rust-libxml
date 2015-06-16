@@ -9,6 +9,7 @@ extern "C" {
     pub fn xmlFreeDoc(cur: *mut c_void);
     pub fn xmlFreeNode(cur: *mut c_void);
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
+    pub fn xmlGetProp(node: *const c_void, name: *const c_char) -> *const c_char;
 
     //helper for tree
     pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;

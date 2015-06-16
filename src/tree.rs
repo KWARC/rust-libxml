@@ -6,6 +6,8 @@ use std::ffi::{CString, CStr};
 use libc::{c_void, c_int};
 use std::hash::{Hash, Hasher};
 use std::str;
+use std::collections::HashSet;
+
 
 ///An xml node
 #[allow(raw_pointer_derive)]
@@ -133,30 +135,30 @@ pub enum XmlElementType {
 impl XmlElementType {
     /// converts an integer from libxml's `enum xmlElementType`
     /// to an instance of our `XmlElementType`
-    pub fn from_c_int(i : c_int) -> Result<XmlElementType, ()> {
+    pub fn from_c_int(i : c_int) -> Option<XmlElementType> {
         match i {
-            1  => Ok(XmlElementType::ElementNode),
-            2  => Ok(XmlElementType::AttributeNode),
-            3  => Ok(XmlElementType::TextNode),
-            4  => Ok(XmlElementType::CDataSectionNode),
-            5  => Ok(XmlElementType::EntityRefNode),
-            6  => Ok(XmlElementType::EntityNode),
-            7  => Ok(XmlElementType::PiNode),
-            8  => Ok(XmlElementType::CommentNode),
-            9  => Ok(XmlElementType::DocumentNode),
-            10 => Ok(XmlElementType::DocumentTypeNode),
-            11 => Ok(XmlElementType::DocumentFragNode),
-            12 => Ok(XmlElementType::NotationNode),
-            13 => Ok(XmlElementType::HtmlDocumentNode),
-            14 => Ok(XmlElementType::DTDNode),
-            15 => Ok(XmlElementType::ElementDecl),
-            16 => Ok(XmlElementType::AttributeDecl),
-            17 => Ok(XmlElementType::EntityDecl),
-            18 => Ok(XmlElementType::NamespaceDecl),
-            19 => Ok(XmlElementType::XIncludeStart),
-            20 => Ok(XmlElementType::XIncludeEnd),
-            21 => Ok(XmlElementType::DOCBDocumentNode),
-            _ => Err(()),
+            1  => Some(XmlElementType::ElementNode),
+            2  => Some(XmlElementType::AttributeNode),
+            3  => Some(XmlElementType::TextNode),
+            4  => Some(XmlElementType::CDataSectionNode),
+            5  => Some(XmlElementType::EntityRefNode),
+            6  => Some(XmlElementType::EntityNode),
+            7  => Some(XmlElementType::PiNode),
+            8  => Some(XmlElementType::CommentNode),
+            9  => Some(XmlElementType::DocumentNode),
+            10 => Some(XmlElementType::DocumentTypeNode),
+            11 => Some(XmlElementType::DocumentFragNode),
+            12 => Some(XmlElementType::NotationNode),
+            13 => Some(XmlElementType::HtmlDocumentNode),
+            14 => Some(XmlElementType::DTDNode),
+            15 => Some(XmlElementType::ElementDecl),
+            16 => Some(XmlElementType::AttributeDecl),
+            17 => Some(XmlElementType::EntityDecl),
+            18 => Some(XmlElementType::NamespaceDecl),
+            19 => Some(XmlElementType::XIncludeStart),
+            20 => Some(XmlElementType::XIncludeEnd),
+            21 => Some(XmlElementType::DOCBDocumentNode),
+            _ => None,
         }
     }
 }
@@ -181,14 +183,14 @@ impl XmlNodeRef {
     }
 
     ///Get the node type
-    pub fn get_type(&self) -> Result<XmlElementType, ()> {
+    pub fn get_type(&self) -> Option<XmlElementType> {
         XmlElementType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
     }
 
     ///Returns true iff it is a text node
     pub fn is_text_node(&self) -> bool {
         match self.get_type() {
-            Ok(XmlElementType::TextNode) => true,
+            Some(XmlElementType::TextNode) => true,
             _ => false,
         }
     }
@@ -208,6 +210,24 @@ impl XmlNodeRef {
         if content_ptr.is_null() { return String::new() }  //empty string
         let c_string = unsafe { CStr::from_ptr(content_ptr) };
         str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
-   }
-}
+    }
 
+    ///Returns the value of property `name`
+    pub fn get_property(&self, name : &str) -> Option<String> {
+        let c_name = CString::new(name).unwrap().as_ptr();
+        let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name) };
+        if value_ptr.is_null() { return None; }
+        let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
+        Some(str::from_utf8(c_value_string.to_bytes()).unwrap().to_owned())
+    }
+
+    pub fn get_class_names(&self) -> HashSet<String> {
+        let mut set = HashSet::new();
+        if let Some(value) = self.get_property("class") {
+            for n in value.split(' ') {
+                set.insert(n.to_owned());
+            }
+        }
+        set
+    }
+}
