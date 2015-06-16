@@ -58,3 +58,20 @@ fn test_xpath_result_number_correct() {
     assert_eq!(result2.get_nodes_as_vec().len(), 0);
     xml_cleanup_parser();
 }
+
+
+#[test]
+/// Test that an xpath expression finds the correct node and
+/// that the class names are interpreted correctly.
+fn test_class_names() {
+    let doc = XmlDoc::parse_html_file("tests/resources/file02.xml").unwrap();
+    let context = XmlXPathContext::new(&doc).unwrap();
+    let result = context.evaluate("/html/body/p").unwrap();
+    assert_eq!(result.get_number_of_nodes(), 1);
+    let node = &result.get_nodes_as_vec()[0];
+    let names = node.get_class_names();
+    assert_eq!(names.len(), 2);
+    assert!(names.contains("paragraph"));
+    assert!(names.contains("important"));
+    assert!(!names.contains("nonsense"));
+}
