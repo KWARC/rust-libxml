@@ -122,7 +122,7 @@ fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
 }
 
 #[derive(PartialEq)]
-pub enum XmlElementType {
+pub enum NodeType {
     ElementNode,
     AttributeNode,
     TextNode,
@@ -146,94 +146,84 @@ pub enum XmlElementType {
     DOCBDocumentNode,
 }
 
-impl XmlElementType {
-    /// converts an integer from libxml's `enum xmlElementType`
-    /// to an instance of our `XmlElementType`
-    pub fn from_c_int(i : c_int) -> Option<XmlElementType> {
+impl NodeType {
+    /// converts an integer from libxml's `enum NodeType`
+    /// to an instance of our `NodeType`
+    pub fn from_c_int(i : c_int) -> Option<NodeType> {
         match i {
-            1  => Some(XmlElementType::ElementNode),
-            2  => Some(XmlElementType::AttributeNode),
-            3  => Some(XmlElementType::TextNode),
-            4  => Some(XmlElementType::CDataSectionNode),
-            5  => Some(XmlElementType::EntityRefNode),
-            6  => Some(XmlElementType::EntityNode),
-            7  => Some(XmlElementType::PiNode),
-            8  => Some(XmlElementType::CommentNode),
-            9  => Some(XmlElementType::DocumentNode),
-            10 => Some(XmlElementType::DocumentTypeNode),
-            11 => Some(XmlElementType::DocumentFragNode),
-            12 => Some(XmlElementType::NotationNode),
-            13 => Some(XmlElementType::HtmlDocumentNode),
-            14 => Some(XmlElementType::DTDNode),
-            15 => Some(XmlElementType::ElementDecl),
-            16 => Some(XmlElementType::AttributeDecl),
-            17 => Some(XmlElementType::EntityDecl),
-            18 => Some(XmlElementType::NamespaceDecl),
-            19 => Some(XmlElementType::XIncludeStart),
-            20 => Some(XmlElementType::XIncludeEnd),
-            21 => Some(XmlElementType::DOCBDocumentNode),
+            1  => Some(NodeType::ElementNode),
+            2  => Some(NodeType::AttributeNode),
+            3  => Some(NodeType::TextNode),
+            4  => Some(NodeType::CDataSectionNode),
+            5  => Some(NodeType::EntityRefNode),
+            6  => Some(NodeType::EntityNode),
+            7  => Some(NodeType::PiNode),
+            8  => Some(NodeType::CommentNode),
+            9  => Some(NodeType::DocumentNode),
+            10 => Some(NodeType::DocumentTypeNode),
+            11 => Some(NodeType::DocumentFragNode),
+            12 => Some(NodeType::NotationNode),
+            13 => Some(NodeType::HtmlDocumentNode),
+            14 => Some(NodeType::DTDNode),
+            15 => Some(NodeType::ElementDecl),
+            16 => Some(NodeType::AttributeDecl),
+            17 => Some(NodeType::EntityDecl),
+            18 => Some(NodeType::NamespaceDecl),
+            19 => Some(NodeType::XIncludeStart),
+            20 => Some(NodeType::XIncludeEnd),
+            21 => Some(NodeType::DOCBDocumentNode),
             _ => None,
         }
     }
 }
 
 impl Node {
-  pub fn new(name : &str, ns : Option<Namespace>, doc_opt : Option<&Document>) -> Result<Self, ()> {
+  /// Create a new node, bound to a given document.
+  pub fn new(name : &str, ns : Option<Namespace>, doc : &Document) -> Result<Self, ()> {
+    // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
+
     let c_name = CString::new(name).unwrap().as_ptr();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(ns) => ns.ns_ptr
     };
-    match doc_opt {
-      None => {
-        unsafe {
-          let node = xmlNewNode(ns_ptr, c_name);
-          if node.is_null() {
-            Err(())
-          } else {
-            Ok(Node { node_ptr : node}) //node_is_inserted : false
-          }
-        }
-      },
-      Some(doc) => {
-        unsafe {
-          let node = xmlNewDocNode(doc.doc_ptr, ns_ptr, c_name, ptr::null());
-          if node.is_null() {
-            Err(())
-          } else {
-            Ok(Node { node_ptr : node})//node_is_inserted : true
-          }
-        }
+    unsafe {
+      let node = xmlNewDocNode(doc.doc_ptr, ns_ptr, c_name, ptr::null());
+      if node.is_null() {
+        Err(())
+      } else {
+        Ok(Node { node_ptr : node})//node_is_inserted : true
       }
     }
   }
-    ///Returns the next sibling if it exists
-    pub fn get_next_sibling(&self) -> Option<Node> {
-        let ptr = unsafe { xmlNextSibling(self.node_ptr) };
-        inserted_node_unless_null(ptr)
-    }
+  
+  ///Returns the next sibling if it exists
+  pub fn get_next_sibling(&self) -> Option<Node> {
+    let ptr = unsafe { xmlNextSibling(self.node_ptr) };
+    inserted_node_unless_null(ptr)
+  }
 
     ///Returns the previous sibling if it exists
     pub fn get_prev_sibling(&self) -> Option<Node> {
-        let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
-        inserted_node_unless_null(ptr)
+      let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
+      inserted_node_unless_null(ptr)
     }
 
     ///Returns the first child if it exists
     pub fn get_first_child(&self) -> Option<Node> {
-        let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
-        inserted_node_unless_null(ptr)
+      let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
+      inserted_node_unless_null(ptr)
     }
 
     ///Get the node type
-    pub fn get_type(&self) -> Option<XmlElementType> {
-        XmlElementType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
+    pub fn get_type(&self) -> Option<NodeType> {
+      NodeType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
     }
 
     ///Returns true iff it is a text node
     pub fn is_text_node(&self) -> bool {
         match self.get_type() {
-            Some(XmlElementType::TextNode) => true,
+            Some(NodeType::TextNode) => true,
             _ => false,
         }
     }

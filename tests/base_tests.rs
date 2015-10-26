@@ -15,7 +15,7 @@ fn hello_builder() {
     assert!(doc_result.is_ok());
     let mut doc = doc_result.unwrap();
     
-    let hello_element_result = Node::new("hello", None, Some(&doc));
+    let hello_element_result = Node::new("hello", None, &doc);
     assert!(hello_element_result.is_ok());
     let mut hello_element = hello_element_result.unwrap();
 

@@ -6,10 +6,10 @@ use libxml::parser::{Parser};
 
 fn my_recurse(node : &Node) {
     match node.get_type().unwrap() {
-       XmlElementType::ElementNode => {
+       NodeType::ElementNode => {
            println!("Entering {}", node.get_name());
        }
-       XmlElementType::TextNode => {
+       NodeType::TextNode => {
            println!("Text: {}", node.get_content());
        }
         _ => { }
@@ -26,7 +26,7 @@ fn my_recurse(node : &Node) {
         }
     }
 
-    if node.get_type().unwrap() == XmlElementType::ElementNode {
+    if node.get_type().unwrap() == NodeType::ElementNode {
         println!("Leaving {}", node.get_name());
     }
 }

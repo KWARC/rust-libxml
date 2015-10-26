@@ -8,9 +8,9 @@ extern "C" {
     pub fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
     pub fn xmlNewDoc(version: *const c_char) -> *mut c_void;
     pub fn xmlFreeDoc(cur: *mut c_void);
-    pub fn xmlNewNode(ns : *mut c_void, name: *const c_char) -> *mut c_void;
+    // pub fn xmlNewNode(ns : *mut c_void, name: *const c_char) -> *mut c_void;
     pub fn xmlNewDocNode(doc: *mut c_void, ns : *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
-    pub fn xmlFreeNode(cur: *mut c_void);
+    // pub fn xmlFreeNode(cur: *mut c_void);
     pub fn xmlNewNs(node : *mut c_void, href: *const c_char, prefix: *const c_char) -> *mut c_void;
     // pub fn xmlFreeNs(cur: *mut c_void);
     // pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;

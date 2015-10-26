@@ -1,6 +1,5 @@
 extern crate libxml;
 
-use libxml::tree::*;
 use libxml::parser::{Parser};
 use libxml::xpath::Context;
 
