@@ -13,7 +13,7 @@ use std::collections::HashSet;
 ///An xml node
 #[allow(raw_pointer_derive)]
 #[derive(Clone)]
-pub struct XmlNodeRef {
+pub struct Node {
     ///libxml's xmlNodePtr
     pub node_ptr : *mut c_void,
     ///The node is inserted into a document.
@@ -22,23 +22,23 @@ pub struct XmlNodeRef {
     pub node_is_inserted : bool,
 }
 
-impl Hash for XmlNodeRef {
+impl Hash for Node {
     /// Generates a hash value from the `node_ptr` value.
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.node_ptr.hash(state);
     }
 }
 
-impl PartialEq for XmlNodeRef {
+impl PartialEq for Node {
     /// Two nodes are considered equal, if they point to the same xmlNode.
-    fn eq(&self, other: &XmlNodeRef) -> bool {
+    fn eq(&self, other: &Node) -> bool {
         self.node_ptr == other.node_ptr
     }
 }
 
-impl Eq for XmlNodeRef { }
+impl Eq for Node { }
 
-impl Drop for XmlNodeRef {
+impl Drop for Node {
     ///Free node if it isn't inserted in some document
     fn drop(&mut self) {
         if !self.node_is_inserted {
@@ -50,13 +50,13 @@ impl Drop for XmlNodeRef {
 }
 
 ///An xml document
-pub struct XmlDoc {
-    ///libxml's `xmlDocPtr`
+pub struct Document {
+    ///libxml's `DocumentPtr`
     pub doc_ptr : *mut c_void,
 }
 
 
-impl Drop for XmlDoc {
+impl Drop for Document {
     ///Free document when it goes out of scope
     fn drop(&mut self) {
         unsafe {
@@ -66,7 +66,7 @@ impl Drop for XmlDoc {
 }
 
 
-impl XmlDoc {
+impl Document {
     pub fn new() -> Result<Self, ()> {
       unsafe {
         let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
@@ -77,7 +77,7 @@ impl XmlDoc {
           if doc_fragment.is_null() {
             Err(())
           } else {
-            Ok(XmlDoc{doc_ptr : libxml_doc})
+            Ok(Document{doc_ptr : libxml_doc})
           }
         }
       }
@@ -94,19 +94,19 @@ impl XmlDoc {
         }
     }
     ///Get the root element of the document
-    pub fn get_root_element(&self) -> Result<XmlNodeRef, ()> {
+    pub fn get_root_element(&self) -> Result<Node, ()> {
         unsafe {
             let node_ptr = xmlDocGetRootElement(self.doc_ptr);
             if node_ptr.is_null() {
                 return Err(());
             }
-            Ok(XmlNodeRef {
+            Ok(Node {
                 node_ptr : node_ptr,
                 node_is_inserted : true,
             })
         }
     }
-    pub fn set_root_element(&mut self, root : &mut XmlNodeRef) {
+    pub fn set_root_element(&mut self, root : &mut Node) {
       unsafe {
         xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
         root.node_is_inserted = true;
@@ -119,11 +119,11 @@ impl XmlDoc {
 // The helper functions for trees
 
 #[inline(always)]
-fn inserted_node_unless_null(ptr: *mut c_void) -> Option<XmlNodeRef> {
+fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
     if ptr.is_null() {
         return None
     }
-    Some(XmlNodeRef {
+    Some(Node {
         node_ptr : ptr,
         node_is_inserted : true,
     })
@@ -185,8 +185,8 @@ impl XmlElementType {
     }
 }
 
-impl XmlNodeRef {
-  pub fn new(name : &str, ns : Option<XmlNsRef>, doc_opt : Option<&XmlDoc>) -> Result<Self, ()> {
+impl Node {
+  pub fn new(name : &str, ns : Option<Namespace>, doc_opt : Option<&Document>) -> Result<Self, ()> {
     let c_name = CString::new(name).unwrap().as_ptr();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
@@ -199,7 +199,7 @@ impl XmlNodeRef {
           if node.is_null() {
             Err(())
           } else {
-            Ok(XmlNodeRef { node_ptr : node, node_is_inserted : false})
+            Ok(Node { node_ptr : node, node_is_inserted : false})
           }
         }
       },
@@ -209,26 +209,26 @@ impl XmlNodeRef {
           if node.is_null() {
             Err(())
           } else {
-            Ok(XmlNodeRef { node_ptr : node, node_is_inserted : true})
+            Ok(Node { node_ptr : node, node_is_inserted : true})
           }
         }
       }
     }
   }
     ///Returns the next sibling if it exists
-    pub fn get_next_sibling(&self) -> Option<XmlNodeRef> {
+    pub fn get_next_sibling(&self) -> Option<Node> {
         let ptr = unsafe { xmlNextSibling(self.node_ptr) };
         inserted_node_unless_null(ptr)
     }
 
     ///Returns the previous sibling if it exists
-    pub fn get_prev_sibling(&self) -> Option<XmlNodeRef> {
+    pub fn get_prev_sibling(&self) -> Option<Node> {
         let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
         inserted_node_unless_null(ptr)
     }
 
     ///Returns the first child if it exists
-    pub fn get_first_child(&self) -> Option<XmlNodeRef> {
+    pub fn get_first_child(&self) -> Option<Node> {
         let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
         inserted_node_unless_null(ptr)
     }
@@ -293,13 +293,13 @@ impl XmlNodeRef {
 ///An xml namespace
 #[allow(raw_pointer_derive)]
 #[derive(Clone)]
-pub struct XmlNsRef {
+pub struct Namespace {
     ///libxml's xmlNsPtr
     pub ns_ptr : *mut c_void,
 }
 
-impl XmlNsRef {
-  pub fn new(node : &XmlNodeRef, href : &str, prefix : &str) -> Result<Self,()> {
+impl Namespace {
+  pub fn new(node : &Node, href : &str, prefix : &str) -> Result<Self,()> {
     let c_href = CString::new(href).unwrap().as_ptr();
     let c_prefix = CString::new(prefix).unwrap().as_ptr();
     unsafe {
@@ -307,18 +307,18 @@ impl XmlNsRef {
       if ns.is_null() {
         Err(())
       } else {
-        Ok(XmlNsRef { ns_ptr : ns })
+        Ok(Namespace { ns_ptr : ns })
       }
     }
   }
 
 }
 
-impl Drop for XmlNsRef {
+impl Drop for Namespace {
   ///Free namespace
   fn drop(&mut self) {
-    unsafe {
+    // unsafe {
       // xmlFreeNs(self.ns_ptr);
-    }
+    // }
   }
 }

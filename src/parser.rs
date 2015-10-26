@@ -34,23 +34,23 @@ impl fmt::Debug for XmlParseError {
 }
 
 
-impl XmlDoc {
-    ///Parses the XML file `filename` to generate a new `XmlDoc`
-    pub fn parse_file(filename : &str) -> Result<XmlDoc, XmlParseError> {
+impl Document {
+    ///Parses the XML file `filename` to generate a new `Document`
+    pub fn parse_file(filename : &str) -> Result<Document, XmlParseError> {
         let c_filename = CString::new(filename).unwrap().as_ptr();
         unsafe {
             let docptr = xmlParseFile(c_filename);
             if docptr.is_null() {
                 return Err(XmlParseError::GotNullPointer);
             }
-            Ok(XmlDoc {
+            Ok(Document {
                 doc_ptr : docptr
             })
         }
     }
 
-    ///Parses the HTML file `filename` to generate a new `XmlDoc`
-    pub fn parse_html_file(filename : &str) -> Result<XmlDoc, XmlParseError> {
+    ///Parses the HTML file `filename` to generate a new `Document`
+    pub fn parse_html_file(filename : &str) -> Result<Document, XmlParseError> {
         let c_filename = CString::new(filename).unwrap().as_ptr();
         // TODO: Allow user-specified options later on
         let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
@@ -62,7 +62,7 @@ impl XmlDoc {
             if docptr.is_null() {
                 return Err(XmlParseError::GotNullPointer);
             }
-            Ok(XmlDoc {
+            Ok(Document {
                 doc_ptr : docptr
             })
         }

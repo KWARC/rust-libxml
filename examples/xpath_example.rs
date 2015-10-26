@@ -6,7 +6,7 @@ use libxml::xpath::XmlXPathContext;
 
 
 fn main() {
-    let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
+    let doc = Document::parse_file("tests/resources/file01.xml").unwrap();
     let context = XmlXPathContext::new(&doc).unwrap();
     let result = context.evaluate("//child/text()").unwrap();
 

@@ -2,7 +2,7 @@
 
 use c_signatures::*;
 use libc::{c_void, size_t};
-use tree::{XmlDoc, XmlNodeRef};
+use tree::{Document, Node};
 use std::ffi::{CString};
 
 ///The xpath context
@@ -34,7 +34,7 @@ pub struct XmlXPathObject {
 
 impl XmlXPathContext {
     ///create the xpath context for a document
-    pub fn new(doc : &XmlDoc) -> Result<XmlXPathContext, ()> {
+    pub fn new(doc : &Document) -> Result<XmlXPathContext, ()> {
         let ctxtptr : *mut c_void = unsafe {
             xmlXPathNewContext(doc.doc_ptr) };
         if ctxtptr.is_null() {
@@ -75,16 +75,16 @@ impl XmlXPathObject {
     }
 
     /// returns the result set as a vector of node references
-    pub fn get_nodes_as_vec(&self) -> Vec<XmlNodeRef> {
+    pub fn get_nodes_as_vec(&self) -> Vec<Node> {
         let n = self.get_number_of_nodes();
-        let mut vec : Vec<XmlNodeRef> = Vec::with_capacity(n);
+        let mut vec : Vec<Node> = Vec::with_capacity(n);
         for i in 0..n {
             let ptr : *mut c_void = unsafe {
                 xmlXPathObjectGetNode(self.ptr, i as size_t) };
             if ptr.is_null() {
                 panic!("rust-libxml: xpath: found null pointer result set");
             }
-            vec.push(XmlNodeRef { node_ptr : ptr, node_is_inserted : true });
+            vec.push(Node { node_ptr : ptr, node_is_inserted : true });
         }
         vec
     }
