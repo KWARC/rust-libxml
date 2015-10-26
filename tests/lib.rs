@@ -2,11 +2,11 @@
 //! Knowing how much I neglect this aspect of software development,
 //! there probably won't be a significant coverage.
 
-extern crate rustlibxml;
+extern crate libxml;
 
-use rustlibxml::tree::{XmlDoc};
-use rustlibxml::xpath::{XmlXPathContext};
-use rustlibxml::parser::xml_cleanup_parser;
+use libxml::tree::{XmlDoc};
+use libxml::xpath::{XmlXPathContext};
+use libxml::parser::xml_cleanup_parser;
 
 #[test]
 /// Duplicate an xml file

@@ -1,8 +1,8 @@
-extern crate rustlibxml;
+extern crate libxml;
 
-use rustlibxml::tree::*;
-use rustlibxml::parser::*;
-use rustlibxml::xpath::XmlXPathContext;
+use libxml::tree::*;
+use libxml::parser::*;
+use libxml::xpath::XmlXPathContext;
 
 
 fn main() {

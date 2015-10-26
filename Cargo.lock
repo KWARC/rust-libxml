@@ -1,5 +1,5 @@
 [root]
-name = "rustlibxml"
+name = "libxml"
 version = "0.0.1"
 dependencies = [
  "libc 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",

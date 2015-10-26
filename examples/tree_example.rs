@@ -1,7 +1,7 @@
-extern crate rustlibxml;
+extern crate libxml;
 
-use rustlibxml::tree::*;
-use rustlibxml::parser::*;
+use libxml::tree::*;
+use libxml::parser::*;
 
 
 fn my_recurse(node : &XmlNodeRef) {
