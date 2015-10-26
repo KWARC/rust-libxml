@@ -32,48 +32,52 @@ impl fmt::Debug for XmlParseError {
         }
     }
 }
-
-
-impl Document {
-    ///Parses the XML file `filename` to generate a new `Document`
-    pub fn parse_file(filename : &str) -> Result<Document, XmlParseError> {
-        let c_filename = CString::new(filename).unwrap().as_ptr();
-        unsafe {
-            let docptr = xmlParseFile(c_filename);
-            if docptr.is_null() {
-                return Err(XmlParseError::GotNullPointer);
-            }
-            Ok(Document {
-                doc_ptr : docptr
-            })
-        }
-    }
-
-    ///Parses the HTML file `filename` to generate a new `Document`
-    pub fn parse_html_file(filename : &str) -> Result<Document, XmlParseError> {
-        let c_filename = CString::new(filename).unwrap().as_ptr();
+#[derive(PartialEq)]
+pub enum ParseFormat {
+  XML,
+  HTML
+}
+pub struct Parser {
+  pub format : ParseFormat
+}
+impl Default for Parser {
+  fn default() -> Self {
+    Parser { format : ParseFormat::XML}
+  }
+}
+impl Parser {
+  ///Parses the XML/HTML file `filename` to generate a new `Document`
+  pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
+    let c_filename = CString::new(filename).unwrap().as_ptr();
+    match self.format {
+      ParseFormat::XML => { unsafe {
+        let docptr = xmlParseFile(c_filename);
+        match docptr.is_null() {
+          true => Err(XmlParseError::GotNullPointer),
+          false => Ok(Document { doc_ptr : docptr })
+        } }
+      },
+      ParseFormat::HTML => {
         // TODO: Allow user-specified options later on
         let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
-          HtmlParserOption::HtmlParseNoerror as u32 +
-          HtmlParserOption::HtmlParseNowarning as u32;
-
+        HtmlParserOption::HtmlParseNoerror as u32 +
+        HtmlParserOption::HtmlParseNowarning as u32;
         unsafe {
-            let docptr = htmlReadFile(c_filename, CString::new("utf-8").unwrap().as_ptr(), options);
-            if docptr.is_null() {
-                return Err(XmlParseError::GotNullPointer);
-            }
-            Ok(Document {
-                doc_ptr : docptr
-            })
+          let docptr = htmlReadFile(c_filename, CString::new("utf-8").unwrap().as_ptr(), options);
+          match docptr.is_null() {
+            true => Err(XmlParseError::GotNullPointer),
+            false => Ok(Document { doc_ptr : docptr })
+          }
         }
+      }
     }
+  }
 }
 
-
-///Free global memory of parser
-///Do not call this function before all parsing is done!
-pub fn xml_cleanup_parser() {
+impl Drop for Parser {
+  fn drop(&mut self) {
     unsafe {
-        xmlCleanupParser();
+      xmlCleanupParser();
     }
+  }
 }

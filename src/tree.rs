@@ -72,13 +72,8 @@ impl Document {
         let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
         if libxml_doc.is_null() {
           Err(())
-        } else { // Also init a new fragment to host nodes
-          let doc_fragment = xmlNewDocFragment(libxml_doc);
-          if doc_fragment.is_null() {
-            Err(())
-          } else {
-            Ok(Document{doc_ptr : libxml_doc})
-          }
+        } else {
+          Ok(Document{doc_ptr : libxml_doc})
         }
       }
     }

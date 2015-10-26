@@ -1,7 +1,7 @@
 extern crate libxml;
 
 use libxml::tree::*;
-use libxml::parser::*;
+use libxml::parser::{Parser};
 
 
 fn my_recurse(node : &Node) {
@@ -32,8 +32,8 @@ fn my_recurse(node : &Node) {
 }
 
 fn main() {
-    let doc = Document::parse_file("tests/resources/file01.xml").unwrap();
+    let parser = Parser::default();
+    let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
     let root = doc.get_root_element().unwrap();
     my_recurse(&root);
-    xml_cleanup_parser();
 }

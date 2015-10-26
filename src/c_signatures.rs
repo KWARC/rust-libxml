@@ -13,7 +13,7 @@ extern "C" {
     pub fn xmlFreeNode(cur: *mut c_void);
     pub fn xmlNewNs(node : *mut c_void, href: *const c_char, prefix: *const c_char) -> *mut c_void;
     // pub fn xmlFreeNs(cur: *mut c_void);
-    pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;
+    // pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
     pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
     pub fn xmlGetProp(node: *const c_void, name: *const c_char) -> *const c_char;
