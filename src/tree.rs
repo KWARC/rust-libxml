@@ -16,10 +16,6 @@ use std::collections::HashSet;
 pub struct Node {
     ///libxml's xmlNodePtr
     pub node_ptr : *mut c_void,
-    ///The node is inserted into a document.
-    ///*Warning*: This isn't 100% safe if you have several references
-    ///to a node and unlink one of them. So please be reasonable.
-    pub node_is_inserted : bool,
 }
 
 impl Hash for Node {
@@ -39,14 +35,15 @@ impl PartialEq for Node {
 impl Eq for Node { }
 
 impl Drop for Node {
-    ///Free node if it isn't inserted in some document
-    fn drop(&mut self) {
-        if !self.node_is_inserted {
-            unsafe {
-                xmlFreeNode(self.node_ptr);
-            }
-        }
-    }
+  ///Free node if it isn't bound in some document
+  fn drop(&mut self) {
+    // TODO: How do we drop unbound nodes?
+    // unsafe {
+    //   if self.node_ptr {
+    //     xmlFreeNode(self.node_ptr);
+    //   }
+    // }
+  }
 }
 
 ///An xml document
@@ -97,14 +94,14 @@ impl Document {
             }
             Ok(Node {
                 node_ptr : node_ptr,
-                node_is_inserted : true,
+                // node_is_inserted : true,
             })
         }
     }
     pub fn set_root_element(&mut self, root : &mut Node) {
       unsafe {
         xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
-        root.node_is_inserted = true;
+        // root.node_is_inserted = true;
       }
     }
 }
@@ -120,7 +117,7 @@ fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
     }
     Some(Node {
         node_ptr : ptr,
-        node_is_inserted : true,
+        // node_is_inserted : true,
     })
 }
 
@@ -194,7 +191,7 @@ impl Node {
           if node.is_null() {
             Err(())
           } else {
-            Ok(Node { node_ptr : node, node_is_inserted : false})
+            Ok(Node { node_ptr : node}) //node_is_inserted : false
           }
         }
       },
@@ -204,7 +201,7 @@ impl Node {
           if node.is_null() {
             Err(())
           } else {
-            Ok(Node { node_ptr : node, node_is_inserted : true})
+            Ok(Node { node_ptr : node})//node_is_inserted : true
           }
         }
       }

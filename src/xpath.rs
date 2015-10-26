@@ -8,13 +8,13 @@ use std::ffi::{CString};
 ///The xpath context
 #[allow(raw_pointer_derive)]
 #[derive(Clone)]
-pub struct XmlXPathContext {
-    ///libxml's `xmlXPathContextPtr`
+pub struct Context {
+    ///libxml's `ContextPtr`
     pub context_ptr : *mut c_void,
 }
 
 
-impl Drop for XmlXPathContext {
+impl Drop for Context {
     ///free xpath context when it goes out of scope
     fn drop(&mut self) {
         unsafe {
@@ -26,36 +26,36 @@ impl Drop for XmlXPathContext {
 ///Essentially, the result of the evaluation of some xpath expression
 #[allow(raw_pointer_derive)]
 #[derive(Clone)]
-pub struct XmlXPathObject {
-    ///libxml's `xmlXpathObjectPtr`
+pub struct Object {
+    ///libxml's `ObjectPtr`
     pub ptr : *mut c_void,
 }
 
 
-impl XmlXPathContext {
+impl Context {
     ///create the xpath context for a document
-    pub fn new(doc : &Document) -> Result<XmlXPathContext, ()> {
+    pub fn new(doc : &Document) -> Result<Context, ()> {
         let ctxtptr : *mut c_void = unsafe {
             xmlXPathNewContext(doc.doc_ptr) };
         if ctxtptr.is_null() {
             Err(())
         } else {
-            Ok(XmlXPathContext {context_ptr : ctxtptr })
+            Ok(Context {context_ptr : ctxtptr })
         }
     }
     ///evaluate an xpath
-    pub fn evaluate(&self, xpath: &str) -> Result<XmlXPathObject, ()> {
+    pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
         let c_xpath = CString::new(xpath).unwrap().as_ptr();
         let result = unsafe { xmlXPathEvalExpression(c_xpath, self.context_ptr) };
         if result.is_null() {
             Err(())
         } else {
-            Ok(XmlXPathObject {ptr : result})
+            Ok(Object {ptr : result})
         }
     }
 }
 
-impl Drop for XmlXPathObject {
+impl Drop for Object {
     /// free the memory allocated
     fn drop(&mut self) {
         unsafe {
@@ -64,7 +64,7 @@ impl Drop for XmlXPathObject {
     }
 }
 
-impl XmlXPathObject {
+impl Object {
     ///get the number of nodes in the result set
     pub fn get_number_of_nodes(&self) -> usize {
         let v = unsafe { xmlXPathObjectNumberOfNodes(self.ptr) };
@@ -84,7 +84,7 @@ impl XmlXPathObject {
             if ptr.is_null() {
                 panic!("rust-libxml: xpath: found null pointer result set");
             }
-            vec.push(Node { node_ptr : ptr, node_is_inserted : true });
+            vec.push(Node { node_ptr : ptr, });//node_is_inserted : true 
         }
         vec
     }

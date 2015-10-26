@@ -5,7 +5,7 @@
 extern crate libxml;
 
 use libxml::tree::{Document, Node, Namespace};
-use libxml::xpath::{XmlXPathContext};
+use libxml::xpath::{Context};
 use libxml::parser::{Parser, ParseFormat};
 
 #[test]
@@ -35,24 +35,29 @@ fn hello_builder() {
 /// Duplicate an xml file
 fn duplicate_file() {
     let parser = Parser::default();
-    
-    let doc_parse = parser.parse_file("tests/resources/file01.xml");
-    assert!(doc_parse.is_ok());
-    
-    let doc = doc_parse.unwrap();
-    doc.save_file("tests/results/copy.xml").unwrap();
+    {
+      let doc_parse = parser.parse_file("tests/resources/file01.xml");
+      assert!(doc_parse.is_ok());
+      
+      let doc = doc_parse.unwrap();
+      doc.save_file("tests/results/copy.xml").unwrap();
+    }
 }
 
 #[test]
 /// Can load an HTML file
 fn can_load_html_file() {
   let parser = Parser {format : ParseFormat::HTML };
-  
-  let doc_parse = parser.parse_file("tests/resources/example.html");
-  assert!(doc_parse.is_ok());
+  {
+    let doc_parse = parser.parse_file("tests/resources/example.html");
+    assert!(doc_parse.is_ok());
 
-  let doc = doc_parse.unwrap();
-  assert_eq!(doc.get_root_element().unwrap().get_name(),"html");
+    let doc = doc_parse.unwrap();
+    let root_result = doc.get_root_element();
+    assert!(root_result.is_ok());
+    let root = root_result.unwrap();
+    assert_eq!(root.get_name(),"html");
+  }
 }
 
 #[test]
@@ -60,13 +65,15 @@ fn can_load_html_file() {
 /// (There is a tiny chance this might fail for a correct program)
 fn child_of_root_has_different_hash() {
   let parser = Parser::default();
-  let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
-  let root = doc.get_root_element().unwrap();
-  assert!(!root.is_text_node());
-  if let Some(child) = root.get_first_child() {
-    assert!(root != child);
-  } else {
-    assert!(false);   //test failed - child doesn't exist
+  {
+    let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
+    let root = doc.get_root_element().unwrap();
+    assert!(!root.is_text_node());
+    if let Some(child) = root.get_first_child() {
+      assert!(root != child);
+    } else {
+      assert!(false);   //test failed - child doesn't exist
+    }
   }
 }
 
@@ -76,7 +83,7 @@ fn child_of_root_has_different_hash() {
 fn test_xpath_result_number_correct() {
   let parser = Parser::default();
   let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
-  let context = XmlXPathContext::new(&doc).unwrap();
+  let context = Context::new(&doc).unwrap();
 
   let result1 = context.evaluate("//child").unwrap();
   assert_eq!(result1.get_number_of_nodes(), 2);
@@ -94,7 +101,7 @@ fn test_xpath_result_number_correct() {
 fn test_class_names() {
   let parser = Parser { format : ParseFormat::HTML};
   let doc = parser.parse_file("tests/resources/file02.xml").unwrap();
-  let context = XmlXPathContext::new(&doc).unwrap();
+  let context = Context::new(&doc).unwrap();
   
   let result = context.evaluate("/html/body/p").unwrap();
   assert_eq!(result.get_number_of_nodes(), 1);
