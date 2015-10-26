@@ -5,6 +5,7 @@ use c_signatures::*;
 use std::ffi::{CString, CStr};
 use libc::{c_void, c_int};
 use std::hash::{Hash, Hasher};
+use std::ptr;
 use std::str;
 use std::collections::HashSet;
 
@@ -71,8 +72,13 @@ impl XmlDoc {
         let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
         if libxml_doc.is_null() {
           Err(())
-        } else {
-          Ok(XmlDoc{doc_ptr : libxml_doc})
+        } else { // Also init a new fragment to host nodes
+          let doc_fragment = xmlNewDocFragment(libxml_doc);
+          if doc_fragment.is_null() {
+            Err(())
+          } else {
+            Ok(XmlDoc{doc_ptr : libxml_doc})
+          }
         }
       }
     }
@@ -99,6 +105,12 @@ impl XmlDoc {
                 node_is_inserted : true,
             })
         }
+    }
+    pub fn set_root_element(&mut self, root : &mut XmlNodeRef) {
+      unsafe {
+        xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
+        root.node_is_inserted = true;
+      }
     }
 }
 
@@ -174,6 +186,35 @@ impl XmlElementType {
 }
 
 impl XmlNodeRef {
+  pub fn new(name : &str, ns : Option<XmlNsRef>, doc_opt : Option<&XmlDoc>) -> Result<Self, ()> {
+    let c_name = CString::new(name).unwrap().as_ptr();
+    let ns_ptr = match ns {
+      None => ptr::null_mut(),
+      Some(ns) => ns.ns_ptr
+    };
+    match doc_opt {
+      None => {
+        unsafe {
+          let node = xmlNewNode(ns_ptr, c_name);
+          if node.is_null() {
+            Err(())
+          } else {
+            Ok(XmlNodeRef { node_ptr : node, node_is_inserted : false})
+          }
+        }
+      },
+      Some(doc) => {
+        unsafe {
+          let node = xmlNewDocNode(doc.doc_ptr, ns_ptr, c_name, ptr::null());
+          if node.is_null() {
+            Err(())
+          } else {
+            Ok(XmlNodeRef { node_ptr : node, node_is_inserted : true})
+          }
+        }
+      }
+    }
+  }
     ///Returns the next sibling if it exists
     pub fn get_next_sibling(&self) -> Option<XmlNodeRef> {
         let ptr = unsafe { xmlNextSibling(self.node_ptr) };
@@ -216,10 +257,17 @@ impl XmlNodeRef {
     ///Returns the content of the node
     ///(empty string if content pointer is `NULL`)
     pub fn get_content(&self) -> String {
-        let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
-        if content_ptr.is_null() { return String::new() }  //empty string
-        let c_string = unsafe { CStr::from_ptr(content_ptr) };
-        str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+      let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
+      if content_ptr.is_null() { return String::new() }  //empty string
+      let c_string = unsafe { CStr::from_ptr(content_ptr) };
+      str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+    }
+
+    pub fn set_content(&self, content: &str) {
+      let c_content = CString::new(content).unwrap().as_ptr();
+      unsafe {
+        xmlNodeSetContent(self.node_ptr, c_content)
+      }
     }
 
     ///Returns the value of property `name`
@@ -240,4 +288,37 @@ impl XmlNodeRef {
         }
         set
     }
+}
+
+///An xml namespace
+#[allow(raw_pointer_derive)]
+#[derive(Clone)]
+pub struct XmlNsRef {
+    ///libxml's xmlNsPtr
+    pub ns_ptr : *mut c_void,
+}
+
+impl XmlNsRef {
+  pub fn new(node : &XmlNodeRef, href : &str, prefix : &str) -> Result<Self,()> {
+    let c_href = CString::new(href).unwrap().as_ptr();
+    let c_prefix = CString::new(prefix).unwrap().as_ptr();
+    unsafe {
+      let ns = xmlNewNs(node.node_ptr, c_href, c_prefix);
+      if ns.is_null() {
+        Err(())
+      } else {
+        Ok(XmlNsRef { ns_ptr : ns })
+      }
+    }
+  }
+
+}
+
+impl Drop for XmlNsRef {
+  ///Free namespace
+  fn drop(&mut self) {
+    unsafe {
+      // xmlFreeNs(self.ns_ptr);
+    }
+  }
 }

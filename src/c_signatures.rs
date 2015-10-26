@@ -8,8 +8,14 @@ extern "C" {
     pub fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
     pub fn xmlNewDoc(version: *const c_char) -> *mut c_void;
     pub fn xmlFreeDoc(cur: *mut c_void);
+    pub fn xmlNewNode(ns : *mut c_void, name: *const c_char) -> *mut c_void;
+    pub fn xmlNewDocNode(doc: *mut c_void, ns : *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
     pub fn xmlFreeNode(cur: *mut c_void);
+    pub fn xmlNewNs(node : *mut c_void, href: *const c_char, prefix: *const c_char) -> *mut c_void;
+    pub fn xmlFreeNs(cur: *mut c_void);
+    pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
+    pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
     pub fn xmlGetProp(node: *const c_void, name: *const c_char) -> *const c_char;
 
     //helper for tree
@@ -18,6 +24,7 @@ extern "C" {
     pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
     pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
     pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;
+    pub fn xmlNodeSetContent(node : *mut c_void, cur: *const c_char);
     pub fn xmlGetNodeType(cur: *const c_void) -> c_int;
 
     //parser

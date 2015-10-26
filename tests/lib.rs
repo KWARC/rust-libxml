@@ -4,9 +4,33 @@
 
 extern crate libxml;
 
-use libxml::tree::{XmlDoc};
+use libxml::tree::{XmlDoc, XmlNodeRef, XmlNsRef};
 use libxml::xpath::{XmlXPathContext};
 use libxml::parser::xml_cleanup_parser;
+
+#[test]
+/// Build a hello world XML doc
+fn hello_builder() {
+    let doc_result = XmlDoc::new();
+    assert!(doc_result.is_ok());
+    let mut doc = doc_result.unwrap();
+    
+    let hello_element_result = XmlNodeRef::new("hello", None, Some(&doc));
+    assert!(hello_element_result.is_ok());
+    let mut hello_element = hello_element_result.unwrap();
+
+    let mock_ns_result = XmlNsRef::new(&hello_element, "http://example.com/ns/mock", "mock");
+    assert!(mock_ns_result.is_ok());
+    let mock_ns = mock_ns_result.unwrap();
+
+    doc.set_root_element(&mut hello_element);
+
+    hello_element.set_content("world!");
+
+    doc.save_file("tests/results/helloworld.xml").unwrap();
+    xml_cleanup_parser();
+}
+
 
 #[test]
 /// Duplicate an xml file
