@@ -2,13 +2,11 @@
 //! Knowing how much I neglect this aspect of software development,
 //! there probably won't be a significant coverage.
 
-#![feature(hash)]
 extern crate rustlibxml;
 
-use rustlibxml::tree::{XmlDoc, XmlNodeRef};
+use rustlibxml::tree::{XmlDoc};
 use rustlibxml::xpath::{XmlXPathContext};
 use rustlibxml::parser::xml_cleanup_parser;
-use std::hash::{hash, SipHasher};
 
 #[test]
 /// Duplicate an xml file
@@ -27,7 +25,7 @@ fn can_load_html_file() {
 }
 
 #[test]
-/// Root node and first child of root node have different hash values.
+/// Root node and first child of root node are different
 /// (There is a tiny chance this might fail for a correct program)
 fn child_of_root_has_different_hash() {
     let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
@@ -35,9 +33,6 @@ fn child_of_root_has_different_hash() {
     assert!(!root.is_text_node());
     if let Some(child) = root.get_first_child() {
         assert!(root != child);
-        assert!((hash::<XmlNodeRef, SipHasher>(&root)) !=
-                (hash::<XmlNodeRef, SipHasher>(&child)));
-//        assert!((hash::<XmlNodeRef, SipHasher>(&root)) != hash(&child));
     } else {
         assert!(false);   //test failed - child doesn't exist
     }

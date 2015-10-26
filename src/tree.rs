@@ -66,6 +66,16 @@ impl Drop for XmlDoc {
 
 
 impl XmlDoc {
+    pub fn new() -> Result<Self, ()> {
+      unsafe {
+        let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
+        if libxml_doc.is_null() {
+          Err(())
+        } else {
+          Ok(XmlDoc{doc_ptr : libxml_doc})
+        }
+      }
+    }
     ///Write document to `filename`
     pub fn save_file(&self, filename : &str) -> Result<c_int, ()> {
         let c_filename = CString::new(filename).unwrap().as_ptr();

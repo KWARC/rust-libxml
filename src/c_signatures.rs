@@ -6,6 +6,7 @@ use libc::{c_char, c_void, c_int, c_uint, size_t};
 extern "C" {
     //tree
     pub fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
+    pub fn xmlNewDoc(version: *const c_char) -> *mut c_void;
     pub fn xmlFreeDoc(cur: *mut c_void);
     pub fn xmlFreeNode(cur: *mut c_void);
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
