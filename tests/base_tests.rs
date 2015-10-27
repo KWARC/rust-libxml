@@ -6,28 +6,28 @@ extern crate libxml;
 
 use libxml::tree::{Document, Node, Namespace};
 use libxml::xpath::{Context};
-use libxml::parser::{Parser, ParseFormat};
+use libxml::parser::{Parser};
 
 #[test]
 /// Build a hello world XML doc
 fn hello_builder() {
-    let doc_result = Document::new();
-    assert!(doc_result.is_ok());
-    let mut doc = doc_result.unwrap();
-    
-    let hello_element_result = Node::new("hello", None, &doc);
-    assert!(hello_element_result.is_ok());
-    let mut hello_element = hello_element_result.unwrap();
+  let doc_result = Document::new();
+  assert!(doc_result.is_ok());
+  let mut doc = doc_result.unwrap();
+  
+  let hello_element_result = Node::new("hello", None, &doc);
+  assert!(hello_element_result.is_ok());
+  let mut hello_element = hello_element_result.unwrap();
 
-    let mock_ns_result = Namespace::new(&hello_element, "http://example.com/ns/mock", "mock");
-    assert!(mock_ns_result.is_ok());
-    // let mock_ns = mock_ns_result.unwrap();
+  let mock_ns_result = Namespace::new(&hello_element, "http://example.com/ns/mock", "mock");
+  assert!(mock_ns_result.is_ok());
+  // let mock_ns = mock_ns_result.unwrap();
 
-    doc.set_root_element(&mut hello_element);
+  doc.set_root_element(&mut hello_element);
 
-    hello_element.set_content("world!");
+  hello_element.set_content("world!");
 
-    doc.save_file("tests/results/helloworld.xml").unwrap();
+  doc.save_file("tests/results/helloworld.xml").unwrap();
 }
 
 
@@ -47,7 +47,7 @@ fn duplicate_file() {
 #[test]
 /// Can load an HTML file
 fn can_load_html_file() {
-  let parser = Parser {format : ParseFormat::HTML };
+  let parser = Parser::default_html();
   {
     let doc_parse = parser.parse_file("tests/resources/example.html");
     assert!(doc_parse.is_ok());
@@ -99,7 +99,7 @@ fn test_xpath_result_number_correct() {
 /// Test that an xpath expression finds the correct node and
 /// that the class names are interpreted correctly.
 fn test_class_names() {
-  let parser = Parser { format : ParseFormat::HTML};
+  let parser = Parser::default_html();
   let doc = parser.parse_file("tests/resources/file02.xml").unwrap();
   let context = Context::new(&doc).unwrap();
   

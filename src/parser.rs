@@ -1,6 +1,7 @@
 //! The parser functionality
 
 use c_signatures::*;
+use global::*;
 use tree::*;
 
 use std::ffi::CString;
@@ -42,31 +43,37 @@ pub struct Parser {
 }
 impl Default for Parser {
   fn default() -> Self {
+    _libxml_global_init();
     Parser { format : ParseFormat::XML}
   }
 }
 impl Parser {
+  pub fn default_html() -> Self {
+    _libxml_global_init();
+    Parser { format : ParseFormat::HTML}
+  }
   ///Parses the XML/HTML file `filename` to generate a new `Document`
   pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap().as_ptr();
+    let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
     match self.format {
       ParseFormat::XML => { unsafe {
         let docptr = xmlParseFile(c_filename);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
-          false => Ok(Document { doc_ptr : docptr })
+          false => Ok(Document::new_ptr(docptr))
         } }
       },
       ParseFormat::HTML => {
         // TODO: Allow user-specified options later on
-        let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
-        HtmlParserOption::HtmlParseNoerror as u32 +
-        HtmlParserOption::HtmlParseNowarning as u32;
         unsafe {
-          let docptr = htmlReadFile(c_filename, CString::new("utf-8").unwrap().as_ptr(), options);
+          let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
+          HtmlParserOption::HtmlParseNoerror as u32 +
+          HtmlParserOption::HtmlParseNowarning as u32;
+          let docptr = htmlReadFile(c_filename, c_utf8, options);
           match docptr.is_null() {
             true => Err(XmlParseError::GotNullPointer),
-            false => Ok(Document { doc_ptr : docptr })
+            false => Ok(Document::new_ptr(docptr))
           }
         }
       }
@@ -76,8 +83,6 @@ impl Parser {
 
 impl Drop for Parser {
   fn drop(&mut self) {
-    unsafe {
-      xmlCleanupParser();
-    }
+    _libxml_global_drop();
   }
 }

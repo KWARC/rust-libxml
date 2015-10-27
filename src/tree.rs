@@ -1,5 +1,4 @@
 //! The tree functionality
-
 use c_signatures::*;
 
 use std::ffi::{CString, CStr};
@@ -8,7 +7,7 @@ use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::str;
 use std::collections::HashSet;
-
+use global::*;
 
 ///An xml node
 #[allow(raw_pointer_derive)]
@@ -59,20 +58,26 @@ impl Drop for Document {
         unsafe {
             xmlFreeDoc(self.doc_ptr);
         }
+        _libxml_global_drop();
     }
 }
 
 
 impl Document {
     pub fn new() -> Result<Self, ()> {
+      _libxml_global_init();
       unsafe {
         let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
         if libxml_doc.is_null() {
           Err(())
         } else {
-          Ok(Document{doc_ptr : libxml_doc})
+          Ok(Document { doc_ptr : libxml_doc })
         }
       }
+    }
+    pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
+      _libxml_global_init();
+      Document { doc_ptr : doc_ptr }
     }
     ///Write document to `filename`
     pub fn save_file(&self, filename : &str) -> Result<c_int, ()> {
@@ -258,7 +263,8 @@ impl Node {
         let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name) };
         if value_ptr.is_null() { return None; }
         let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-        Some(str::from_utf8(c_value_string.to_bytes()).unwrap().to_owned())
+        let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().clone().to_owned();
+        Some(prop_str)
     }
 
     pub fn get_class_names(&self) -> HashSet<String> {

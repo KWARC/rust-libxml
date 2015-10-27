@@ -8,6 +8,7 @@ extern "C" {
     pub fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
     pub fn xmlNewDoc(version: *const c_char) -> *mut c_void;
     pub fn xmlFreeDoc(cur: *mut c_void);
+    // pub fn xmlFree(name : *const c_char);
     // pub fn xmlNewNode(ns : *mut c_void, name: *const c_char) -> *mut c_void;
     pub fn xmlNewDocNode(doc: *mut c_void, ns : *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
     // pub fn xmlFreeNode(cur: *mut c_void);
@@ -31,7 +32,11 @@ extern "C" {
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
     // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
     pub fn htmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
+    pub fn xmlInitParser();
     pub fn xmlCleanupParser();
+    // pub fn xmlMemoryDump();
+    pub fn xmlInitGlobals();
+    pub fn xmlCleanupGlobals();
 
     //xpath
     pub fn xmlXPathFreeContext(ctxt: *mut c_void);
