@@ -27,6 +27,11 @@ extern "C" {
     pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;
     pub fn xmlNodeSetContent(node : *mut c_void, cur: *const c_char);
     pub fn xmlGetNodeType(cur: *const c_void) -> c_int;
+    pub fn xmlBufferCreate() -> *mut c_void;
+    pub fn xmlBufferFree(buf : *mut c_void);
+    pub fn xmlBufferContent(buf : *mut c_void) -> *const c_char;
+    pub fn xmlNodeDump(buf: *mut c_void, doc : *mut c_void, node: *mut c_void, indent: c_int, disable_format: c_int );
+    pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int );
 
     //parser
     pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
@@ -37,6 +42,7 @@ extern "C" {
     // pub fn xmlMemoryDump();
     pub fn xmlInitGlobals();
     pub fn xmlCleanupGlobals();
+    // pub fn xmlFree(some: *const c_char);
 
     //xpath
     pub fn xmlXPathFreeContext(ctxt: *mut c_void);

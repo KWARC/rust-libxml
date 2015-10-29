@@ -64,51 +64,85 @@ impl Drop for Document {
 
 
 impl Document {
-    pub fn new() -> Result<Self, ()> {
-      _libxml_global_init();
-      unsafe {
-        let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
-        if libxml_doc.is_null() {
-          Err(())
-        } else {
-          Ok(Document { doc_ptr : libxml_doc })
-        }
+  pub fn new() -> Result<Self, ()> {
+    _libxml_global_init();
+    unsafe {
+      let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
+      if libxml_doc.is_null() {
+        Err(())
+      } else {
+        Ok(Document { doc_ptr : libxml_doc })
       }
     }
-    pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
-      _libxml_global_init();
-      Document { doc_ptr : doc_ptr }
-    }
-    ///Write document to `filename`
-    pub fn save_file(&self, filename : &str) -> Result<c_int, ()> {
-        let c_filename = CString::new(filename).unwrap().as_ptr();
-        unsafe {
-            let retval = xmlSaveFile(c_filename, self.doc_ptr);
-            if retval < 0 {
-                return Err(());
-            }
-            Ok(retval)
-        }
-    }
-    ///Get the root element of the document
-    pub fn get_root_element(&self) -> Result<Node, ()> {
-        unsafe {
-            let node_ptr = xmlDocGetRootElement(self.doc_ptr);
-            if node_ptr.is_null() {
-                return Err(());
-            }
-            Ok(Node {
-                node_ptr : node_ptr,
-                // node_is_inserted : true,
-            })
-        }
-    }
-    pub fn set_root_element(&mut self, root : &mut Node) {
+  }
+  pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
+    _libxml_global_init();
+    Document { doc_ptr : doc_ptr }
+  }
+  ///Write document to `filename`
+  pub fn save_file(&self, filename : &str) -> Result<c_int, ()> {
+      let c_filename = CString::new(filename).unwrap().as_ptr();
       unsafe {
-        xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
-        // root.node_is_inserted = true;
+          let retval = xmlSaveFile(c_filename, self.doc_ptr);
+          if retval < 0 {
+              return Err(());
+          }
+          Ok(retval)
       }
+  }
+  ///Get the root element of the document
+  pub fn get_root_element(&self) -> Result<Node, ()> {
+      unsafe {
+          let node_ptr = xmlDocGetRootElement(self.doc_ptr);
+          if node_ptr.is_null() {
+              return Err(());
+          }
+          Ok(Node {
+              node_ptr : node_ptr,
+              // node_is_inserted : true,
+          })
+      }
+  }
+  pub fn set_root_element(&mut self, root : &mut Node) {
+    unsafe {
+      xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
+      // root.node_is_inserted = true;
     }
+  }
+
+  pub fn to_string(&self) -> String {
+    unsafe {
+      // allocate a buffer to dump into
+      let mut receiver = ptr::null_mut();
+      let mut size : c_int = 0;
+      xmlDocDumpMemory(self.doc_ptr, &mut receiver, &mut size);
+      
+      let c_string = CStr::from_ptr(receiver);
+      let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      // TODO : What's wrong here??
+      // xmlFree(receiver);
+
+      node_string
+    }
+  }
+  pub fn node_to_string(&self, node : Node) -> String {
+    unsafe {
+      // allocate a buffer to dump into
+      let buf = xmlBufferCreate();
+
+      // dump the node
+      xmlNodeDump(buf, self.doc_ptr, node.node_ptr, 
+        1, // level of indentation
+        0, // disable formatting
+      );
+      let result_ptr = xmlBufferContent(buf);
+      let c_string = CStr::from_ptr(result_ptr);
+      let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      xmlBufferFree(buf);
+
+      node_string
+    }
+  }
 }
 
 
@@ -208,74 +242,75 @@ impl Node {
     inserted_node_unless_null(ptr)
   }
 
-    ///Returns the previous sibling if it exists
-    pub fn get_prev_sibling(&self) -> Option<Node> {
-      let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
-      inserted_node_unless_null(ptr)
-    }
+  ///Returns the previous sibling if it exists
+  pub fn get_prev_sibling(&self) -> Option<Node> {
+    let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
+    inserted_node_unless_null(ptr)
+  }
 
-    ///Returns the first child if it exists
-    pub fn get_first_child(&self) -> Option<Node> {
-      let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
-      inserted_node_unless_null(ptr)
-    }
+  ///Returns the first child if it exists
+  pub fn get_first_child(&self) -> Option<Node> {
+    let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
+    inserted_node_unless_null(ptr)
+  }
 
-    ///Get the node type
-    pub fn get_type(&self) -> Option<NodeType> {
-      NodeType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
-    }
+  ///Get the node type
+  pub fn get_type(&self) -> Option<NodeType> {
+    NodeType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
+  }
 
-    ///Returns true iff it is a text node
-    pub fn is_text_node(&self) -> bool {
-        match self.get_type() {
-            Some(NodeType::TextNode) => true,
-            _ => false,
-        }
+  ///Returns true iff it is a text node
+  pub fn is_text_node(&self) -> bool {
+    match self.get_type() {
+        Some(NodeType::TextNode) => true,
+        _ => false,
     }
+  }
 
-    ///Returns the name of the node (empty string if name pointer is `NULL`)
-    pub fn get_name(&self) -> String {
-        let name_ptr = unsafe { xmlNodeGetName(self.node_ptr) };
-        if name_ptr.is_null() { return String::new() }  //empty string
-        let c_string = unsafe { CStr::from_ptr(name_ptr) };
-        str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+  ///Returns the name of the node (empty string if name pointer is `NULL`)
+  pub fn get_name(&self) -> String {
+    let name_ptr = unsafe { xmlNodeGetName(self.node_ptr) };
+    if name_ptr.is_null() { return String::new() }  //empty string
+    let c_string = unsafe { CStr::from_ptr(name_ptr) };
+    str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+  }
+
+  ///Returns the content of the node
+  ///(empty string if content pointer is `NULL`)
+  pub fn get_content(&self) -> String {
+    let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
+    if content_ptr.is_null() { return String::new() }  //empty string
+    let c_string = unsafe { CStr::from_ptr(content_ptr) };
+    str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+  }
+
+  pub fn set_content(&self, content: &str) {
+    let c_content = CString::new(content).unwrap().as_ptr();
+    unsafe {
+      xmlNodeSetContent(self.node_ptr, c_content)
     }
+  }
 
-    ///Returns the content of the node
-    ///(empty string if content pointer is `NULL`)
-    pub fn get_content(&self) -> String {
-      let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
-      if content_ptr.is_null() { return String::new() }  //empty string
-      let c_string = unsafe { CStr::from_ptr(content_ptr) };
-      str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
-    }
+  ///Returns the value of property `name`
+  pub fn get_property(&self, name : &str) -> Option<String> {
+    let c_name = CString::new(name).unwrap().as_ptr();
+    let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name) };
+    if value_ptr.is_null() { return None; }
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
+    let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().clone().to_owned();
+    Some(prop_str)
+  }
 
-    pub fn set_content(&self, content: &str) {
-      let c_content = CString::new(content).unwrap().as_ptr();
-      unsafe {
-        xmlNodeSetContent(self.node_ptr, c_content)
+  pub fn get_class_names(&self) -> HashSet<String> {
+    let mut set = HashSet::new();
+    if let Some(value) = self.get_property("class") {
+      for n in value.split(' ') {
+        set.insert(n.to_owned());
       }
     }
+    set
+  }
 
-    ///Returns the value of property `name`
-    pub fn get_property(&self, name : &str) -> Option<String> {
-        let c_name = CString::new(name).unwrap().as_ptr();
-        let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name) };
-        if value_ptr.is_null() { return None; }
-        let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-        let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().clone().to_owned();
-        Some(prop_str)
-    }
-
-    pub fn get_class_names(&self) -> HashSet<String> {
-        let mut set = HashSet::new();
-        if let Some(value) = self.get_property("class") {
-            for n in value.split(' ') {
-                set.insert(n.to_owned());
-            }
-        }
-        set
-    }
 }
 
 ///An xml namespace
