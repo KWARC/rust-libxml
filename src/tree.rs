@@ -311,6 +311,39 @@ impl Node {
     set
   }
 
+  pub fn add_child(&mut self, ns : Option<Namespace>, name : &str) -> Result<Node, ()>{
+    let c_name = CString::new(name).unwrap().as_ptr();
+    let ns_ptr = match ns {
+      None => ptr::null_mut(),
+      Some(ns) => ns.ns_ptr
+    };
+    unsafe {
+      let new_ptr = xmlNewChild(self.node_ptr, ns_ptr, c_name,  ptr::null());
+      return Ok(Node { node_ptr : new_ptr})
+    }
+  }
+
+  pub fn add_text_child(&mut self, ns : Option<Namespace>, name : &str, content : &str) -> Result<Node, ()>{
+    let c_name = CString::new(name).unwrap().as_ptr();
+    let c_content = CString::new(content).unwrap().as_ptr();
+    let ns_ptr = match ns {
+      None => ptr::null_mut(),
+      Some(ns) => ns.ns_ptr
+    };
+    unsafe {
+      let new_ptr = xmlNewTextChild(self.node_ptr, ns_ptr, c_name,  c_content);
+      return Ok(Node { node_ptr : new_ptr})
+    }
+  }
+
+  pub fn append_text(&mut self, content : &str) -> Result<Node, ()> {
+    let c_content = CString::new(content).unwrap().as_ptr();
+    unsafe {
+      let new_ptr = xmlNewText(self.node_ptr,  c_content);
+      return Ok(Node { node_ptr : new_ptr})
+    }
+  }
+
 }
 
 ///An xml namespace

@@ -27,7 +27,14 @@ fn hello_builder() {
 
   hello_element.set_content("world!");
 
+  let added = hello_element.add_child(None, "child");
+  assert!(added.is_ok());
+  let new_child = added.unwrap();
+
+  new_child.set_content("set content");
+
   let node_string = doc.node_to_string(hello_element);
+  println!("{:?}", node_string);
   assert!(node_string.len() > 1);
   let doc_string = doc.to_string();
   assert!(doc_string.len() > 1);
