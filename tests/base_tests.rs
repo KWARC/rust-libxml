@@ -34,8 +34,11 @@ fn hello_builder() {
   new_child.set_content("set content");
 
   let node_string = doc.node_to_string(hello_element);
-  println!("{:?}", node_string);
   assert!(node_string.len() > 1);
+
+  // Add a PI
+  doc.create_processing_instruction("piname","picontent").is_ok();
+  
   let doc_string = doc.to_string();
   assert!(doc_string.len() > 1);
   assert!(doc.save_file("tests/results/helloworld.xml").is_ok());

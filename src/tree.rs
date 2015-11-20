@@ -143,6 +143,22 @@ impl Document {
       node_string
     }
   }
+
+  pub fn create_processing_instruction(&mut self, name: &str, content: &str) -> Result<Node, ()> {
+    unsafe {
+      let c_name =  CString::new(name).unwrap().as_ptr();
+      let c_content =  CString::new(content).unwrap().as_ptr();
+
+      let node_ptr = xmlNewDocPI(self.doc_ptr,c_name,c_content);
+      if node_ptr.is_null() {
+        Err(())
+      } else {
+        Ok(Node {
+          node_ptr : node_ptr,
+        })
+      }  
+    }
+  }
 }
 
 

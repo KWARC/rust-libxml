@@ -56,9 +56,10 @@ impl Parser {
   pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap().as_ptr();
     let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
+    let options : u32 = 0;
     match self.format {
       ParseFormat::XML => { unsafe {
-        let docptr = xmlParseFile(c_filename);
+        let docptr = xmlReadFile(c_filename, c_utf8, options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
@@ -83,6 +84,9 @@ impl Parser {
 
 impl Drop for Parser {
   fn drop(&mut self) {
+    unsafe {
+      xmlCleanupParser();
+    }
     _libxml_global_drop();
   }
 }

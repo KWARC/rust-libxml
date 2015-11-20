@@ -16,6 +16,7 @@ extern "C" {
     pub fn xmlNewChild(parent : *mut c_void, ns: *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
     pub fn xmlNewTextChild(parent : *mut c_void, ns: *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
     pub fn xmlNewText(parent : *mut c_void, content: *const c_char) -> *mut c_void;
+    pub fn xmlNewDocPI(doc: *mut c_void, name: *const c_char, content: *const  c_char) -> *mut c_void;
     // pub fn xmlFreeNs(cur: *mut c_void);
     // pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;
     pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
@@ -37,7 +38,7 @@ extern "C" {
     pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int );
 
     //parser
-    pub fn xmlParseFile(filename: *const c_char) -> *mut c_void;
+    pub fn xmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
     // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
     pub fn htmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
     pub fn xmlInitParser();
