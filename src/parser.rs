@@ -84,9 +84,9 @@ impl Parser {
 
 impl Drop for Parser {
   fn drop(&mut self) {
-    unsafe {
-      xmlCleanupParser();
-    }
+    // unsafe {
+    //   xmlCleanupParser();
+    // }
     _libxml_global_drop();
   }
 }

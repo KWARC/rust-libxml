@@ -9,8 +9,9 @@ pub fn _libxml_global_init() {
   { let _g = LIBXML_LOCK.lock().unwrap();
   unsafe {
     if LIBXML_OBJECTS == 0 {
-      xmlInitGlobals();
+      // println!("\n---Initializing parser!!! ");
       xmlInitParser();
+      xmlInitGlobals();
     }
     LIBXML_OBJECTS += 1;
   }}
@@ -20,8 +21,9 @@ pub fn _libxml_global_drop() {
   unsafe {
     LIBXML_OBJECTS -= 1;
     if LIBXML_OBJECTS == 0 { // Far from perfect, more "desperate" than anything...
-      xmlCleanupParser();
+      // println!("\n---Cleanup on parser!!! ");
       xmlCleanupGlobals();
+      xmlCleanupParser();
     }
   }}
 }

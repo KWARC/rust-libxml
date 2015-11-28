@@ -1,6 +1,6 @@
 [package]
 name = "libxml"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Jan Frederik Schaefer <j.schaefer@jacobs-university.de>", "Deyan Ginev <d.ginev@jacobs-university.de>"]
 build = "build.rs"
 
