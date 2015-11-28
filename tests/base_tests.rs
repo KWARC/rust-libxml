@@ -36,12 +36,22 @@ fn hello_builder() {
   let node_string = doc.node_to_string(hello_element);
   assert!(node_string.len() > 1);
 
-  // Add a PI
-  doc.create_processing_instruction("piname","picontent").is_ok();
-  
   let doc_string = doc.to_string();
   assert!(doc_string.len() > 1);
   assert!(doc.save_file("tests/results/helloworld.xml").is_ok());
+}
+
+#[test]
+fn create_pi() {
+  let doc_result = Document::new();
+  assert!(doc_result.is_ok());
+  let mut doc = doc_result.unwrap();
+  // Add a PI
+  let node_ok = doc.create_processing_instruction("piname","picontent");
+  assert!(node_ok.is_ok());
+  let doc_string = doc.to_string();
+  println!("{:?}", doc_string);
+  assert!(doc_string.len() > 1);
 }
 
 
