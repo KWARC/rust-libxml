@@ -6,7 +6,6 @@ use tree::{Document, Node};
 use std::ffi::{CString};
 
 ///The xpath context
-#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 pub struct Context {
     ///libxml's `ContextPtr`
@@ -24,7 +23,6 @@ impl Drop for Context {
 }
 
 ///Essentially, the result of the evaluation of some xpath expression
-#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 pub struct Object {
     ///libxml's `ObjectPtr`

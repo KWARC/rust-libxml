@@ -10,7 +10,6 @@ use std::collections::HashSet;
 use global::*;
 
 ///An xml node
-#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 pub struct Node {
     ///libxml's xmlNodePtr
@@ -363,7 +362,6 @@ impl Node {
 }
 
 ///An xml namespace
-#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 pub struct Namespace {
     ///libxml's xmlNsPtr
