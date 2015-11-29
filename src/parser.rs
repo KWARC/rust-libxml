@@ -7,6 +7,19 @@ use tree::*;
 use std::ffi::CString;
 use std::fmt;
 
+enum XmlParserOption {
+    XmlParseRecover = 1, // Relaxed parsing
+    // XML_PARSE_NODEFDTD = 4, // do not default a doctype if not found
+    XmlParseNoerror = 32, // suppress error reports
+    XmlParseNowarning = 64, // suppress warning reports
+    // XML_PARSE_PEDANTIC = 128, // pedantic error reporting
+    // XML_PARSE_NOBLANKS = 256, // remove blank nodes
+    // XML_PARSE_NONET = 2048, // Forbid network access
+    // XML_PARSE_NOIMPLIED = 8192, // Do not add implied Xml/body... elements
+    // XML_PARSE_COMPACT = 65536, // compact small text nodes
+    // XML_PARSE_IGNORE_ENC = 2097152, // ignore internal document encoding hint
+}
+
 enum HtmlParserOption {
     HtmlParseRecover = 1, // Relaxed parsing
     // HTML_PARSE_NODEFDTD = 4, // do not default a doctype if not found
@@ -56,7 +69,9 @@ impl Parser {
   pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap().as_ptr();
     let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
-    let options : u32 = 0;
+    let options : u32 = XmlParserOption::XmlParseRecover as u32 +
+                        XmlParserOption::XmlParseNoerror as u32 +
+                        XmlParserOption::XmlParseNowarning as u32;
     match self.format {
       ParseFormat::XML => { unsafe {
         let docptr = xmlReadFile(c_filename, c_utf8, options);
@@ -69,8 +84,8 @@ impl Parser {
         // TODO: Allow user-specified options later on
         unsafe {
           let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
-          HtmlParserOption::HtmlParseNoerror as u32 +
-          HtmlParserOption::HtmlParseNowarning as u32;
+                              HtmlParserOption::HtmlParseNoerror as u32 +
+                              HtmlParserOption::HtmlParseNowarning as u32;
           let docptr = htmlReadFile(c_filename, c_utf8, options);
           match docptr.is_null() {
             true => Err(XmlParseError::GotNullPointer),
