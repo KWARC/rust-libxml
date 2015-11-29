@@ -33,7 +33,7 @@ fn hello_builder() {
 
   new_child.set_content("set content");
 
-  let node_string = doc.node_to_string(hello_element);
+  let node_string = doc.node_to_string(&hello_element);
   assert!(node_string.len() > 1);
 
   let doc_string = doc.to_string();

@@ -124,7 +124,7 @@ impl Document {
       node_string
     }
   }
-  pub fn node_to_string(&self, node : Node) -> String {
+  pub fn node_to_string(&self, node : &Node) -> String {
     unsafe {
       // allocate a buffer to dump into
       let buf = xmlBufferCreate();
