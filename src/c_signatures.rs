@@ -47,6 +47,7 @@ extern "C" {
     pub fn xmlInitGlobals();
     pub fn xmlCleanupGlobals();
     // pub fn xmlFree(some: *const c_char);
+    pub fn xmlKeepBlanksDefault(flag : c_uint) -> c_uint;
 
     //xpath
     pub fn xmlXPathFreeContext(ctxt: *mut c_void);

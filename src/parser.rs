@@ -74,6 +74,7 @@ impl Parser {
                         XmlParserOption::XmlParseNowarning as u32;
     match self.format {
       ParseFormat::XML => { unsafe {
+        xmlKeepBlanksDefault(1);
         let docptr = xmlReadFile(c_filename, c_utf8, options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
@@ -86,6 +87,7 @@ impl Parser {
           let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
                               HtmlParserOption::HtmlParseNoerror as u32 +
                               HtmlParserOption::HtmlParseNowarning as u32;
+          xmlKeepBlanksDefault(1);
           let docptr = htmlReadFile(c_filename, c_utf8, options);
           match docptr.is_null() {
             true => Err(XmlParseError::GotNullPointer),
