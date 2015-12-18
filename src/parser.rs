@@ -97,6 +97,26 @@ impl Parser {
       }
     }
   }
+
+  ///Parses the XML string (0-terminated) contained in 'xml_string' to generate a new 'XmlDoc'
+  pub fn parse_string(&self, input_string: &str) -> Result<Document, XmlParseError> {
+    let c_string = CString::new(input_string).unwrap().as_ptr();
+    let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
+    match self.format {
+      ParseFormat::XML => { unsafe {
+        let docptr = xmlParseDoc(c_string);
+        match docptr.is_null() {
+          true => Err(XmlParseError::GotNullPointer),
+          false => Ok(Document::new_ptr(docptr))
+        } } },
+      ParseFormat::HTML => { unsafe {
+        let docptr = htmlParseDoc(c_string, c_utf8);
+        match docptr.is_null() {
+          true => Err(XmlParseError::GotNullPointer),
+          false => Ok(Document::new_ptr(docptr))
+        } } },
+    }
+  }
 }
 
 impl Drop for Parser {

@@ -4,6 +4,9 @@
 
 extern crate libxml;
 
+use std::fs::File;
+use std::io::Read;
+
 use libxml::tree::{Document, Node, Namespace};
 use libxml::xpath::{Context};
 use libxml::parser::{Parser};
@@ -66,6 +69,17 @@ fn duplicate_file() {
       let doc = doc_parse.unwrap();
       doc.save_file("tests/results/copy.xml").unwrap();
     }
+}
+
+#[test]
+// Can parse an xml string in memory
+fn can_parse_xml_string() {
+  let mut file = File::open("tests/resources/file01.xml").unwrap();
+  let mut xml_string = String::new();
+  file.read_to_string(&mut xml_string).unwrap();
+  let parser = Parser::default();
+  let doc = parser.parse_string(&xml_string).unwrap();
+  assert_eq!(doc.get_root_element().unwrap().get_name(), "root");
 }
 
 #[test]

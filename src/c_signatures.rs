@@ -41,6 +41,8 @@ extern "C" {
     pub fn xmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
     // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
     pub fn htmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
+    pub fn xmlParseDoc(xml_string: *const c_char) -> *mut c_void;
+    pub fn htmlParseDoc(xml_string: *const c_char, encoding: *const c_char) -> *mut c_void;
     pub fn xmlInitParser();
     pub fn xmlCleanupParser();
     // pub fn xmlMemoryDump();
