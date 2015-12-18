@@ -98,7 +98,7 @@ impl Parser {
     }
   }
 
-  ///Parses the XML string (0-terminated) contained in 'xml_string' to generate a new 'XmlDoc'
+  ///Parses the XML/HTML string `input_string` to generate a new `Document`
   pub fn parse_string(&self, input_string: &str) -> Result<Document, XmlParseError> {
     let c_string = CString::new(input_string).unwrap().as_ptr();
     let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
