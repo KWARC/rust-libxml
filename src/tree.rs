@@ -10,7 +10,6 @@ use std::collections::HashSet;
 
 
 ///An xml node
-#[allow(raw_pointer_derive)]
 #[derive(Clone)]
 pub struct XmlNodeRef {
     ///libxml's xmlNodePtr

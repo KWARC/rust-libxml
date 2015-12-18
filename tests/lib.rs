@@ -2,10 +2,9 @@
 //! Knowing how much I neglect this aspect of software development,
 //! there probably won't be a significant coverage.
 
-#![feature(hash)]
 extern crate rustlibxml;
 
-use rustlibxml::tree::{XmlDoc, XmlNodeRef};
+use rustlibxml::tree::XmlDoc;
 use rustlibxml::xpath::{XmlXPathContext};
 use rustlibxml::parser::xml_cleanup_parser;
 use std::hash::{Hash, Hasher, SipHasher};
