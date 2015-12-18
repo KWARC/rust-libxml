@@ -49,6 +49,19 @@ impl XmlDoc {
         }
     }
 
+    ///Parses the XML string (0-terminated) contained in 'xml_string' to generate a new 'XmlDoc'
+    pub fn parse_xml_string(xml_string: &str) -> Result<XmlDoc, XmlParseError> {
+        let c_string = CString::new(xml_string).unwrap().as_ptr();
+        unsafe {
+            let docptr = xmlParseDoc(c_string);
+            if docptr.is_null() {
+                return Err(XmlParseError::GotNullPointer);
+            }
+
+            Ok(XmlDoc {doc_ptr: docptr})
+        }
+    }
+
     ///Parses the HTML file `filename` to generate a new `XmlDoc`
     pub fn parse_html_file(filename : &str) -> Result<XmlDoc, XmlParseError> {
         let c_filename = CString::new(filename).unwrap().as_ptr();
