@@ -8,7 +8,15 @@ extern crate rustlibxml;
 use rustlibxml::tree::{XmlDoc, XmlNodeRef};
 use rustlibxml::xpath::{XmlXPathContext};
 use rustlibxml::parser::xml_cleanup_parser;
-use std::hash::{hash, SipHasher};
+use std::hash::{Hash, Hasher, SipHasher};
+use std::fs::File;
+use std::io::Read;
+
+fn hash<T: Hash>(t: &T) -> u64 {
+    let mut s = SipHasher::new();
+    t.hash(&mut s);
+    s.finish()
+}
 
 #[test]
 /// Duplicate an xml file
@@ -27,6 +35,18 @@ fn can_load_html_file() {
 }
 
 #[test]
+/// Can parse an xml string in memory
+fn can_parse_xml_string() {
+    let mut file = File::open("tests/resources/file01.xml").unwrap();
+    let mut xml_string = String::new();
+    file.read_to_string(&mut xml_string).unwrap();
+    let doc = XmlDoc::parse_xml_string(&xml_string).unwrap();
+    assert_eq!(doc.get_root_element().unwrap().get_name(), "root");
+    xml_cleanup_parser();
+}
+
+
+#[test]
 /// Root node and first child of root node have different hash values.
 /// (There is a tiny chance this might fail for a correct program)
 fn child_of_root_has_different_hash() {
@@ -35,8 +55,7 @@ fn child_of_root_has_different_hash() {
     assert!(!root.is_text_node());
     if let Some(child) = root.get_first_child() {
         assert!(root != child);
-        assert!((hash::<XmlNodeRef, SipHasher>(&root)) !=
-                (hash::<XmlNodeRef, SipHasher>(&child)));
+        assert!((hash(&root)) != (hash(&child)));
 //        assert!((hash::<XmlNodeRef, SipHasher>(&root)) != hash(&child));
     } else {
         assert!(false);   //test failed - child doesn't exist
