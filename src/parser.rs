@@ -46,6 +46,7 @@ impl fmt::Debug for XmlParseError {
         }
     }
 }
+
 #[derive(PartialEq)]
 pub enum ParseFormat {
   XML,
