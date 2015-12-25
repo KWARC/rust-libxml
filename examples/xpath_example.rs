@@ -1,18 +1,16 @@
-extern crate rustlibxml;
+extern crate libxml;
 
-use rustlibxml::tree::*;
-use rustlibxml::parser::*;
-use rustlibxml::xpath::XmlXPathContext;
+use libxml::parser::{Parser};
+use libxml::xpath::Context;
 
 
 fn main() {
-    let doc = XmlDoc::parse_file("tests/resources/file01.xml").unwrap();
-    let context = XmlXPathContext::new(&doc).unwrap();
-    let result = context.evaluate("//child/text()").unwrap();
+  let parser = Parser::default();
+  let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
+  let context = Context::new(&doc).unwrap();
+  let result = context.evaluate("//child/text()").unwrap();
 
-    for node in result.get_nodes_as_vec().iter() {
-        println!("Found: {}", node.get_content());
-    }
-
-    xml_cleanup_parser();
+  for node in result.get_nodes_as_vec().iter() {
+      println!("Found: {}", node.get_content());
+  }
 }
