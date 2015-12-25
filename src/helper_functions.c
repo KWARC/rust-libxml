@@ -36,6 +36,8 @@ const char * xmlNodeGetContentPointer(const xmlNodePtr cur) {
  */
 
 int xmlXPathObjectNumberOfNodes(const xmlXPathObjectPtr val) {
+    if (!val) return -1;
+    if (!val->nodesetval) return -2;
     return val->nodesetval->nodeNr;
 }
 

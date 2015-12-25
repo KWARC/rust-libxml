@@ -66,7 +66,14 @@ impl Object {
     ///get the number of nodes in the result set
     pub fn get_number_of_nodes(&self) -> usize {
         let v = unsafe { xmlXPathObjectNumberOfNodes(self.ptr) };
-        if v < 0 {
+        if v == -1 {
+            panic!("rust-libxml: xpath: Passed in null pointer!");
+        }
+        if v == -2 {
+            // No nodes found!
+            return 0;
+        }
+        if v < -2 {
             panic!("rust-libxml: xpath: expected non-negative number of result nodes");
         }
         v as usize
