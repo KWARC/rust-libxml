@@ -41,8 +41,12 @@ extern "C" {
     pub fn xmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
     // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
     pub fn htmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
+    // pub fn htmlReadDoc(html_string: *const c_char, url: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
     pub fn xmlParseDoc(xml_string: *const c_char) -> *mut c_void;
     pub fn htmlParseDoc(xml_string: *const c_char, encoding: *const c_char) -> *mut c_void;
+    pub fn htmlNewParserCtxt() -> *mut c_void;
+    pub fn htmlCtxtReadDoc(ctxt: *mut c_void, html_string: *const c_char, url: *mut c_void, encoding: *const c_char, options: c_uint) -> *mut c_void;
+    // pub fn htmlSAXParseDoc(xml_string: *const c_char, encoding: *const c_char, sax: *mut c_void, user_data: *mut c_void) -> *mut c_void;
     pub fn xmlInitParser();
     pub fn xmlCleanupParser();
     // pub fn xmlMemoryDump();
@@ -50,6 +54,9 @@ extern "C" {
     pub fn xmlCleanupGlobals();
     // pub fn xmlFree(some: *const c_char);
     pub fn xmlKeepBlanksDefault(flag : c_uint) -> c_uint;
+    pub fn xmlFreeParserCtxt(ctxt: *mut c_void);
+    // helper for parser
+    pub fn htmlWellFormed(ctxt : *mut c_void) -> c_int;
 
     //xpath
     pub fn xmlXPathFreeContext(ctxt: *mut c_void);
@@ -60,4 +67,9 @@ extern "C" {
     pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
     pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;
     pub fn xmlFreeXPathObject(val: *const c_void);
+
+    // error handling functions
+    // pub fn xmlSetGenericErrorFunc(ctx: *mut c_void, handler: *mut c_void);
+    // pub fn xmlThrDefSetGenericErrorFunc(ctx: *mut c_void, handler: *mut c_void);
+    pub fn setWellFormednessHandler(ctxt: *mut c_void);
 }

@@ -3,7 +3,9 @@
  * The reason is that we don't convert the structs properly,
  * which prevents some very basic actions
  */
+#include <libxml/xmlerror.h>
 #include <libxml/tree.h>
+#include <libxml/HTMLparser.h>
 #include <libxml/xpath.h>
 #include <stdlib.h>
 
@@ -35,11 +37,24 @@ const char * xmlNodeGetContentPointer(const xmlNodePtr cur);
  * helper functions for xpath
  */
 
-//returns val->nodesetval->nodeNr
+///returns val->nodesetval->nodeNr
 int xmlXPathObjectNumberOfNodes(const xmlXPathObjectPtr val);
 
-//returns val->nodesetval->nodeTab[index]
+///returns val->nodesetval->nodeTab[index]
 xmlNodePtr xmlXPathObjectGetNode(const xmlXPathObjectPtr val, size_t index);
 
-//frees the memory of an xmlXPathObject
+///frees the memory of an xmlXPathObject
 void xmlFreeXPathObject(xmlXPathObjectPtr val);
+
+/*
+ * helper functions for parser
+ */
+/// Returns well-formed check field of html parser context struct
+int htmlWellFormed(const htmlParserCtxtPtr ctxt);
+
+/*
+ * helper functions for error handling
+ */
+
+void setWellFormednessHandler(const htmlParserCtxtPtr ctxt);
+ 

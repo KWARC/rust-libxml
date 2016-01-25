@@ -151,3 +151,22 @@ fn test_class_names() {
   assert!(names.contains("important"));
   assert!(!names.contains("nonsense"));
 }
+
+#[test]
+/// Test well-formedness of a Rust string
+/// IMPORTANT: Currenlty NOT THREAD-SAFE, use in single-threaded apps only!
+fn test_well_formed_html() {
+  let parser = Parser::default_html();
+  
+  let trivial_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head></head><body></body></html>");
+  assert!(trivial_well_formed);
+
+  let trivial_ill_formed = parser.is_well_formed_html("garbage");
+  assert!( !trivial_ill_formed );
+
+  let should_ill_formed = parser.is_well_formed_html("<broken <markup>> </boom>");
+  assert!(!should_ill_formed);
+
+  let should_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head><title>Test</title></head><body>\n<h1>Tiny</h1><math><mn>2</mn></math></body></html>");
+  assert!(should_well_formed);
+}

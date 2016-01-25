@@ -4,8 +4,10 @@ use c_signatures::*;
 use global::*;
 use tree::*;
 
-use std::ffi::CString;
+use std::ffi::{CStr,CString};
 use std::fmt;
+use std::ptr;
+use std::str;
 
 enum XmlParserOption {
     XmlParseRecover = 1, // Relaxed parsing
@@ -116,6 +118,59 @@ impl Parser {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
         } } },
+    }
+  }
+
+  /// Checks a string for well-formedness
+  /// IMPORTANT: This function is currently implemented in a HACKY way, to ignore invalid errors for HTML5 elements (such as <math>)
+  ///            this means you should NEVER USE IT WHILE THREADING, it is CERTAIN TO BREAK
+  ///
+  /// Help is welcome in implementing it correctly.
+  pub fn is_well_formed_html(&self, input_string: &str) -> bool {
+    if input_string.is_empty() {
+      return false
+    }
+    let c_string = CString::new(input_string).unwrap().as_ptr();
+    let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
+    // disable generic error lines from libxml2
+    match self.format {
+      ParseFormat::XML => false, // TODO: Add support for XML at some point
+      ParseFormat::HTML => unsafe {
+        let ctxt = htmlNewParserCtxt();
+        setWellFormednessHandler(ctxt);
+        let docptr = htmlCtxtReadDoc(ctxt, c_string, ptr::null_mut(), c_utf8, 10596); // htmlParserOption = 4+32+64+256+2048+8192
+        let is_well_formed = htmlWellFormed(ctxt);
+        let well_formed_final = if is_well_formed > 0 { 
+          // Basic well-formedness passes, let's check if we have an <html> element as root too
+          if !docptr.is_null() {
+            let node_ptr = xmlDocGetRootElement(docptr);
+            let name_ptr = xmlNodeGetName(node_ptr);
+            if name_ptr.is_null() { 
+              false }  //empty string
+            else {
+              let c_root_name = CStr::from_ptr(name_ptr);
+              let root_name = str::from_utf8(c_root_name.to_bytes()).unwrap().to_owned();
+              if root_name == "html" {
+                true
+              } else {
+                false
+              }
+            }
+          } else {
+            false
+          }
+        } else {
+          false
+        };
+
+        if !ctxt.is_null() {
+          xmlFreeParserCtxt(ctxt);
+        }
+        if !docptr.is_null() {
+          xmlFreeDoc(docptr);
+        }
+        well_formed_final
+      }
     }
   }
 }
