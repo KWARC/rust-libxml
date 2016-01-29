@@ -114,7 +114,8 @@ impl Document {
       // allocate a buffer to dump into
       let mut receiver = ptr::null_mut();
       let mut size : c_int = 0;
-      xmlDocDumpMemory(self.doc_ptr, &mut receiver, &mut size);
+      let c_utf8 = CString::new("UTF-8").unwrap().as_ptr();
+      xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &mut size, c_utf8, 1);
       
       let c_string = CStr::from_ptr(receiver);
       let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
