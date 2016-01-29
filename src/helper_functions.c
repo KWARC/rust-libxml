@@ -56,18 +56,22 @@ void xmlFreeXPathObject(xmlXPathObjectPtr val) {
  */
 static int hacky_well_formed = 0;
 
-int htmlWellFormed(const htmlParserCtxtPtr ctxt) {
-  return (((ctxt != NULL) && ctxt->wellFormed) || (hacky_well_formed));
+int htmlWellFormed(htmlParserCtxtPtr ctxt) {
+  if (((ctxt != NULL) && ctxt->wellFormed) || hacky_well_formed) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 // dummy function: no debug output at all
 void _ignoreInvalidTagsErrorFunc(void * userData, xmlErrorPtr error) {
-  if (error->code == XML_HTML_UNKNOWN_TAG) { // do not record invalid, in fact (out of despair) claim we ARE well-formed, when a tag is invalid.
+  if ((error != NULL) && (error->code == XML_HTML_UNKNOWN_TAG)) { // do not record invalid, in fact (out of despair) claim we ARE well-formed, when a tag is invalid.
     hacky_well_formed = 1;
   }
   return;
 }
-void setWellFormednessHandler(const htmlParserCtxtPtr ctxt) {
+void setWellFormednessHandler(htmlParserCtxtPtr ctxt) {
   hacky_well_formed = 0;
   xmlSetStructuredErrorFunc(ctxt, _ignoreInvalidTagsErrorFunc);
 }

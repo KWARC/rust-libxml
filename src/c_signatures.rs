@@ -54,7 +54,8 @@ extern "C" {
     pub fn xmlCleanupGlobals();
     // pub fn xmlFree(some: *const c_char);
     pub fn xmlKeepBlanksDefault(flag : c_uint) -> c_uint;
-    pub fn xmlFreeParserCtxt(ctxt: *mut c_void);
+    // pub fn xmlFreeParserCtxt(ctxt: *mut c_void);
+    pub fn htmlFreeParserCtxt(ctxt: *mut c_void);
     // helper for parser
     pub fn htmlWellFormed(ctxt : *mut c_void) -> c_int;
 

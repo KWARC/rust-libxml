@@ -164,7 +164,7 @@ impl Parser {
         };
 
         if !ctxt.is_null() {
-          xmlFreeParserCtxt(ctxt);
+          htmlFreeParserCtxt(ctxt);
         }
         if !docptr.is_null() {
           xmlFreeDoc(docptr);
@@ -177,9 +177,6 @@ impl Parser {
 
 impl Drop for Parser {
   fn drop(&mut self) {
-    // unsafe {
-    //   xmlCleanupParser();
-    // }
     _libxml_global_drop();
   }
 }
