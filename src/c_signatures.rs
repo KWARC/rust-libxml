@@ -26,6 +26,7 @@ extern "C" {
     //helper for tree
     pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
     pub fn xmlPrevSibling(cur: *const c_void) -> *mut c_void;
+    pub fn xmlAddPrevSibling(cur: *const c_void, new: *const c_void) -> *mut c_void;
     pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
     pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
     pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;

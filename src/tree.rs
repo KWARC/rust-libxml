@@ -275,6 +275,18 @@ impl Node {
     NodeType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
   }
 
+  ///Add a previous sibling
+  pub fn add_prev_sibling(&self, new_sibling : Node) -> Option<Node> {
+    // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
+    unsafe {
+      if xmlAddPrevSibling(self.node_ptr, new_sibling.node_ptr).is_null() {
+        None 
+      } else {
+        Some(new_sibling)
+      }
+    }
+  }
+
   ///Returns true iff it is a text node
   pub fn is_text_node(&self) -> bool {
     match self.get_type() {

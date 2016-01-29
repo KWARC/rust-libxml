@@ -115,6 +115,18 @@ fn child_of_root_has_different_hash() {
   }
 }
 
+#[test]
+/// Siblings basic unit tests
+fn sibling_unit_tests() {
+  let mut doc = Document::new().unwrap();
+  let hello_element_result = Node::new("hello", None, &doc);
+  assert!(hello_element_result.is_ok());
+  let mut hello_element = hello_element_result.unwrap();
+  doc.set_root_element(&mut hello_element);
+  
+  let new_sibling = Node::new("sibling", None, &doc).unwrap();
+  assert!(hello_element.add_prev_sibling(new_sibling).is_some());
+}
 
 #[test]
 /// Test the evaluation of an xpath expression yields the correct number of nodes
