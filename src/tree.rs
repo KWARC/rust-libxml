@@ -2,6 +2,7 @@
 use c_signatures::*;
 
 use std::ffi::{CString, CStr};
+use libc;
 use libc::{c_void, c_int};
 use std::hash::{Hash, Hasher};
 use std::ptr;
@@ -119,8 +120,7 @@ impl Document {
       
       let c_string = CStr::from_ptr(receiver);
       let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
-      // TODO : What's wrong here??
-      // xmlFree(receiver);
+      libc::free( receiver as *mut c_void);
 
       node_string
     }
@@ -326,6 +326,7 @@ impl Node {
     if value_ptr.is_null() { return None; }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
     let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().clone().to_owned();
+    unsafe { libc::free(value_ptr as *mut c_void); }
     Some(prop_str)
   }
 
