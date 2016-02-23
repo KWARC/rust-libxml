@@ -17,7 +17,7 @@ fn hello_builder() {
   let doc_result = Document::new();
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
-  
+
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
@@ -63,10 +63,10 @@ fn create_pi() {
 fn duplicate_file() {
     let parser = Parser::default();
     {
-      let doc_parse = parser.parse_file("tests/resources/file01.xml");
-      assert!(doc_parse.is_ok());
-      
-      let doc = doc_parse.unwrap();
+      let doc_result = parser.parse_file("tests/resources/file01.xml");
+      assert!(doc_result.is_ok());
+
+      let doc = doc_result.unwrap();
       doc.save_file("tests/results/copy.xml").unwrap();
     }
 }
@@ -87,10 +87,10 @@ fn can_parse_xml_string() {
 fn can_load_html_file() {
   let parser = Parser::default_html();
   {
-    let doc_parse = parser.parse_file("tests/resources/example.html");
-    assert!(doc_parse.is_ok());
+    let doc_result = parser.parse_file("tests/resources/example.html");
+    assert!(doc_result.is_ok());
 
-    let doc = doc_parse.unwrap();
+    let doc = doc_result.unwrap();
     let root_result = doc.get_root_element();
     assert!(root_result.is_ok());
     let root = root_result.unwrap();
@@ -104,7 +104,9 @@ fn can_load_html_file() {
 fn child_of_root_has_different_hash() {
   let parser = Parser::default();
   {
-    let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
+    let doc_result = parser.parse_file("tests/resources/file01.xml");
+    assert!(doc_result.is_ok());
+    let doc = doc_result.unwrap();
     let root = doc.get_root_element().unwrap();
     assert!(!root.is_text_node());
     if let Some(child) = root.get_first_child() {
@@ -123,7 +125,7 @@ fn sibling_unit_tests() {
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
   doc.set_root_element(&mut hello_element);
-  
+
   let new_sibling = Node::new("sibling", None, &doc).unwrap();
   assert!(hello_element.add_prev_sibling(new_sibling).is_some());
 }
@@ -132,7 +134,9 @@ fn sibling_unit_tests() {
 /// Test the evaluation of an xpath expression yields the correct number of nodes
 fn test_xpath_result_number_correct() {
   let parser = Parser::default();
-  let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
+  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
   let context = Context::new(&doc).unwrap();
 
   let result1 = context.evaluate("//child").unwrap();
@@ -150,13 +154,17 @@ fn test_xpath_result_number_correct() {
 /// that the class names are interpreted correctly.
 fn test_class_names() {
   let parser = Parser::default_html();
-  let doc = parser.parse_file("tests/resources/file02.xml").unwrap();
+  let doc_result = parser.parse_file("tests/resources/file02.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
   let context = Context::new(&doc).unwrap();
-  
-  let result = context.evaluate("/html/body/p").unwrap();
-  assert_eq!(result.get_number_of_nodes(), 1);
-  
-  let node = &result.get_nodes_as_vec()[0];
+
+  let p_result = context.evaluate("/html/body/p");
+  assert!(p_result.is_ok());
+  let p = p_result.unwrap();
+  assert_eq!(p.get_number_of_nodes(), 1);
+
+  let node = &p.get_nodes_as_vec()[0];
   let names = node.get_class_names();
   assert_eq!(names.len(), 2);
   assert!(names.contains("paragraph"));
@@ -169,7 +177,7 @@ fn test_class_names() {
 /// IMPORTANT: Currenlty NOT THREAD-SAFE, use in single-threaded apps only!
 fn test_well_formed_html() {
   let parser = Parser::default_html();
-  
+
   let trivial_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head></head><body></body></html>");
   assert!(trivial_well_formed);
 
