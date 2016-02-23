@@ -1,5 +1,8 @@
 language: rust
-rust: stable
+rust:
+  - stable
+  - beta
+  - nightly
 addons:
   apt:
     packages: libxml2-dev
