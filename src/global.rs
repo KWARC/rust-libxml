@@ -4,14 +4,7 @@ use c_signatures::*;
 
 static mut LIBXML_OBJECTS: i64 = 0;
 
-
-fn with_lock<F>(thunk: F) where F: Fn() {
-    static LIBXML_LOCK: AtomicBool = ATOMIC_BOOL_INIT;
-    while LIBXML_LOCK.compare_and_swap(false, true, Ordering::SeqCst) {}
-    thunk();
-    LIBXML_LOCK.store(false, Ordering::SeqCst);
-}
-
+/// Initializes the global libxml2 context once, before the first libxml2 object allocation
 pub fn _libxml_global_init() {
     with_lock(||
         unsafe {
@@ -24,6 +17,7 @@ pub fn _libxml_global_init() {
     );
 }
 
+/// Currently a no-op use `force_global_drop` instead.
 pub fn _libxml_global_drop() {
     with_lock(||
         unsafe {
@@ -41,9 +35,18 @@ pub fn _libxml_global_drop() {
   );
 }
 
+/// Forces a drop of global libxml2 context. Only invoke after all threads using libxml2 are finished.
 pub fn force_global_drop() {
   unsafe {
     xmlCleanupGlobals();
     xmlCleanupParser();
   }
+}
+
+/// Helper lock mechanism, to allow for safe global libxml2 init/drop
+fn with_lock<F>(thunk: F) where F: Fn() {
+    static LIBXML_LOCK: AtomicBool = ATOMIC_BOOL_INIT;
+    while LIBXML_LOCK.compare_and_swap(false, true, Ordering::SeqCst) {}
+    thunk();
+    LIBXML_LOCK.store(false, Ordering::SeqCst);
 }

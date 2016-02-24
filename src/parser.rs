@@ -50,24 +50,32 @@ impl fmt::Debug for XmlParseError {
 }
 
 #[derive(PartialEq)]
+/// Enum for the parse formats supported by libxml2
 pub enum ParseFormat {
+  /// Strict parsing for XML
   XML,
+  /// Relaxed parsing for HTML
   HTML
 }
+/// Parsing API wrapper for libxml2
 pub struct Parser {
+  /// The `ParseFormat` for this parser
   pub format : ParseFormat
 }
 impl Default for Parser {
+  /// Create a parser for XML documents
   fn default() -> Self {
     _libxml_global_init();
     Parser { format : ParseFormat::XML}
   }
 }
 impl Parser {
+  /// Create a parser for HTML documents
   pub fn default_html() -> Self {
     _libxml_global_init();
     Parser { format : ParseFormat::HTML}
   }
+
   ///Parses the XML/HTML file `filename` to generate a new `Document`
   pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap();
