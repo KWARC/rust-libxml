@@ -9,6 +9,9 @@ readme = "README.md"
 license = "GPL-2.0"
 
 build = "build.rs"
+exclude = [
+  "scripts/*"
+]
 
 [dependencies]
 libc = "~0.1"
