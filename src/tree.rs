@@ -10,10 +10,10 @@ use std::str;
 use std::collections::HashSet;
 use global::*;
 
-///An xml node
+/// An xml node
 #[derive(Clone)]
 pub struct Node {
-    ///libxml's xmlNodePtr
+    /// libxml's xmlNodePtr
     pub node_ptr : *mut c_void,
 }
 
@@ -34,7 +34,7 @@ impl PartialEq for Node {
 impl Eq for Node { }
 
 impl Drop for Node {
-  ///Free node if it isn't bound in some document
+  /// Free node if it isn't bound in some document
   fn drop(&mut self) {
     // TODO: How do we drop unbound nodes?
     // unsafe {
@@ -45,10 +45,10 @@ impl Drop for Node {
   }
 }
 
-///An xml document
+/// A libxml2 Document
 #[derive(Debug)]
 pub struct Document {
-    ///libxml's `DocumentPtr`
+    /// libxml's `DocumentPtr`
     pub doc_ptr : *mut c_void,
 }
 
@@ -64,6 +64,7 @@ impl Drop for Document {
 }
 
 impl Document {
+  /// Creates a new empty libxml2 document
   pub fn new() -> Result<Self, ()> {
     _libxml_global_init();
     unsafe {
@@ -76,11 +77,12 @@ impl Document {
       }
     }
   }
+  /// Creates a new `Document` from an existing libxml2 pointer
   pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
     _libxml_global_init();
     Document { doc_ptr : doc_ptr }
   }
-  ///Write document to `filename`
+  /// Write document to `filename`
   pub fn save_file(&self, filename : &str) -> Result<c_int, ()> {
       let c_filename = CString::new(filename).unwrap();
       unsafe {
@@ -91,7 +93,7 @@ impl Document {
           Ok(retval)
       }
   }
-  ///Get the root element of the document
+  /// Get the root element of the document
   pub fn get_root_element(&self) -> Result<Node, ()> {
       unsafe {
           let node_ptr = xmlDocGetRootElement(self.doc_ptr);
@@ -104,6 +106,8 @@ impl Document {
           })
       }
   }
+
+  /// Sets the root element of the document
   pub fn set_root_element(&mut self, root : &mut Node) {
     unsafe {
       xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
@@ -111,6 +115,7 @@ impl Document {
     }
   }
 
+  /// Serializes the `Document`
   pub fn to_string(&self) -> String {
     unsafe {
       // allocate a buffer to dump into
@@ -126,6 +131,8 @@ impl Document {
       node_string
     }
   }
+
+  /// Serializes a `Node` owned by this `Document
   pub fn node_to_string(&self, node : &Node) -> String {
     unsafe {
       // allocate a buffer to dump into
@@ -145,6 +152,7 @@ impl Document {
     }
   }
 
+  /// Creates a node for an XML processing instruction
   pub fn create_processing_instruction(&mut self, name: &str, content: &str) -> Result<Node, ()> {
     unsafe {
       let c_name =  CString::new(name).unwrap();
@@ -165,7 +173,6 @@ impl Document {
 
 
 // The helper functions for trees
-
 #[inline(always)]
 fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
     if ptr.is_null() {
@@ -177,7 +184,9 @@ fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
     })
 }
 
+/// Types of xml nodes
 #[derive(PartialEq)]
+#[allow(missing_docs)]
 pub enum NodeType {
     ElementNode,
     AttributeNode,
@@ -253,30 +262,30 @@ impl Node {
     }
   }
 
-  ///Returns the next sibling if it exists
+  /// Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlNextSibling(self.node_ptr) };
     inserted_node_unless_null(ptr)
   }
 
-  ///Returns the previous sibling if it exists
+  /// Returns the previous sibling if it exists
   pub fn get_prev_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
     inserted_node_unless_null(ptr)
   }
 
-  ///Returns the first child if it exists
+  /// Returns the first child if it exists
   pub fn get_first_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
     inserted_node_unless_null(ptr)
   }
 
-  ///Get the node type
+  /// Get the node type
   pub fn get_type(&self) -> Option<NodeType> {
     NodeType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})
   }
 
-  ///Add a previous sibling
+  /// Add a previous sibling
   pub fn add_prev_sibling(&self, new_sibling : Node) -> Option<Node> {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
@@ -288,7 +297,7 @@ impl Node {
     }
   }
 
-  ///Returns true iff it is a text node
+  /// Returns true iff it is a text node
   pub fn is_text_node(&self) -> bool {
     match self.get_type() {
         Some(NodeType::TextNode) => true,
@@ -296,7 +305,7 @@ impl Node {
     }
   }
 
-  ///Returns the name of the node (empty string if name pointer is `NULL`)
+  /// Returns the name of the node (empty string if name pointer is `NULL`)
   pub fn get_name(&self) -> String {
     let name_ptr = unsafe { xmlNodeGetName(self.node_ptr) };
     if name_ptr.is_null() { return String::new() }  //empty string
@@ -304,8 +313,8 @@ impl Node {
     str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
   }
 
-  ///Returns the content of the node
-  ///(empty string if content pointer is `NULL`)
+  /// Returns the content of the node
+  /// (empty string if content pointer is `NULL`)
   pub fn get_content(&self) -> String {
     let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
     if content_ptr.is_null() { return String::new() }  //empty string
@@ -313,6 +322,7 @@ impl Node {
     str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
   }
 
+  /// Sets the text content of this `Node`
   pub fn set_content(&self, content: &str) {
     let c_content = CString::new(content).unwrap();
     unsafe {
@@ -320,7 +330,7 @@ impl Node {
     }
   }
 
-  ///Returns the value of property `name`
+  /// Returns the value of property `name`
   pub fn get_property(&self, name : &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
     let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name.as_ptr()) };
@@ -331,6 +341,7 @@ impl Node {
     Some(prop_str)
   }
 
+  /// Get a set of class names from this node's attributes
   pub fn get_class_names(&self) -> HashSet<String> {
     let mut set = HashSet::new();
     if let Some(value) = self.get_property("class") {
@@ -341,6 +352,7 @@ impl Node {
     set
   }
 
+  /// Appends a child `Node` to this `Node`
   pub fn add_child(&mut self, ns : Option<Namespace>, name : &str) -> Result<Node, ()>{
     let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
@@ -353,6 +365,7 @@ impl Node {
     }
   }
 
+  /// Adds a new text child, to this `Node`
   pub fn add_text_child(&mut self, ns : Option<Namespace>, name : &str, content : &str) -> Result<Node, ()>{
     let c_name = CString::new(name).unwrap();
     let c_content = CString::new(content).unwrap();
@@ -365,7 +378,7 @@ impl Node {
       return Ok(Node { node_ptr : new_ptr})
     }
   }
-
+  /// Append text to this `Node`
   pub fn append_text(&mut self, content : &str) -> Result<Node, ()> {
     let c_content = CString::new(content).unwrap();
     unsafe {
@@ -384,6 +397,7 @@ pub struct Namespace {
 }
 
 impl Namespace {
+  /// Creates a new namespace
   pub fn new(node : &Node, href : &str, prefix : &str) -> Result<Self,()> {
     let c_href = CString::new(href).unwrap();
     let c_prefix = CString::new(prefix).unwrap();

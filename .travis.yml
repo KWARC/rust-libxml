@@ -1,8 +1,13 @@
+sudo: false
 language: rust
 rust:
-  - stable
-  - beta
-  - nightly
+- stable
+- beta
+- nightly
 addons:
   apt:
     packages: libxml2-dev
+after_success: ./scripts/doc-upload.sh
+env:
+  global:
+    secure: "B2hPE0B1A9TyiVtSA9payu6bMGHRAQbeTV2s8EssfNyRTifMeBfrjBfKjcehEiCKSsN5WLHUvA8kvL5k7Irtin7+gFwQsoW/+Ed3m2+xTjmPSQlGd7woleqiy3oJuL9ahgSzUGN0yHgYCEK+n1NSxG5CVrhTOvnjN2VW1drNClRZOndTPSsT1NbQ0sfPVDoe9060jLXy+yILZcQyawt8aEK3llx3VRJNb/7SKLDSZPoGz7HUKtbGqwQJqCtmWnhWa2i/HYxbWRjRhU6plLiJ70jAPv9XgaYk7GXbWIddMQHUynSNGkW7AEY7Q7myuma6URy2WLXB+xheGOXrqlkDMHYaO80tYblmldO4s9R3hMqT6VgrFvSJTgckuAPevv0MlEjKaQ+0O5aycWMbhq1GjrpaYsolQLOpQIa3MLglDYCsxOeuUmP9ZLpMqgV4lNFQbgi4dyP/0fP9Avj9qbOcg2UHOzJLK+J7rua2NZN8ypRkmuwZ5q8AhnkO+bQHc2PLWKpN6NwMVr+VSEr93BZpOXyeixOStGkS6WfXJnFe4oRQPbUG1e4IMHtACy767RP8aV3lnTYosTtW6+aoOzi4u4EjwMgzGRBjxfDcUBV+Hdox3efV/abf5/JJdLtb2xw+VcD9QiMOiyBJHdVh1gOdnrgMdZD9OjSaX2cF5nRfQe8="
