@@ -70,15 +70,15 @@ impl Parser {
   }
   ///Parses the XML/HTML file `filename` to generate a new `Document`
   pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
-    let c_filename = CString::new(filename).unwrap().as_ptr();
-    let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
+    let c_filename = CString::new(filename).unwrap();
+    let c_utf8 = CString::new("utf-8").unwrap();
     let options : u32 = XmlParserOption::XmlParseRecover as u32 +
                         XmlParserOption::XmlParseNoerror as u32 +
                         XmlParserOption::XmlParseNowarning as u32;
     match self.format {
       ParseFormat::XML => { unsafe {
         xmlKeepBlanksDefault(1);
-        let docptr = xmlReadFile(c_filename, c_utf8, options);
+        let docptr = xmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
@@ -91,7 +91,7 @@ impl Parser {
                               HtmlParserOption::HtmlParseNoerror as u32 +
                               HtmlParserOption::HtmlParseNowarning as u32;
           xmlKeepBlanksDefault(1);
-          let docptr = htmlReadFile(c_filename, c_utf8, options);
+          let docptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
           match docptr.is_null() {
             true => Err(XmlParseError::GotNullPointer),
             false => Ok(Document::new_ptr(docptr))
@@ -103,17 +103,17 @@ impl Parser {
 
   ///Parses the XML/HTML string `input_string` to generate a new `Document`
   pub fn parse_string(&self, input_string: &str) -> Result<Document, XmlParseError> {
-    let c_string = CString::new(input_string).unwrap().as_ptr();
-    let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
+    let c_string = CString::new(input_string).unwrap();
+    let c_utf8 = CString::new("utf-8").unwrap();
     match self.format {
       ParseFormat::XML => { unsafe {
-        let docptr = xmlParseDoc(c_string);
+        let docptr = xmlParseDoc(c_string.as_ptr());
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
         } } },
       ParseFormat::HTML => { unsafe {
-        let docptr = htmlParseDoc(c_string, c_utf8);
+        let docptr = htmlParseDoc(c_string.as_ptr(), c_utf8.as_ptr());
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
@@ -130,22 +130,22 @@ impl Parser {
     if input_string.is_empty() {
       return false
     }
-    let c_string = CString::new(input_string).unwrap().as_ptr();
-    let c_utf8 = CString::new("utf-8").unwrap().as_ptr();
+    let c_string = CString::new(input_string).unwrap();
+    let c_utf8 = CString::new("utf-8").unwrap();
     // disable generic error lines from libxml2
     match self.format {
       ParseFormat::XML => false, // TODO: Add support for XML at some point
       ParseFormat::HTML => unsafe {
         let ctxt = htmlNewParserCtxt();
         setWellFormednessHandler(ctxt);
-        let docptr = htmlCtxtReadDoc(ctxt, c_string, ptr::null_mut(), c_utf8, 10596); // htmlParserOption = 4+32+64+256+2048+8192
+        let docptr = htmlCtxtReadDoc(ctxt, c_string.as_ptr(), ptr::null_mut(), c_utf8.as_ptr(), 10596); // htmlParserOption = 4+32+64+256+2048+8192
         let is_well_formed = htmlWellFormed(ctxt);
-        let well_formed_final = if is_well_formed > 0 { 
+        let well_formed_final = if is_well_formed > 0 {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
           if !docptr.is_null() {
             let node_ptr = xmlDocGetRootElement(docptr);
             let name_ptr = xmlNodeGetName(node_ptr);
-            if name_ptr.is_null() { 
+            if name_ptr.is_null() {
               false }  //empty string
             else {
               let c_root_name = CStr::from_ptr(name_ptr);
