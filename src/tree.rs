@@ -46,6 +46,7 @@ impl Drop for Node {
 }
 
 ///An xml document
+#[derive(Debug)]
 pub struct Document {
     ///libxml's `DocumentPtr`
     pub doc_ptr : *mut c_void,
@@ -62,12 +63,12 @@ impl Drop for Document {
     }
 }
 
-
 impl Document {
   pub fn new() -> Result<Self, ()> {
     _libxml_global_init();
     unsafe {
-      let libxml_doc = xmlNewDoc(CString::new("1.0").unwrap().as_ptr());
+      let c_version = CString::new("1.0").unwrap();
+      let libxml_doc = xmlNewDoc(c_version.as_ptr());
       if libxml_doc.is_null() {
         Err(())
       } else {
@@ -81,9 +82,9 @@ impl Document {
   }
   ///Write document to `filename`
   pub fn save_file(&self, filename : &str) -> Result<c_int, ()> {
-      let c_filename = CString::new(filename).unwrap().as_ptr();
+      let c_filename = CString::new(filename).unwrap();
       unsafe {
-          let retval = xmlSaveFile(c_filename, self.doc_ptr);
+          let retval = xmlSaveFile(c_filename.as_ptr(), self.doc_ptr);
           if retval < 0 {
               return Err(());
           }
@@ -115,9 +116,9 @@ impl Document {
       // allocate a buffer to dump into
       let mut receiver = ptr::null_mut();
       let mut size : c_int = 0;
-      let c_utf8 = CString::new("UTF-8").unwrap().as_ptr();
-      xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &mut size, c_utf8, 1);
-      
+      let c_utf8 = CString::new("UTF-8").unwrap();
+      xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &mut size, c_utf8.as_ptr(), 1);
+
       let c_string = CStr::from_ptr(receiver);
       let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       libc::free( receiver as *mut c_void);
@@ -131,7 +132,7 @@ impl Document {
       let buf = xmlBufferCreate();
 
       // dump the node
-      xmlNodeDump(buf, self.doc_ptr, node.node_ptr, 
+      xmlNodeDump(buf, self.doc_ptr, node.node_ptr,
         1, // level of indentation
         0, // disable formatting
       );
@@ -146,17 +147,17 @@ impl Document {
 
   pub fn create_processing_instruction(&mut self, name: &str, content: &str) -> Result<Node, ()> {
     unsafe {
-      let c_name =  CString::new(name).unwrap().as_ptr();
-      let c_content =  CString::new(content).unwrap().as_ptr();
+      let c_name =  CString::new(name).unwrap();
+      let c_content =  CString::new(content).unwrap();
 
-      let node_ptr = xmlNewDocPI(self.doc_ptr,c_name,c_content);
+      let node_ptr = xmlNewDocPI(self.doc_ptr,c_name.as_ptr(),c_content.as_ptr());
       if node_ptr.is_null() {
         Err(())
       } else {
         Ok(Node {
           node_ptr : node_ptr,
         })
-      }  
+      }
     }
   }
 }
@@ -237,13 +238,13 @@ impl Node {
   pub fn new(name : &str, ns : Option<Namespace>, doc : &Document) -> Result<Self, ()> {
     // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
 
-    let c_name = CString::new(name).unwrap().as_ptr();
+    let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(ns) => ns.ns_ptr
     };
     unsafe {
-      let node = xmlNewDocNode(doc.doc_ptr, ns_ptr, c_name, ptr::null());
+      let node = xmlNewDocNode(doc.doc_ptr, ns_ptr, c_name.as_ptr(), ptr::null());
       if node.is_null() {
         Err(())
       } else {
@@ -251,7 +252,7 @@ impl Node {
       }
     }
   }
-  
+
   ///Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlNextSibling(self.node_ptr) };
@@ -280,7 +281,7 @@ impl Node {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddPrevSibling(self.node_ptr, new_sibling.node_ptr).is_null() {
-        None 
+        None
       } else {
         Some(new_sibling)
       }
@@ -313,16 +314,16 @@ impl Node {
   }
 
   pub fn set_content(&self, content: &str) {
-    let c_content = CString::new(content).unwrap().as_ptr();
+    let c_content = CString::new(content).unwrap();
     unsafe {
-      xmlNodeSetContent(self.node_ptr, c_content)
+      xmlNodeSetContent(self.node_ptr, c_content.as_ptr())
     }
   }
 
   ///Returns the value of property `name`
   pub fn get_property(&self, name : &str) -> Option<String> {
-    let c_name = CString::new(name).unwrap().as_ptr();
-    let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name) };
+    let c_name = CString::new(name).unwrap();
+    let value_ptr = unsafe { xmlGetProp(self.node_ptr, c_name.as_ptr()) };
     if value_ptr.is_null() { return None; }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
     let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().clone().to_owned();
@@ -341,34 +342,34 @@ impl Node {
   }
 
   pub fn add_child(&mut self, ns : Option<Namespace>, name : &str) -> Result<Node, ()>{
-    let c_name = CString::new(name).unwrap().as_ptr();
+    let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(ns) => ns.ns_ptr
     };
     unsafe {
-      let new_ptr = xmlNewChild(self.node_ptr, ns_ptr, c_name,  ptr::null());
+      let new_ptr = xmlNewChild(self.node_ptr, ns_ptr, c_name.as_ptr(),  ptr::null());
       return Ok(Node { node_ptr : new_ptr})
     }
   }
 
   pub fn add_text_child(&mut self, ns : Option<Namespace>, name : &str, content : &str) -> Result<Node, ()>{
-    let c_name = CString::new(name).unwrap().as_ptr();
-    let c_content = CString::new(content).unwrap().as_ptr();
+    let c_name = CString::new(name).unwrap();
+    let c_content = CString::new(content).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(ns) => ns.ns_ptr
     };
     unsafe {
-      let new_ptr = xmlNewTextChild(self.node_ptr, ns_ptr, c_name,  c_content);
+      let new_ptr = xmlNewTextChild(self.node_ptr, ns_ptr, c_name.as_ptr(), c_content.as_ptr());
       return Ok(Node { node_ptr : new_ptr})
     }
   }
 
   pub fn append_text(&mut self, content : &str) -> Result<Node, ()> {
-    let c_content = CString::new(content).unwrap().as_ptr();
+    let c_content = CString::new(content).unwrap();
     unsafe {
-      let new_ptr = xmlNewText(self.node_ptr,  c_content);
+      let new_ptr = xmlNewText(self.node_ptr, c_content.as_ptr());
       return Ok(Node { node_ptr : new_ptr})
     }
   }
@@ -384,10 +385,10 @@ pub struct Namespace {
 
 impl Namespace {
   pub fn new(node : &Node, href : &str, prefix : &str) -> Result<Self,()> {
-    let c_href = CString::new(href).unwrap().as_ptr();
-    let c_prefix = CString::new(prefix).unwrap().as_ptr();
+    let c_href = CString::new(href).unwrap();
+    let c_prefix = CString::new(prefix).unwrap();
     unsafe {
-      let ns = xmlNewNs(node.node_ptr, c_href, c_prefix);
+      let ns = xmlNewNs(node.node_ptr, c_href.as_ptr(), c_prefix.as_ptr());
       if ns.is_null() {
         Err(())
       } else {

@@ -43,8 +43,8 @@ impl Context {
     }
     ///evaluate an xpath
     pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
-        let c_xpath = CString::new(xpath).unwrap().as_ptr();
-        let result = unsafe { xmlXPathEvalExpression(c_xpath, self.context_ptr) };
+        let c_xpath = CString::new(xpath).unwrap();
+        let result = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr(), self.context_ptr) };
         if result.is_null() {
             Err(())
         } else {
@@ -89,7 +89,7 @@ impl Object {
             if ptr.is_null() {
                 panic!("rust-libxml: xpath: found null pointer result set");
             }
-            vec.push(Node { node_ptr : ptr, });//node_is_inserted : true 
+            vec.push(Node { node_ptr : ptr, });//node_is_inserted : true
         }
         vec
     }
