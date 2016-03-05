@@ -280,6 +280,12 @@ impl Node {
     inserted_node_unless_null(ptr)
   }
 
+  /// Returns the parent if it exists
+  pub fn get_parent(&self) -> Option<Node> {
+    let ptr = unsafe { xmlGetParent(self.node_ptr) };
+    inserted_node_unless_null(ptr)
+  }
+
   /// Get the node type
   pub fn get_type(&self) -> Option<NodeType> {
     NodeType::from_c_int(unsafe {xmlGetNodeType(self.node_ptr)})

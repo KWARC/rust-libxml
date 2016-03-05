@@ -17,6 +17,10 @@ xmlNodePtr xmlGetFirstChild(const xmlNodePtr cur) {
     return cur->children;
 }
 
+xmlNodePtr xmlGetParent(const xmlNodePtr cur) {
+    return cur->parent;
+}
+
 int xmlGetNodeType(const xmlNodePtr cur) {
     return cur->type;
 }

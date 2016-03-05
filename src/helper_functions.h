@@ -22,6 +22,9 @@ xmlNodePtr xmlPrevSibling(const xmlNodePtr cur);
 //returns cur->children
 xmlNodePtr xmlGetFirstChild(const xmlNodePtr cur);
 
+//returns cur->parent
+xmlNodePtr xmlGetParent(const xmlNodePtr cur);
+
 //returns cur->name
 const char * xmlNodeGetName(const xmlNodePtr cur);
 
