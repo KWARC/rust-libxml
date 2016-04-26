@@ -256,7 +256,21 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node { node_ptr: node })//node_is_inserted : true
+        Ok(Node { node_ptr: node })
+      }
+    }
+  }
+
+  /// Create a new text node, bound to a given document
+  pub fn new_text(content: &str, doc: &Document) -> Result<Self, ()> {
+    // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
+    let c_content = CString::new(content).unwrap();
+    unsafe {
+      let node = xmlNewDocText(doc.doc_ptr, c_content.as_ptr());
+      if node.is_null() {
+        Err(())
+      } else {
+        Ok(Node { node_ptr: node })
       }
     }
   }

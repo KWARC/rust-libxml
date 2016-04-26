@@ -9,4 +9,4 @@
 ### Added
 
 * Can add following siblings via ```Node.add_next_sibling```
-
+* Can now add text nodes via ```Node.new_text```
