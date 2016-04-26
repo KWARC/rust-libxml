@@ -8,8 +8,8 @@ use std::fs::File;
 use std::io::Read;
 
 use libxml::tree::{Document, Node, Namespace};
-use libxml::xpath::{Context};
-use libxml::parser::{Parser};
+use libxml::xpath::Context;
+use libxml::parser::Parser;
 
 #[test]
 /// Build a hello world XML doc
@@ -30,7 +30,7 @@ fn hello_builder() {
 
   hello_element.set_content("world!");
 
-  let added = hello_element.add_child(None, "child");
+  let added = hello_element.new_child(None, "child");
   assert!(added.is_ok());
   let new_child = added.unwrap();
 
@@ -50,7 +50,7 @@ fn create_pi() {
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
   // Add a PI
-  let node_ok = doc.create_processing_instruction("piname","picontent");
+  let node_ok = doc.create_processing_instruction("piname", "picontent");
   assert!(node_ok.is_ok());
   let doc_string = doc.to_string();
   println!("{:?}", doc_string);
@@ -61,14 +61,14 @@ fn create_pi() {
 #[test]
 /// Duplicate an xml file
 fn duplicate_file() {
-    let parser = Parser::default();
-    {
-      let doc_result = parser.parse_file("tests/resources/file01.xml");
-      assert!(doc_result.is_ok());
+  let parser = Parser::default();
+  {
+    let doc_result = parser.parse_file("tests/resources/file01.xml");
+    assert!(doc_result.is_ok());
 
-      let doc = doc_result.unwrap();
-      doc.save_file("tests/results/copy.xml").unwrap();
-    }
+    let doc = doc_result.unwrap();
+    doc.save_file("tests/results/copy.xml").unwrap();
+  }
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn can_load_html_file() {
     let root_result = doc.get_root_element();
     assert!(root_result.is_ok());
     let root = root_result.unwrap();
-    assert_eq!(root.get_name(),"html");
+    assert_eq!(root.get_name(), "html");
   }
 }
 
@@ -182,7 +182,7 @@ fn test_well_formed_html() {
   assert!(trivial_well_formed);
 
   let trivial_ill_formed = parser.is_well_formed_html("garbage");
-  assert!( !trivial_ill_formed );
+  assert!(!trivial_ill_formed);
 
   let should_ill_formed = parser.is_well_formed_html("<broken <markup>> </boom>");
   assert!(!should_ill_formed);
