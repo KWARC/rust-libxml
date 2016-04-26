@@ -2,13 +2,13 @@
 name = "libxml"
 version = "0.0.4"
 dependencies = [
- "gcc 0.3.24 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.27 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "gcc"
-version = "0.3.24"
+version = "0.3.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
