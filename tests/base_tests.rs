@@ -173,6 +173,36 @@ fn test_class_names() {
 }
 
 #[test]
+/// Test that clone() working correctly
+fn test_context_clone_explicit() {
+  let context_cloned: Context; 	
+  { 
+    let doc = Parser::default_html().parse_file("tests/resources/file01.xml").unwrap();
+    let context = Context::new(&doc).unwrap();
+    context_cloned = context.clone();
+
+    let p = context.evaluate("//child").unwrap();
+    assert_eq!(p.get_number_of_nodes(), 2);
+  }
+  
+  let p = context_cloned.evaluate("//child").unwrap();
+  assert_eq!(p.get_number_of_nodes(), 2);  
+}
+
+/// helper function for test_context_clone_implicit()
+fn get_xpath_context() -> Context {
+    let doc = Parser::default_html().parse_file("tests/resources/file01.xml").unwrap();
+    Context::new(&doc).unwrap()
+}
+#[test]
+/// Test that clone() working correctly
+fn test_context_clone_implicit() {
+  let context = get_xpath_context();	
+  let p = context.evaluate("//child").unwrap();
+  assert_eq!(p.get_number_of_nodes(), 2);
+}
+
+#[test]
 /// Test well-formedness of a Rust string
 /// IMPORTANT: Currenlty NOT THREAD-SAFE, use in single-threaded apps only!
 fn test_well_formed_html() {
