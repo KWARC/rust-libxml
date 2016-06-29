@@ -173,19 +173,6 @@ fn test_class_names() {
 }
 
 #[test]
-/// Test that context::evaluate will work if document will go out of scope
-fn test_context_without_document() {
-  let context: Context;
-  {	
-    let doc = Parser::default_html().parse_file("tests/resources/file01.xml").unwrap();
-    context = Context::new(&doc).unwrap();
-  }
-
-  let p = context.evaluate("//child").unwrap();
-  assert_eq!(p.get_number_of_nodes(), 2);
-}
-
-#[test]
 /// Test well-formedness of a Rust string
 /// IMPORTANT: Currenlty NOT THREAD-SAFE, use in single-threaded apps only!
 fn test_well_formed_html() {
