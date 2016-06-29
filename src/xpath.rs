@@ -7,13 +7,15 @@ use std::ffi::{CString};
 
 ///The xpath context
 #[derive(Clone)]
-pub struct Context {
+pub struct Context<'a> {
     ///libxml's `ContextPtr`
     pub context_ptr : *mut c_void,
+    ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
+    pub document: &'a Document, 
 }
 
 
-impl Drop for Context {
+impl<'a> Drop for Context<'a> {
     ///free xpath context when it goes out of scope
     fn drop(&mut self) {
         unsafe {
@@ -30,7 +32,7 @@ pub struct Object {
 }
 
 
-impl Context {
+impl<'a> Context<'a> {
     ///create the xpath context for a document
     pub fn new(doc : &Document) -> Result<Context, ()> {
         let ctxtptr : *mut c_void = unsafe {
@@ -38,7 +40,7 @@ impl Context {
         if ctxtptr.is_null() {
             Err(())
         } else {
-            Ok(Context {context_ptr : ctxtptr })
+            Ok(Context {context_ptr : ctxtptr, document: doc })
         }
     }
     ///evaluate an xpath
