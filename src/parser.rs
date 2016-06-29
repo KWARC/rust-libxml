@@ -113,15 +113,22 @@ impl Parser {
   pub fn parse_string(&self, input_string: &str) -> Result<Document, XmlParseError> {
     let c_string = CString::new(input_string).unwrap();
     let c_utf8 = CString::new("utf-8").unwrap();
+    let c_url = CString::new("").unwrap();
     match self.format {
       ParseFormat::XML => { unsafe {
-        let docptr = xmlParseDoc(c_string.as_ptr());
+        let options : u32 = XmlParserOption::XmlParseRecover as u32 +
+                            XmlParserOption::XmlParseNoerror as u32 +
+                            XmlParserOption::XmlParseNowarning as u32;
+        let docptr = xmlReadDoc(c_string.as_ptr(), c_utf8.as_ptr(), c_url.as_ptr(), options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
         } } },
       ParseFormat::HTML => { unsafe {
-        let docptr = htmlParseDoc(c_string.as_ptr(), c_utf8.as_ptr());
+        let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
+                            HtmlParserOption::HtmlParseNoerror as u32 +
+                            HtmlParserOption::HtmlParseNowarning as u32;
+        let docptr = htmlReadDoc(c_string.as_ptr(), c_utf8.as_ptr(), c_url.as_ptr(), options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
