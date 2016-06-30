@@ -47,9 +47,10 @@ extern "C" {
   pub fn xmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
   // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
   pub fn htmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
-  // pub fn htmlReadDoc(html_string: *const c_char, url: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
-  pub fn xmlParseDoc(xml_string: *const c_char) -> *mut c_void;
-  pub fn htmlParseDoc(xml_string: *const c_char, encoding: *const c_char) -> *mut c_void;
+  pub fn htmlReadDoc(html_string: *const c_char, url: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
+  pub fn xmlReadDoc(xml_string: *const c_char, url: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
+  // pub fn xmlParseDoc(xml_string: *const c_char) -> *mut c_void;
+  // pub fn htmlParseDoc(xml_string: *const c_char, encoding: *const c_char) -> *mut c_void;
   pub fn htmlNewParserCtxt() -> *mut c_void;
   pub fn htmlCtxtReadDoc(ctxt: *mut c_void, html_string: *const c_char, url: *mut c_void, encoding: *const c_char, options: c_uint) -> *mut c_void;
   // pub fn htmlSAXParseDoc(xml_string: *const c_char, encoding: *const c_char, sax: *mut c_void, user_data: *mut c_void) -> *mut c_void;
