@@ -119,7 +119,7 @@ impl Parser {
         let options : u32 = XmlParserOption::XmlParseRecover as u32 +
                             XmlParserOption::XmlParseNoerror as u32 +
                             XmlParserOption::XmlParseNowarning as u32;
-        let docptr = xmlReadDoc(c_string.as_ptr(), c_utf8.as_ptr(), c_url.as_ptr(), options);
+        let docptr = xmlReadDoc(c_string.as_ptr(), c_url.as_ptr(), c_utf8.as_ptr(), options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
@@ -128,7 +128,7 @@ impl Parser {
         let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
                             HtmlParserOption::HtmlParseNoerror as u32 +
                             HtmlParserOption::HtmlParseNowarning as u32;
-        let docptr = htmlReadDoc(c_string.as_ptr(), c_utf8.as_ptr(), c_url.as_ptr(), options);
+        let docptr = htmlReadDoc(c_string.as_ptr(), c_url.as_ptr(), c_utf8.as_ptr(), options);
         match docptr.is_null() {
           true => Err(XmlParseError::GotNullPointer),
           false => Ok(Document::new_ptr(docptr))
