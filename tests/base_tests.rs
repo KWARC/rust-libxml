@@ -173,6 +173,24 @@ fn test_class_names() {
 }
 
 #[test]
+/// Test that an xpath string() function processed correctly
+fn test_xpath_string_function() {
+  let parser = Parser::default_html();
+  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+  let context = Context::new(&doc).unwrap();
+
+  let p_result = context.evaluate("string(//root//child[1]/@attribute)");
+  assert!(p_result.is_ok());
+  let p = p_result.unwrap();
+  // Not a node really
+  assert_eq!(p.get_number_of_nodes(), 0);
+  let content = p.to_string();
+  assert_eq!(content, "value");
+}
+
+#[test]
 /// Test well-formedness of a Rust string
 /// IMPORTANT: Currenlty NOT THREAD-SAFE, use in single-threaded apps only!
 fn test_well_formed_html() {

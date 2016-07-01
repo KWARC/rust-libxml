@@ -70,7 +70,7 @@ extern "C" {
   pub fn xmlXPathFreeContext(ctxt: *mut c_void);
   pub fn xmlXPathNewContext(doc: *mut c_void) -> *mut c_void;
   pub fn xmlXPathEvalExpression(str: *const c_char, ctxt: *mut c_void) -> *mut c_void;
-
+  pub fn xmlXPathCastToString(val: *const c_void) -> *const c_char;
   // helper for xpath
   pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
   pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;
