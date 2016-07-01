@@ -7,7 +7,7 @@ description = "A Rust wrapper for libxml2"
 repository = "https://github.com/KWARC/rust-libxml"
 documentation = "http://kwarc.github.io/rust-libxml/libxml/index.html"
 readme = "README.md"
-license = "GPL-2.0"
+license = "MIT"
 
 build = "build.rs"
 exclude = [
