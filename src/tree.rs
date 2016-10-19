@@ -274,6 +274,11 @@ impl Node {
       }
     }
   }
+  /// Create a mock node, used for a placeholder argument
+  pub fn mock() -> Self {
+    let doc = Document::new().unwrap();
+    Node::new("mock", None, &doc).unwrap()
+  }
 
   /// Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {

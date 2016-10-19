@@ -208,3 +208,10 @@ fn test_well_formed_html() {
   let should_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head><title>Test</title></head><body>\n<h1>Tiny</h1><math><mn>2</mn></math></body></html>");
   assert!(should_well_formed);
 }
+
+#[test]
+/// Can mock a node object (useful for defaults that will be overridden)
+fn test_can_mock_node() {
+  let node_mock = Node::mock();
+  assert!(!node_mock.is_text_node());
+}
