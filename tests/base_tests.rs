@@ -215,3 +215,10 @@ fn test_can_mock_node() {
   let node_mock = Node::mock();
   assert!(!node_mock.is_text_node());
 }
+
+#[test]
+/// Can make a mock node hashable
+fn test_can_hash_mock_node() {
+  let node_mock = Node::mock();
+  assert!(node_mock.to_hashable() > 0);
+}

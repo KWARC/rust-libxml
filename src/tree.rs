@@ -8,6 +8,7 @@ use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::str;
 use std::collections::HashSet;
+use std::mem;
 use global::*;
 
 /// An xml node
@@ -278,6 +279,11 @@ impl Node {
   pub fn mock() -> Self {
     let doc = Document::new().unwrap();
     Node::new("mock", None, &doc).unwrap()
+  }
+
+  /// For some reason `libc::c_void` isn't hashable and cannot be made hashable
+  pub fn to_hashable(&self) -> usize {
+    unsafe { mem::transmute::<*mut libc::c_void, usize>(self.node_ptr) }
   }
 
   /// Returns the next sibling if it exists
