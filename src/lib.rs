@@ -13,5 +13,5 @@ pub mod global;
 pub mod tree;
 /// XML and HTML parsing
 pub mod parser;
-/// XPath module for global lookup in the DOM
+/// `XPath` module for global lookup in the DOM
 pub mod xpath;

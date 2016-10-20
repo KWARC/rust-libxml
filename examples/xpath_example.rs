@@ -10,7 +10,7 @@ fn main() {
   let context = Context::new(&doc).unwrap();
   let result = context.evaluate("//child/text()").unwrap();
 
-  for node in result.get_nodes_as_vec().iter() {
+  for node in &result.get_nodes_as_vec() {
       println!("Found: {}", node.get_content());
   }
 }

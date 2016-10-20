@@ -1,4 +1,4 @@
-//! The XPath functionality
+//! The `XPath` functionality
 
 use c_signatures::*;
 use libc::{c_void, size_t};
@@ -103,8 +103,7 @@ impl Object {
     unsafe {
       let v = xmlXPathCastToString(self.ptr);
       let c_string = CStr::from_ptr(v);
-      let utf_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
-      return utf_string;
+      str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
     }
   }
 }

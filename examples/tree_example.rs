@@ -16,14 +16,9 @@ fn my_recurse(node : &Node) {
     }
 
     let mut c : Option<Node> = node.get_first_child();
-    loop {
-        match c {
-            Some(child) => {
-                my_recurse(&child);
-                c = child.get_next_sibling();
-            },
-            None => break,
-        }
+    while let Some(child) = c {
+      my_recurse(&child);
+      c = child.get_next_sibling();
     }
 
     if node.get_type().unwrap() == NodeType::ElementNode {

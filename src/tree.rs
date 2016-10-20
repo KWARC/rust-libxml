@@ -121,9 +121,9 @@ impl Document {
     unsafe {
       // allocate a buffer to dump into
       let mut receiver = ptr::null_mut();
-      let mut size: c_int = 0;
+      let size: c_int = 0;
       let c_utf8 = CString::new("UTF-8").unwrap();
-      xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &mut size, c_utf8.as_ptr(), 1);
+      xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &size, c_utf8.as_ptr(), 1);
 
       let c_string = CStr::from_ptr(receiver);
       let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
@@ -173,15 +173,14 @@ impl Document {
 
 
 // The helper functions for trees
-#[inline(always)]
 fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
   if ptr.is_null() {
-    return None;
-  }
-  Some(Node {
+    None
+  } else {
+    Some(Node {
         node_ptr : ptr,
-        // node_is_inserted : true,
     })
+  }
 }
 
 /// Types of xml nodes
@@ -382,7 +381,7 @@ impl Node {
       return None;
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-    let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().clone().to_owned();
+    let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().to_owned();
     unsafe {
       libc::free(value_ptr as *mut c_void);
     }
@@ -420,7 +419,7 @@ impl Node {
     };
     unsafe {
       let new_ptr = xmlNewChild(self.node_ptr, ns_ptr, c_name.as_ptr(), ptr::null());
-      return Ok(Node { node_ptr: new_ptr });
+      Ok(Node { node_ptr: new_ptr })
     }
   }
 
@@ -434,7 +433,7 @@ impl Node {
     };
     unsafe {
       let new_ptr = xmlNewTextChild(self.node_ptr, ns_ptr, c_name.as_ptr(), c_content.as_ptr());
-      return Ok(Node { node_ptr: new_ptr });
+      Ok(Node { node_ptr: new_ptr })
     }
   }
 
@@ -443,7 +442,7 @@ impl Node {
     let c_content = CString::new(content).unwrap();
     unsafe {
       let new_ptr = xmlNewText(self.node_ptr, c_content.as_ptr());
-      return Ok(Node { node_ptr: new_ptr });
+      Ok(Node { node_ptr: new_ptr })
     }
   }
 }

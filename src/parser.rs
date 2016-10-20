@@ -10,10 +10,10 @@ use std::ptr;
 use std::str;
 
 enum XmlParserOption {
-    XmlParseRecover = 1, // Relaxed parsing
+    Recover = 1, // Relaxed parsing
     // XML_PARSE_NODEFDTD = 4, // do not default a doctype if not found
-    XmlParseNoerror = 32, // suppress error reports
-    XmlParseNowarning = 64, // suppress warning reports
+    Noerror = 32, // suppress error reports
+    Nowarning = 64, // suppress warning reports
     // XML_PARSE_PEDANTIC = 128, // pedantic error reporting
     // XML_PARSE_NOBLANKS = 256, // remove blank nodes
     // XML_PARSE_NONET = 2048, // Forbid network access
@@ -23,10 +23,10 @@ enum XmlParserOption {
 }
 
 enum HtmlParserOption {
-    HtmlParseRecover = 1, // Relaxed parsing
+    Recover = 1, // Relaxed parsing
     // HTML_PARSE_NODEFDTD = 4, // do not default a doctype if not found
-    HtmlParseNoerror = 32, // suppress error reports
-    HtmlParseNowarning = 64, // suppress warning reports
+    Noerror = 32, // suppress error reports
+    Nowarning = 64, // suppress warning reports
     // HTML_PARSE_PEDANTIC = 128, // pedantic error reporting
     // HTML_PARSE_NOBLANKS = 256, // remove blank nodes
     // HTML_PARSE_NONET = 2048, // Forbid network access
@@ -80,29 +80,31 @@ impl Parser {
   pub fn parse_file(&self, filename : &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap();
     let c_utf8 = CString::new("utf-8").unwrap();
-    let options : u32 = XmlParserOption::XmlParseRecover as u32 +
-                        XmlParserOption::XmlParseNoerror as u32 +
-                        XmlParserOption::XmlParseNowarning as u32;
+    let options : u32 = XmlParserOption::Recover as u32 +
+                        XmlParserOption::Noerror as u32 +
+                        XmlParserOption::Nowarning as u32;
     match self.format {
       ParseFormat::XML => { unsafe {
         xmlKeepBlanksDefault(1);
         let docptr = xmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
-        match docptr.is_null() {
-          true => Err(XmlParseError::GotNullPointer),
-          false => Ok(Document::new_ptr(docptr))
+        if docptr.is_null() {
+          Err(XmlParseError::GotNullPointer)
+        } else {
+          Ok(Document::new_ptr(docptr))
         } }
       },
       ParseFormat::HTML => {
         // TODO: Allow user-specified options later on
         unsafe {
-          let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
-                              HtmlParserOption::HtmlParseNoerror as u32 +
-                              HtmlParserOption::HtmlParseNowarning as u32;
+          let options : u32 = HtmlParserOption::Recover as u32 +
+                              HtmlParserOption::Noerror as u32 +
+                              HtmlParserOption::Nowarning as u32;
           xmlKeepBlanksDefault(1);
           let docptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
-          match docptr.is_null() {
-            true => Err(XmlParseError::GotNullPointer),
-            false => Ok(Document::new_ptr(docptr))
+          if docptr.is_null() {
+            Err(XmlParseError::GotNullPointer)
+          } else {
+            Ok(Document::new_ptr(docptr))
           }
         }
       }
@@ -116,23 +118,26 @@ impl Parser {
     let c_url = CString::new("").unwrap();
     match self.format {
       ParseFormat::XML => { unsafe {
-        let options : u32 = XmlParserOption::XmlParseRecover as u32 +
-                            XmlParserOption::XmlParseNoerror as u32 +
-                            XmlParserOption::XmlParseNowarning as u32;
+        let options : u32 = XmlParserOption::Recover as u32 +
+                            XmlParserOption::Noerror as u32 +
+                            XmlParserOption::Nowarning as u32;
         let docptr = xmlReadDoc(c_string.as_ptr(), c_url.as_ptr(), c_utf8.as_ptr(), options);
-        match docptr.is_null() {
-          true => Err(XmlParseError::GotNullPointer),
-          false => Ok(Document::new_ptr(docptr))
+        if docptr.is_null() {
+          Err(XmlParseError::GotNullPointer)
+        } else {
+          Ok(Document::new_ptr(docptr))
         } } },
       ParseFormat::HTML => { unsafe {
-        let options : u32 = HtmlParserOption::HtmlParseRecover as u32 +
-                            HtmlParserOption::HtmlParseNoerror as u32 +
-                            HtmlParserOption::HtmlParseNowarning as u32;
+        let options : u32 = HtmlParserOption::Recover as u32 +
+                            HtmlParserOption::Noerror as u32 +
+                            HtmlParserOption::Nowarning as u32;
         let docptr = htmlReadDoc(c_string.as_ptr(), c_url.as_ptr(), c_utf8.as_ptr(), options);
-        match docptr.is_null() {
-          true => Err(XmlParseError::GotNullPointer),
-          false => Ok(Document::new_ptr(docptr))
-        } } },
+        if docptr.is_null() {
+          Err(XmlParseError::GotNullPointer)
+        } else {
+          Ok(Document::new_ptr(docptr))
+        }
+      }}
     }
   }
 
@@ -165,11 +170,7 @@ impl Parser {
             else {
               let c_root_name = CStr::from_ptr(name_ptr);
               let root_name = str::from_utf8(c_root_name.to_bytes()).unwrap().to_owned();
-              if root_name == "html" {
-                true
-              } else {
-                false
-              }
+              root_name == "html"
             }
           } else {
             false
