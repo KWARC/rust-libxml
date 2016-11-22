@@ -388,6 +388,22 @@ impl Node {
     Some(prop_str)
   }
 
+  /// Sets the value of property `name` to `value`
+  pub fn set_property(&self, name: &str, value: &str) {
+    let c_name = CString::new(name).unwrap();
+    let c_value = CString::new(value).unwrap();
+    unsafe { xmlSetProp(self.node_ptr, c_name.as_ptr(), c_value.as_ptr()) };
+  }
+
+  /// Alias for get_property
+  pub fn get_attribute(&self, name: &str) -> Option<String> {
+    self.get_property(name)
+  }
+  /// Alias for set_property
+  pub fn set_attribute(&self, name: &str, value: &str) {
+    self.set_property(name, value)
+  }
+
   /// Get a set of class names from this node's attributes
   pub fn get_class_names(&self) -> HashSet<String> {
     let mut set = HashSet::new();

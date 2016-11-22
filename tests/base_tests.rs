@@ -222,3 +222,24 @@ fn test_can_hash_mock_node() {
   let node_mock = Node::mock();
   assert!(node_mock.to_hashable() > 0);
 }
+
+#[test]
+/// Can set and get attributes
+fn test_can_manage_attributes() {
+  let mut doc = Document::new().unwrap();
+  let hello_element_result = Node::new("hello", None, &doc);
+  assert!(hello_element_result.is_ok());
+  let mut hello_element = hello_element_result.unwrap();
+  doc.set_root_element(&mut hello_element);
+
+  let key = "examplekey";
+  let value = "examplevalue";
+  let pre_value = hello_element.get_attribute(key);
+  assert_eq!(pre_value, None);
+  let pre_prop_value = hello_element.get_property(key);
+  assert_eq!(pre_prop_value, None);
+
+  hello_element.set_attribute(key, value);
+  let new_value = hello_element.get_attribute(key);
+  assert_eq!(new_value, Some(value.to_owned()));
+}

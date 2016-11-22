@@ -23,7 +23,7 @@ extern "C" {
   pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
   pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
   pub fn xmlGetProp(node: *const c_void, name: *const c_char) -> *const c_char;
-
+  pub fn xmlSetProp(node: *const c_void, name: *const c_char, value: *const c_char) -> *const c_char;
   // helper for tree
   pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
   pub fn xmlPrevSibling(cur: *const c_void) -> *mut c_void;
