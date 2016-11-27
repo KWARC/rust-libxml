@@ -7,7 +7,7 @@ extern crate libxml;
 use std::fs::File;
 use std::io::Read;
 
-use libxml::tree::{Document, Node, Namespace};
+use libxml::tree::{Document, Node, Namespace, NodeType};
 use libxml::xpath::Context;
 use libxml::parser::Parser;
 
@@ -17,6 +17,9 @@ fn hello_builder() {
   let doc_result = Document::new();
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
+
+  let doc_node = doc.get_root_element();
+  assert_eq!(doc_node.get_type(), Some(NodeType::DocumentNode));
 
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
@@ -79,7 +82,7 @@ fn can_parse_xml_string() {
   file.read_to_string(&mut xml_string).unwrap();
   let parser = Parser::default();
   let doc = parser.parse_string(&xml_string).unwrap();
-  assert_eq!(doc.get_root_element().unwrap().get_name(), "root");
+  assert_eq!(doc.get_root_element().get_name(), "root");
 }
 
 #[test]
@@ -91,9 +94,7 @@ fn can_load_html_file() {
     assert!(doc_result.is_ok());
 
     let doc = doc_result.unwrap();
-    let root_result = doc.get_root_element();
-    assert!(root_result.is_ok());
-    let root = root_result.unwrap();
+    let root = doc.get_root_element();
     assert_eq!(root.get_name(), "html");
   }
 }
@@ -107,7 +108,7 @@ fn child_of_root_has_different_hash() {
     let doc_result = parser.parse_file("tests/resources/file01.xml");
     assert!(doc_result.is_ok());
     let doc = doc_result.unwrap();
-    let root = doc.get_root_element().unwrap();
+    let root = doc.get_root_element();
     assert!(!root.is_text_node());
     if let Some(child) = root.get_first_child() {
       assert!(root != child);

@@ -95,16 +95,18 @@ impl Document {
     }
   }
   /// Get the root element of the document
-  pub fn get_root_element(&self) -> Result<Node, ()> {
+  pub fn get_root_element(&self) -> Node {
     unsafe {
       let node_ptr = xmlDocGetRootElement(self.doc_ptr);
       if node_ptr.is_null() {
-        return Err(());
+        Node {
+          node_ptr: self.doc_ptr
+        }
+      } else {
+        Node {
+          node_ptr : node_ptr,
+        }
       }
-      Ok(Node {
-              node_ptr : node_ptr,
-              // node_is_inserted : true,
-          })
     }
   }
 
@@ -184,7 +186,7 @@ fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
 }
 
 /// Types of xml nodes
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 #[allow(missing_docs)]
 pub enum NodeType {
   ElementNode,

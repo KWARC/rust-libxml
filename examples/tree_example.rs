@@ -29,6 +29,6 @@ fn my_recurse(node : &Node) {
 fn main() {
     let parser = Parser::default();
     let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
-    let root = doc.get_root_element().unwrap();
+    let root = doc.get_root_element();
     my_recurse(&root);
 }
