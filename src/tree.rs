@@ -111,7 +111,7 @@ impl Document {
   }
 
   /// Sets the root element of the document
-  pub fn set_root_element(&mut self, root: &mut Node) {
+  pub fn set_root_element(&mut self, root: &Node) {
     unsafe {
       xmlDocSetRootElement(self.doc_ptr, root.node_ptr);
       // root.node_is_inserted = true;
@@ -396,6 +396,12 @@ impl Node {
     let c_value = CString::new(value).unwrap();
     unsafe { xmlSetProp(self.node_ptr, c_name.as_ptr(), c_value.as_ptr()) };
   }
+  /// Sets a namespaced attribute
+  pub fn set_ns_property(&self, ns: Namespace, name: &str, value: &str) {
+    let c_name = CString::new(name).unwrap();
+    let c_value = CString::new(value).unwrap();
+    unsafe { xmlSetNsProp(self.node_ptr, ns.ns_ptr, c_name.as_ptr(), c_value.as_ptr()) };
+  }
 
   /// Alias for get_property
   pub fn get_attribute(&self, name: &str) -> Option<String> {
@@ -405,6 +411,38 @@ impl Node {
   pub fn set_attribute(&self, name: &str, value: &str) {
     self.set_property(name, value)
   }
+  /// Alias for set_ns_property
+  pub fn set_ns_attribute(&self, ns: Namespace, name: &str, value: &str) {
+    self.set_ns_property(ns, name, value)
+  }
+
+
+  /// Gets a list of namespaces associated with this node
+  pub fn get_namespaces(&self, doc: &Document) -> Vec<Namespace> {
+    let mut ns_found = Vec::new();
+    unsafe {
+      let ns_ptr_list = xmlGetNsList(doc.doc_ptr, self.node_ptr);
+      if !ns_ptr_list.is_null() {
+        for index in 0.. {
+          let ns_ptr = *ns_ptr_list.offset(index);
+          if !ns_ptr.is_null() {
+            ns_found.push(Namespace{ ns_ptr: ns_ptr});
+          } else {
+            break;
+          }
+        }
+      }
+    }
+    ns_found
+  }
+  /// Sets a `Namespace` for the node
+  pub fn set_namespace(&self, namespace: Namespace) {
+    unsafe {
+      xmlSetNs(self.node_ptr, namespace.ns_ptr);
+    }
+  }
+
+
 
   /// Get a set of class names from this node's attributes
   pub fn get_class_names(&self) -> HashSet<String> {
@@ -474,7 +512,7 @@ pub struct Namespace {
 
 impl Namespace {
   /// Creates a new namespace
-  pub fn new(node: &Node, href: &str, prefix: &str) -> Result<Self, ()> {
+  pub fn new(prefix: &str, href: &str, node: Node) -> Result<Self, ()> {
     let c_href = CString::new(href).unwrap();
     let c_prefix = CString::new(prefix).unwrap();
     unsafe {
@@ -492,7 +530,7 @@ impl Drop for Namespace {
   ///Free namespace
   fn drop(&mut self) {
     // unsafe {
-    // xmlFreeNs(self.ns_ptr);
+    //   xmlFreeNs(self.ns_ptr);
     // }
   }
 }

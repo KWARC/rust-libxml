@@ -24,6 +24,9 @@ extern "C" {
   pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
   pub fn xmlGetProp(node: *const c_void, name: *const c_char) -> *const c_char;
   pub fn xmlSetProp(node: *const c_void, name: *const c_char, value: *const c_char) -> *const c_char;
+  pub fn xmlGetNsList(doc: *const c_void, node: *const c_void) -> *const *mut c_void;
+  pub fn xmlSetNs(node: *const c_void, ns: *const c_void);
+  pub fn xmlSetNsProp(node: *const c_void, ns: *const c_void, name: *const c_char, value: *const c_char);
   // helper for tree
   pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
   pub fn xmlPrevSibling(cur: *const c_void) -> *mut c_void;

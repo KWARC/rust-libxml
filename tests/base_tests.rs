@@ -25,10 +25,6 @@ fn hello_builder() {
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
 
-  let mock_ns_result = Namespace::new(&hello_element, "http://example.com/ns/mock", "mock");
-  assert!(mock_ns_result.is_ok());
-  // let mock_ns = mock_ns_result.unwrap();
-
   doc.set_root_element(&mut hello_element);
 
   hello_element.set_content("world!");
@@ -243,4 +239,28 @@ fn test_can_manage_attributes() {
   hello_element.set_attribute(key, value);
   let new_value = hello_element.get_attribute(key);
   assert_eq!(new_value, Some(value.to_owned()));
+}
+
+#[test]
+/// Basic namespace workflow
+fn test_can_work_with_namespaces() {
+  let mut doc = Document::new().unwrap();
+  let root_node = Node::new("root", None, &doc).unwrap();
+  doc.set_root_element(&root_node);
+
+  let initial_namespace_list = root_node.get_namespaces(&doc);
+  assert_eq!(initial_namespace_list.len(), 0);
+
+  let mock_ns_result = Namespace::new("mock", "http://example.com/ns/mock", root_node.clone());
+  assert!(mock_ns_result.is_ok());
+  // try to attach this namespace to a node
+  root_node.set_namespace(mock_ns_result.unwrap());
+
+  // now get all namespaces for the node and check we have ours
+  let namespace_list = root_node.get_namespaces(&doc);
+  assert_eq!(namespace_list.len(), 1);
+
+  // let namespace = namespace_list.pop();
+
+
 }
