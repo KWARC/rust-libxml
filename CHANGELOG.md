@@ -1,16 +1,21 @@
 # Change Log
 
-## [0.0.7] 2016-28-11
+## [0.0.71] 2016-29-11
 
 ### Changed
- * Namespace::new takes Node argument last
+
+* Namespace::new takes Node argument last
+
 ### Added
 
 * Node namespace accessors - `set_namespace`, `get_namespaces`, `set_ns_attribute`, `set_ns_property`
+* Namespace registration for XPath
+*
 
 ## [0.0.7] 2016-27-11
 
 ### Changed
+
 * stricter dependency spec in Cargo.toml
 * cargo clippy compliant
 * Document's `get_root_element` returns the document pointer as a Node for empty documents, type change from `Option<Node>` to simple `<Node>`
