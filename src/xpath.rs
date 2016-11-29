@@ -46,6 +46,21 @@ impl<'a> Context<'a> {
       })
     }
   }
+
+  /// Register a namespace prefix-href pair on the xpath context
+  pub fn register_namespace(&self, prefix: &str, href: &str) -> Result<(), ()> {
+    let c_prefix = CString::new(prefix).unwrap();
+    let c_href = CString::new(href).unwrap();
+    unsafe {
+      let result = xmlXPathRegisterNs(self.context_ptr, c_prefix.as_ptr(), c_href.as_ptr());
+      if result != 0 {
+        Err(())
+      } else {
+        Ok(())
+      }
+    }
+  }
+
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
