@@ -514,9 +514,14 @@ impl Namespace {
   /// Creates a new namespace
   pub fn new(prefix: &str, href: &str, node: Node) -> Result<Self, ()> {
     let c_href = CString::new(href).unwrap();
-    let c_prefix = CString::new(prefix).unwrap();
+    let c_prefix = if prefix.is_empty() {
+      ptr::null()
+    } else {
+      CString::new(prefix).unwrap().as_ptr()
+    };
+
     unsafe {
-      let ns = xmlNewNs(node.node_ptr, c_href.as_ptr(), c_prefix.as_ptr());
+      let ns = xmlNewNs(node.node_ptr, c_href.as_ptr(), c_prefix);
       if ns.is_null() {
         Err(())
       } else {
