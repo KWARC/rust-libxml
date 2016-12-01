@@ -52,7 +52,6 @@ fn create_pi() {
   let node_ok = doc.create_processing_instruction("piname", "picontent");
   assert!(node_ok.is_ok());
   let doc_string = doc.to_string();
-  println!("{:?}", doc_string);
   assert!(doc_string.len() > 1);
 }
 
