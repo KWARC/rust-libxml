@@ -494,11 +494,16 @@ impl Node {
   }
 
   /// Append text to this `Node`
-  pub fn append_text(&mut self, content: &str) -> Result<Node, ()> {
+  pub fn append_text(&mut self, content: &str) -> Result<(),()> {
+    let c_len = content.len() as i32;
     let c_content = CString::new(content).unwrap();
     unsafe {
-      let new_ptr = xmlNewText(self.node_ptr, c_content.as_ptr());
-      Ok(Node { node_ptr: new_ptr })
+      let result = xmlTextConcat(self.node_ptr, c_content.as_ptr(), c_len);
+      if result != 0 {
+        Err(())
+      } else {
+        Ok(())
+      }
     }
   }
 }
