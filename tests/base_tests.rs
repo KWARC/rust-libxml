@@ -38,7 +38,7 @@ fn hello_builder() {
   let node_string = doc.node_to_string(&hello_element);
   assert!(node_string.len() > 1);
 
-  let doc_string = doc.to_string();
+  let doc_string = doc.to_string(false);
   assert!(doc_string.len() > 1);
   assert!(doc.save_file("tests/results/helloworld.xml").is_ok());
 }
@@ -51,7 +51,7 @@ fn create_pi() {
   // Add a PI
   let node_ok = doc.create_processing_instruction("piname", "picontent");
   assert!(node_ok.is_ok());
-  let doc_string = doc.to_string();
+  let doc_string = doc.to_string(false);
   assert!(doc_string.len() > 1);
 }
 

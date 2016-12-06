@@ -119,13 +119,21 @@ impl Document {
   }
 
   /// Serializes the `Document`
-  pub fn to_string(&self) -> String {
+  pub fn to_string(&self, format: bool) -> String {
     unsafe {
       // allocate a buffer to dump into
       let mut receiver = ptr::null_mut();
       let size: c_int = 0;
       let c_utf8 = CString::new("UTF-8").unwrap();
-      xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &size, c_utf8.as_ptr(), 1);
+
+      if !format {
+        xmlDocDumpMemoryEnc(self.doc_ptr, &mut receiver, &size, c_utf8.as_ptr(), 1);
+      } else {
+        let current_indent = getIndentTreeOutput();
+        setIndentTreeOutput(1);
+        xmlDocDumpFormatMemoryEnc(self.doc_ptr, &mut receiver, &size, c_utf8.as_ptr(), 1);
+        setIndentTreeOutput(current_indent);
+      }
 
       let c_string = CStr::from_ptr(receiver);
       let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();

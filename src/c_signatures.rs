@@ -46,6 +46,9 @@ extern "C" {
   pub fn xmlNodeDump(buf: *mut c_void, doc: *mut c_void, node: *mut c_void, indent: c_int, disable_format: c_int);
   // pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, format: c_int );
   pub fn xmlDocDumpMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);
+  pub fn xmlDocDumpFormatMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);
+  pub fn setIndentTreeOutput(indent: c_int);
+  pub fn getIndentTreeOutput() -> c_int;
 
   // parser
   pub fn xmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;

@@ -35,6 +35,9 @@ int xmlGetNodeType(const xmlNodePtr cur);
 //(Different from xmlNodeGetContent)
 const char * xmlNodeGetContentPointer(const xmlNodePtr cur);
 
+void setIndentTreeOutput(const int indent);
+int getIndentTreeOutput();
+
 
 /*
  * helper functions for xpath
@@ -60,4 +63,3 @@ int htmlWellFormed(const htmlParserCtxtPtr ctxt);
  */
 
 void setWellFormednessHandler(const htmlParserCtxtPtr ctxt);
- 

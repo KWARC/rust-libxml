@@ -1,6 +1,5 @@
 #include "helper_functions.h"
 
-
 /*
  * Helper functions for tree
  */
@@ -33,6 +32,12 @@ const char * xmlNodeGetContentPointer(const xmlNodePtr cur) {
     return (char *) cur->content;
 }
 
+void setIndentTreeOutput(const int indent) {
+  xmlIndentTreeOutput = indent;
+}
+int getIndentTreeOutput() {
+  return xmlIndentTreeOutput;
+}
 
 
 /*
