@@ -611,9 +611,13 @@ impl Namespace {
   pub fn get_prefix(&self) -> String {
     unsafe {
       let prefix_ptr = xmlNsPrefix(self.ns_ptr);
-      let c_prefix = CStr::from_ptr(prefix_ptr);
-      let prefix = str::from_utf8(c_prefix.to_bytes()).unwrap().to_owned();
-      prefix
+      if prefix_ptr.is_null() {
+        String::new()
+      } else {
+        let c_prefix = CStr::from_ptr(prefix_ptr);
+        let prefix = str::from_utf8(c_prefix.to_bytes()).unwrap().to_owned();
+        prefix
+      }
     }
   }
 
@@ -621,9 +625,13 @@ impl Namespace {
   pub fn get_url(&self) -> String {
     unsafe {
       let url_ptr = xmlNsURL(self.ns_ptr);
-      let c_url = CStr::from_ptr(url_ptr);
-      let url = str::from_utf8(c_url.to_bytes()).unwrap().to_owned();
-      url
+      if url_ptr.is_null() {
+        String::new()
+      } else {
+        let c_url = CStr::from_ptr(url_ptr);
+        let url = str::from_utf8(c_url.to_bytes()).unwrap().to_owned();
+        url
+      }
     }
   }
 }
