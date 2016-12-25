@@ -165,14 +165,14 @@ fn node_attributes_accessor() {
 
   // Tests
   let attributes = child_opt.unwrap().get_attributes();
-  println!("Attributes: {:?}", attributes);
+  // println!("Attributes: {:?}", attributes);
   assert_eq!(attributes.get("attribute"), Some(&"value".to_string()));
 
 }
 
 #[test]
 /// Test the evaluation of an xpath expression yields the correct number of nodes
-fn test_xpath_result_number_correct() {
+fn xpath_result_number_correct() {
   let parser = Parser::default();
   let doc_result = parser.parse_file("tests/resources/file01.xml");
   assert!(doc_result.is_ok());
@@ -191,7 +191,7 @@ fn test_xpath_result_number_correct() {
 
 #[test]
 /// Test xpath with namespaces
-fn test_xpath_with_namespaces() {
+fn xpath_with_namespaces() {
   let parser = Parser::default();
   let doc_result = parser.parse_file("tests/resources/simple_namespaces.xml");
   assert!(doc_result.is_ok());
@@ -234,7 +234,7 @@ fn test_xpath_with_namespaces() {
 #[test]
 /// Test that an xpath expression finds the correct node and
 /// that the class names are interpreted correctly.
-fn test_class_names() {
+fn class_names() {
   let parser = Parser::default_html();
   let doc_result = parser.parse_file("tests/resources/file02.xml");
   assert!(doc_result.is_ok());
@@ -256,7 +256,7 @@ fn test_class_names() {
 
 #[test]
 /// Test that an xpath string() function processed correctly
-fn test_xpath_string_function() {
+fn xpath_string_function() {
   let parser = Parser::default_html();
   let doc_result = parser.parse_file("tests/resources/file01.xml");
   assert!(doc_result.is_ok());
@@ -275,7 +275,7 @@ fn test_xpath_string_function() {
 #[test]
 /// Test well-formedness of a Rust string
 /// IMPORTANT: Currenlty NOT THREAD-SAFE, use in single-threaded apps only!
-fn test_well_formed_html() {
+fn well_formed_html() {
   let parser = Parser::default_html();
 
   let trivial_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head></head><body></body></html>");
@@ -293,21 +293,21 @@ fn test_well_formed_html() {
 
 #[test]
 /// Can mock a node object (useful for defaults that will be overridden)
-fn test_can_mock_node() {
+fn can_mock_node() {
   let node_mock = Node::mock();
   assert!(!node_mock.is_text_node());
 }
 
 #[test]
 /// Can make a mock node hashable
-fn test_can_hash_mock_node() {
+fn can_hash_mock_node() {
   let node_mock = Node::mock();
   assert!(node_mock.to_hashable() > 0);
 }
 
 #[test]
 /// Can set and get attributes
-fn test_can_manage_attributes() {
+fn can_manage_attributes() {
   let mut doc = Document::new().unwrap();
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
@@ -328,7 +328,7 @@ fn test_can_manage_attributes() {
 
 #[test]
 /// Basic namespace workflow
-fn test_can_work_with_namespaces() {
+fn can_work_with_namespaces() {
   let mut doc = Document::new().unwrap();
   let root_node = Node::new("root", None, &doc).unwrap();
   doc.set_root_element(&root_node);
@@ -346,6 +346,21 @@ fn test_can_work_with_namespaces() {
   assert_eq!(namespace_list.len(), 1);
 
   // let namespace = namespace_list.pop();
+}
 
+#[test]
+/// Can view documents as nodes
+fn can_cast_doc_to_node() {
+  // Setup
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  assert!(doc_result.is_ok());
 
+  let doc = doc_result.unwrap();
+  let doc_node = doc.as_node();
+  assert_eq!(doc_node.get_type(), Some(NodeType::DocumentNode));
+  let root_node_opt = doc_node.get_first_child();
+  assert!(root_node_opt.is_some());
+  let root_node = root_node_opt.unwrap();
+  assert_eq!(root_node.get_name(), "root");
 }

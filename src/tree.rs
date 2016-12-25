@@ -178,6 +178,13 @@ impl Document {
       }
     }
   }
+
+  /// Cast the document as a libxml Node
+  pub fn as_node(&self) -> Node {
+    // TODO: Memory management? Could be a major pain...
+    Node {node_ptr: self.doc_ptr}
+  }
+
 }
 
 

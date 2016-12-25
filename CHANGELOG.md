@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.0.73] 2016-25-12
+
+### Added
+
+* Document method: `as_node`s
+
 ## [0.0.72] 2016-25-12
 
 ### Added
