@@ -1,13 +1,13 @@
 //! The tree functionality
 use c_signatures::*;
 
-use std::ffi::{CString, CStr};
 use libc;
 use libc::{c_void, c_int};
+use std::ffi::{CString, CStr};
 use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::str;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use std::mem;
 use global::*;
 
@@ -183,7 +183,7 @@ impl Document {
 
 
 // The helper functions for trees
-fn inserted_node_unless_null(ptr: *mut c_void) -> Option<Node> {
+fn ptr_as_node_opt(ptr: *mut c_void) -> Option<Node> {
   if ptr.is_null() {
     None
   } else {
@@ -298,31 +298,59 @@ impl Node {
   /// Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlNextSibling(self.node_ptr) };
-    inserted_node_unless_null(ptr)
+    ptr_as_node_opt(ptr)
   }
 
   /// Returns the previous sibling if it exists
   pub fn get_prev_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlPrevSibling(self.node_ptr) };
-    inserted_node_unless_null(ptr)
+    ptr_as_node_opt(ptr)
   }
 
   /// Returns the first child if it exists
   pub fn get_first_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetFirstChild(self.node_ptr) };
-    inserted_node_unless_null(ptr)
+    ptr_as_node_opt(ptr)
+  }
+
+  /// Returns the last child if it exists
+  pub fn get_last_child(&self) -> Option<Node> {
+    let ptr = unsafe { xmlGetLastChild(self.node_ptr) };
+    ptr_as_node_opt(ptr)
+  }
+
+  /// Returns all child nodes of the given node as a vector
+  pub fn get_child_nodes(&self) -> Vec<Node> {
+    let mut children = Vec::new();
+    if let Some(node) = self.get_first_child() {
+      children.push(node.clone());
+      let mut current_node = node;
+      while let Some(sibling) = current_node.get_next_sibling() {
+        current_node = sibling.clone();
+        children.push(sibling)
+      }
+    }
+    children
+  }
+
+  /// Returns all child elements of the given node as a vector
+  pub fn get_child_elements(&self) -> Vec<Node> {
+    self.get_child_nodes().into_iter().filter(
+      |n| n.get_type() == Some(NodeType::ElementNode)
+    ).collect::<Vec<Node>>()
   }
 
   /// Returns the parent if it exists
   pub fn get_parent(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetParent(self.node_ptr) };
-    inserted_node_unless_null(ptr)
+    ptr_as_node_opt(ptr)
   }
 
   /// Get the node type
   pub fn get_type(&self) -> Option<NodeType> {
     NodeType::from_c_int(unsafe { xmlGetNodeType(self.node_ptr) })
   }
+
 
   /// Add a previous sibling
   pub fn add_prev_sibling(&self, new_sibling: Node) -> Option<Node> {
@@ -422,6 +450,34 @@ impl Node {
   /// Alias for set_ns_property
   pub fn set_ns_attribute(&self, ns: Namespace, name: &str, value: &str) {
     self.set_ns_property(ns, name, value)
+  }
+
+  /// Get a copy of the attributes of this node
+  pub fn get_properties(&self) -> HashMap<String, String> {
+    let mut attributes = HashMap::new();
+    let mut attr_names = Vec::new();
+    unsafe {
+      let mut current_prop = xmlGetFirstProperty(self.node_ptr);
+      while !current_prop.is_null() {
+        let name_ptr = xmlAttrName(current_prop);
+        let c_name_string = CStr::from_ptr(name_ptr);
+        let name = str::from_utf8(c_name_string.to_bytes()).unwrap().to_owned();
+        attr_names.push(name);
+        current_prop = xmlNextPropertySibling(current_prop);
+      }
+    }
+
+    for name in attr_names {
+      let value = self.get_property(&name).unwrap_or(String::new());
+      attributes.insert(name, value);
+    }
+
+    attributes
+  }
+
+  /// Alias for `get_properties`
+  pub fn get_attributes(&self) -> HashMap<String, String> {
+    self.get_properties()
   }
 
 

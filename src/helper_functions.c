@@ -32,6 +32,18 @@ const char * xmlNodeGetContentPointer(const xmlNodePtr cur) {
     return (char *) cur->content;
 }
 
+xmlAttrPtr xmlGetFirstProperty(const xmlNodePtr cur) {
+    return cur->properties;
+}
+
+xmlAttrPtr xmlNextPropertySibling(const xmlAttrPtr cur) {
+    return cur->next;
+}
+
+const char * xmlAttrName(const xmlAttrPtr cur) {
+    return (char *) cur->name;
+}
+
 void setIndentTreeOutput(const int indent) {
   xmlIndentTreeOutput = indent;
 }

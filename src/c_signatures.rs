@@ -24,6 +24,9 @@ extern "C" {
   pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
   pub fn xmlGetProp(node: *const c_void, name: *const c_char) -> *const c_char;
   pub fn xmlSetProp(node: *const c_void, name: *const c_char, value: *const c_char) -> *const c_char;
+  pub fn xmlGetFirstProperty(node: *const c_void) -> *mut c_void;
+  pub fn xmlNextPropertySibling(attr: *const c_void) -> *mut c_void;
+  pub fn xmlAttrName(attr: *const c_void) -> *const c_char;
   pub fn xmlGetNsList(doc: *const c_void, node: *const c_void) -> *const *mut c_void;
   pub fn xmlSetNs(node: *const c_void, ns: *const c_void);
   pub fn xmlSetNsProp(node: *const c_void, ns: *const c_void, name: *const c_char, value: *const c_char);
@@ -35,6 +38,7 @@ extern "C" {
   pub fn xmlAddPrevSibling(cur: *const c_void, new: *const c_void) -> *mut c_void;
   pub fn xmlAddNextSibling(cur: *const c_void, new: *const c_void) -> *mut c_void;
   pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
+  pub fn xmlGetLastChild(cur: *const c_void) -> *mut c_void;
   pub fn xmlGetParent(cur: *const c_void) -> *mut c_void;
   pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
   pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;

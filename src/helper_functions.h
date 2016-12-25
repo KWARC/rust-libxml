@@ -31,6 +31,15 @@ const char * xmlNodeGetName(const xmlNodePtr cur);
 //returns cur->type
 int xmlGetNodeType(const xmlNodePtr cur);
 
+//returns cur->property
+xmlAttrPtr xmlGetFirstProperty(const xmlNodePtr cur);
+
+//returns attr->next
+xmlAttrPtr xmlNextPropertySibling(const xmlAttrPtr cur);
+
+//returns attr->name
+const char * xmlAttrName(const xmlAttrPtr cur);
+
 //returns cur->content
 //(Different from xmlNodeGetContent)
 const char * xmlNodeGetContentPointer(const xmlNodePtr cur);

@@ -110,12 +110,18 @@ fn child_of_root_has_different_hash() {
     } else {
       assert!(false);   //test failed - child doesn't exist
     }
+    // same check with last child
+    if let Some(child) = root.get_last_child() {
+      assert!(root != child);
+    } else {
+      assert!(false);   //test failed - child doesn't exist
+    }
   }
 }
 
 #[test]
 /// Siblings basic unit tests
-fn sibling_unit_tests() {
+fn node_sibling_accessors() {
   let mut doc = Document::new().unwrap();
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
@@ -124,6 +130,44 @@ fn sibling_unit_tests() {
 
   let new_sibling = Node::new("sibling", None, &doc).unwrap();
   assert!(hello_element.add_prev_sibling(new_sibling).is_some());
+}
+
+#[test]
+fn node_children_accessors() {
+  // Setup
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+  let root = doc.get_root_element();
+
+  // Tests
+  let root_children = root.get_child_nodes();
+  assert_eq!(root_children.len(), 5, "file01 root has five child nodes");
+  let mut element_children = root.get_child_elements();
+  assert_eq!(element_children.len(), 2, "file01 root has two child elements");
+  assert_eq!(element_children.pop().unwrap().get_name(), "child");
+  assert_eq!(element_children.pop().unwrap().get_name(), "child");
+  assert!(element_children.is_empty());
+}
+
+#[test]
+fn node_attributes_accessor() {
+  // Setup
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+  let root = doc.get_root_element();
+  let root_elements = root.get_child_elements();
+  let child_opt = root_elements.first();
+  assert!(child_opt.is_some());
+
+  // Tests
+  let attributes = child_opt.unwrap().get_attributes();
+  println!("Attributes: {:?}", attributes);
+  assert_eq!(attributes.get("attribute"), Some(&"value".to_string()));
+
 }
 
 #[test]

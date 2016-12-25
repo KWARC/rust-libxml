@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.0.72] 2016-25-12
+
+### Added
+
+* Node methods: `get_last_child`, `get_child_nodes`, `get_child_elements`, `get_properties`, `get_attributes`
+
 ## [0.0.71] 2016-29-11
 
 ### Changed
@@ -10,7 +16,6 @@
 
 * Node namespace accessors - `set_namespace`, `get_namespaces`, `set_ns_attribute`, `set_ns_property`
 * Namespace registration for XPath
-*
 
 ## [0.0.7] 2016-27-11
 
