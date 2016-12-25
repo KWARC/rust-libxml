@@ -588,21 +588,42 @@ pub struct Namespace {
 
 impl Namespace {
   /// Creates a new namespace
-  pub fn new(prefix: &str, href: &str, node: Node) -> Result<Self, ()> {
+  pub fn new(prefix: &str, href: &str, node: &Node) -> Result<Self, ()> {
     let c_href = CString::new(href).unwrap();
-    let c_prefix = if prefix.is_empty() {
+    let c_prefix = CString::new(prefix).unwrap();
+    let c_prefix_ptr = if prefix.is_empty() {
       ptr::null()
     } else {
-      CString::new(prefix).unwrap().as_ptr()
+      c_prefix.as_ptr()
     };
 
     unsafe {
-      let ns = xmlNewNs(node.node_ptr, c_href.as_ptr(), c_prefix);
+      let ns = xmlNewNs(node.node_ptr, c_href.as_ptr(), c_prefix_ptr);
       if ns.is_null() {
         Err(())
       } else {
         Ok(Namespace { ns_ptr: ns })
       }
+    }
+  }
+
+  /// The namespace prefix
+  pub fn get_prefix(&self) -> String {
+    unsafe {
+      let prefix_ptr = xmlNsPrefix(self.ns_ptr);
+      let c_prefix = CStr::from_ptr(prefix_ptr);
+      let prefix = str::from_utf8(c_prefix.to_bytes()).unwrap().to_owned();
+      prefix
+    }
+  }
+
+  /// The namespace url
+  pub fn get_url(&self) -> String {
+    unsafe {
+      let url_ptr = xmlNsURL(self.ns_ptr);
+      let c_url = CStr::from_ptr(url_ptr);
+      let url = str::from_utf8(c_url.to_bytes()).unwrap().to_owned();
+      url
     }
   }
 }

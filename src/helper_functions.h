@@ -40,6 +40,11 @@ xmlAttrPtr xmlNextPropertySibling(const xmlAttrPtr cur);
 //returns attr->name
 const char * xmlAttrName(const xmlAttrPtr cur);
 
+// returns ns->prefix
+const char * xmlNsPrefix(const xmlNsPtr ns);
+// returns ns->href
+const char * xmlNsURL(const xmlNsPtr ns);
+
 //returns cur->content
 //(Different from xmlNodeGetContent)
 const char * xmlNodeGetContentPointer(const xmlNodePtr cur);

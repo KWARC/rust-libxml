@@ -30,6 +30,8 @@ extern "C" {
   pub fn xmlGetNsList(doc: *const c_void, node: *const c_void) -> *const *mut c_void;
   pub fn xmlSetNs(node: *const c_void, ns: *const c_void);
   pub fn xmlSetNsProp(node: *const c_void, ns: *const c_void, name: *const c_char, value: *const c_char);
+  pub fn xmlNsPrefix(ns: *const c_void) -> *const c_char;
+  pub fn xmlNsURL(ns: *const c_void) -> *const c_char;
   // helper for tree
   pub fn xmlTextConcat(node: *const c_void, text: *const c_char, len: c_int) -> c_int;
   pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;

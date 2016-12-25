@@ -1,10 +1,22 @@
 # Change Log
 
+## [0.0.74] 2016-25-12
+
+### Changed
+
+* Namespace::new only requires a borrowed &Node now
+* Fixed bug with wrongly discarded namespace prefixes on Namespace::new
+
+### Added
+
+* Namespace methods: `get_prefix`, `get_url`
+
+
 ## [0.0.73] 2016-25-12
 
 ### Added
 
-* Document method: `as_node`s
+* Document method: `as_node`
 
 ## [0.0.72] 2016-25-12
 

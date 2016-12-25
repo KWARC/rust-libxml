@@ -336,16 +336,26 @@ fn can_work_with_namespaces() {
   let initial_namespace_list = root_node.get_namespaces(&doc);
   assert_eq!(initial_namespace_list.len(), 0);
 
-  let mock_ns_result = Namespace::new("mock", "http://example.com/ns/mock", root_node.clone());
+  let mock_ns_result = Namespace::new("mock", "http://example.com/ns/mock", &root_node);
   assert!(mock_ns_result.is_ok());
+  let second_ns_result = Namespace::new("second", "http://example.com/ns/second", &root_node);
+  assert!(second_ns_result.is_ok());
+
   // try to attach this namespace to a node
   root_node.set_namespace(mock_ns_result.unwrap());
 
   // now get all namespaces for the node and check we have ours
-  let namespace_list = root_node.get_namespaces(&doc);
-  assert_eq!(namespace_list.len(), 1);
+  let mut namespace_list = root_node.get_namespaces(&doc);
+  assert_eq!(namespace_list.len(), 2);
 
-  // let namespace = namespace_list.pop();
+  let second_ns = namespace_list.pop().unwrap();
+  assert_eq!(second_ns.get_prefix(), "second");
+  assert_eq!(second_ns.get_url(), "http://example.com/ns/second");
+
+  let first_ns = namespace_list.pop().unwrap();
+  assert_eq!(first_ns.get_prefix(), "mock");
+  assert_eq!(first_ns.get_url(), "http://example.com/ns/mock");
+
 }
 
 #[test]

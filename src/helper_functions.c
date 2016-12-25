@@ -44,6 +44,15 @@ const char * xmlAttrName(const xmlAttrPtr cur) {
     return (char *) cur->name;
 }
 
+const char * xmlNsPrefix(const xmlNsPtr ns) {
+    return (char *) ns->prefix;
+}
+
+const char * xmlNsURL(const xmlNsPtr ns) {
+    return (char *) ns->href;
+}
+
+
 void setIndentTreeOutput(const int indent) {
   xmlIndentTreeOutput = indent;
 }
