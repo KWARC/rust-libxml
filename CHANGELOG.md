@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.0.72] 2016-25-12
+
+### Added
+
+* Node method: `get_namespace_declarations`
+
+
 ## [0.0.74] 2016-25-12
 
 ### Changed

@@ -31,6 +31,9 @@ const char * xmlNodeGetName(const xmlNodePtr cur);
 //returns cur->type
 int xmlGetNodeType(const xmlNodePtr cur);
 
+// returns cur->nsDef
+xmlNsPtr xmlNodeNsDeclarations(const xmlNodePtr cur);
+
 //returns cur->property
 xmlAttrPtr xmlGetFirstProperty(const xmlNodePtr cur);
 
@@ -44,6 +47,8 @@ const char * xmlAttrName(const xmlAttrPtr cur);
 const char * xmlNsPrefix(const xmlNsPtr ns);
 // returns ns->href
 const char * xmlNsURL(const xmlNsPtr ns);
+// returns ns->next
+xmlNsPtr xmlNextNsSibling(const xmlNsPtr ns);
 
 //returns cur->content
 //(Different from xmlNodeGetContent)

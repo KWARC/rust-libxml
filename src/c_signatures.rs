@@ -32,6 +32,7 @@ extern "C" {
   pub fn xmlSetNsProp(node: *const c_void, ns: *const c_void, name: *const c_char, value: *const c_char);
   pub fn xmlNsPrefix(ns: *const c_void) -> *const c_char;
   pub fn xmlNsURL(ns: *const c_void) -> *const c_char;
+  pub fn xmlCopyNamespace(ns: *const c_void) -> *mut c_void;
   // helper for tree
   pub fn xmlTextConcat(node: *const c_void, text: *const c_char, len: c_int) -> c_int;
   pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
@@ -50,6 +51,8 @@ extern "C" {
   pub fn xmlBufferFree(buf: *mut c_void);
   pub fn xmlBufferContent(buf: *mut c_void) -> *const c_char;
   pub fn xmlNodeDump(buf: *mut c_void, doc: *mut c_void, node: *mut c_void, indent: c_int, disable_format: c_int);
+  pub fn xmlNodeNsDeclarations(cur: *const c_void) -> *mut c_void;
+  pub fn xmlNextNsSibling(attr: *const c_void) -> *mut c_void;
   // pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, format: c_int );
   pub fn xmlDocDumpMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);
   pub fn xmlDocDumpFormatMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);

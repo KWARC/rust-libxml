@@ -52,6 +52,14 @@ const char * xmlNsURL(const xmlNsPtr ns) {
     return (char *) ns->href;
 }
 
+xmlNsPtr xmlNextNsSibling(const xmlNsPtr ns) {
+    return ns->next;
+}
+
+xmlNsPtr xmlNodeNsDeclarations(const xmlNodePtr cur) {
+    return cur->nsDef;
+}
+
 
 void setIndentTreeOutput(const int indent) {
   xmlIndentTreeOutput = indent;

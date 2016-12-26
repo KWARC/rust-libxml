@@ -356,6 +356,8 @@ fn can_work_with_namespaces() {
   assert_eq!(first_ns.get_prefix(), "mock");
   assert_eq!(first_ns.get_url(), "http://example.com/ns/mock");
 
+  let declarations = root_node.get_namespace_declarations();
+  assert_eq!(declarations.len(), 2);
 }
 
 #[test]

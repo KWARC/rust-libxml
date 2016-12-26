@@ -506,6 +506,29 @@ impl Node {
     }
     ns_found
   }
+
+  /// Get a list of namespaces declared with this node
+  pub fn get_namespace_declarations(&self) -> Vec<Namespace> {
+    let mut declarations = Vec::new();
+    if self.get_type() != Some(NodeType::ElementNode) {
+      return declarations; // only element nodes can have declarations
+    }
+
+    unsafe {
+      let mut ns = xmlNodeNsDeclarations(self.node_ptr);
+      while !ns.is_null() {
+        if !xmlNsPrefix(ns).is_null() || !xmlNsURL(ns).is_null() {
+          let ns_copy = xmlCopyNamespace(ns);
+          if !ns_copy.is_null() {
+            declarations.push(Namespace{ns_ptr: ns_copy});
+          }
+          ns = xmlNextNsSibling(ns);
+        }
+      }
+    }
+    declarations
+  }
+
   /// Sets a `Namespace` for the node
   pub fn set_namespace(&self, namespace: Namespace) {
     unsafe {

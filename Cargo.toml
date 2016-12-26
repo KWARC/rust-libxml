@@ -1,6 +1,6 @@
 [package]
 name = "libxml"
-version = "0.0.741"
+version = "0.0.742"
 authors = ["Jan Frederik Schaefer <j.schaefer@jacobs-university.de>", "Deyan Ginev <d.ginev@jacobs-university.de>"]
 description = "A Rust wrapper for libxml2"
 repository = "https://github.com/KWARC/rust-libxml"
