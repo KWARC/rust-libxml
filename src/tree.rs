@@ -433,6 +433,23 @@ impl Node {
     Some(prop_str)
   }
 
+  /// Returns the value of property `name` in namespace `ns`
+  pub fn get_property_ns(&self, name: &str, ns: &str) -> Option<String> {
+    let c_name = CString::new(name).unwrap();
+    let c_ns = CString::new(ns).unwrap();
+    let value_ptr = unsafe { xmlGetNsProp(self.node_ptr, c_name.as_ptr(), c_ns.as_ptr()) };
+    if value_ptr.is_null() {
+      return None;
+    }
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
+    let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().to_owned();
+    unsafe {
+      libc::free(value_ptr as *mut c_void);
+    }
+    Some(prop_str)
+  }
+
+
   /// Sets the value of property `name` to `value`
   pub fn set_property(&self, name: &str, value: &str) {
     let c_name = CString::new(name).unwrap();
@@ -440,7 +457,7 @@ impl Node {
     unsafe { xmlSetProp(self.node_ptr, c_name.as_ptr(), c_value.as_ptr()) };
   }
   /// Sets a namespaced attribute
-  pub fn set_ns_property(&self, ns: Namespace, name: &str, value: &str) {
+  pub fn set_property_ns(&self, name: &str, value: &str, ns: Namespace) {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe { xmlSetNsProp(self.node_ptr, ns.ns_ptr, c_name.as_ptr(), c_value.as_ptr()) };
@@ -450,13 +467,18 @@ impl Node {
   pub fn get_attribute(&self, name: &str) -> Option<String> {
     self.get_property(name)
   }
+  /// Alias for get_property_ns
+  pub fn get_attribute_ns(&self, name: &str, ns: &str) -> Option<String> {
+    self.get_property_ns(name, ns)
+  }
+
   /// Alias for set_property
   pub fn set_attribute(&self, name: &str, value: &str) {
     self.set_property(name, value)
   }
-  /// Alias for set_ns_property
-  pub fn set_ns_attribute(&self, ns: Namespace, name: &str, value: &str) {
-    self.set_ns_property(ns, name, value)
+  /// Alias for set_property_ns
+  pub fn set_attribute_ns(&self, name: &str, value: &str, ns: Namespace) {
+    self.set_property_ns(name, value, ns)
   }
 
   /// Get a copy of the attributes of this node

@@ -1,11 +1,14 @@
 # Change Log
 
-## [0.0.72] 2016-25-12
+## [0.0.75 (in active dev)]
 
 ### Added
 
-* Node method: `get_namespace_declarations`
+* Node methods: `get_namespace_declarations`, `get_property_ns` (alias: `get_attribute_ns`)
 
+### Changed
+
+* The Node setter for a namespaced attribute is now `set_property_ns` (alias: `set_attribute_ns`)
 
 ## [0.0.74] 2016-25-12
 

@@ -167,7 +167,32 @@ fn node_attributes_accessor() {
   let attributes = child_opt.unwrap().get_attributes();
   // println!("Attributes: {:?}", attributes);
   assert_eq!(attributes.get("attribute"), Some(&"value".to_string()));
+}
 
+#[test]
+fn attribute_namespace_accessors() {
+  let mut doc = Document::new().unwrap();
+  let element_result = Node::new("example", None, &doc);
+  assert!(element_result.is_ok());
+
+  let element = element_result.unwrap();
+  doc.set_root_element(&element);
+
+  let ns_result = Namespace::new("myxml", "http://www.w3.org/XML/1998/namespace", &element);
+  assert!(ns_result.is_ok());
+  let ns = ns_result.unwrap();
+  element.set_attribute_ns("id", "testing", ns);
+
+  let id_attr = element.get_attribute_ns("id", "http://www.w3.org/XML/1998/namespace");
+  assert!(id_attr.is_some());
+  assert_eq!(id_attr.unwrap(), "testing");
+
+  let id_regular = element.get_attribute("id");
+  assert!(id_regular.is_some());
+  assert_eq!(id_regular.unwrap(), "testing");
+
+  let id_false_ns = element.get_attribute_ns("id", "http://www.foobar.org");
+  assert!(id_false_ns.is_none());
 }
 
 #[test]
