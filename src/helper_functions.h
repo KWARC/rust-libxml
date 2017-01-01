@@ -31,6 +31,9 @@ const char * xmlNodeGetName(const xmlNodePtr cur);
 //returns cur->type
 int xmlGetNodeType(const xmlNodePtr cur);
 
+//returns cur->ns
+xmlNsPtr xmlNodeNs(const xmlNodePtr cur);
+
 // returns cur->nsDef
 xmlNsPtr xmlNodeNsDeclarations(const xmlNodePtr cur);
 

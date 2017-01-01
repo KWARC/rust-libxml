@@ -55,6 +55,7 @@ extern "C" {
   pub fn xmlBufferContent(buf: *mut c_void) -> *const c_char;
   pub fn xmlNodeDump(buf: *mut c_void, doc: *mut c_void, node: *mut c_void, indent: c_int, disable_format: c_int);
   pub fn xmlNodeNsDeclarations(cur: *const c_void) -> *mut c_void;
+  pub fn xmlNodeNs(cur: *const c_void) -> *mut c_void;
   pub fn xmlNextNsSibling(attr: *const c_void) -> *mut c_void;
   // pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, format: c_int );
   pub fn xmlDocDumpMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);

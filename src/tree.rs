@@ -545,6 +545,17 @@ impl Node {
     self.get_properties()
   }
 
+  /// Gets the active namespace associated of this node
+  pub fn get_namespace(&self) -> Option<Namespace> {
+    unsafe {
+      let ns_ptr = xmlNodeNs(self.node_ptr);
+      if ns_ptr.is_null() {
+        None
+      } else {
+        Some(Namespace { ns_ptr: ns_ptr })
+      }
+    }
+  }
 
   /// Gets a list of namespaces associated with this node
   pub fn get_namespaces(&self, doc: &Document) -> Vec<Namespace> {

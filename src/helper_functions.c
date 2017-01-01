@@ -56,6 +56,10 @@ xmlNsPtr xmlNextNsSibling(const xmlNsPtr ns) {
     return ns->next;
 }
 
+xmlNsPtr xmlNodeNs(const xmlNodePtr cur) {
+    return cur->ns;
+}
+
 xmlNsPtr xmlNodeNsDeclarations(const xmlNodePtr cur) {
     return cur->nsDef;
 }

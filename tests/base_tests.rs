@@ -387,7 +387,13 @@ fn can_work_with_namespaces() {
   assert!(second_ns_result.is_ok());
 
   // try to attach this namespace to a node
+  assert!(root_node.get_namespace().is_none());
   root_node.set_namespace(mock_ns_result.unwrap());
+  let active_ns_opt = root_node.get_namespace();
+  assert!(active_ns_opt.is_some());
+  let active_ns = active_ns_opt.unwrap();
+  assert_eq!(active_ns.get_prefix(), "mock");
+  assert_eq!(active_ns.get_url(), "http://example.com/ns/mock");
 
   // now get all namespaces for the node and check we have ours
   let mut namespace_list = root_node.get_namespaces(&doc);
