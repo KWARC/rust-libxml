@@ -171,6 +171,13 @@ fn node_attributes_accessor() {
 
   // Get
   assert_eq!(child.get_attribute("attribute"), Some("value".to_string()));
+  // Get as node
+  let attr_node_opt = child.get_attribute_node("attribute");
+  assert!(attr_node_opt.is_some());
+  let attr_node = attr_node_opt.unwrap();
+  assert_eq!(attr_node.get_name(), "attribute");
+  assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
+
   // Set
   child.set_attribute("attribute","setter_value");
   assert_eq!(child.get_attribute("attribute"), Some("setter_value".to_string()));

@@ -449,6 +449,18 @@ impl Node {
     Some(prop_str)
   }
 
+  /// Return an attribute as a `Node` struct of type AttributeNode
+  pub fn get_property_node(&self, name: &str) -> Option<Node> {
+    let c_name = CString::new(name).unwrap();
+    unsafe {
+      let attr_node = xmlHasProp(self.node_ptr, c_name.as_ptr());
+      if attr_node.is_null() {
+        None
+      } else {
+        Some(Node{node_ptr: attr_node})
+      }
+    }
+  }
 
   /// Sets the value of property `name` to `value`
   pub fn set_property(&mut self, name: &str, value: &str) {
@@ -483,6 +495,12 @@ impl Node {
   /// Alias for get_property_ns
   pub fn get_attribute_ns(&self, name: &str, ns: &str) -> Option<String> {
     self.get_property_ns(name, ns)
+  }
+
+  /// Alias for get_property_node
+  pub fn get_attribute_node(&self, name: &str) -> Option<Node> {
+    self.get_property_node(name)
+
   }
 
   /// Alias for set_property
