@@ -4,11 +4,12 @@
 
 ### Added
 
-* Node methods: `get_namespace_declarations`, `get_property_ns` (alias: `get_attribute_ns`)
+* Node methods: `get_namespace_declarations`, `get_property_ns` (alias: `get_attribute_ns`), `remove_property` (alias: `remove_attribute`)
 
 ### Changed
 
 * The Node setter for a namespaced attribute is now `set_property_ns` (alias: `set_attribute_ns`)
+* Node set_* methods are now consistently defined on `&mut self`
 
 ## [0.0.74] 2016-25-12
 

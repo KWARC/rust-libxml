@@ -413,7 +413,7 @@ impl Node {
   }
 
   /// Sets the text content of this `Node`
-  pub fn set_content(&self, content: &str) {
+  pub fn set_content(&mut self, content: &str) {
     let c_content = CString::new(content).unwrap();
     unsafe { xmlNodeSetContent(self.node_ptr, c_content.as_ptr()) }
   }
@@ -451,16 +451,29 @@ impl Node {
 
 
   /// Sets the value of property `name` to `value`
-  pub fn set_property(&self, name: &str, value: &str) {
+  pub fn set_property(&mut self, name: &str, value: &str) {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe { xmlSetProp(self.node_ptr, c_name.as_ptr(), c_value.as_ptr()) };
   }
   /// Sets a namespaced attribute
-  pub fn set_property_ns(&self, name: &str, value: &str, ns: Namespace) {
+  pub fn set_property_ns(&mut self, name: &str, value: &str, ns: Namespace) {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe { xmlSetNsProp(self.node_ptr, ns.ns_ptr, c_name.as_ptr(), c_value.as_ptr()) };
+  }
+
+  /// Removes the property of given `name`
+  pub fn remove_property(&mut self, name: &str) {
+    // TODO: Should we make the API return a Result type here?
+    // Current behaviour on failures: silently return (noop)
+    let c_name = CString::new(name).unwrap();
+    unsafe {
+      let attr_node = xmlHasProp(self.node_ptr, c_name.as_ptr());
+      if !attr_node.is_null() {
+        xmlRemoveProp(attr_node);
+      }
+    }
   }
 
   /// Alias for get_property
@@ -473,12 +486,17 @@ impl Node {
   }
 
   /// Alias for set_property
-  pub fn set_attribute(&self, name: &str, value: &str) {
+  pub fn set_attribute(&mut self, name: &str, value: &str) {
     self.set_property(name, value)
   }
   /// Alias for set_property_ns
-  pub fn set_attribute_ns(&self, name: &str, value: &str, ns: Namespace) {
+  pub fn set_attribute_ns(&mut self, name: &str, value: &str, ns: Namespace) {
     self.set_property_ns(name, value, ns)
+  }
+
+  /// Alias for remove_property
+  pub fn remove_attribute(&mut self, name: &str) {
+    self.remove_property(name)
   }
 
   /// Get a copy of the attributes of this node
@@ -552,7 +570,7 @@ impl Node {
   }
 
   /// Sets a `Namespace` for the node
-  pub fn set_namespace(&self, namespace: Namespace) {
+  pub fn set_namespace(&mut self, namespace: Namespace) {
     unsafe {
       xmlSetNs(self.node_ptr, namespace.ns_ptr);
     }

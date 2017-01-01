@@ -31,7 +31,7 @@ fn hello_builder() {
 
   let added = hello_element.new_child(None, "child");
   assert!(added.is_ok());
-  let new_child = added.unwrap();
+  let mut new_child = added.unwrap();
 
   new_child.set_content("set content");
 
@@ -159,14 +159,27 @@ fn node_attributes_accessor() {
   assert!(doc_result.is_ok());
   let doc = doc_result.unwrap();
   let root = doc.get_root_element();
-  let root_elements = root.get_child_elements();
-  let child_opt = root_elements.first();
+  let mut root_elements = root.get_child_elements();
+  let child_opt = root_elements.first_mut();
   assert!(child_opt.is_some());
+  let mut child = child_opt.unwrap();
 
-  // Tests
-  let attributes = child_opt.unwrap().get_attributes();
-  // println!("Attributes: {:?}", attributes);
+  // All attributes
+  let attributes = child.get_attributes();
+  assert_eq!(attributes.len(), 1);
   assert_eq!(attributes.get("attribute"), Some(&"value".to_string()));
+
+  // Get
+  assert_eq!(child.get_attribute("attribute"), Some("value".to_string()));
+  // Set
+  child.set_attribute("attribute","setter_value");
+  assert_eq!(child.get_attribute("attribute"), Some("setter_value".to_string()));
+  // Remove
+  child.remove_attribute("attribute");
+  assert_eq!(child.get_attribute("attribute"), None);
+  // Recount
+  let attributes = child.get_attributes();
+  assert_eq!(attributes.len(), 0);
 }
 
 #[test]
@@ -175,7 +188,7 @@ fn attribute_namespace_accessors() {
   let element_result = Node::new("example", None, &doc);
   assert!(element_result.is_ok());
 
-  let element = element_result.unwrap();
+  let mut element = element_result.unwrap();
   doc.set_root_element(&element);
 
   let ns_result = Namespace::new("myxml", "http://www.w3.org/XML/1998/namespace", &element);
@@ -355,7 +368,7 @@ fn can_manage_attributes() {
 /// Basic namespace workflow
 fn can_work_with_namespaces() {
   let mut doc = Document::new().unwrap();
-  let root_node = Node::new("root", None, &doc).unwrap();
+  let mut root_node = Node::new("root", None, &doc).unwrap();
   doc.set_root_element(&root_node);
 
   let initial_namespace_list = root_node.get_namespaces(&doc);
