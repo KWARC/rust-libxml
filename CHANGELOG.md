@@ -6,6 +6,8 @@
 
 * Node methods: `get_namespace_declarations`, `get_property_ns` (alias: `get_attribute_ns`), `remove_property` (alias: `remove_attribute`), `get_attribute_node`, `get_namespace`
 
+* XPath methods: `findvalue` and `findnodes`, with optional node-bound evaluation.
+
 ### Changed
 
 * The Node setter for a namespaced attribute is now `set_property_ns` (alias: `set_attribute_ns`)

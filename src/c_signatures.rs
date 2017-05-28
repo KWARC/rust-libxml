@@ -92,6 +92,7 @@ extern "C" {
   pub fn xmlXPathEvalExpression(str: *const c_char, ctxt: *mut c_void) -> *mut c_void;
   pub fn xmlXPathCastToString(val: *const c_void) -> *const c_char;
   pub fn xmlXPathRegisterNs(ctxt: *mut c_void, prefix: *const c_char, href: *const c_char) -> c_int;
+  pub fn xmlXPathSetContextNode(node: *mut c_void, ctxt: *mut c_void) -> c_int;
   // helper for xpath
   pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
   pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;

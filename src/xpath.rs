@@ -71,6 +71,36 @@ impl<'a> Context<'a> {
       Ok(Object { ptr: result })
     }
   }
+
+  /// localize xpath context to a specific Node
+  pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
+    unsafe {
+      let result = xmlXPathSetContextNode(node.node_ptr, self.context_ptr);
+      if result != 0 {
+        return Err(())
+      }
+    }
+    Ok(())
+  }
+
+  /// find nodes via xpath, at a specified node or the document root
+  pub fn findnodes(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<Vec<Node>, ()> {
+    if let Some(node) = node_opt {
+      try!(self.set_context_node(node));
+    }
+    let evaluated = try!(self.evaluate(xpath));
+    Ok(evaluated.get_nodes_as_vec())
+  }
+
+  /// find a literal value via xpath, at a specified node or the document root
+  pub fn findvalue(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<String, ()> {
+    if let Some(node) = node_opt {
+      try!(self.set_context_node(node));
+    }
+    let evaluated = try!(self.evaluate(xpath));
+    Ok(evaluated.to_string())
+  }
+
 }
 
 impl Drop for Object {
