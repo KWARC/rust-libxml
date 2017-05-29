@@ -34,7 +34,7 @@ extern "C" {
   pub fn xmlSetNs(node: *const c_void, ns: *const c_void);
   pub fn xmlSetNsProp(node: *const c_void, ns: *const c_void, name: *const c_char, value: *const c_char);
   pub fn xmlNsPrefix(ns: *const c_void) -> *const c_char;
-  pub fn xmlNsURL(ns: *const c_void) -> *const c_char;
+  pub fn xmlNsHref(ns: *const c_void) -> *const c_char;
   pub fn xmlCopyNamespace(ns: *const c_void) -> *mut c_void;
   // helper for tree
   pub fn xmlTextConcat(node: *const c_void, text: *const c_char, len: c_int) -> c_int;
@@ -46,6 +46,7 @@ extern "C" {
   pub fn xmlGetFirstChild(cur: *const c_void) -> *mut c_void;
   pub fn xmlGetLastChild(cur: *const c_void) -> *mut c_void;
   pub fn xmlGetParent(cur: *const c_void) -> *mut c_void;
+  pub fn xmlGetDoc(cur: *const c_void) -> *mut c_void;
   pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
   pub fn xmlNodeGetContentPointer(cur: *const c_void) -> *const c_char;
   pub fn xmlNodeSetContent(node: *mut c_void, cur: *const c_char);
@@ -93,6 +94,8 @@ extern "C" {
   pub fn xmlXPathCastToString(val: *const c_void) -> *const c_char;
   pub fn xmlXPathRegisterNs(ctxt: *mut c_void, prefix: *const c_char, href: *const c_char) -> c_int;
   pub fn xmlXPathSetContextNode(node: *mut c_void, ctxt: *mut c_void) -> c_int;
+  pub fn xmlSearchNsByHref(doc: *mut c_void, node: *mut c_void, href: *const c_char) -> *mut c_void;
+  pub fn xmlSearchNs( doc: *mut c_void, node: *mut c_void, prefix: *const c_char ) -> *mut c_void;
   // helper for xpath
   pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
   pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;

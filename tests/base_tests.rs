@@ -213,6 +213,20 @@ fn attribute_namespace_accessors() {
 
   let id_false_ns = element.get_attribute_ns("id", "http://www.foobar.org");
   assert!(id_false_ns.is_none());
+  let fb_ns_result = Namespace::new("fb", "http://www.foobar.org", &element);
+  assert!(fb_ns_result.is_ok());
+  let fb_ns = fb_ns_result.unwrap();
+  element.set_attribute_ns("fb", "fb", fb_ns);
+
+  let ns_prefix = element.lookup_namespace_prefix("http://www.w3.org/XML/1998/namespace");
+  assert_eq!(ns_prefix, Some("xml".to_string())); // system ns has the global prefix when doing global lookup
+  let fb_prefix = element.lookup_namespace_prefix("http://www.foobar.org");
+  assert_eq!(fb_prefix, Some("fb".to_string())); // system ns has the global prefix when doing global lookup
+
+  let ns_uri = element.lookup_namespace_uri("myxml");
+  assert_eq!(ns_uri, Some("http://www.w3.org/XML/1998/namespace".to_string())); // system ns has the global uri when doing global lookup
+  let fb_uri = element.lookup_namespace_uri("fb");
+  assert_eq!(fb_uri, Some("http://www.foobar.org".to_string())); // system ns has the global prefix when doing global lookup
 }
 
 #[test]
@@ -393,7 +407,7 @@ fn can_work_with_namespaces() {
   assert!(active_ns_opt.is_some());
   let active_ns = active_ns_opt.unwrap();
   assert_eq!(active_ns.get_prefix(), "mock");
-  assert_eq!(active_ns.get_url(), "http://example.com/ns/mock");
+  assert_eq!(active_ns.get_href(), "http://example.com/ns/mock");
 
   // now get all namespaces for the node and check we have ours
   let mut namespace_list = root_node.get_namespaces(&doc);
@@ -401,11 +415,11 @@ fn can_work_with_namespaces() {
 
   let second_ns = namespace_list.pop().unwrap();
   assert_eq!(second_ns.get_prefix(), "second");
-  assert_eq!(second_ns.get_url(), "http://example.com/ns/second");
+  assert_eq!(second_ns.get_href(), "http://example.com/ns/second");
 
   let first_ns = namespace_list.pop().unwrap();
   assert_eq!(first_ns.get_prefix(), "mock");
-  assert_eq!(first_ns.get_url(), "http://example.com/ns/mock");
+  assert_eq!(first_ns.get_href(), "http://example.com/ns/mock");
 
   let declarations = root_node.get_namespace_declarations();
   assert_eq!(declarations.len(), 2);

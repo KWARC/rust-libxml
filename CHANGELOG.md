@@ -4,7 +4,7 @@
 
 ### Added
 
-* Node methods: `get_namespace_declarations`, `get_property_ns` (alias: `get_attribute_ns`), `remove_property` (alias: `remove_attribute`), `get_attribute_node`, `get_namespace`
+* Node methods: `get_namespace_declarations`, `get_property_ns` (alias: `get_attribute_ns`), `remove_property` (alias: `remove_attribute`), `get_attribute_node`, `get_namespace`, `lookup_namespace_prefix`, `lookup_namespace_uri`
 
 * XPath methods: `findvalue` and `findnodes`, with optional node-bound evaluation.
 
@@ -12,6 +12,7 @@
 
 * The Node setter for a namespaced attribute is now `set_property_ns` (alias: `set_attribute_ns`)
 * Node set_* methods are now consistently defined on `&mut self`
+* Refactored wrongly used `url` to `href` for namespace-related Node ops.
 
 ## [0.0.74] 2016-25-12
 

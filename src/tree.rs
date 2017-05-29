@@ -586,7 +586,7 @@ impl Node {
     unsafe {
       let mut ns = xmlNodeNsDeclarations(self.node_ptr);
       while !ns.is_null() {
-        if !xmlNsPrefix(ns).is_null() || !xmlNsURL(ns).is_null() {
+        if !xmlNsPrefix(ns).is_null() || !xmlNsHref(ns).is_null() {
           let ns_copy = xmlCopyNamespace(ns);
           if !ns_copy.is_null() {
             declarations.push(Namespace{ns_ptr: ns_copy});
@@ -605,7 +605,49 @@ impl Node {
     }
   }
 
+  /// Looks up the prefix of a namespace from its URI, basedo around a given `Node`
+  pub fn lookup_namespace_prefix(&self, href: &str) -> Option<String> {
+    if href.is_empty() {
+      return None;
+    }
+    let c_href = CString::new(href).unwrap();
+    unsafe {
+      let ns_ptr = xmlSearchNsByHref( xmlGetDoc(self.node_ptr), self.node_ptr, c_href.as_ptr() );
+      if !ns_ptr.is_null() {
+        let ns = Namespace { ns_ptr: ns_ptr };
+        let ns_prefix = ns.get_prefix();
+        if !ns_prefix.is_empty() {
+          Some(ns_prefix)
+        } else {
+          None
+        }
+      } else {
+        None
+      }
+    }
+  }
 
+  /// Looks up the uri of a namespace from its prefix, basedo around a given `Node`
+  pub fn lookup_namespace_uri(&self, prefix: &str) -> Option<String> {
+    if prefix.is_empty() {
+      return None;
+    }
+    let c_prefix = CString::new(prefix).unwrap();
+    unsafe {
+      let ns_ptr = xmlSearchNs( xmlGetDoc(self.node_ptr), self.node_ptr, c_prefix.as_ptr() );
+      if !ns_ptr.is_null() {
+        let ns = Namespace { ns_ptr: ns_ptr };
+        let ns_prefix = ns.get_href();
+        if !ns_prefix.is_empty() {
+          Some(ns_prefix)
+        } else {
+          None
+        }
+      } else {
+        None
+      }
+    }
+  }
 
   /// Get a set of class names from this node's attributes
   pub fn get_class_names(&self) -> HashSet<String> {
@@ -713,16 +755,16 @@ impl Namespace {
     }
   }
 
-  /// The namespace url
-  pub fn get_url(&self) -> String {
+  /// The namespace href
+  pub fn get_href(&self) -> String {
     unsafe {
-      let url_ptr = xmlNsURL(self.ns_ptr);
-      if url_ptr.is_null() {
+      let href_ptr = xmlNsHref(self.ns_ptr);
+      if href_ptr.is_null() {
         String::new()
       } else {
-        let c_url = CStr::from_ptr(url_ptr);
-        let url = str::from_utf8(c_url.to_bytes()).unwrap().to_owned();
-        url
+        let c_href = CStr::from_ptr(href_ptr);
+        let href = str::from_utf8(c_href.to_bytes()).unwrap().to_owned();
+        href
       }
     }
   }

@@ -25,6 +25,9 @@ xmlNodePtr xmlGetFirstChild(const xmlNodePtr cur);
 //returns cur->parent
 xmlNodePtr xmlGetParent(const xmlNodePtr cur);
 
+//returns cur->doc
+xmlDocPtr xmlGetDoc(const xmlNodePtr cur);
+
 //returns cur->name
 const char * xmlNodeGetName(const xmlNodePtr cur);
 

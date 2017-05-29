@@ -20,6 +20,10 @@ xmlNodePtr xmlGetParent(const xmlNodePtr cur) {
     return cur->parent;
 }
 
+xmlDocPtr xmlGetDoc(const xmlNodePtr cur) {
+    return cur->doc;
+}
+
 int xmlGetNodeType(const xmlNodePtr cur) {
     return cur->type;
 }
@@ -48,7 +52,7 @@ const char * xmlNsPrefix(const xmlNsPtr ns) {
     return (char *) ns->prefix;
 }
 
-const char * xmlNsURL(const xmlNsPtr ns) {
+const char * xmlNsHref(const xmlNsPtr ns) {
     return (char *) ns->href;
 }
 
