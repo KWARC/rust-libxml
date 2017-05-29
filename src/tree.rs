@@ -616,11 +616,7 @@ impl Node {
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr: ns_ptr };
         let ns_prefix = ns.get_prefix();
-        if !ns_prefix.is_empty() {
-          Some(ns_prefix)
-        } else {
-          None
-        }
+        Some(ns_prefix)
       } else {
         None
       }
