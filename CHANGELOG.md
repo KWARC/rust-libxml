@@ -13,6 +13,7 @@
 * The Node setter for a namespaced attribute is now `set_property_ns` (alias: `set_attribute_ns`)
 * Node set_* methods are now consistently defined on `&mut self`
 * Refactored wrongly used `url` to `href` for namespace-related Node ops.
+* Fixed bug with Node's `get_content` method always returning empty
 
 ## [0.0.74] 2016-25-12
 

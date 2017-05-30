@@ -35,6 +35,9 @@ fn hello_builder() {
 
   new_child.set_content("set content");
 
+  assert_eq!(new_child.get_content(), "set content");
+  assert_eq!(hello_element.get_content(), "world!set content");
+
   let node_string = doc.node_to_string(&hello_element);
   assert!(node_string.len() > 1);
 

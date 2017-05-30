@@ -404,7 +404,7 @@ impl Node {
   /// Returns the content of the node
   /// (empty string if content pointer is `NULL`)
   pub fn get_content(&self) -> String {
-    let content_ptr = unsafe { xmlNodeGetContentPointer(self.node_ptr) };
+    let content_ptr = unsafe { xmlNodeGetContent(self.node_ptr) };
     if content_ptr.is_null() {
       return String::new();
     }  //empty string
