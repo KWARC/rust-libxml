@@ -1,6 +1,7 @@
 # Change Log
+## [0.0.76 (in active dev)]
 
-## [0.0.75 (in active dev)]
+## [0.0.75] 2017-04-06
 
 ### Added
 
@@ -14,6 +15,7 @@
 * Node set_* methods are now consistently defined on `&mut self`
 * Refactored wrongly used `url` to `href` for namespace-related Node ops.
 * Fixed bug with Node's `get_content` method always returning empty
+* More stable `append_text` for node, added tests
 
 ## [0.0.74] 2016-25-12
 

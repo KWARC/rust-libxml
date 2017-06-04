@@ -36,8 +36,10 @@ extern "C" {
   pub fn xmlNsPrefix(ns: *const c_void) -> *const c_char;
   pub fn xmlNsHref(ns: *const c_void) -> *const c_char;
   pub fn xmlCopyNamespace(ns: *const c_void) -> *mut c_void;
+  // append text
+  //pub fn xmlTextConcat(node: *const c_void, text: *const c_char, len: c_int) -> c_int;
+  pub fn xmlNodeAddContentLen(node: *const c_void, text: *const c_char, len: c_int);
   // helper for tree
-  pub fn xmlTextConcat(node: *const c_void, text: *const c_char, len: c_int) -> c_int;
   pub fn xmlNextSibling(cur: *const c_void) -> *mut c_void;
   pub fn xmlPrevSibling(cur: *const c_void) -> *mut c_void;
   pub fn xmlAddChild(cur: *const c_void, new: *const c_void) -> *mut c_void;

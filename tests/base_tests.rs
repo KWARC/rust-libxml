@@ -389,6 +389,23 @@ fn can_manage_attributes() {
 }
 
 #[test]
+/// Can set and get text node content
+fn can_set_get_text_node_content() {
+  let mut doc = Document::new().unwrap();
+  let hello_element_result = Node::new("hello", None, &doc);
+  assert!(hello_element_result.is_ok());
+  let mut hello_element = hello_element_result.unwrap();
+  doc.set_root_element(&mut hello_element);
+
+  assert!( hello_element.get_content().is_empty() );
+  hello_element.append_text("hello ");
+  assert_eq!(hello_element.get_content(), "hello ");
+  hello_element.append_text("world!");
+  assert_eq!(hello_element.get_content(), "hello world!");
+
+}
+
+#[test]
 /// Basic namespace workflow
 fn can_work_with_namespaces() {
   let mut doc = Document::new().unwrap();
