@@ -704,6 +704,37 @@ impl Node {
       }
     }
   }
+
+  /// Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
+  /// If the node is not inserted into the DOM afterwards, it will be lost after the program terminates.
+  /// From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
+  pub fn unlink_node(&mut self) {
+    let node_type = self.get_type();
+    if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
+      unsafe {
+        xmlUnlinkNode( self.node_ptr );
+        // self.reparent_removed_node()
+      }
+    }
+  }
+  /// Alias for `unlink_node`
+  pub fn unlink(&mut self) {self.unlink_node()}
+  /// Alias for `unlink_node`
+  pub fn unbind_node(&mut self) {self.unlink_node()}
+  /// Alias for `unlink_node`
+  pub fn unbind(&mut self) {self.unlink_node()}
+
+  // fn reparent_removed_node(&mut self) {
+  //   /*
+  //    * Attribute nodes can't be added to document fragments. Adding
+  //    * DTD nodes would cause a memory leak.
+  //    */
+  //   let node_type = self.get_type();
+  //   if node_type != Some(NodeType::AttributeNode && node_type != Some(NodeType::DTDNode) {
+  //     ProxyNodePtr docfrag = PmmNewFragment(node->doc);
+  //     xmlAddChild(PmmNODE(docfrag), node);
+  //     PmmFixOwner(PmmPROXYNODE(node), docfrag);
+  //   }
 }
 
 ///An xml namespace

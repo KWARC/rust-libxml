@@ -1,6 +1,13 @@
 # Change Log
 ## [0.0.76 (in active dev)]
 
+### Added
+
+* Node methods: Ability to unbind nodes via `unbind_node`
+*
+
+### Changed
+
 ## [0.0.75] 2017-04-06
 
 ### Added

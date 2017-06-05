@@ -60,6 +60,7 @@ extern "C" {
   pub fn xmlNodeNsDeclarations(cur: *const c_void) -> *mut c_void;
   pub fn xmlNodeNs(cur: *const c_void) -> *mut c_void;
   pub fn xmlNextNsSibling(attr: *const c_void) -> *mut c_void;
+  pub fn xmlUnlinkNode(cur: *const c_void);
   // pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, format: c_int );
   pub fn xmlDocDumpMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);
   pub fn xmlDocDumpFormatMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);

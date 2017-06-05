@@ -233,6 +233,49 @@ fn attribute_namespace_accessors() {
 }
 
 #[test]
+fn node_can_unbind() {
+  let mut doc = Document::new().unwrap();
+  let element_result = Node::new("example", None, &doc);
+  assert!(element_result.is_ok());
+
+  let mut element = element_result.unwrap();
+  doc.set_root_element(&element);
+
+  let first = Node::new("first", None, &doc).unwrap();
+  let second = Node::new("second", None, &doc).unwrap();
+  let third = Node::new("third", None, &doc).unwrap();
+
+  let mut first_child = element.add_child(first).unwrap();
+  let mut second_child = element.add_child(second).unwrap();
+  let mut third_child = element.add_child(third).unwrap();
+
+  assert_eq!(element.get_child_nodes().len(), 3);
+  first_child.unbind_node();
+  assert_eq!(element.get_child_nodes().len(), 2);
+  second_child.unlink_node();
+  assert_eq!(element.get_child_nodes().len(), 1);
+  third_child.unlink();
+  assert_eq!(element.get_child_nodes().len(), 0);
+
+  // Test reparenting via unlink
+  let transfer = Node::new("transfer", None, &doc).unwrap();
+  let mut transfer_child = element.add_child(transfer).unwrap();
+  transfer_child.append_text("test text");
+  let receiver = Node::new("receiver", None, &doc).unwrap();
+  let mut receiver_child = element.add_child(receiver).unwrap();
+  assert_eq!(element.get_child_nodes().len(), 2);
+  assert_eq!(transfer_child.get_child_nodes().len(), 1);
+  assert_eq!(receiver_child.get_child_nodes().len(), 0);
+
+  transfer_child.unlink();
+  assert_eq!(element.get_child_nodes().len(), 1);
+  assert_eq!(receiver_child.get_child_nodes().len(), 0);
+  let reparented_transfer = receiver_child.add_child(transfer_child).unwrap();
+  assert_eq!(receiver_child.get_child_nodes().len(), 1);
+  assert_eq!(reparented_transfer.get_content(), "test text".to_owned());
+}
+
+#[test]
 /// Test the evaluation of an xpath expression yields the correct number of nodes
 fn xpath_result_number_correct() {
   let parser = Parser::default();
