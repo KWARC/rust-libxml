@@ -50,6 +50,7 @@ extern "C" {
   pub fn xmlGetParent(cur: *const c_void) -> *mut c_void;
   pub fn xmlGetDoc(cur: *const c_void) -> *mut c_void;
   pub fn xmlNodeGetName(cur: *const c_void) -> *const c_char;
+  pub fn xmlNodeSetName(node: *mut c_void, cur: *const c_char);
   pub fn xmlNodeGetContent(cur: *const c_void) -> *const c_char;
   pub fn xmlNodeSetContent(node: *mut c_void, cur: *const c_char);
   pub fn xmlGetNodeType(cur: *const c_void) -> c_int;

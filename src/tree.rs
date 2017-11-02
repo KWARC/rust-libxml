@@ -401,6 +401,12 @@ impl Node {
     str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
   }
 
+  /// Sets the name of this `Node`
+  pub fn set_name(&mut self, name: &str) {
+    let c_name = CString::new(name).unwrap();
+    unsafe { xmlNodeSetName(self.node_ptr, c_name.as_ptr()) }
+  }
+
   /// Returns the content of the node
   /// (empty string if content pointer is `NULL`)
   pub fn get_content(&self) -> String {
