@@ -66,7 +66,7 @@ extern "C" {
   pub fn xmlDocDumpFormatMemoryEnc(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, encoding: *const c_char, format: c_int);
   pub fn setIndentTreeOutput(indent: c_int);
   pub fn getIndentTreeOutput() -> c_int;
-
+  pub fn xmlNodeRecursivelyRemoveNs(node: *mut c_void);
   // parser
   pub fn xmlReadFile(filename: *const c_char, encoding: *const c_char, options: c_uint) -> *mut c_void;
   // pub fn htmlParseFile(filename: *const c_char, encoding: *const c_char) -> *mut c_void;
