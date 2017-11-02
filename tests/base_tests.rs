@@ -41,6 +41,9 @@ fn hello_builder() {
   let node_string = doc.node_to_string(&hello_element);
   assert!(node_string.len() > 1);
 
+  hello_element.set_name("world");
+  assert_eq!(hello_element.get_name(), "world");
+
   let doc_string = doc.to_string(false);
   assert!(doc_string.len() > 1);
   assert!(doc.save_file("tests/results/helloworld.xml").is_ok());
