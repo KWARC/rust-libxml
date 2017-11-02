@@ -63,6 +63,7 @@ const char * xmlNodeGetContentPointer(const xmlNodePtr cur);
 void setIndentTreeOutput(const int indent);
 int getIndentTreeOutput();
 
+void xmlNodeRecursivelyRemoveNs(xmlNodePtr node);
 
 /*
  * helper functions for xpath

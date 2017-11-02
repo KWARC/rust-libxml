@@ -645,6 +645,11 @@ impl Node {
     }
   }
 
+  /// Removes the namespaces of this `Node` and it's children!
+  pub fn recursively_remove_namespaces(&mut self) {
+    unsafe { xmlNodeRecursivelyRemoveNs(self.node_ptr) }
+  }
+
   /// Get a set of class names from this node's attributes
   pub fn get_class_names(&self) -> HashSet<String> {
     let mut set = HashSet::new();

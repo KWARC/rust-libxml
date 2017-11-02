@@ -76,6 +76,33 @@ int getIndentTreeOutput() {
   return xmlIndentTreeOutput;
 }
 
+// Taken from Nokogiri (https://github.com/sparklemotion/nokogiri/blob/24bb843327306d2d71e4b2dc337c1e327cbf4516/ext/nokogiri/xml_document.c#L64)
+void xmlNodeRecursivelyRemoveNs(xmlNodePtr node)
+{
+  xmlNodePtr child ;
+  xmlAttrPtr property ;
+
+  xmlSetNs(node, NULL);
+
+  for (child = node->children ; child ; child = child->next)
+    xmlNodeRecursivelyRemoveNs(child);
+
+  if (((node->type == XML_ELEMENT_NODE) ||
+       (node->type == XML_XINCLUDE_START) ||
+       (node->type == XML_XINCLUDE_END)) &&
+      node->nsDef) {
+    xmlFreeNsList(node->nsDef);
+    node->nsDef = NULL;
+  }
+
+  if (node->type == XML_ELEMENT_NODE && node->properties != NULL) {
+    property = node->properties ;
+    while (property != NULL) {
+      if (property->ns) property->ns = NULL ;
+      property = property->next ;
+    }
+  }
+}
 
 /*
  * helper functions for xpath

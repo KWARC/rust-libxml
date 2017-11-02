@@ -334,6 +334,14 @@ fn xpath_with_namespaces() {
   assert_eq!(result_all.get_number_of_nodes(), 12);
   assert_eq!(result_all.get_nodes_as_vec().len(), 12);
 
+  let result_h_table = context.evaluate("//table").unwrap();
+  assert_eq!(result_h_table.get_number_of_nodes(), 0);
+  assert_eq!(result_h_table.get_nodes_as_vec().len(), 0);
+
+  doc.as_node().recursively_remove_namespaces();
+  let result_h_table = context.evaluate("//table").unwrap();
+  assert_eq!(result_h_table.get_number_of_nodes(), 2);
+  assert_eq!(result_h_table.get_nodes_as_vec().len(), 2);
 }
 
 #[test]
