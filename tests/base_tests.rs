@@ -278,6 +278,28 @@ fn node_can_unbind() {
   assert_eq!(reparented_transfer.get_content(), "test text".to_owned());
 }
 
+fn create_document() -> Document {
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  assert!(doc_result.is_ok());
+  doc_result.unwrap()
+}
+
+#[test]
+fn document_can_import_node() {
+  let doc1 = create_document();
+  let doc2 = create_document();
+
+  assert_eq!(doc2.get_root_element().get_child_elements().len(), 2);
+
+  let elements = doc1.get_root_element().get_child_elements();
+  let node = elements.first().unwrap();
+  let imported = doc2.import_node(&mut node.clone()).unwrap();
+  doc2.get_root_element().add_child(imported);
+
+  assert_eq!(doc2.get_root_element().get_child_elements().len(), 3);
+}
+
 #[test]
 /// Test the evaluation of an xpath expression yields the correct number of nodes
 fn xpath_result_number_correct() {
