@@ -118,6 +118,14 @@ impl Document {
     }
   }
 
+  /// Import a `Node` from another `Document`
+  pub fn import_node(&self, node: &mut Node) -> Option<Node> {
+      let node_ptr = unsafe {
+        xmlDocCopyNode(node.node_ptr, self.doc_ptr, 1)
+      };
+      ptr_as_node_opt(node_ptr)
+  }
+
   /// Serializes the `Document`
   pub fn to_string(&self, format: bool) -> String {
     unsafe {
