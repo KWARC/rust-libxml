@@ -1,12 +1,18 @@
 # Change Log
-## [0.0.76 (in active dev)]
+## [0.1.1 (in active dev)]
+
+## [0.1.0] 2017-09-11
+
+Pushing up release to a 0.1, as contributor interest is starting to pick up, and the 0. version were getting a bit silly/wrong.
 
 ### Added
 
-* Node methods: Ability to unbind nodes via `unbind_node`
-*
+* Node methods: `unbind_node`,  `recursively_remove_namespaces`, `set_name`,  
+* Document methods: `import_node`
 
 ### Changed
+
+* Updated gcc build to newer incantation, upped dependency version.
 
 ## [0.0.75] 2017-04-06
 
