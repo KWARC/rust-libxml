@@ -7,7 +7,7 @@
 extern crate gcc;
 
 fn main() {
-  gcc::Config::new()
+  gcc::Build::new()
     .file("src/helper_functions.c")
     .include("/usr/include/libxml2")
     .compile("libhelper_functions.a");
