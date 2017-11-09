@@ -138,7 +138,7 @@ int htmlWellFormed(htmlParserCtxtPtr ctxt) {
 }
 
 // dummy function: no debug output at all
-void _ignoreInvalidTagsErrorFunc(void * userData, xmlErrorPtr error) {
+void _ignoreInvalidTagsErrorFunc(void * userData __attribute__ ((unused)), xmlErrorPtr error) {
   if ((error != NULL) && (error->code == XML_HTML_UNKNOWN_TAG)) { // do not record invalid, in fact (out of despair) claim we ARE well-formed, when a tag is invalid.
     hacky_well_formed = 1;
   }
