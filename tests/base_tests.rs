@@ -168,7 +168,7 @@ fn node_attributes_accessor() {
   let mut root_elements = root.get_child_elements();
   let child_opt = root_elements.first_mut();
   assert!(child_opt.is_some());
-  let mut child = child_opt.unwrap();
+  let child = child_opt.unwrap();
 
   // All attributes
   let attributes = child.get_attributes();
@@ -295,7 +295,7 @@ fn document_can_import_node() {
   let elements = doc1.get_root_element().get_child_elements();
   let node = elements.first().unwrap();
   let imported = doc2.import_node(&mut node.clone()).unwrap();
-  doc2.get_root_element().add_child(imported);
+  assert!(doc2.get_root_element().add_child(imported).is_ok());
 
   assert_eq!(doc2.get_root_element().get_child_elements().len(), 3);
 }
