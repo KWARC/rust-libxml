@@ -7,7 +7,14 @@ use std::io::{Read, BufReader};
 use std::fs::File;
 use std::path::Path;
 
-pub mod document;
+mod document;
+mod document_fragment;
+mod node;
+mod node_set;
+pub use self::document::Document;
+pub use self::document_fragment::DocumentFragment;
+pub use self::node::Node;
+pub use self::node_set::NodeSet;
 
 bitflags! {
     pub struct ParseOptions: i32 {
@@ -33,8 +40,11 @@ bitflags! {
         const NOBLANKS    = 1 << 8;
         // use the SAX1 interface internally
         const SAX1        = 1 << 9;
+        /*
+        TODO: Implement Xinclude
         // Implement XInclude substitution
         const XINCLUDE    = 1 << 10;
+        */
         // Forbid network access. Recommended for dealing with untrusted documents.
         const NONET       = 1 << 11;
         // Do not reuse the context dictionary

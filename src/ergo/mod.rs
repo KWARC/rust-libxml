@@ -1,10 +1,7 @@
 /// XML parsing module
 pub mod xml;
 
-use ergo::xml::{XmlInput, XmlError, ParseOptions};
-use ergo::xml::document::Document;
-
-
+use ergo::xml::{Document, XmlInput, XmlError, ParseOptions};
 
 
 /*
@@ -17,14 +14,18 @@ pub fn XML<R: Read>(mut r: R) -> Result<Document, Vec<xml::XmlError> {
 */
 
 pub fn xml_with_options<R: XmlInput + ?Sized>(r:&R, url: &str, encoding: &str, options: ParseOptions) -> Result<Document, Vec<XmlError>> {
-    Document::parse(r, url, encoding, options)
+    Document::parse_with_options(r, url, encoding, options)
 }
 
 pub fn xml<R: XmlInput + ?Sized>(r:&R) -> Result<Document, Vec<XmlError>> {
-    xml_with_options(r, "", "utf-8", ParseOptions::DEFAULT_XML)
+    Document::parse(r)
 }
 
-
+/*
+pub fn fragment(xml_str: &str) -> NodeSet {
+    panic!("Not implemented")
+}
+*/
 #[cfg(test)]
 mod tests {
     use std::fs::File;

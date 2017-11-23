@@ -1,21 +1,43 @@
 use std::ffi::{ CString };
-use libxml2::{xmlResetLastError, xmlSetStructuredErrorFunc, xmlReadMemory, xmlReadFile, xmlFreeDoc, _xmlDoc};
+use libxml2::{xmlResetLastError, xmlSetStructuredErrorFunc, xmlReadMemory, xmlReadFile, xmlFreeDoc, _xmlDoc, _xmlNode, xmlDocGetRootElement};
 use std::mem;
 use std::ptr;
 use std::os::raw::c_void;
 
-use ergo::xml::{XmlInput, XmlError, ParseOptions, error_vec_pusher};
+use ergo::xml::{ Node, XmlInput, XmlError, ParseOptions, error_vec_pusher };
 
 pub struct Document {
     pub doc_ptr: *mut _xmlDoc,
+    pub errors: Vec<XmlError>,
 }
 
 impl Document {
+    /// Get the root element of the document
+    pub fn get_root_element(&self) -> Node {
+        unsafe {
+            let node_ptr = xmlDocGetRootElement(self.doc_ptr);
+            if node_ptr.is_null() {
+                Node {
+                    node_ptr: self.doc_ptr as *mut _xmlNode
+                }
+            } else {
+                Node {
+                    node_ptr : node_ptr,
+                }
+            }
+        }
+    }
     pub fn new_ptr(doc_ptr: *mut _xmlDoc) -> Self {
-        Document { doc_ptr: doc_ptr }
+        Document {
+            doc_ptr,
+            errors: vec![],
+        }
+    }
+    pub fn parse<R: XmlInput + ?Sized>(r:&R) -> Result<Document, Vec<XmlError>> {
+        Document::parse_with_options(r, "", "utf-8", ParseOptions::DEFAULT_XML)
     }
 
-    pub fn parse<R: XmlInput + ?Sized>(r:&R, url: &str, encoding: &str, options: ParseOptions) -> Result<Document, Vec<XmlError>> {
+    pub fn parse_with_options<R: XmlInput + ?Sized>(r:&R, url: &str, encoding: &str, options: ParseOptions) -> Result<Document, Vec<XmlError>> {
         match r.is_path() {
             true => Document::parse_file(&r.data(), encoding, options),
             false => Document::parse_string(&r.data(), url, encoding, options)
@@ -60,8 +82,12 @@ impl Document {
                 Err(*errors)
             }
             false => {
+                // TODO: Implement XInclude
+
                 /* attache *errors to document */
-                Ok(Document::new_ptr(doc_ptr))
+                let mut doc = Document::new_ptr(doc_ptr);
+                doc.errors = *errors;
+                Ok(doc)
             }
         }
     }
