@@ -193,22 +193,20 @@ impl Document {
     // TODO: Memory management? Could be a major pain...
     Node {node_ptr: self.doc_ptr}
   }
-
-  /// Copy the `Document`
-  fn copy(&self) -> Option<Document> {
-    let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr, 1) };
-    ptr_as_doc_opt(doc_ptr)
-  }
 }
 
 impl Clone for Document {
   fn clone(&self) -> Self {
-    self.copy().expect("Could not clone the document!")
+    let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr, 1) };
+    ptr_as_doc_opt(doc_ptr).expect("Could not clone the document!")
   }
 
   fn clone_from(&mut self, source: &Self) {
-    let doc = source.copy().expect("Could not clone the document!");
-    self.doc_ptr = doc.doc_ptr;
+    let doc_ptr = unsafe { xmlCopyDoc(source.doc_ptr, 1) };
+    if doc_ptr.is_null() {
+      panic!("Could not clone the document!")
+    }
+    self.doc_ptr = doc_ptr;
   }
 }
 
