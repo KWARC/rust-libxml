@@ -94,6 +94,7 @@ impl Document {
       Ok(retval)
     }
   }
+
   /// Get the root element of the document
   pub fn get_root_element(&self) -> Node {
     unsafe {
@@ -192,9 +193,26 @@ impl Document {
     // TODO: Memory management? Could be a major pain...
     Node {node_ptr: self.doc_ptr}
   }
-
 }
 
+impl Clone for Document {
+  fn clone(&self) -> Self {
+    let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr, 1) };
+    ptr_as_doc_opt(doc_ptr).expect("Could not clone the document!")
+  }
+
+  fn clone_from(&mut self, source: &Self) {
+    if !self.doc_ptr.is_null() {
+      panic!("Can only invoke clone_from on a Document struct with no pointer assigned.")
+    }
+
+    let doc_ptr = unsafe { xmlCopyDoc(source.doc_ptr, 1) };
+    if doc_ptr.is_null() {
+      panic!("Could not clone the Document!")
+    }
+    self.doc_ptr = doc_ptr;
+  }
+}
 
 
 // The helper functions for trees
@@ -204,6 +222,17 @@ fn ptr_as_node_opt(ptr: *mut c_void) -> Option<Node> {
   } else {
     Some(Node {
         node_ptr : ptr,
+    })
+  }
+}
+
+// The helper functions for trees
+fn ptr_as_doc_opt(doc_ptr: *mut c_void) -> Option<Document> {
+  if doc_ptr.is_null() {
+    None
+  } else {
+    Some(Document {
+      doc_ptr,
     })
   }
 }
