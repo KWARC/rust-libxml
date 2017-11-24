@@ -202,9 +202,13 @@ impl Clone for Document {
   }
 
   fn clone_from(&mut self, source: &Self) {
+    if !self.doc_ptr.is_null() {
+      panic!("Can only invoke clone_from on a Document struct with no pointer assigned.")
+    }
+
     let doc_ptr = unsafe { xmlCopyDoc(source.doc_ptr, 1) };
     if doc_ptr.is_null() {
-      panic!("Could not clone the document!")
+      panic!("Could not clone the Document!")
     }
     self.doc_ptr = doc_ptr;
   }
