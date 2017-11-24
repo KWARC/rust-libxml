@@ -95,12 +95,6 @@ impl Document {
     }
   }
 
-  /// Copy the `Document`
-  pub fn copy(&self) -> Option<Document> {
-    let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr, 1) };
-    ptr_as_doc_opt(doc_ptr)
-  }
-
   /// Get the root element of the document
   pub fn get_root_element(&self) -> Node {
     unsafe {
@@ -200,8 +194,23 @@ impl Document {
     Node {node_ptr: self.doc_ptr}
   }
 
+  /// Copy the `Document`
+  fn copy(&self) -> Option<Document> {
+    let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr, 1) };
+    ptr_as_doc_opt(doc_ptr)
+  }
 }
 
+impl Clone for Document {
+  fn clone(&self) -> Self {
+    self.copy().expect("Could not clone the document!")
+  }
+
+  fn clone_from(&mut self, source: &Self) {
+    let doc = source.copy().expect("Could not clone the document!");
+    self.doc_ptr = doc.doc_ptr;
+  }
+}
 
 
 // The helper functions for trees
