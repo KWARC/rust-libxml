@@ -62,6 +62,7 @@ extern "C" {
   pub fn xmlNodeNs(cur: *const c_void) -> *mut c_void;
   pub fn xmlNextNsSibling(attr: *const c_void) -> *mut c_void;
   pub fn xmlUnlinkNode(cur: *const c_void);
+  pub fn xmlFreeNode(cur: *const c_void);
   pub fn xmlDocCopyNode(node: *const c_void, doc: *const c_void, extended: c_int) -> *mut c_void;
   pub fn xmlCopyDoc(doc: *mut c_void, recursive: c_int) -> *mut c_void;
   // pub fn xmlDocDumpMemory(doc: *mut c_void, receiver: *mut *mut c_char, size: *const c_int, format: c_int );

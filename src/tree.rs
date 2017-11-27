@@ -761,6 +761,7 @@ impl Node {
     if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
       unsafe {
         xmlUnlinkNode( self.node_ptr );
+        xmlFreeNode( self.node_ptr );
         // self.reparent_removed_node()
       }
     }
