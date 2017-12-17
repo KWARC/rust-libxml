@@ -135,7 +135,7 @@ fn node_sibling_accessors() {
   doc.set_root_element(&hello_element);
 
   let new_sibling = Node::new("sibling", None, &doc).unwrap();
-  assert!(hello_element.add_prev_sibling(new_sibling).is_some());
+  assert!(hello_element.add_prev_sibling(&new_sibling).is_ok());
 }
 
 #[test]
@@ -304,7 +304,7 @@ fn document_can_import_node() {
 
   let elements = doc1.get_root_element().get_child_elements();
   let node = elements.first().unwrap();
-  let imported = doc2.import_node(&node.clone()).unwrap();
+  let imported = doc2.import_node(&node).unwrap();
   assert!(doc2.get_root_element().add_child(imported).is_ok());
 
   assert_eq!(doc2.get_root_element().get_child_elements().len(), 3);

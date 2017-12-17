@@ -391,25 +391,25 @@ impl Node {
 
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&self, new_sibling: Node) -> Option<Node> {
+  pub fn add_prev_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddPrevSibling(self.node_ptr, new_sibling.node_ptr).is_null() {
-        None
+        Err(())
       } else {
-        Some(new_sibling)
+        Ok(())
       }
     }
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&self, new_sibling: Node) -> Option<Node> {
+  pub fn add_next_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddNextSibling(self.node_ptr, new_sibling.node_ptr).is_null() {
-        None
+        Err(())
       } else {
-        Some(new_sibling)
+        Ok(())
       }
     }
   }
@@ -705,10 +705,11 @@ impl Node {
   /// Creates a new `Node` as child to the self `Node`
   pub fn add_child(&mut self, child: Node) -> Result<Node, ()> {
     unsafe {
-      if xmlAddChild(self.node_ptr, child.node_ptr).is_null() {
+      let new_child_ptr = xmlAddChild(self.node_ptr, child.node_ptr);
+      if new_child_ptr.is_null() {
         Err(())
       } else {
-        Ok(child)
+        Ok(Node { node_ptr: new_child_ptr })
       }
     }
   }
