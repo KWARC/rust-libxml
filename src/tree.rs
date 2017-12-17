@@ -100,13 +100,9 @@ impl Document {
     unsafe {
       let node_ptr = xmlDocGetRootElement(self.doc_ptr);
       if node_ptr.is_null() {
-        Node {
-          node_ptr: self.doc_ptr
-        }
+        Node { node_ptr: self.doc_ptr }
       } else {
-        Node {
-          node_ptr : node_ptr,
-        }
+        Node { node_ptr: node_ptr }
       }
     }
   }
@@ -120,11 +116,9 @@ impl Document {
   }
 
   /// Import a `Node` from another `Document`
-  pub fn import_node(&self, node: &mut Node) -> Option<Node> {
-      let node_ptr = unsafe {
-        xmlDocCopyNode(node.node_ptr, self.doc_ptr, 1)
-      };
-      ptr_as_node_opt(node_ptr)
+  pub fn import_node(&self, node: &Node) -> Option<Node> {
+    let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr, self.doc_ptr, 1) };
+    ptr_as_node_opt(node_ptr)
   }
 
   /// Serializes the `Document`
@@ -159,11 +153,13 @@ impl Document {
       let buf = xmlBufferCreate();
 
       // dump the node
-      xmlNodeDump(buf,
-                  self.doc_ptr,
-                  node.node_ptr,
-                  1, // level of indentation
-                  0 /* disable formatting */);
+      xmlNodeDump(
+        buf,
+        self.doc_ptr,
+        node.node_ptr,
+        1, // level of indentation
+        0, /* disable formatting */
+      );
       let result_ptr = xmlBufferContent(buf);
       let c_string = CStr::from_ptr(result_ptr);
       let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
@@ -191,7 +187,7 @@ impl Document {
   /// Cast the document as a libxml Node
   pub fn as_node(&self) -> Node {
     // TODO: Memory management? Could be a major pain...
-    Node {node_ptr: self.doc_ptr}
+    Node { node_ptr: self.doc_ptr }
   }
 }
 
@@ -220,9 +216,7 @@ fn ptr_as_node_opt(ptr: *mut c_void) -> Option<Node> {
   if ptr.is_null() {
     None
   } else {
-    Some(Node {
-        node_ptr : ptr,
-    })
+    Some(Node { node_ptr: ptr })
   }
 }
 
@@ -231,9 +225,7 @@ fn ptr_as_doc_opt(doc_ptr: *mut c_void) -> Option<Document> {
   if doc_ptr.is_null() {
     None
   } else {
-    Some(Document {
-      doc_ptr,
-    })
+    Some(Document { doc_ptr })
   }
 }
 
@@ -379,9 +371,11 @@ impl Node {
 
   /// Returns all child elements of the given node as a vector
   pub fn get_child_elements(&self) -> Vec<Node> {
-    self.get_child_nodes().into_iter().filter(
-      |n| n.get_type() == Some(NodeType::ElementNode)
-    ).collect::<Vec<Node>>()
+    self
+      .get_child_nodes()
+      .into_iter()
+      .filter(|n| n.get_type() == Some(NodeType::ElementNode))
+      .collect::<Vec<Node>>()
   }
 
   /// Returns the parent if it exists
@@ -433,7 +427,7 @@ impl Node {
     let name_ptr = unsafe { xmlNodeGetName(self.node_ptr) };
     if name_ptr.is_null() {
       return String::new();
-    }  //empty string
+    } //empty string
     let c_string = unsafe { CStr::from_ptr(name_ptr) };
     str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
   }
@@ -450,7 +444,7 @@ impl Node {
     let content_ptr = unsafe { xmlNodeGetContent(self.node_ptr) };
     if content_ptr.is_null() {
       return String::new();
-    }  //empty string
+    } //empty string
     let c_string = unsafe { CStr::from_ptr(content_ptr) };
     str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
   }
@@ -469,7 +463,9 @@ impl Node {
       return None;
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-    let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().to_owned();
+    let prop_str = str::from_utf8(c_value_string.to_bytes())
+      .unwrap()
+      .to_owned();
     unsafe {
       libc::free(value_ptr as *mut c_void);
     }
@@ -485,7 +481,9 @@ impl Node {
       return None;
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-    let prop_str = str::from_utf8(c_value_string.to_bytes()).unwrap().to_owned();
+    let prop_str = str::from_utf8(c_value_string.to_bytes())
+      .unwrap()
+      .to_owned();
     unsafe {
       libc::free(value_ptr as *mut c_void);
     }
@@ -500,7 +498,7 @@ impl Node {
       if attr_node.is_null() {
         None
       } else {
-        Some(Node{node_ptr: attr_node})
+        Some(Node { node_ptr: attr_node })
       }
     }
   }
@@ -512,7 +510,7 @@ impl Node {
     unsafe { xmlSetProp(self.node_ptr, c_name.as_ptr(), c_value.as_ptr()) };
   }
   /// Sets a namespaced attribute
-  pub fn set_property_ns(&mut self, name: &str, value: &str, ns: Namespace) {
+  pub fn set_property_ns(&mut self, name: &str, value: &str, ns: &Namespace) {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe { xmlSetNsProp(self.node_ptr, ns.ns_ptr, c_name.as_ptr(), c_value.as_ptr()) };
@@ -551,7 +549,7 @@ impl Node {
     self.set_property(name, value)
   }
   /// Alias for set_property_ns
-  pub fn set_attribute_ns(&mut self, name: &str, value: &str, ns: Namespace) {
+  pub fn set_attribute_ns(&mut self, name: &str, value: &str, ns: &Namespace) {
     self.set_property_ns(name, value, ns)
   }
 
@@ -576,7 +574,7 @@ impl Node {
     }
 
     for name in attr_names {
-      let value = self.get_property(&name).unwrap_or(String::new());
+      let value = self.get_property(&name).unwrap_or_default();
       attributes.insert(name, value);
     }
 
@@ -609,7 +607,7 @@ impl Node {
         for index in 0.. {
           let ns_ptr = *ns_ptr_list.offset(index);
           if !ns_ptr.is_null() {
-            ns_found.push(Namespace{ ns_ptr: ns_ptr});
+            ns_found.push(Namespace { ns_ptr: ns_ptr });
           } else {
             break;
           }
@@ -632,7 +630,7 @@ impl Node {
         if !xmlNsPrefix(ns).is_null() || !xmlNsHref(ns).is_null() {
           let ns_copy = xmlCopyNamespace(ns);
           if !ns_copy.is_null() {
-            declarations.push(Namespace{ns_ptr: ns_copy});
+            declarations.push(Namespace { ns_ptr: ns_copy });
           }
           ns = xmlNextNsSibling(ns);
         }
@@ -642,7 +640,7 @@ impl Node {
   }
 
   /// Sets a `Namespace` for the node
-  pub fn set_namespace(&mut self, namespace: Namespace) {
+  pub fn set_namespace(&mut self, namespace: &Namespace) {
     unsafe {
       xmlSetNs(self.node_ptr, namespace.ns_ptr);
     }
@@ -655,7 +653,7 @@ impl Node {
     }
     let c_href = CString::new(href).unwrap();
     unsafe {
-      let ns_ptr = xmlSearchNsByHref( xmlGetDoc(self.node_ptr), self.node_ptr, c_href.as_ptr() );
+      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(self.node_ptr), self.node_ptr, c_href.as_ptr());
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr: ns_ptr };
         let ns_prefix = ns.get_prefix();
@@ -673,7 +671,7 @@ impl Node {
     }
     let c_prefix = CString::new(prefix).unwrap();
     unsafe {
-      let ns_ptr = xmlSearchNs( xmlGetDoc(self.node_ptr), self.node_ptr, c_prefix.as_ptr() );
+      let ns_ptr = xmlSearchNs(xmlGetDoc(self.node_ptr), self.node_ptr, c_prefix.as_ptr());
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr: ns_ptr };
         let ns_prefix = ns.get_href();
@@ -729,7 +727,12 @@ impl Node {
   }
 
   /// Adds a new text child, to this `Node`
-  pub fn add_text_child(&mut self, ns: Option<Namespace>, name: &str, content: &str) -> Result<Node, ()> {
+  pub fn add_text_child(
+    &mut self,
+    ns: Option<Namespace>,
+    name: &str,
+    content: &str,
+  ) -> Result<Node, ()> {
     let c_name = CString::new(name).unwrap();
     let c_content = CString::new(content).unwrap();
     let ns_ptr = match ns {
@@ -760,17 +763,23 @@ impl Node {
     let node_type = self.get_type();
     if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
       unsafe {
-        xmlUnlinkNode( self.node_ptr );
+        xmlUnlinkNode(self.node_ptr);
         // self.reparent_removed_node()
       }
     }
   }
   /// Alias for `unlink_node`
-  pub fn unlink(&mut self) {self.unlink_node()}
+  pub fn unlink(&mut self) {
+    self.unlink_node()
+  }
   /// Alias for `unlink_node`
-  pub fn unbind_node(&mut self) {self.unlink_node()}
+  pub fn unbind_node(&mut self) {
+    self.unlink_node()
+  }
   /// Alias for `unlink_node`
-  pub fn unbind(&mut self) {self.unlink_node()}
+  pub fn unbind(&mut self) {
+    self.unlink_node()
+  }
 
   // fn reparent_removed_node(&mut self) {
   //   /*
@@ -821,8 +830,7 @@ impl Namespace {
         String::new()
       } else {
         let c_prefix = CStr::from_ptr(prefix_ptr);
-        let prefix = str::from_utf8(c_prefix.to_bytes()).unwrap().to_owned();
-        prefix
+        str::from_utf8(c_prefix.to_bytes()).unwrap().to_owned()
       }
     }
   }
@@ -835,8 +843,7 @@ impl Namespace {
         String::new()
       } else {
         let c_href = CStr::from_ptr(href_ptr);
-        let href = str::from_utf8(c_href.to_bytes()).unwrap().to_owned();
-        href
+        str::from_utf8(c_href.to_bytes()).unwrap().to_owned()
       }
     }
   }
