@@ -25,7 +25,7 @@ fn hello_builder() {
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
 
-  doc.set_root_element(&mut hello_element);
+  doc.set_root_element(&hello_element);
 
   hello_element.set_content("world!");
 
@@ -114,13 +114,13 @@ fn child_of_root_has_different_hash() {
     if let Some(child) = root.get_first_child() {
       assert!(root != child);
     } else {
-      assert!(false);   //test failed - child doesn't exist
+      assert!(false); //test failed - child doesn't exist
     }
     // same check with last child
     if let Some(child) = root.get_last_child() {
       assert!(root != child);
     } else {
-      assert!(false);   //test failed - child doesn't exist
+      assert!(false); //test failed - child doesn't exist
     }
   }
 }
@@ -131,8 +131,8 @@ fn node_sibling_accessors() {
   let mut doc = Document::new().unwrap();
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
-  let mut hello_element = hello_element_result.unwrap();
-  doc.set_root_element(&mut hello_element);
+  let hello_element = hello_element_result.unwrap();
+  doc.set_root_element(&hello_element);
 
   let new_sibling = Node::new("sibling", None, &doc).unwrap();
   assert!(hello_element.add_prev_sibling(new_sibling).is_some());
@@ -151,7 +151,11 @@ fn node_children_accessors() {
   let root_children = root.get_child_nodes();
   assert_eq!(root_children.len(), 5, "file01 root has five child nodes");
   let mut element_children = root.get_child_elements();
-  assert_eq!(element_children.len(), 2, "file01 root has two child elements");
+  assert_eq!(
+    element_children.len(),
+    2,
+    "file01 root has two child elements"
+  );
   assert_eq!(element_children.pop().unwrap().get_name(), "child");
   assert_eq!(element_children.pop().unwrap().get_name(), "child");
   assert!(element_children.is_empty());
@@ -185,8 +189,11 @@ fn node_attributes_accessor() {
   assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
 
   // Set
-  child.set_attribute("attribute","setter_value");
-  assert_eq!(child.get_attribute("attribute"), Some("setter_value".to_string()));
+  child.set_attribute("attribute", "setter_value");
+  assert_eq!(
+    child.get_attribute("attribute"),
+    Some("setter_value".to_string())
+  );
   // Remove
   child.remove_attribute("attribute");
   assert_eq!(child.get_attribute("attribute"), None);
@@ -207,7 +214,7 @@ fn attribute_namespace_accessors() {
   let ns_result = Namespace::new("myxml", "http://www.w3.org/XML/1998/namespace", &element);
   assert!(ns_result.is_ok());
   let ns = ns_result.unwrap();
-  element.set_attribute_ns("id", "testing", ns);
+  element.set_attribute_ns("id", "testing", &ns);
 
   let id_attr = element.get_attribute_ns("id", "http://www.w3.org/XML/1998/namespace");
   assert!(id_attr.is_some());
@@ -222,7 +229,7 @@ fn attribute_namespace_accessors() {
   let fb_ns_result = Namespace::new("fb", "http://www.foobar.org", &element);
   assert!(fb_ns_result.is_ok());
   let fb_ns = fb_ns_result.unwrap();
-  element.set_attribute_ns("fb", "fb", fb_ns);
+  element.set_attribute_ns("fb", "fb", &fb_ns);
 
   let ns_prefix = element.lookup_namespace_prefix("http://www.w3.org/XML/1998/namespace");
   assert_eq!(ns_prefix, Some("xml".to_string())); // system ns has the global prefix when doing global lookup
@@ -230,7 +237,10 @@ fn attribute_namespace_accessors() {
   assert_eq!(fb_prefix, Some("fb".to_string())); // system ns has the global prefix when doing global lookup
 
   let ns_uri = element.lookup_namespace_uri("myxml");
-  assert_eq!(ns_uri, Some("http://www.w3.org/XML/1998/namespace".to_string())); // system ns has the global uri when doing global lookup
+  assert_eq!(
+    ns_uri,
+    Some("http://www.w3.org/XML/1998/namespace".to_string())
+  ); // system ns has the global uri when doing global lookup
   let fb_uri = element.lookup_namespace_uri("fb");
   assert_eq!(fb_uri, Some("http://www.foobar.org".to_string())); // system ns has the global prefix when doing global lookup
 }
@@ -294,7 +304,7 @@ fn document_can_import_node() {
 
   let elements = doc1.get_root_element().get_child_elements();
   let node = elements.first().unwrap();
-  let imported = doc2.import_node(&mut node.clone()).unwrap();
+  let imported = doc2.import_node(&node.clone()).unwrap();
   assert!(doc2.get_root_element().add_child(imported).is_ok());
 
   assert_eq!(doc2.get_root_element().get_child_elements().len(), 3);
@@ -328,9 +338,21 @@ fn xpath_with_namespaces() {
 
   let doc = doc_result.unwrap();
   let context = Context::new(&doc).unwrap();
-  assert!(context.register_namespace("h", "http://example.com/ns/hello").is_ok());
-  assert!(context.register_namespace("f", "http://example.com/ns/farewell").is_ok());
-  assert!(context.register_namespace("r", "http://example.com/ns/root").is_ok());
+  assert!(
+    context
+      .register_namespace("h", "http://example.com/ns/hello")
+      .is_ok()
+  );
+  assert!(
+    context
+      .register_namespace("f", "http://example.com/ns/farewell")
+      .is_ok()
+  );
+  assert!(
+    context
+      .register_namespace("r", "http://example.com/ns/root")
+      .is_ok()
+  );
   let result_h_td = context.evaluate("//h:td").unwrap();
   assert_eq!(result_h_td.get_number_of_nodes(), 3);
   assert_eq!(result_h_td.get_nodes_as_vec().len(), 3);
@@ -416,7 +438,8 @@ fn xpath_string_function() {
 fn well_formed_html() {
   let parser = Parser::default_html();
 
-  let trivial_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head></head><body></body></html>");
+  let trivial_well_formed =
+    parser.is_well_formed_html("<!DOCTYPE html>\n<html><head></head><body></body></html>");
   assert!(trivial_well_formed);
 
   let trivial_ill_formed = parser.is_well_formed_html("garbage");
@@ -450,7 +473,7 @@ fn can_manage_attributes() {
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
-  doc.set_root_element(&mut hello_element);
+  doc.set_root_element(&hello_element);
 
   let key = "examplekey";
   let value = "examplevalue";
@@ -471,9 +494,9 @@ fn can_set_get_text_node_content() {
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
-  doc.set_root_element(&mut hello_element);
+  doc.set_root_element(&hello_element);
 
-  assert!( hello_element.get_content().is_empty() );
+  assert!(hello_element.get_content().is_empty());
   hello_element.append_text("hello ");
   assert_eq!(hello_element.get_content(), "hello ");
   hello_element.append_text("world!");
@@ -498,7 +521,7 @@ fn can_work_with_namespaces() {
 
   // try to attach this namespace to a node
   assert!(root_node.get_namespace().is_none());
-  root_node.set_namespace(mock_ns_result.unwrap());
+  root_node.set_namespace(&mock_ns_result.unwrap());
   let active_ns_opt = root_node.get_namespace();
   assert!(active_ns_opt.is_some());
   let active_ns = active_ns_opt.unwrap();

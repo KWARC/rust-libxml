@@ -53,11 +53,7 @@ impl<'a> Context<'a> {
     let c_href = CString::new(href).unwrap();
     unsafe {
       let result = xmlXPathRegisterNs(self.context_ptr, c_prefix.as_ptr(), c_href.as_ptr());
-      if result != 0 {
-        Err(())
-      } else {
-        Ok(())
-      }
+      if result != 0 { Err(()) } else { Ok(()) }
     }
   }
 
@@ -77,7 +73,7 @@ impl<'a> Context<'a> {
     unsafe {
       let result = xmlXPathSetContextNode(node.node_ptr, self.context_ptr);
       if result != 0 {
-        return Err(())
+        return Err(());
       }
     }
     Ok(())
@@ -100,7 +96,6 @@ impl<'a> Context<'a> {
     let evaluated = try!(self.evaluate(xpath));
     Ok(evaluated.to_string())
   }
-
 }
 
 impl Drop for Object {
@@ -138,7 +133,7 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      vec.push(Node { node_ptr: ptr });//node_is_inserted : true
+      vec.push(Node { node_ptr: ptr }); //node_is_inserted : true
     }
     vec
   }
