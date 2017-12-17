@@ -1,5 +1,15 @@
 # Change Log
-## [0.1.1 (in active dev)]
+## [0.2.1 (in active dev)]
+
+## [0.2]
+
+### **Breaking** change of the `Clone` semantics of all libxml datastructures 
+
+Affected: `Node`, `Document`, `Namespace`, `Attribute`.
+
+Up to 0.2 the clone method performed a shallow struct clone, which simply copied over the underlying C libxml2 pointer - effectively violating Rust's ownership paradigm. From 0.2 we obey Rust's paradigm strictly, and the only way to have multiple access to the same C pointer is to follow Rust's borrowing rules. The libxml structs now implement the `Clone` trait deeply, and will do a respective libxml2 C clone underneath.
+
+This also allows to do meaningful ownership checks on `Drop`, and free any unlinked data - avoiding a class of memory leaks that was possible to run into prior to 0.2.
 
 ## [0.1.0] 2017-09-11
 
