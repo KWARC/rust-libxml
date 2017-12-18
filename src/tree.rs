@@ -349,6 +349,29 @@ impl Node {
     ptr_as_node_opt(ptr)
   }
 
+  /// Returns the first element child if it exists
+  pub fn get_first_element_child(&self) -> Option<Node> {
+    match self.get_first_child() {
+      None => None,
+      Some(child) => {
+        let mut current_node = child;
+        while !current_node.is_element_node() {
+          if let Some(sibling) = current_node.get_next_sibling() {
+            current_node = sibling;
+          } else {
+            break;
+          }
+        }
+        if current_node.is_element_node() {
+          Some(current_node)
+        } else {
+          None
+        }
+      }
+    }
+  }
+
+
   /// Returns the last child if it exists
   pub fn get_last_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetLastChild(self.node_ptr) };
@@ -416,11 +439,14 @@ impl Node {
 
   /// Returns true iff it is a text node
   pub fn is_text_node(&self) -> bool {
-    match self.get_type() {
-      Some(NodeType::TextNode) => true,
-      _ => false,
-    }
+    self.get_type() == Some(NodeType::TextNode)
   }
+
+  /// Checks if the given node is an Element
+  pub fn is_element_node(&self) -> bool {
+    self.get_type() == Some(NodeType::ElementNode)
+  }
+
 
   /// Returns the name of the node (empty string if name pointer is `NULL`)
   pub fn get_name(&self) -> String {

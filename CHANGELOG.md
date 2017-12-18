@@ -11,6 +11,11 @@ Up to 0.2 the clone method performed a shallow struct clone, which simply copied
 
 This also allows to do meaningful ownership checks on `Drop`, and free any unlinked data - avoiding a class of memory leaks that was possible to run into prior to 0.2.
 
+### Added
+
+* `get_first_element_child` - similar to `get_first_child` but only returns XML Elements
+* `is_element_node` - check if a given `Node` is an XML Element
+
 ## [0.1.0] 2017-09-11
 
 Pushing up release to a 0.1, as contributor interest is starting to pick up, and the 0. version were getting a bit silly/wrong.
