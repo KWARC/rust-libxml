@@ -2,7 +2,7 @@
 name = "libxml"
 version = "0.2.0"
 authors = ["Deyan Ginev <deyan.ginev@gmail.com>","Jan Frederik Schaefer <j.schaefer@jacobs-university.de>"]
-description = "A Rust wrapper for libxml2"
+description = "A Rust wrapper for libxml2 - the XML C parser and toolkit developed for the Gnome project"
 repository = "https://github.com/KWARC/rust-libxml"
 documentation = "http://kwarc.github.io/rust-libxml/libxml/index.html"
 readme = "README.md"
