@@ -1,7 +1,5 @@
-//! A few random tests.
-//! Knowing how much I neglect this aspect of software development,
-//! there probably won't be a significant coverage.
-
+//! Base API tests, to be split into distinct sub-suites later on
+//!
 extern crate libxml;
 
 use std::fs::File;
