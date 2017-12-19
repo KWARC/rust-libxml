@@ -349,6 +349,29 @@ impl Node {
     ptr_as_node_opt(ptr)
   }
 
+  /// Returns the first element child if it exists
+  pub fn get_first_element_child(&self) -> Option<Node> {
+    match self.get_first_child() {
+      None => None,
+      Some(child) => {
+        let mut current_node = child;
+        while !current_node.is_element_node() {
+          if let Some(sibling) = current_node.get_next_sibling() {
+            current_node = sibling;
+          } else {
+            break;
+          }
+        }
+        if current_node.is_element_node() {
+          Some(current_node)
+        } else {
+          None
+        }
+      }
+    }
+  }
+
+
   /// Returns the last child if it exists
   pub fn get_last_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetLastChild(self.node_ptr) };
@@ -391,36 +414,39 @@ impl Node {
 
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&self, new_sibling: Node) -> Option<Node> {
+  pub fn add_prev_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddPrevSibling(self.node_ptr, new_sibling.node_ptr).is_null() {
-        None
+        Err(())
       } else {
-        Some(new_sibling)
+        Ok(())
       }
     }
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&self, new_sibling: Node) -> Option<Node> {
+  pub fn add_next_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddNextSibling(self.node_ptr, new_sibling.node_ptr).is_null() {
-        None
+        Err(())
       } else {
-        Some(new_sibling)
+        Ok(())
       }
     }
   }
 
   /// Returns true iff it is a text node
   pub fn is_text_node(&self) -> bool {
-    match self.get_type() {
-      Some(NodeType::TextNode) => true,
-      _ => false,
-    }
+    self.get_type() == Some(NodeType::TextNode)
   }
+
+  /// Checks if the given node is an Element
+  pub fn is_element_node(&self) -> bool {
+    self.get_type() == Some(NodeType::ElementNode)
+  }
+
 
   /// Returns the name of the node (empty string if name pointer is `NULL`)
   pub fn get_name(&self) -> String {
@@ -705,10 +731,11 @@ impl Node {
   /// Creates a new `Node` as child to the self `Node`
   pub fn add_child(&mut self, child: Node) -> Result<Node, ()> {
     unsafe {
-      if xmlAddChild(self.node_ptr, child.node_ptr).is_null() {
+      let new_child_ptr = xmlAddChild(self.node_ptr, child.node_ptr);
+      if new_child_ptr.is_null() {
         Err(())
       } else {
-        Ok(child)
+        Ok(Node { node_ptr: new_child_ptr })
       }
     }
   }

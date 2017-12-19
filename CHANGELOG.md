@@ -1,5 +1,16 @@
 # Change Log
-## [0.1.1 (in active dev)]
+## [0.1.2 (in active dev)]
+
+## [0.1.1] 2017-18-12
+
+### Added
+
+* `get_first_element_child` - similar to `get_first_child` but only returns XML Elements
+* `is_element_node` - check if a given `Node` is an XML Element
+
+### Changed
+
+* Requiring owned `Node` function arguments only when consumed - `add_*` methods largely take `&Node` now.
 
 ## [0.1.0] 2017-09-11
 
