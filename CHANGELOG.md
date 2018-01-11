@@ -1,6 +1,8 @@
 # Change Log
 ## [0.1.2 (in active dev)]
 
+ * We welcome Andreas (@triptec) to the core developer team!
+
 ## [0.1.1] 2017-18-12
 
 ### Added
