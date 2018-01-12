@@ -2,12 +2,12 @@
 use c_signatures::*;
 
 use libc;
-use libc::{c_void, c_int};
-use std::ffi::{CString, CStr};
+use libc::{c_int, c_void};
+use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::str;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 use std::mem;
 use global::*;
 
@@ -53,7 +53,6 @@ pub struct Document {
   pub doc_ptr: *mut c_void,
 }
 
-
 impl Drop for Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
@@ -74,7 +73,9 @@ impl Document {
       if libxml_doc.is_null() {
         Err(())
       } else {
-        Ok(Document { doc_ptr: libxml_doc })
+        Ok(Document {
+          doc_ptr: libxml_doc,
+        })
       }
     }
   }
@@ -100,7 +101,9 @@ impl Document {
     unsafe {
       let node_ptr = xmlDocGetRootElement(self.doc_ptr);
       if node_ptr.is_null() {
-        Node { node_ptr: self.doc_ptr }
+        Node {
+          node_ptr: self.doc_ptr,
+        }
       } else {
         Node { node_ptr: node_ptr }
       }
@@ -187,7 +190,9 @@ impl Document {
   /// Cast the document as a libxml Node
   pub fn as_node(&self) -> Node {
     // TODO: Memory management? Could be a major pain...
-    Node { node_ptr: self.doc_ptr }
+    Node {
+      node_ptr: self.doc_ptr,
+    }
   }
 }
 
@@ -209,7 +214,6 @@ impl Clone for Document {
     self.doc_ptr = doc_ptr;
   }
 }
-
 
 // The helper functions for trees
 fn ptr_as_node_opt(ptr: *mut c_void) -> Option<Node> {
@@ -371,7 +375,6 @@ impl Node {
     }
   }
 
-
   /// Returns the last child if it exists
   pub fn get_last_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetLastChild(self.node_ptr) };
@@ -412,7 +415,6 @@ impl Node {
     NodeType::from_c_int(unsafe { xmlGetNodeType(self.node_ptr) })
   }
 
-
   /// Add a previous sibling
   pub fn add_prev_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
@@ -446,7 +448,6 @@ impl Node {
   pub fn is_element_node(&self) -> bool {
     self.get_type() == Some(NodeType::ElementNode)
   }
-
 
   /// Returns the name of the node (empty string if name pointer is `NULL`)
   pub fn get_name(&self) -> String {
@@ -524,7 +525,9 @@ impl Node {
       if attr_node.is_null() {
         None
       } else {
-        Some(Node { node_ptr: attr_node })
+        Some(Node {
+          node_ptr: attr_node,
+        })
       }
     }
   }
@@ -567,7 +570,6 @@ impl Node {
   /// Alias for get_property_node
   pub fn get_attribute_node(&self, name: &str) -> Option<Node> {
     self.get_property_node(name)
-
   }
 
   /// Alias for set_property
@@ -735,7 +737,9 @@ impl Node {
       if new_child_ptr.is_null() {
         Err(())
       } else {
-        Ok(Node { node_ptr: new_child_ptr })
+        Ok(Node {
+          node_ptr: new_child_ptr,
+        })
       }
     }
   }
@@ -819,6 +823,13 @@ impl Node {
   //     xmlAddChild(PmmNODE(docfrag), node);
   //     PmmFixOwner(PmmPROXYNODE(node), docfrag);
   //   }
+
+  /// Workaround free method until we implement automatic+safe free-on-drop
+  /// WARNING: The libxml2 API recurses down to all children of a given Node on free
+  ///          to avoid double-free, always invoke on the highest root available
+  pub fn free(&mut self) {
+    unsafe { xmlFreeNode(self.node_ptr) }
+  }
 }
 
 ///An xml namespace
@@ -873,6 +884,11 @@ impl Namespace {
         str::from_utf8(c_href.to_bytes()).unwrap().to_owned()
       }
     }
+  }
+
+  /// Workaround free method until we implement automatic+safe free-on-drop
+  pub fn free(&mut self) {
+    unsafe { xmlFreeNs(self.ns_ptr) }
   }
 }
 
