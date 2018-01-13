@@ -1,6 +1,6 @@
 //! The signatures of the c functions we'll call
 
-use libc::{c_char, c_void, c_int, c_uint, size_t};
+use libc::{c_char, c_int, c_uint, c_void, size_t};
 
 #[link(name = "xml2")]
 extern "C" {
@@ -8,7 +8,6 @@ extern "C" {
   pub fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
   pub fn xmlNewDoc(version: *const c_char) -> *mut c_void;
   pub fn xmlFreeDoc(cur: *mut c_void);
-  // pub fn xmlFree(name : *const c_char);
   // pub fn xmlNewNode(ns : *mut c_void, name: *const c_char) -> *mut c_void;
   pub fn xmlNewDocNode(
     doc: *mut c_void,
@@ -17,7 +16,7 @@ extern "C" {
     content: *const c_char,
   ) -> *mut c_void;
   pub fn xmlNewDocText(doc: *mut c_void, content: *const c_char) -> *mut c_void;
-  // pub fn xmlFreeNode(cur: *mut c_void);
+  pub fn xmlFreeNode(cur: *mut c_void);
   pub fn xmlNewNs(node: *mut c_void, href: *const c_char, prefix: *const c_char) -> *mut c_void;
   pub fn xmlNewChild(
     parent: *mut c_void,
@@ -33,7 +32,7 @@ extern "C" {
   ) -> *mut c_void;
   // pub fn xmlNewText(parent: *mut c_void, content: *const c_char) -> *mut c_void;
   pub fn xmlNewDocPI(doc: *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
-  // pub fn xmlFreeNs(cur: *mut c_void);
+  pub fn xmlFreeNs(cur: *mut c_void);
   // pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;
   pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
   pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
@@ -153,7 +152,6 @@ extern "C" {
   // pub fn xmlMemoryDump();
   pub fn xmlInitGlobals();
   pub fn xmlCleanupGlobals();
-  // pub fn xmlFree(some: *const c_char);
   pub fn xmlKeepBlanksDefault(flag: c_uint) -> c_uint;
   // pub fn xmlFreeParserCtxt(ctxt: *mut c_void);
   pub fn htmlFreeParserCtxt(ctxt: *mut c_void);

@@ -1,7 +1,13 @@
 # Change Log
-## [0.1.2 (in active dev)]
+## [0.1.3 (in active dev)]
 
- * We welcome Andreas (@triptec) to the core developer team!
+## [0.1.2] 2018-12-01
+
+* We welcome Andreas (@triptec) to the core developer team!
+
+### Added
+ 
+* Workaround `.free` method for freeing nodes, until the `Rc<RefCell<_Node>>` free-on-drop solution by Andreas is introduced in 0.2
 
 ## [0.1.1] 2017-18-12
 

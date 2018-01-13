@@ -5,7 +5,7 @@ extern crate libxml;
 use std::fs::File;
 use std::io::Read;
 
-use libxml::tree::{Document, Node, Namespace, NodeType};
+use libxml::tree::{Document, Namespace, Node, NodeType};
 use libxml::xpath::Context;
 use libxml::parser::Parser;
 
@@ -58,7 +58,6 @@ fn create_pi() {
   let doc_string = doc.to_string(false);
   assert!(doc_string.len() > 1);
 }
-
 
 #[test]
 /// Duplicate an xml file
@@ -268,6 +267,11 @@ fn node_can_unbind() {
   third_child.unlink();
   assert_eq!(element.get_child_nodes().len(), 0);
 
+  // Temporary: test explicit free on unbound nodes
+  first_child.free();
+  second_child.free();
+  third_child.free();
+
   // Test reparenting via unlink
   let transfer = Node::new("transfer", None, &doc).unwrap();
   let mut transfer_child = element.add_child(transfer).unwrap();
@@ -325,7 +329,6 @@ fn xpath_result_number_correct() {
   assert_eq!(result2.get_number_of_nodes(), 0);
   assert_eq!(result2.get_nodes_as_vec().len(), 0);
 }
-
 
 #[test]
 /// Test xpath with namespaces
@@ -455,6 +458,7 @@ fn well_formed_html() {
 fn can_mock_node() {
   let node_mock = Node::mock();
   assert!(!node_mock.is_text_node());
+  node_mock.free();
 }
 
 #[test]
@@ -462,6 +466,7 @@ fn can_mock_node() {
 fn can_hash_mock_node() {
   let node_mock = Node::mock();
   assert!(node_mock.to_hashable() > 0);
+  node_mock.free();
 }
 
 #[test]
@@ -499,7 +504,6 @@ fn can_set_get_text_node_content() {
   assert_eq!(hello_element.get_content(), "hello ");
   hello_element.append_text("world!");
   assert_eq!(hello_element.get_content(), "hello world!");
-
 }
 
 #[test]
