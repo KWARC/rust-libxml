@@ -458,6 +458,7 @@ fn well_formed_html() {
 fn can_mock_node() {
   let node_mock = Node::mock();
   assert!(!node_mock.is_text_node());
+  node_mock.free();
 }
 
 #[test]
@@ -465,6 +466,7 @@ fn can_mock_node() {
 fn can_hash_mock_node() {
   let node_mock = Node::mock();
   assert!(node_mock.to_hashable() > 0);
+  node_mock.free();
 }
 
 #[test]

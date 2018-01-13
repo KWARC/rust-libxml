@@ -142,7 +142,7 @@ impl Document {
       }
 
       let c_string = CStr::from_ptr(receiver);
-      let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      let node_string = c_string.to_string_lossy().into_owned();
       libc::free(receiver as *mut c_void);
 
       node_string
@@ -165,7 +165,7 @@ impl Document {
       );
       let result_ptr = xmlBufferContent(buf);
       let c_string = CStr::from_ptr(result_ptr);
-      let node_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      let node_string = c_string.to_string_lossy().into_owned();
       xmlBufferFree(buf);
 
       node_string
@@ -330,6 +330,13 @@ impl Node {
     Node::new("mock", None, &doc).unwrap()
   }
 
+  /// Create a null node, useful for a default call that will never use the node
+  pub fn null() -> Self {
+    Node {
+      node_ptr: ptr::null_mut(),
+    }
+  }
+
   /// For some reason `libc::c_void` isn't hashable and cannot be made hashable
   pub fn to_hashable(&self) -> usize {
     unsafe { mem::transmute::<*mut libc::c_void, usize>(self.node_ptr) }
@@ -456,7 +463,7 @@ impl Node {
       return String::new();
     } //empty string
     let c_string = unsafe { CStr::from_ptr(name_ptr) };
-    str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+    c_string.to_string_lossy().into_owned()
   }
 
   /// Sets the name of this `Node`
@@ -466,14 +473,19 @@ impl Node {
   }
 
   /// Returns the content of the node
-  /// (empty string if content pointer is `NULL`)
+  /// (assumes UTF-8 XML document)
   pub fn get_content(&self) -> String {
     let content_ptr = unsafe { xmlNodeGetContent(self.node_ptr) };
     if content_ptr.is_null() {
+      //empty string when none
       return String::new();
-    } //empty string
+    }
     let c_string = unsafe { CStr::from_ptr(content_ptr) };
-    str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+    let rust_utf8 = c_string.to_string_lossy().into_owned();
+    unsafe {
+      libc::free(content_ptr as *mut c_void);
+    }
+    rust_utf8
   }
 
   /// Sets the text content of this `Node`
@@ -490,9 +502,10 @@ impl Node {
       return None;
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-    let prop_str = str::from_utf8(c_value_string.to_bytes())
-      .unwrap()
-      .to_owned();
+    let prop_str = c_value_string.to_string_lossy().into_owned();
+    // TODO: Ensure all calls to `.to_string_lossy` are working on properly deallocated CStr instances.
+    //       If that is not the case - memory will leak - can be checked with valgrind.
+    //       A safe way to free the memory is using libc::free -- I have experienced that xmlFree from libxml2 is not reliable
     unsafe {
       libc::free(value_ptr as *mut c_void);
     }
@@ -508,9 +521,7 @@ impl Node {
       return None;
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
-    let prop_str = str::from_utf8(c_value_string.to_bytes())
-      .unwrap()
-      .to_owned();
+    let prop_str = c_value_string.to_string_lossy().into_owned();
     unsafe {
       libc::free(value_ptr as *mut c_void);
     }
@@ -595,7 +606,7 @@ impl Node {
       while !current_prop.is_null() {
         let name_ptr = xmlAttrName(current_prop);
         let c_name_string = CStr::from_ptr(name_ptr);
-        let name = str::from_utf8(c_name_string.to_bytes()).unwrap().to_owned();
+        let name = c_name_string.to_string_lossy().into_owned();
         attr_names.push(name);
         current_prop = xmlNextPropertySibling(current_prop);
       }
@@ -827,7 +838,7 @@ impl Node {
   /// Workaround free method until we implement automatic+safe free-on-drop
   /// WARNING: The libxml2 API recurses down to all children of a given Node on free
   ///          to avoid double-free, always invoke on the highest root available
-  pub fn free(&mut self) {
+  pub fn free(self) {
     unsafe { xmlFreeNode(self.node_ptr) }
   }
 }
@@ -868,7 +879,7 @@ impl Namespace {
         String::new()
       } else {
         let c_prefix = CStr::from_ptr(prefix_ptr);
-        str::from_utf8(c_prefix.to_bytes()).unwrap().to_owned()
+        c_prefix.to_string_lossy().into_owned()
       }
     }
   }
@@ -881,13 +892,13 @@ impl Namespace {
         String::new()
       } else {
         let c_href = CStr::from_ptr(href_ptr);
-        str::from_utf8(c_href.to_bytes()).unwrap().to_owned()
+        c_href.to_string_lossy().into_owned()
       }
     }
   }
 
   /// Workaround free method until we implement automatic+safe free-on-drop
-  pub fn free(&mut self) {
+  pub fn free(self) {
     unsafe { xmlFreeNs(self.ns_ptr) }
   }
 }
