@@ -71,7 +71,7 @@ impl<'a> Context<'a> {
   /// localize xpath context to a specific Node
   pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
     unsafe {
-      let result = xmlXPathSetContextNode(node.node_ptr, self.context_ptr);
+      let result = xmlXPathSetContextNode(node.node_ptr(), self.context_ptr);
       if result != 0 {
         return Err(());
       }
