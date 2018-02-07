@@ -11,12 +11,23 @@ use std::collections::{HashMap, HashSet};
 use std::mem;
 use global::*;
 
+use std::cell::RefCell;
+use std::rc::Rc;
+
+type NodeRef = Rc<RefCell<_Node>>;
+
+struct _Node {
+  /// libxml's xmlNodePtr
+  node_ptr: *mut c_void,
+  /// Reference to parent `Document`
+  document: DocumentRef,
+  unlinked: bool,
+}
+
+// TODO: Make node_ptr private, now pub(crate) is needed for xpath::get_nodes_as_vec
 /// An xml node
 #[derive(Clone)]
-pub struct Node {
-  /// libxml's xmlNodePtr
-  pub(crate) node_ptr: *mut c_void,
-}
+pub struct Node(NodeRef);
 
 impl Hash for Node {
   /// Generates a hash value from the `node_ptr` value.
@@ -46,12 +57,34 @@ impl Drop for Node {
   }
 }
 
+type DocumentRef = Rc<RefCell<_Document>>;
+
+// TODO: Do the fields need to be public in crate?
+pub(crate) struct _Document {
+  /// libxml's `DocumentPtr`
+  pub(crate) doc_ptr: *mut c_void,
+  pub(crate) nodes: HashMap<*mut c_void, Node>,
+}
+
+
+impl _Document {
+  pub fn insert_node(&mut self, node_ptr: *mut c_void, node: Node) {
+    // TODO: check that _Node.document is self
+    self.nodes.insert(node_ptr, node);
+  }
+}
+
 /// A libxml2 Document
+#[derive(Clone)]
+pub struct Document(DocumentRef);
+
+/*
 #[derive(Debug)]
 pub struct Document {
   /// libxml's `DocumentPtr`
   pub(crate) doc_ptr: *mut c_void,
 }
+*/
 
 impl Drop for Document {
   ///Free document when it goes out of scope
@@ -69,25 +102,25 @@ impl Document {
     _libxml_global_init();
     unsafe {
       let c_version = CString::new("1.0").unwrap();
-      let libxml_doc = xmlNewDoc(c_version.as_ptr());
-      if libxml_doc.is_null() {
+      let doc_ptr = xmlNewDoc(c_version.as_ptr());
+      if doc_ptr.is_null() {
         Err(())
       } else {
-        Ok(Document {
-          doc_ptr: libxml_doc,
-        })
+        let doc = _Document{doc_ptr: doc_ptr, nodes: HashMap::new()};
+        Ok(Document(Rc::new(RefCell::new(doc))))
       }
     }
   }
 
-  fn doc_ptr(&self) -> *mut c_void {
-    self.doc_ptr
+  pub(crate) fn doc_ptr(&self) -> *mut c_void {
+    self.0.borrow().doc_ptr
   }
 
   /// Creates a new `Document` from an existing libxml2 pointer
   pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
     _libxml_global_init();
-    Document { doc_ptr: doc_ptr }
+    let doc = _Document{doc_ptr: doc_ptr, nodes: HashMap::new()};
+    Document(Rc::new(RefCell::new(doc)))
   }
   /// Write document to `filename`
   pub fn save_file(&self, filename: &str) -> Result<c_int, ()> {
@@ -101,17 +134,21 @@ impl Document {
     }
   }
 
-  // TODO: Change Node -> Option<Node>
+  pub(crate) fn register_node(&self, node_ptr: *mut c_void) -> Node {
+    let node = Node::wrap(node_ptr, self.0.clone());
+    self.0.borrow_mut().nodes.insert(node_ptr, node.clone());
+    node
+  }
+
   /// Get the root element of the document
-  pub fn get_root_element(&self) -> Node {
+  pub fn get_root_element(&self) -> Option<Node> {
     unsafe {
       let node_ptr = xmlDocGetRootElement(self.doc_ptr());
       if node_ptr.is_null() {
-        Node {
-          node_ptr: self.doc_ptr(),
-        }
+          None
       } else {
-        Node { node_ptr: node_ptr }
+        //Node { node_ptr: node_ptr }
+        Some(self.register_node(node_ptr))
       }
     }
   }
@@ -124,10 +161,19 @@ impl Document {
     }
   }
 
+  fn ptr_as_option(&mut self, node_ptr: *mut c_void) -> Option<Node> {
+    if node_ptr.is_null() {
+      None
+    } else {
+      let node = self.register_node(node_ptr);
+      Some(node)
+    }
+  }
+
   /// Import a `Node` from another `Document`
-  pub fn import_node(&self, node: &Node) -> Option<Node> {
+  pub fn import_node(&mut self, node: &Node) -> Option<Node> {
     let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), self.doc_ptr(), 1) };
-    ptr_as_node_opt(node_ptr)
+    self.ptr_as_option(node_ptr)
   }
 
   /// Serializes the `Document`
@@ -188,20 +234,21 @@ impl Document {
       if node_ptr.is_null() {
         Err(())
       } else {
-        Ok(Node { node_ptr: node_ptr })
+        Ok(self.register_node(node_ptr))
       }
     }
   }
 
+  // TODO: Discuss use case, this could probably cause problems
   /// Cast the document as a libxml Node
   pub fn as_node(&self) -> Node {
     // TODO: Memory management? Could be a major pain...
-    Node {
-      node_ptr: self.doc_ptr(),
-    }
+    self.register_node(self.doc_ptr())
   }
 }
 
+// TODO: Perhaps rename to copy or something. We can't impl the clone trait for anything else than cloning a Doucment reference =/
+/*
 impl Clone for Document {
   fn clone(&self) -> Self {
     let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr(), 1) };
@@ -220,16 +267,20 @@ impl Clone for Document {
     self.doc_ptr = doc_ptr;
   }
 }
+*/
 
+/*
 // The helper functions for trees
-fn ptr_as_node_opt(ptr: *mut c_void) -> Option<Node> {
-  if ptr.is_null() {
+fn ptr_as_node_opt(node_ptr: *mut c_void) -> Option<Node> {
+  if node_ptr.is_null() {
     None
   } else {
-    Some(Node { node_ptr: ptr })
+    Some(Node { node_ptr: node_ptr })
   }
 }
+*/
 
+/*
 // The helper functions for trees
 fn ptr_as_doc_opt(doc_ptr: *mut c_void) -> Option<Document> {
   if doc_ptr.is_null() {
@@ -238,6 +289,7 @@ fn ptr_as_doc_opt(doc_ptr: *mut c_void) -> Option<Document> {
     Some(Document { doc_ptr })
   }
 }
+*/
 
 /// Types of xml nodes
 #[derive(Debug, PartialEq)]
@@ -312,13 +364,25 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node { node_ptr: node })
+        Ok(Node::wrap(node, doc.0.clone()))
       }
     }
   }
 
-  pub(crate) fn node_ptr(&self) -> *mut c_void {
-    self.node_ptr
+  /// Return underlying libxml node ptr
+  pub(crate) fn node_ptr(&self) -> *const c_void {
+    self.0.borrow().node_ptr
+  }
+
+  /// Return underlying libxml node ptr
+  pub(crate) fn node_ptr_mut(&mut self) -> *mut c_void {
+    self.0.borrow_mut().node_ptr
+  }
+
+  /// Wrap a libxml node ptr with a Node
+  pub(crate) fn wrap(node_ptr: *mut c_void, document: DocumentRef) -> Node {
+    let node = _Node { node_ptr, document, unlinked: false };
+    Node(Rc::new(RefCell::new(node)))
   }
 
   /// Create a new text node, bound to a given document
@@ -330,7 +394,7 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node { node_ptr: node })
+        Ok(Node::wrap(node, doc.0.clone()))
       }
     }
   }
@@ -341,34 +405,36 @@ impl Node {
   }
 
   //TODO: Discuss if this is needed if it causes problems
+  /*
   /// Create a null node, useful for a default call that will never use the node
   pub fn null() -> Self {
     Node {
       node_ptr: ptr::null_mut(),
     }
   }
+  */
 
   /// For some reason `libc::c_void` isn't hashable and cannot be made hashable
   pub fn to_hashable(&self) -> usize {
-    unsafe { mem::transmute::<*mut libc::c_void, usize>(self.node_ptr()) }
+    unsafe { mem::transmute::<*const libc::c_void, usize>(self.node_ptr()) }
   }
 
   /// Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlNextSibling(self.node_ptr()) };
-    ptr_as_node_opt(ptr)
+    self.ptr_as_option(ptr)
   }
 
   /// Returns the previous sibling if it exists
   pub fn get_prev_sibling(&self) -> Option<Node> {
     let ptr = unsafe { xmlPrevSibling(self.node_ptr()) };
-    ptr_as_node_opt(ptr)
+    self.ptr_as_option(ptr)
   }
 
   /// Returns the first child if it exists
   pub fn get_first_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetFirstChild(self.node_ptr()) };
-    ptr_as_node_opt(ptr)
+    self.ptr_as_option(ptr)
   }
 
   /// Returns the first element child if it exists
@@ -396,7 +462,7 @@ impl Node {
   /// Returns the last child if it exists
   pub fn get_last_child(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetLastChild(self.node_ptr()) };
-    ptr_as_node_opt(ptr)
+    self.ptr_as_option(ptr)
   }
 
   /// Returns all child nodes of the given node as a vector
@@ -425,7 +491,7 @@ impl Node {
   /// Returns the parent if it exists
   pub fn get_parent(&self) -> Option<Node> {
     let ptr = unsafe { xmlGetParent(self.node_ptr()) };
-    ptr_as_node_opt(ptr)
+    self.ptr_as_option(ptr)
   }
 
   /// Get the node type
@@ -480,7 +546,7 @@ impl Node {
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) {
     let c_name = CString::new(name).unwrap();
-    unsafe { xmlNodeSetName(self.node_ptr(), c_name.as_ptr()) }
+    unsafe { xmlNodeSetName(self.node_ptr_mut(), c_name.as_ptr()) }
   }
 
   /// Returns the content of the node
@@ -502,7 +568,7 @@ impl Node {
   /// Sets the text content of this `Node`
   pub fn set_content(&mut self, content: &str) {
     let c_content = CString::new(content).unwrap();
-    unsafe { xmlNodeSetContent(self.node_ptr(), c_content.as_ptr()) }
+    unsafe { xmlNodeSetContent(self.node_ptr_mut(), c_content.as_ptr()) }
   }
 
   /// Returns the value of property `name`
@@ -544,13 +610,7 @@ impl Node {
     let c_name = CString::new(name).unwrap();
     unsafe {
       let attr_node = xmlHasProp(self.node_ptr(), c_name.as_ptr());
-      if attr_node.is_null() {
-        None
-      } else {
-        Some(Node {
-          node_ptr: attr_node,
-        })
-      }
+      self.ptr_as_option(attr_node)
     }
   }
 
@@ -736,9 +796,10 @@ impl Node {
     }
   }
 
+  // TODO: Clear a future Document namespaces vec
   /// Removes the namespaces of this `Node` and it's children!
   pub fn recursively_remove_namespaces(&mut self) {
-    unsafe { xmlNodeRecursivelyRemoveNs(self.node_ptr()) }
+    unsafe { xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()) }
   }
 
   /// Get a set of class names from this node's attributes
@@ -756,13 +817,8 @@ impl Node {
   pub fn add_child(&mut self, child: Node) -> Result<Node, ()> {
     unsafe {
       let new_child_ptr = xmlAddChild(self.node_ptr(), child.node_ptr());
-      if new_child_ptr.is_null() {
-        Err(())
-      } else {
-        Ok(Node {
-          node_ptr: new_child_ptr,
-        })
-      }
+      let new_child = self.ptr_as_option(new_child_ptr).ok_or(())?;
+      Ok(new_child)
     }
   }
 
@@ -774,8 +830,8 @@ impl Node {
       Some(ns) => ns.ns_ptr(),
     };
     unsafe {
-      let new_ptr = xmlNewChild(self.node_ptr(), ns_ptr, c_name.as_ptr(), ptr::null());
-      Ok(Node { node_ptr: new_ptr })
+      let new_ptr = xmlNewChild(self.node_ptr_mut(), ns_ptr, c_name.as_ptr(), ptr::null());
+      Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
   }
 
@@ -793,8 +849,8 @@ impl Node {
       Some(ns) => ns.ns_ptr(),
     };
     unsafe {
-      let new_ptr = xmlNewTextChild(self.node_ptr(), ns_ptr, c_name.as_ptr(), c_content.as_ptr());
-      Ok(Node { node_ptr: new_ptr })
+      let new_ptr = xmlNewTextChild(self.node_ptr_mut(), ns_ptr, c_name.as_ptr(), c_content.as_ptr());
+      Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
   }
 
@@ -846,11 +902,24 @@ impl Node {
   //     PmmFixOwner(PmmPROXYNODE(node), docfrag);
   //   }
 
+  /*
   /// Workaround free method until we implement automatic+safe free-on-drop
   /// WARNING: The libxml2 API recurses down to all children of a given Node on free
   ///          to avoid double-free, always invoke on the highest root available
   pub fn free(self) {
-    unsafe { xmlFreeNode(self.node_ptr()) }
+    unsafe { xmlFreeNode(self.node_ptr_mut()) }
+  }
+  */
+
+  fn ptr_as_option(&self, node_ptr: *mut c_void) -> Option<Node> {
+    if node_ptr.is_null() {
+      None
+    } else {
+      let new_node = Node::wrap(node_ptr, self.0.borrow().document.clone());
+      let doc = &self.0.borrow().document;
+      doc.borrow_mut().insert_node(node_ptr, new_node.clone());
+      Some(new_node)
+    }
   }
 }
 
@@ -873,7 +942,7 @@ impl Namespace {
     };
 
     unsafe {
-      let ns = xmlNewNs(node.node_ptr(), c_href.as_ptr(), c_prefix_ptr);
+      let ns = xmlNewNs(node.node_ptr_mut(), c_href.as_ptr(), c_prefix_ptr);
       if ns.is_null() {
         Err(())
       } else {

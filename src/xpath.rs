@@ -36,7 +36,7 @@ pub struct Object {
 impl<'a> Context<'a> {
   ///create the xpath context for a document
   pub fn new(doc: &Document) -> Result<Context, ()> {
-    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr) };
+    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr()) };
     if ctxtptr.is_null() {
       Err(())
     } else {
@@ -133,7 +133,8 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      vec.push(Node { node_ptr: ptr }); //node_is_inserted : true
+      // TODO: Fix another day =)
+      //vec.push(Node { node_ptr: ptr }); //node_is_inserted : true
     }
     vec
   }
