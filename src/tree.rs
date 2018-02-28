@@ -180,7 +180,7 @@ impl Document {
 
   /// Import a `Node` from another `Document`
   pub fn import_node(&mut self, node: Node) -> Result<Node, ()> {
-    if(node.0.borrow_mut().unlinked == false) {
+    if node.0.borrow_mut().unlinked == false {
       return Err(());
     }
     node.0.borrow_mut().unlinked = false;
