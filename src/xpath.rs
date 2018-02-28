@@ -2,7 +2,7 @@
 
 use c_signatures::*;
 use libc::{c_void, size_t};
-use tree::{Document, Node};
+use tree::{Document, DocumentRef, Node};
 use std::str;
 use std::ffi::{CStr, CString};
 
@@ -30,6 +30,7 @@ impl<'a> Drop for Context<'a> {
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: *mut c_void,
+  document: DocumentRef,
 }
 
 
@@ -64,7 +65,7 @@ impl<'a> Context<'a> {
     if result.is_null() {
       Err(())
     } else {
-      Ok(Object { ptr: result })
+      Ok(Object { ptr: result, document: self.document.0.clone()})
     }
   }
 
@@ -133,8 +134,9 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      // TODO: Fix another day =)
-      //vec.push(Node { node_ptr: ptr }); //node_is_inserted : true
+      // TODO: This is the reason that there isn't a drop on Document, how to do this without creating a Document here that get dropped???
+      let doc = Document(self.document.clone());
+      vec.push(doc.register_node(ptr)); //node_is_inserted : true
     }
     vec
   }
