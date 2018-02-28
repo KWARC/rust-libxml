@@ -48,6 +48,7 @@ impl Eq for Node {}
 impl Drop for Node {
   /// Free node if it isn't bound in some document
   fn drop(&mut self) {
+    //println!("Dropping node: {:?}", self.node_ptr())
     // TODO: How do we drop unbound nodes?
     // unsafe {
     //   if self.node_ptr {
@@ -57,7 +58,7 @@ impl Drop for Node {
   }
 }
 
-type DocumentRef = Rc<RefCell<_Document>>;
+pub(crate) /*Should be private, needed now for xpath*/ type DocumentRef = Rc<RefCell<_Document>>;
 
 // TODO: Do the fields need to be public in crate?
 pub(crate) struct _Document {
@@ -76,7 +77,7 @@ impl _Document {
 
 /// A libxml2 Document
 #[derive(Clone)]
-pub struct Document(DocumentRef);
+pub struct Document(pub(crate) /*Should be private i think, needed now for xpath*/ DocumentRef);
 
 /*
 #[derive(Debug)]
@@ -89,10 +90,15 @@ pub struct Document {
 impl Drop for Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
+    //println!("Dropping document: {:?}", self.doc_ptr());
+
+    //This should be fixed
+    /*
     unsafe {
       xmlFreeDoc(self.doc_ptr());
     }
     _libxml_global_drop();
+    */
   }
 }
 
@@ -932,7 +938,7 @@ pub struct Namespace {
 
 impl Namespace {
   /// Creates a new namespace
-  pub fn new(prefix: &str, href: &str, node: &Node) -> Result<Self, ()> {
+  pub fn new(prefix: &str, href: &str, node: &mut Node) -> Result<Self, ()> {
     let c_href = CString::new(href).unwrap();
     let c_prefix = CString::new(prefix).unwrap();
     let c_prefix_ptr = if prefix.is_empty() {

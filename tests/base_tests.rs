@@ -16,8 +16,10 @@ fn hello_builder() {
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
 
-  let doc_node = doc.get_root_element();
+  /* This tests for functionality (return self if there is no root element) that is removed.
+  let doc_node = doc.get_root_element().unwrap();
   assert_eq!(doc_node.get_type(), Some(NodeType::DocumentNode));
+  */
 
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
@@ -80,7 +82,7 @@ fn can_parse_xml_string() {
   file.read_to_string(&mut xml_string).unwrap();
   let parser = Parser::default();
   let doc = parser.parse_string(&xml_string).unwrap();
-  assert_eq!(doc.get_root_element().get_name(), "root");
+  assert_eq!(doc.get_root_element().unwrap().get_name(), "root");
 }
 
 #[test]
@@ -92,7 +94,7 @@ fn can_load_html_file() {
     assert!(doc_result.is_ok());
 
     let doc = doc_result.unwrap();
-    let root = doc.get_root_element();
+    let root = doc.get_root_element().unwrap();
     assert_eq!(root.get_name(), "html");
   }
 }
@@ -106,7 +108,7 @@ fn child_of_root_has_different_hash() {
     let doc_result = parser.parse_file("tests/resources/file01.xml");
     assert!(doc_result.is_ok());
     let doc = doc_result.unwrap();
-    let root = doc.get_root_element();
+    let root = doc.get_root_element().unwrap();
     assert!(!root.is_text_node());
     if let Some(child) = root.get_first_child() {
       assert!(root != child);
@@ -142,7 +144,7 @@ fn node_children_accessors() {
   let doc_result = parser.parse_file("tests/resources/file01.xml");
   assert!(doc_result.is_ok());
   let doc = doc_result.unwrap();
-  let root = doc.get_root_element();
+  let root = doc.get_root_element().unwrap();
 
   // Tests
   let root_children = root.get_child_nodes();
@@ -165,7 +167,7 @@ fn node_attributes_accessor() {
   let doc_result = parser.parse_file("tests/resources/file01.xml");
   assert!(doc_result.is_ok());
   let doc = doc_result.unwrap();
-  let root = doc.get_root_element();
+  let root = doc.get_root_element().unwrap();
   let mut root_elements = root.get_child_elements();
   let child_opt = root_elements.first_mut();
   assert!(child_opt.is_some());
@@ -208,7 +210,7 @@ fn attribute_namespace_accessors() {
   let mut element = element_result.unwrap();
   doc.set_root_element(&element);
 
-  let ns_result = Namespace::new("myxml", "http://www.w3.org/XML/1998/namespace", &element);
+  let ns_result = Namespace::new("myxml", "http://www.w3.org/XML/1998/namespace", &mut element);
   assert!(ns_result.is_ok());
   let ns = ns_result.unwrap();
   element.set_attribute_ns("id", "testing", &ns);
@@ -223,7 +225,7 @@ fn attribute_namespace_accessors() {
 
   let id_false_ns = element.get_attribute_ns("id", "http://www.foobar.org");
   assert!(id_false_ns.is_none());
-  let fb_ns_result = Namespace::new("fb", "http://www.foobar.org", &element);
+  let fb_ns_result = Namespace::new("fb", "http://www.foobar.org", &mut element);
   assert!(fb_ns_result.is_ok());
   let fb_ns = fb_ns_result.unwrap();
   element.set_attribute_ns("fb", "fb", &fb_ns);
@@ -268,9 +270,9 @@ fn node_can_unbind() {
   assert_eq!(element.get_child_nodes().len(), 0);
 
   // Temporary: test explicit free on unbound nodes
-  first_child.free();
-  second_child.free();
-  third_child.free();
+  //first_child.free();
+  //second_child.free();
+  //third_child.free();
 
   // Test reparenting via unlink
   let transfer = Node::new("transfer", None, &doc).unwrap();
@@ -300,16 +302,16 @@ fn create_document() -> Document {
 #[test]
 fn document_can_import_node() {
   let doc1 = create_document();
-  let doc2 = create_document();
+  let mut doc2 = create_document();
 
-  assert_eq!(doc2.get_root_element().get_child_elements().len(), 2);
+  assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 2);
 
-  let elements = doc1.get_root_element().get_child_elements();
+  let elements = doc1.get_root_element().unwrap().get_child_elements();
   let node = elements.first().unwrap();
   let imported = doc2.import_node(&node).unwrap();
-  assert!(doc2.get_root_element().add_child(imported).is_ok());
+  assert!(doc2.get_root_element().unwrap().add_child(imported).is_ok());
 
-  assert_eq!(doc2.get_root_element().get_child_elements().len(), 3);
+  assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 3);
 }
 
 #[test]
@@ -458,7 +460,7 @@ fn well_formed_html() {
 fn can_mock_node() {
   let node_mock = Node::mock();
   assert!(!node_mock.is_text_node());
-  node_mock.free();
+  //node_mock.free();
 }
 
 #[test]
@@ -466,7 +468,7 @@ fn can_mock_node() {
 fn can_hash_mock_node() {
   let node_mock = Node::mock();
   assert!(node_mock.to_hashable() > 0);
-  node_mock.free();
+  //node_mock.free();
 }
 
 #[test]
@@ -516,9 +518,9 @@ fn can_work_with_namespaces() {
   let initial_namespace_list = root_node.get_namespaces(&doc);
   assert_eq!(initial_namespace_list.len(), 0);
 
-  let mock_ns_result = Namespace::new("mock", "http://example.com/ns/mock", &root_node);
+  let mock_ns_result = Namespace::new("mock", "http://example.com/ns/mock", &mut root_node);
   assert!(mock_ns_result.is_ok());
-  let second_ns_result = Namespace::new("second", "http://example.com/ns/second", &root_node);
+  let second_ns_result = Namespace::new("second", "http://example.com/ns/second", &mut root_node);
   assert!(second_ns_result.is_ok());
 
   // try to attach this namespace to a node
