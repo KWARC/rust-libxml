@@ -48,13 +48,9 @@ impl Eq for Node {}
 impl Drop for Node {
   /// Free node if it isn't bound in some document
   fn drop(&mut self) {
-    //println!("Dropping node: {:?}", self.node_ptr())
-    // TODO: How do we drop unbound nodes?
-    // unsafe {
-    //   if self.node_ptr {
-    //     xmlFreeNode(self.node_ptr);
-    //   }
-    // }
+    if self.0.borrow().unlinked {
+      unsafe { xmlFreeNode(self.0.borrow().node_ptr) }
+    }
   }
 }
 
@@ -173,10 +169,23 @@ impl Document {
     }
   }
 
+  fn ptr_as_result(&mut self, node_ptr: *mut c_void) -> Result<Node, ()> {
+    if node_ptr.is_null() {
+      Err(())
+    } else {
+      let node = self.register_node(node_ptr);
+      Ok(node)
+    }
+  }
+
   /// Import a `Node` from another `Document`
-  pub fn import_node(&mut self, node: &Node) -> Option<Node> {
+  pub fn import_node(&mut self, node: Node) -> Result<Node, ()> {
+    if(node.0.borrow_mut().unlinked == false) {
+      return Err(());
+    }
+    node.0.borrow_mut().unlinked = false;
     let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), self.doc_ptr(), 1) };
-    self.ptr_as_option(node_ptr)
+    self.ptr_as_result(node_ptr)
   }
 
   /// Serializes the `Document`
@@ -503,7 +512,8 @@ impl Node {
   }
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
+  pub fn add_prev_sibling(&self, new_sibling: Node) -> Result<(), ()> {
+    new_sibling.0.borrow_mut().unlinked = false;
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddPrevSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
@@ -515,7 +525,8 @@ impl Node {
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&self, new_sibling: &Node) -> Result<(), ()> {
+  pub fn add_next_sibling(&self, new_sibling: Node) -> Result<(), ()> {
+    new_sibling.0.borrow_mut().unlinked = false;
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddNextSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
@@ -818,6 +829,7 @@ impl Node {
 
   /// Creates a new `Node` as child to the self `Node`
   pub fn add_child(&mut self, child: Node) -> Result<Node, ()> {
+    child.0.borrow_mut().unlinked = false;
     unsafe {
       let new_child_ptr = xmlAddChild(self.node_ptr(), child.node_ptr());
       let new_child = self.ptr_as_option(new_child_ptr).ok_or(())?;
@@ -874,6 +886,7 @@ impl Node {
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
     if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
+      self.0.borrow_mut().unlinked = true;
       unsafe {
         xmlUnlinkNode(self.node_ptr());
         // self.reparent_removed_node()
