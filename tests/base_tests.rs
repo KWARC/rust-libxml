@@ -8,7 +8,7 @@ use std::io::Read;
 use libxml::tree::{Document, Namespace, Node, NodeType};
 use libxml::xpath::Context;
 use libxml::parser::Parser;
-
+use std::borrow::BorrowMut;
 #[test]
 /// Build a hello world XML doc
 fn hello_builder() {
@@ -134,7 +134,7 @@ fn node_sibling_accessors() {
   doc.set_root_element(&hello_element);
 
   let new_sibling = Node::new("sibling", None, &doc).unwrap();
-  assert!(hello_element.add_prev_sibling(&new_sibling).is_ok());
+  assert!(hello_element.add_prev_sibling(new_sibling).is_ok());
 }
 
 #[test]
@@ -306,9 +306,10 @@ fn document_can_import_node() {
 
   assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 2);
 
-  let elements = doc1.get_root_element().unwrap().get_child_elements();
-  let node = elements.first().unwrap();
-  let imported = doc2.import_node(&node).unwrap();
+  let mut elements = doc1.get_root_element().unwrap().get_child_elements();
+  let mut node = elements.pop().unwrap();
+  node.unlink();
+  let imported = doc2.import_node(node).unwrap();
   assert!(doc2.get_root_element().unwrap().add_child(imported).is_ok());
 
   assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 3);
