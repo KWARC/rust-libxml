@@ -134,9 +134,12 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      // TODO: This is the reason that there isn't a drop on Document, how to do this without creating a Document here that get dropped???
-      let doc = Document(self.document.clone());
-      vec.push(doc.register_node(ptr)); //node_is_inserted : true
+
+      /* TODO: break next two lines into a method on _Docuemnt */
+      let node = Node::wrap(ptr, self.document.clone());
+      self.document.borrow_mut().insert_node(ptr, node.clone());
+
+      vec.push(node); //node_is_inserted : true
     }
     vec
   }
