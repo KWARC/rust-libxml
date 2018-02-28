@@ -92,13 +92,10 @@ impl Drop for Document {
   fn drop(&mut self) {
     //println!("Dropping document: {:?}", self.doc_ptr());
 
-    //This should be fixed
-    /*
     unsafe {
       xmlFreeDoc(self.doc_ptr());
     }
     _libxml_global_drop();
-    */
   }
 }
 
