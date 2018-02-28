@@ -11,7 +11,7 @@ fn ownership_guards() {
   let doc_result = parser.parse_file("tests/resources/file01.xml");
   assert!(doc_result.is_ok());
   let doc = doc_result.unwrap();
-  let root = doc.get_root_element();
+  let root = doc.get_root_element().unwrap();
 
   let mut first_a = root.get_first_element_child().unwrap();
   let first_b = root.get_first_element_child().unwrap();

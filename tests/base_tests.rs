@@ -8,7 +8,7 @@ use std::io::Read;
 use libxml::tree::{Document, Namespace, Node, NodeType};
 use libxml::xpath::Context;
 use libxml::parser::Parser;
-use std::borrow::BorrowMut;
+
 #[test]
 /// Build a hello world XML doc
 fn hello_builder() {
