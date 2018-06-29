@@ -83,8 +83,8 @@ extern "C" {
   pub fn xmlBufferContent(buf: *mut c_void) -> *const c_char;
   pub fn xmlNodeDump(
     buf: *mut c_void,
-    doc: *mut c_void,
-    node: *mut c_void,
+    doc: *const c_void,
+    node: *const c_void,
     indent: c_int,
     disable_format: c_int,
   );
@@ -165,10 +165,10 @@ extern "C" {
   pub fn xmlXPathCastToString(val: *const c_void) -> *const c_char;
   pub fn xmlXPathRegisterNs(ctxt: *mut c_void, prefix: *const c_char, href: *const c_char)
     -> c_int;
-  pub fn xmlXPathSetContextNode(node: *mut c_void, ctxt: *mut c_void) -> c_int;
-  pub fn xmlSearchNsByHref(doc: *mut c_void, node: *mut c_void, href: *const c_char)
+  pub fn xmlXPathSetContextNode(node: *const c_void, ctxt: *mut c_void) -> c_int;
+  pub fn xmlSearchNsByHref(doc: *mut c_void, node: *const c_void, href: *const c_char)
     -> *mut c_void;
-  pub fn xmlSearchNs(doc: *mut c_void, node: *mut c_void, prefix: *const c_char) -> *mut c_void;
+  pub fn xmlSearchNs(doc: *mut c_void, node: *const c_void, prefix: *const c_char) -> *mut c_void;
   // helper for xpath
   pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
   pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;

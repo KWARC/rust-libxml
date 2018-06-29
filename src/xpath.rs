@@ -2,7 +2,7 @@
 
 use c_signatures::*;
 use libc::{c_void, size_t};
-use tree::{Document, Node};
+use tree::{Document, DocumentRef, Node};
 use std::str;
 use std::ffi::{CStr, CString};
 
@@ -30,13 +30,14 @@ impl<'a> Drop for Context<'a> {
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: *mut c_void,
+  document: DocumentRef,
 }
 
 
 impl<'a> Context<'a> {
   ///create the xpath context for a document
   pub fn new(doc: &Document) -> Result<Context, ()> {
-    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr) };
+    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr()) };
     if ctxtptr.is_null() {
       Err(())
     } else {
@@ -64,14 +65,14 @@ impl<'a> Context<'a> {
     if result.is_null() {
       Err(())
     } else {
-      Ok(Object { ptr: result })
+      Ok(Object { ptr: result, document: self.document.0.clone()})
     }
   }
 
   /// localize xpath context to a specific Node
   pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
     unsafe {
-      let result = xmlXPathSetContextNode(node.node_ptr, self.context_ptr);
+      let result = xmlXPathSetContextNode(node.node_ptr(), self.context_ptr);
       if result != 0 {
         return Err(());
       }
@@ -133,7 +134,12 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      vec.push(Node { node_ptr: ptr }); //node_is_inserted : true
+
+      /* TODO: break next two lines into a method on _Docuemnt */
+      let node = Node::wrap(ptr, self.document.clone());
+      self.document.borrow_mut().insert_node(ptr, node.clone());
+
+      vec.push(node); //node_is_inserted : true
     }
     vec
   }
