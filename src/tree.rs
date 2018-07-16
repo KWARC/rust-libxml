@@ -105,7 +105,7 @@ impl Document {
       if doc_ptr.is_null() {
         Err(())
       } else {
-        let doc = _Document{doc_ptr: doc_ptr, nodes: HashMap::new()};
+        let doc = _Document{doc_ptr, nodes: HashMap::new()};
         Ok(Document(Rc::new(RefCell::new(doc))))
       }
     }
@@ -118,7 +118,7 @@ impl Document {
   /// Creates a new `Document` from an existing libxml2 pointer
   pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
     _libxml_global_init();
-    let doc = _Document{doc_ptr: doc_ptr, nodes: HashMap::new()};
+    let doc = _Document{doc_ptr, nodes: HashMap::new()};
     Document(Rc::new(RefCell::new(doc)))
   }
   /// Write document to `filename`
@@ -160,15 +160,6 @@ impl Document {
     }
   }
 
-  fn ptr_as_option(&mut self, node_ptr: *mut c_void) -> Option<Node> {
-    if node_ptr.is_null() {
-      None
-    } else {
-      let node = self.register_node(node_ptr);
-      Some(node)
-    }
-  }
-
   fn ptr_as_result(&mut self, node_ptr: *mut c_void) -> Result<Node, ()> {
     if node_ptr.is_null() {
       Err(())
@@ -179,8 +170,8 @@ impl Document {
   }
 
   /// Import a `Node` from another `Document`
-  pub fn import_node(&mut self, node: Node) -> Result<Node, ()> {
-    if node.0.borrow_mut().unlinked == false {
+  pub fn import_node(&mut self, node: &mut Node) -> Result<Node, ()> {
+    if !node.0.borrow_mut().unlinked {
       return Err(());
     }
     node.0.borrow_mut().unlinked = false;
@@ -512,7 +503,7 @@ impl Node {
   }
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&self, new_sibling: Node) -> Result<(), ()> {
+  pub fn add_prev_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
     new_sibling.0.borrow_mut().unlinked = false;
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
@@ -525,7 +516,7 @@ impl Node {
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&self, new_sibling: Node) -> Result<(), ()> {
+  pub fn add_next_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
     new_sibling.0.borrow_mut().unlinked = false;
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
@@ -717,7 +708,7 @@ impl Node {
       if ns_ptr.is_null() {
         None
       } else {
-        Some(Namespace { ns_ptr: ns_ptr })
+        Some(Namespace { ns_ptr })
       }
     }
   }
@@ -731,7 +722,7 @@ impl Node {
         for index in 0.. {
           let ns_ptr = *ns_ptr_list.offset(index);
           if !ns_ptr.is_null() {
-            ns_found.push(Namespace { ns_ptr: ns_ptr });
+            ns_found.push(Namespace { ns_ptr });
           } else {
             break;
           }
@@ -779,7 +770,7 @@ impl Node {
     unsafe {
       let ns_ptr = xmlSearchNsByHref(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_href.as_ptr());
       if !ns_ptr.is_null() {
-        let ns = Namespace { ns_ptr: ns_ptr };
+        let ns = Namespace { ns_ptr };
         let ns_prefix = ns.get_prefix();
         Some(ns_prefix)
       } else {
@@ -797,7 +788,7 @@ impl Node {
     unsafe {
       let ns_ptr = xmlSearchNs(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_prefix.as_ptr());
       if !ns_ptr.is_null() {
-        let ns = Namespace { ns_ptr: ns_ptr };
+        let ns = Namespace { ns_ptr };
         let ns_prefix = ns.get_href();
         if !ns_prefix.is_empty() {
           Some(ns_prefix)
@@ -828,7 +819,7 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
-  pub fn add_child(&mut self, child: Node) -> Result<Node, ()> {
+  pub fn add_child(&mut self, child: &mut Node) -> Result<Node, ()> {
     child.0.borrow_mut().unlinked = false;
     unsafe {
       let new_child_ptr = xmlAddChild(self.node_ptr(), child.node_ptr());

@@ -133,8 +133,8 @@ fn node_sibling_accessors() {
   let hello_element = hello_element_result.unwrap();
   doc.set_root_element(&hello_element);
 
-  let new_sibling = Node::new("sibling", None, &doc).unwrap();
-  assert!(hello_element.add_prev_sibling(new_sibling).is_ok());
+  let mut new_sibling = Node::new("sibling", None, &doc).unwrap();
+  assert!(hello_element.add_prev_sibling(&mut new_sibling).is_ok());
 }
 
 #[test]
@@ -253,13 +253,13 @@ fn node_can_unbind() {
   let mut element = element_result.unwrap();
   doc.set_root_element(&element);
 
-  let first = Node::new("first", None, &doc).unwrap();
-  let second = Node::new("second", None, &doc).unwrap();
-  let third = Node::new("third", None, &doc).unwrap();
+  let mut first = Node::new("first", None, &doc).unwrap();
+  let mut second = Node::new("second", None, &doc).unwrap();
+  let mut third = Node::new("third", None, &doc).unwrap();
 
-  let mut first_child = element.add_child(first).unwrap();
-  let mut second_child = element.add_child(second).unwrap();
-  let mut third_child = element.add_child(third).unwrap();
+  let mut first_child = element.add_child(&mut first).unwrap();
+  let mut second_child = element.add_child(&mut second).unwrap();
+  let mut third_child = element.add_child(&mut third).unwrap();
 
   assert_eq!(element.get_child_nodes().len(), 3);
   first_child.unbind_node();
@@ -275,11 +275,11 @@ fn node_can_unbind() {
   //third_child.free();
 
   // Test reparenting via unlink
-  let transfer = Node::new("transfer", None, &doc).unwrap();
-  let mut transfer_child = element.add_child(transfer).unwrap();
+  let mut transfer = Node::new("transfer", None, &doc).unwrap();
+  let mut transfer_child = element.add_child(&mut transfer).unwrap();
   transfer_child.append_text("test text");
-  let receiver = Node::new("receiver", None, &doc).unwrap();
-  let mut receiver_child = element.add_child(receiver).unwrap();
+  let mut receiver = Node::new("receiver", None, &doc).unwrap();
+  let mut receiver_child = element.add_child(&mut receiver).unwrap();
   assert_eq!(element.get_child_nodes().len(), 2);
   assert_eq!(transfer_child.get_child_nodes().len(), 1);
   assert_eq!(receiver_child.get_child_nodes().len(), 0);
@@ -287,7 +287,7 @@ fn node_can_unbind() {
   transfer_child.unlink();
   assert_eq!(element.get_child_nodes().len(), 1);
   assert_eq!(receiver_child.get_child_nodes().len(), 0);
-  let reparented_transfer = receiver_child.add_child(transfer_child).unwrap();
+  let reparented_transfer = receiver_child.add_child(&mut transfer_child).unwrap();
   assert_eq!(receiver_child.get_child_nodes().len(), 1);
   assert_eq!(reparented_transfer.get_content(), "test text".to_owned());
 }
@@ -309,8 +309,8 @@ fn document_can_import_node() {
   let mut elements = doc1.get_root_element().unwrap().get_child_elements();
   let mut node = elements.pop().unwrap();
   node.unlink();
-  let imported = doc2.import_node(node).unwrap();
-  assert!(doc2.get_root_element().unwrap().add_child(imported).is_ok());
+  let mut imported = doc2.import_node(&mut node).unwrap();
+  assert!(doc2.get_root_element().unwrap().add_child(&mut imported).is_ok());
 
   assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 3);
 }
