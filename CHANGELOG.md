@@ -1,5 +1,22 @@
 # Change Log
-## [0.1.3 (in active dev)]
+## [0.2 (in active dev)]
+
+This release adds fundamental breaking changes to the API. The API continues to be considered unstable until the `1.0.0` release.
+
+### Added
+ * `dup` and `dup_from` methods for deeply duplicating a libxml2 document
+
+### Changed
+ * safe API for `Node`s and `Document`s, with automatic pointer bookkeeping and memory deallocation, by @triptec
+   * `Node`s are now bookkept by their owning document
+   * libxml2 low-level memory deallocation is postponed until the `Document` is dropped, with the exception of unlinked nodes, who are deallocated on drop.
+   * `Document::get_root_element` now has an option type, and returns `None` for an empty Document
+   * `Node::mock` now takes owner `Document` as argument
+   * proofed tests with `valgrind` and removed all obvious memory leaks
+
+### Removed
+ * `global` module, which attempted to manage global libxml state for threaded workflows. May be readed after the API stabilizes
+
 
 ## [0.1.2] 2018-12-01
 
