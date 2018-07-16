@@ -147,11 +147,11 @@ extern "C" {
     options: c_uint,
   ) -> *mut c_void;
   // pub fn htmlSAXParseDoc(xml_string: *const c_char, encoding: *const c_char, sax: *mut c_void, user_data: *mut c_void) -> *mut c_void;
-  pub fn xmlInitParser();
-  pub fn xmlCleanupParser();
+  // pub fn xmlInitParser();
+  // pub fn xmlCleanupParser();
   // pub fn xmlMemoryDump();
-  pub fn xmlInitGlobals();
-  pub fn xmlCleanupGlobals();
+  // pub fn xmlInitGlobals();
+  // pub fn xmlCleanupGlobals();
   pub fn xmlKeepBlanksDefault(flag: c_uint) -> c_uint;
   // pub fn xmlFreeParserCtxt(ctxt: *mut c_void);
   pub fn htmlFreeParserCtxt(ctxt: *mut c_void);
@@ -166,8 +166,11 @@ extern "C" {
   pub fn xmlXPathRegisterNs(ctxt: *mut c_void, prefix: *const c_char, href: *const c_char)
     -> c_int;
   pub fn xmlXPathSetContextNode(node: *const c_void, ctxt: *mut c_void) -> c_int;
-  pub fn xmlSearchNsByHref(doc: *mut c_void, node: *const c_void, href: *const c_char)
-    -> *mut c_void;
+  pub fn xmlSearchNsByHref(
+    doc: *mut c_void,
+    node: *const c_void,
+    href: *const c_char,
+  ) -> *mut c_void;
   pub fn xmlSearchNs(doc: *mut c_void, node: *const c_void, prefix: *const c_char) -> *mut c_void;
   // helper for xpath
   pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;

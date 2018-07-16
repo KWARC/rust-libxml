@@ -3,13 +3,12 @@ use c_signatures::*;
 
 use libc;
 use libc::{c_int, c_void};
+use std::collections::{HashMap, HashSet};
 use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
+use std::mem;
 use std::ptr;
 use std::str;
-use std::collections::{HashMap, HashSet};
-use std::mem;
-use global::*;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -52,13 +51,15 @@ impl Drop for Node {
     if self.0.borrow().unlinked {
       let node_ptr = self.0.borrow().node_ptr;
       if !node_ptr.is_null() {
-        unsafe { xmlFreeNode(node_ptr); }
+        unsafe {
+          xmlFreeNode(node_ptr);
+        }
       }
     }
   }
 }
 
-pub(crate) /*Should be private, needed now for xpath*/ type DocumentRef = Rc<RefCell<_Document>>;
+pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 
 // TODO: Do the fields need to be public in crate?
 #[derive(Debug)]
@@ -77,7 +78,7 @@ impl _Document {
 
 /// A libxml2 Document
 #[derive(Clone)]
-pub struct Document(pub(crate) /*Should be private i think, needed now for xpath*/ DocumentRef);
+pub struct Document(pub(crate) DocumentRef);
 
 /*
 #[derive(Debug)]
@@ -90,26 +91,25 @@ pub struct Document {
 impl Drop for Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
-    //println!("Dropping document: {:?}", self.doc_ptr());
-
     unsafe {
       xmlFreeDoc(self.doc_ptr());
     }
-    _libxml_global_drop();
   }
 }
 
 impl Document {
   /// Creates a new empty libxml2 document
   pub fn new() -> Result<Self, ()> {
-    _libxml_global_init();
     unsafe {
       let c_version = CString::new("1.0").unwrap();
       let doc_ptr = xmlNewDoc(c_version.as_ptr());
       if doc_ptr.is_null() {
         Err(())
       } else {
-        let doc = _Document{doc_ptr, nodes: HashMap::new()};
+        let doc = _Document {
+          doc_ptr,
+          nodes: HashMap::new(),
+        };
         Ok(Document(Rc::new(RefCell::new(doc))))
       }
     }
@@ -121,8 +121,10 @@ impl Document {
 
   /// Creates a new `Document` from an existing libxml2 pointer
   pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
-    _libxml_global_init();
-    let doc = _Document{doc_ptr, nodes: HashMap::new()};
+    let doc = _Document {
+      doc_ptr,
+      nodes: HashMap::new(),
+    };
     Document(Rc::new(RefCell::new(doc)))
   }
   /// Write document to `filename`
@@ -387,9 +389,15 @@ impl Node {
 
   /// Wrap a libxml node ptr with a Node
   pub(crate) fn wrap(node_ptr: *mut c_void, document: DocumentRef) -> Node {
-    let node = _Node { node_ptr, document: document.clone(), unlinked: false };
+    let node = _Node {
+      node_ptr,
+      document: document.clone(),
+      unlinked: false,
+    };
     let wrapped_node = Node(Rc::new(RefCell::new(node)));
-    document.borrow_mut().insert_node(node_ptr, wrapped_node.clone());
+    document
+      .borrow_mut()
+      .insert_node(node_ptr, wrapped_node.clone());
     wrapped_node
   }
 
@@ -623,7 +631,14 @@ impl Node {
   pub fn set_property_ns(&mut self, name: &str, value: &str, ns: &Namespace) {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
-    unsafe { xmlSetNsProp(self.node_ptr(), ns.ns_ptr(), c_name.as_ptr(), c_value.as_ptr()) };
+    unsafe {
+      xmlSetNsProp(
+        self.node_ptr(),
+        ns.ns_ptr(),
+        c_name.as_ptr(),
+        c_value.as_ptr(),
+      )
+    };
   }
 
   /// Removes the property of given `name`
@@ -737,7 +752,8 @@ impl Node {
 
   /// Get a list of namespaces declared with this node
   pub fn get_namespace_declarations(&self) -> Vec<Namespace> {
-    if self.get_type() != Some(NodeType::ElementNode) {  // only element nodes can have declarations
+    if self.get_type() != Some(NodeType::ElementNode) {
+      // only element nodes can have declarations
       return Vec::new();
     }
     let mut namespaces = Vec::new();
@@ -785,7 +801,11 @@ impl Node {
     }
     let c_prefix = CString::new(prefix).unwrap();
     unsafe {
-      let ns_ptr = xmlSearchNs(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_prefix.as_ptr());
+      let ns_ptr = xmlSearchNs(
+        xmlGetDoc(self.node_ptr()),
+        self.node_ptr(),
+        c_prefix.as_ptr(),
+      );
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr };
         let ns_prefix = ns.get_href();
@@ -854,7 +874,12 @@ impl Node {
       Some(ns) => ns.ns_ptr(),
     };
     unsafe {
-      let new_ptr = xmlNewTextChild(self.node_ptr_mut(), ns_ptr, c_name.as_ptr(), c_content.as_ptr());
+      let new_ptr = xmlNewTextChild(
+        self.node_ptr_mut(),
+        ns_ptr,
+        c_name.as_ptr(),
+        c_content.as_ptr(),
+      );
       Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
   }
@@ -906,12 +931,12 @@ impl Node {
   }
 
   /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree
-  fn set_linked(&mut self) { 
+  fn set_linked(&mut self) {
     self.0.borrow_mut().unlinked = false;
   }
 
   /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
-  fn set_unlinked(&mut self) { 
+  fn set_unlinked(&mut self) {
     self.0.borrow_mut().unlinked = true;
   }
 }
