@@ -79,14 +79,6 @@ impl _Document {
 #[derive(Clone)]
 pub struct Document(pub(crate) DocumentRef);
 
-/*
-#[derive(Debug)]
-pub struct Document {
-  /// libxml's `DocumentPtr`
-  pub(crate) doc_ptr: *mut c_void,
-}
-*/
-
 impl Drop for Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
@@ -250,51 +242,35 @@ impl Document {
     // TODO: Memory management? Could be a major pain...
     self.register_node(self.doc_ptr())
   }
-}
 
-// TODO: Perhaps rename to copy or something. We can't impl the clone trait for anything else than cloning a Doucment reference =/
-/*
-impl Clone for Document {
-  fn clone(&self) -> Self {
+  /// Duplicates the libxml2 Document into a new instance
+  pub fn dup(&self) -> Result<Self, ()> {
     let doc_ptr = unsafe { xmlCopyDoc(self.doc_ptr(), 1) };
-    ptr_as_doc_opt(doc_ptr).expect("Could not clone the document!")
-  }
-
-  fn clone_from(&mut self, source: &Self) {
-    if !self.doc_ptr().is_null() {
-      panic!("Can only invoke clone_from on a Document struct with no pointer assigned.")
-    }
-
-    let doc_ptr = unsafe { xmlCopyDoc(source.doc_ptr, 1) };
     if doc_ptr.is_null() {
-      panic!("Could not clone the Document!")
+      Err(())
+    } else {
+      let doc = _Document {
+        doc_ptr,
+        nodes: HashMap::new(),
+      };
+      Ok(Document(Rc::new(RefCell::new(doc))))
     }
-    self.doc_ptr = doc_ptr;
   }
-}
-*/
 
-/*
-// The helper functions for trees
-fn ptr_as_node_opt(node_ptr: *mut c_void) -> Option<Node> {
-  if node_ptr.is_null() {
-    None
-  } else {
-    Some(Node { node_ptr: node_ptr })
-  }
-}
-*/
+  /// Duplicates a source libxml2 Document into the empty Document self
+  pub fn dup_from(&mut self, source: &Self) -> Result<(), ()> {
+    if !self.doc_ptr().is_null() {
+      return Err(());
+    }
 
-/*
-// The helper functions for trees
-fn ptr_as_doc_opt(doc_ptr: *mut c_void) -> Option<Document> {
-  if doc_ptr.is_null() {
-    None
-  } else {
-    Some(Document { doc_ptr })
+    let doc_ptr = unsafe { xmlCopyDoc(source.doc_ptr(), 1) };
+    if doc_ptr.is_null() {
+      return Err(());
+    }
+    self.0.borrow_mut().doc_ptr = doc_ptr;
+    Ok(())
   }
 }
-*/
 
 /// Types of xml nodes
 #[derive(Debug, PartialEq)]
