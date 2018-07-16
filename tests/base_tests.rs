@@ -16,10 +16,10 @@ fn hello_builder() {
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
 
-  /* This tests for functionality (return self if there is no root element) that is removed.
-  let doc_node = doc.get_root_element().unwrap();
-  assert_eq!(doc_node.get_type(), Some(NodeType::DocumentNode));
-  */
+  // This tests for functionality (return self if there is no root element) that is removed. 
+  let doc_node = doc.get_root_element();
+  assert_eq!(doc_node, None, "empty document has no root element");
+  
 
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
@@ -459,17 +459,17 @@ fn well_formed_html() {
 #[test]
 /// Can mock a node object (useful for defaults that will be overridden)
 fn can_mock_node() {
-  let node_mock = Node::mock();
+  let doc_mock = Document::new().unwrap();
+  let node_mock = Node::mock(&doc_mock);
   assert!(!node_mock.is_text_node());
-  //node_mock.free();
 }
 
 #[test]
 /// Can make a mock node hashable
 fn can_hash_mock_node() {
-  let node_mock = Node::mock();
+  let doc_mock = Document::new().unwrap();
+  let node_mock = Node::mock(&doc_mock);
   assert!(node_mock.to_hashable() > 0);
-  //node_mock.free();
 }
 
 #[test]
@@ -544,6 +544,18 @@ fn can_work_with_namespaces() {
   let first_ns = namespace_list.pop().unwrap();
   assert_eq!(first_ns.get_prefix(), "mock");
   assert_eq!(first_ns.get_href(), "http://example.com/ns/mock");
+}
+
+#[test]
+fn can_work_with_ns_declarations() {
+  let mut doc = Document::new().unwrap();
+  let mut root_node = Node::new("root", None, &doc).unwrap();
+  doc.set_root_element(&root_node);
+
+  let mock_ns_result = Namespace::new("mock1", "http://example.com/ns/mock1", &mut root_node);
+  assert!(mock_ns_result.is_ok());
+  let second_ns_result = Namespace::new("mock2", "http://example.com/ns/mock2", &mut root_node);
+  assert!(second_ns_result.is_ok());
 
   let declarations = root_node.get_namespace_declarations();
   assert_eq!(declarations.len(), 2);

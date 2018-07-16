@@ -16,6 +16,7 @@ use std::rc::Rc;
 
 type NodeRef = Rc<RefCell<_Node>>;
 
+#[derive(Debug)]
 struct _Node {
   /// libxml's xmlNodePtr
   node_ptr: *mut c_void,
@@ -26,7 +27,7 @@ struct _Node {
 
 // TODO: Make node_ptr private, now pub(crate) is needed for xpath::get_nodes_as_vec
 /// An xml node
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Node(NodeRef);
 
 impl Hash for Node {
@@ -49,7 +50,10 @@ impl Drop for Node {
   /// Free node if it isn't bound in some document
   fn drop(&mut self) {
     if self.0.borrow().unlinked {
-      unsafe { xmlFreeNode(self.0.borrow().node_ptr) }
+      let node_ptr = self.0.borrow().node_ptr;
+      if !node_ptr.is_null() {
+        unsafe { xmlFreeNode(node_ptr); }
+      }
     }
   }
 }
@@ -57,12 +61,12 @@ impl Drop for Node {
 pub(crate) /*Should be private, needed now for xpath*/ type DocumentRef = Rc<RefCell<_Document>>;
 
 // TODO: Do the fields need to be public in crate?
+#[derive(Debug)]
 pub(crate) struct _Document {
   /// libxml's `DocumentPtr`
   pub(crate) doc_ptr: *mut c_void,
   pub(crate) nodes: HashMap<*mut c_void, Node>,
 }
-
 
 impl _Document {
   pub fn insert_node(&mut self, node_ptr: *mut c_void, node: Node) {
@@ -144,9 +148,8 @@ impl Document {
     unsafe {
       let node_ptr = xmlDocGetRootElement(self.doc_ptr());
       if node_ptr.is_null() {
-          None
+        None
       } else {
-        //Node { node_ptr: node_ptr }
         Some(self.register_node(node_ptr))
       }
     }
@@ -174,7 +177,7 @@ impl Document {
     if !node.0.borrow_mut().unlinked {
       return Err(());
     }
-    node.0.borrow_mut().unlinked = false;
+
     let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), self.doc_ptr(), 1) };
     self.ptr_as_result(node_ptr)
   }
@@ -384,8 +387,10 @@ impl Node {
 
   /// Wrap a libxml node ptr with a Node
   pub(crate) fn wrap(node_ptr: *mut c_void, document: DocumentRef) -> Node {
-    let node = _Node { node_ptr, document, unlinked: false };
-    Node(Rc::new(RefCell::new(node)))
+    let node = _Node { node_ptr, document: document.clone(), unlinked: false };
+    let wrapped_node = Node(Rc::new(RefCell::new(node)));
+    document.borrow_mut().insert_node(node_ptr, wrapped_node.clone());
+    wrapped_node
   }
 
   /// Create a new text node, bound to a given document
@@ -402,22 +407,11 @@ impl Node {
     }
   }
   /// Create a mock node, used for a placeholder argument
-  pub fn mock() -> Self {
-    let doc = Document::new().unwrap();
+  pub fn mock(doc: &Document) -> Self {
     Node::new("mock", None, &doc).unwrap()
   }
 
-  //TODO: Discuss if this is needed if it causes problems
-  /*
-  /// Create a null node, useful for a default call that will never use the node
-  pub fn null() -> Self {
-    Node {
-      node_ptr: ptr::null_mut(),
-    }
-  }
-  */
-
-  /// For some reason `libc::c_void` isn't hashable and cannot be made hashable
+  /// `libc::c_void` isn't hashable and cannot be made hashable
   pub fn to_hashable(&self) -> usize {
     unsafe { mem::transmute::<*const libc::c_void, usize>(self.node_ptr()) }
   }
@@ -504,7 +498,7 @@ impl Node {
 
   /// Add a previous sibling
   pub fn add_prev_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
-    new_sibling.0.borrow_mut().unlinked = false;
+    new_sibling.set_linked();
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddPrevSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
@@ -517,7 +511,7 @@ impl Node {
 
   /// Add a next sibling
   pub fn add_next_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
-    new_sibling.0.borrow_mut().unlinked = false;
+    new_sibling.set_linked();
     // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddNextSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
@@ -715,43 +709,48 @@ impl Node {
 
   /// Gets a list of namespaces associated with this node
   pub fn get_namespaces(&self, doc: &Document) -> Vec<Namespace> {
-    let mut ns_found = Vec::new();
-    unsafe {
-      let ns_ptr_list = xmlGetNsList(doc.doc_ptr(), self.node_ptr());
-      if !ns_ptr_list.is_null() {
-        for index in 0.. {
-          let ns_ptr = *ns_ptr_list.offset(index);
-          if !ns_ptr.is_null() {
-            ns_found.push(Namespace { ns_ptr });
-          } else {
-            break;
-          }
+    let list_ptr_raw = unsafe { xmlGetNsList(doc.doc_ptr(), self.node_ptr()) };
+    if list_ptr_raw.is_null() {
+      Vec::new()
+    } else {
+      let mut namespaces = Vec::new();
+      let mut ptr_iter = list_ptr_raw as *mut *mut c_void;
+      unsafe {
+        while !ptr_iter.is_null() && !(*ptr_iter).is_null() {
+          namespaces.push(Namespace { ns_ptr: *ptr_iter });
+          ptr_iter = ptr_iter.add(1);
         }
+        /* TODO: valgrind suggests this technique isn't sufficiently fluent:
+          ==114895== Conditional jump or move depends on uninitialised value(s)
+          ==114895==    at 0x4E9962F: xmlFreeNs (in /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.4)
+          ==114895==    by 0x195CE8: libxml::tree::Node::get_namespaces (tree.rs:723)
+          ==114895==    by 0x12E7B6: base_tests::can_work_with_namespaces (base_tests.rs:537)
+
+          DG: I could not improve on this state without creating memory leaks after ~1 hour, so I am
+          marking it as future work.
+        */
+        xmlFreeNs(list_ptr_raw);
       }
+      namespaces
     }
-    ns_found
   }
 
   /// Get a list of namespaces declared with this node
   pub fn get_namespace_declarations(&self) -> Vec<Namespace> {
-    let mut declarations = Vec::new();
-    if self.get_type() != Some(NodeType::ElementNode) {
-      return declarations; // only element nodes can have declarations
+    if self.get_type() != Some(NodeType::ElementNode) {  // only element nodes can have declarations
+      return Vec::new();
     }
-
-    unsafe {
-      let mut ns = xmlNodeNsDeclarations(self.node_ptr());
-      while !ns.is_null() {
-        if !xmlNsPrefix(ns).is_null() || !xmlNsHref(ns).is_null() {
-          let ns_copy = xmlCopyNamespace(ns);
-          if !ns_copy.is_null() {
-            declarations.push(Namespace { ns_ptr: ns_copy });
-          }
-          ns = xmlNextNsSibling(ns);
+    let mut namespaces = Vec::new();
+    let mut ns_ptr = unsafe { xmlNodeNsDeclarations(self.node_ptr()) };
+    while !ns_ptr.is_null() {
+      unsafe {
+        if !xmlNsPrefix(ns_ptr).is_null() || !xmlNsHref(ns_ptr).is_null() {
+          namespaces.push(Namespace { ns_ptr });
         }
+        ns_ptr = xmlNextNsSibling(ns_ptr);
       }
     }
-    declarations
+    namespaces
   }
 
   /// Sets a `Namespace` for the node
@@ -820,7 +819,7 @@ impl Node {
 
   /// Creates a new `Node` as child to the self `Node`
   pub fn add_child(&mut self, child: &mut Node) -> Result<Node, ()> {
-    child.0.borrow_mut().unlinked = false;
+    child.set_linked();
     unsafe {
       let new_child_ptr = xmlAddChild(self.node_ptr(), child.node_ptr());
       let new_child = self.ptr_as_option(new_child_ptr).ok_or(())?;
@@ -872,15 +871,15 @@ impl Node {
   }
 
   /// Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
-  /// If the node is not inserted into the DOM afterwards, it will be lost after the program terminates.
-  /// From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
+  ///   If the node is not inserted into the DOM afterwards, it will be lost after the program terminates.
+  ///   From a low level view, the unbound node is stripped
+  ///   from the context it is and inserted into a (hidden) document-fragment.
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
     if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
-      self.0.borrow_mut().unlinked = true;
+      self.set_unlinked();
       unsafe {
         xmlUnlinkNode(self.node_ptr());
-        // self.reparent_removed_node()
       }
     }
   }
@@ -897,36 +896,23 @@ impl Node {
     self.unlink_node()
   }
 
-  // fn reparent_removed_node(&mut self) {
-  //   /*
-  //    * Attribute nodes can't be added to document fragments. Adding
-  //    * DTD nodes would cause a memory leak.
-  //    */
-  //   let node_type = self.get_type();
-  //   if node_type != Some(NodeType::AttributeNode && node_type != Some(NodeType::DTDNode) {
-  //     ProxyNodePtr docfrag = PmmNewFragment(node->doc);
-  //     xmlAddChild(PmmNODE(docfrag), node);
-  //     PmmFixOwner(PmmPROXYNODE(node), docfrag);
-  //   }
-
-  /*
-  /// Workaround free method until we implement automatic+safe free-on-drop
-  /// WARNING: The libxml2 API recurses down to all children of a given Node on free
-  ///          to avoid double-free, always invoke on the highest root available
-  pub fn free(self) {
-    unsafe { xmlFreeNode(self.node_ptr_mut()) }
-  }
-  */
-
   fn ptr_as_option(&self, node_ptr: *mut c_void) -> Option<Node> {
     if node_ptr.is_null() {
       None
     } else {
       let new_node = Node::wrap(node_ptr, self.0.borrow().document.clone());
-      let doc = &self.0.borrow().document;
-      doc.borrow_mut().insert_node(node_ptr, new_node.clone());
       Some(new_node)
     }
+  }
+
+  /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree
+  fn set_linked(&mut self) { 
+    self.0.borrow_mut().unlinked = false;
+  }
+
+  /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
+  fn set_unlinked(&mut self) { 
+    self.0.borrow_mut().unlinked = true;
   }
 }
 
@@ -986,17 +972,8 @@ impl Namespace {
     }
   }
 
-  /// Workaround free method until we implement automatic+safe free-on-drop
-  pub fn free(self) {
+  /// Explicit free method, until (if?) we implement automatic+safe free-on-drop
+  pub fn free(&mut self) {
     unsafe { xmlFreeNs(self.ns_ptr()) }
-  }
-}
-
-impl Drop for Namespace {
-  ///Free namespace
-  fn drop(&mut self) {
-    // unsafe {
-    //   xmlFreeNs(self.ns_ptr);
-    // }
   }
 }

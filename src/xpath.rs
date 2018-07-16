@@ -1,6 +1,7 @@
 //! The `XPath` functionality
 
 use c_signatures::*;
+use libc;
 use libc::{c_void, size_t};
 use tree::{Document, DocumentRef, Node};
 use std::str;
@@ -61,11 +62,11 @@ impl<'a> Context<'a> {
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let result = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr(), self.context_ptr) };
-    if result.is_null() {
+    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr(), self.context_ptr) };
+    if ptr.is_null() {
       Err(())
     } else {
-      Ok(Object { ptr: result, document: self.document.0.clone()})
+      Ok(Object { ptr, document: self.document.0.clone()})
     }
   }
 
@@ -103,7 +104,7 @@ impl Drop for Object {
   /// free the memory allocated
   fn drop(&mut self) {
     unsafe {
-      xmlFreeXPathObject(self.ptr);
+      xmlXPathFreeObject(self.ptr);
     }
   }
 }
@@ -137,7 +138,6 @@ impl Object {
 
       /* TODO: break next two lines into a method on _Docuemnt */
       let node = Node::wrap(ptr, self.document.clone());
-      self.document.borrow_mut().insert_node(ptr, node.clone());
 
       vec.push(node); //node_is_inserted : true
     }
@@ -147,9 +147,11 @@ impl Object {
   /// use if the XPath used was meant to return a string, such as string(//foo/@attr)
   pub fn to_string(&self) -> String {
     unsafe {
-      let v = xmlXPathCastToString(self.ptr);
-      let c_string = CStr::from_ptr(v);
-      str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+      let receiver = xmlXPathCastToString(self.ptr);
+      let c_string = CStr::from_ptr(receiver);
+      let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      libc::free(receiver as *mut c_void);
+      rust_string
     }
   }
 }
