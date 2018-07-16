@@ -2,7 +2,6 @@
 
 use libc::{c_char, c_int, c_uint, c_void, size_t};
 
-#[link(name = "xml2")]
 extern "C" {
   // tree
   pub fn xmlSaveFile(filename: *const c_char, cur: *mut c_void) -> c_int;
@@ -33,6 +32,7 @@ extern "C" {
   // pub fn xmlNewText(parent: *mut c_void, content: *const c_char) -> *mut c_void;
   pub fn xmlNewDocPI(doc: *mut c_void, name: *const c_char, content: *const c_char) -> *mut c_void;
   pub fn xmlFreeNs(cur: *mut c_void);
+  // pub fn xmlFreeNsList(cur: *mut c_void);
   // pub fn xmlNewDocFragment(doc: *mut c_void) -> *mut c_void;
   pub fn xmlDocGetRootElement(doc: *const c_void) -> *mut c_void;
   pub fn xmlDocSetRootElement(doc: *const c_void, root: *const c_void) -> *mut c_void;
@@ -49,7 +49,7 @@ extern "C" {
   pub fn xmlGetFirstProperty(node: *const c_void) -> *mut c_void;
   pub fn xmlNextPropertySibling(attr: *const c_void) -> *mut c_void;
   pub fn xmlAttrName(attr: *const c_void) -> *const c_char;
-  pub fn xmlGetNsList(doc: *const c_void, node: *const c_void) -> *const *mut c_void;
+  pub fn xmlGetNsList(doc: *const c_void, node: *const c_void) -> *mut c_void;
   pub fn xmlSetNs(node: *const c_void, ns: *const c_void);
   pub fn xmlSetNsProp(
     node: *const c_void,
@@ -59,7 +59,7 @@ extern "C" {
   );
   pub fn xmlNsPrefix(ns: *const c_void) -> *const c_char;
   pub fn xmlNsHref(ns: *const c_void) -> *const c_char;
-  pub fn xmlCopyNamespace(ns: *const c_void) -> *mut c_void;
+  // pub fn xmlCopyNamespace(ns: *const c_void) -> *mut c_void;
   // append text
   //pub fn xmlTextConcat(node: *const c_void, text: *const c_char, len: c_int) -> c_int;
   pub fn xmlNodeAddContentLen(node: *const c_void, text: *const c_char, len: c_int);
@@ -83,8 +83,8 @@ extern "C" {
   pub fn xmlBufferContent(buf: *mut c_void) -> *const c_char;
   pub fn xmlNodeDump(
     buf: *mut c_void,
-    doc: *mut c_void,
-    node: *mut c_void,
+    doc: *const c_void,
+    node: *const c_void,
     indent: c_int,
     disable_format: c_int,
   );
@@ -147,11 +147,11 @@ extern "C" {
     options: c_uint,
   ) -> *mut c_void;
   // pub fn htmlSAXParseDoc(xml_string: *const c_char, encoding: *const c_char, sax: *mut c_void, user_data: *mut c_void) -> *mut c_void;
-  pub fn xmlInitParser();
-  pub fn xmlCleanupParser();
+  // pub fn xmlInitParser();
+  // pub fn xmlCleanupParser();
   // pub fn xmlMemoryDump();
-  pub fn xmlInitGlobals();
-  pub fn xmlCleanupGlobals();
+  // pub fn xmlInitGlobals();
+  // pub fn xmlCleanupGlobals();
   pub fn xmlKeepBlanksDefault(flag: c_uint) -> c_uint;
   // pub fn xmlFreeParserCtxt(ctxt: *mut c_void);
   pub fn htmlFreeParserCtxt(ctxt: *mut c_void);
@@ -165,14 +165,17 @@ extern "C" {
   pub fn xmlXPathCastToString(val: *const c_void) -> *const c_char;
   pub fn xmlXPathRegisterNs(ctxt: *mut c_void, prefix: *const c_char, href: *const c_char)
     -> c_int;
-  pub fn xmlXPathSetContextNode(node: *mut c_void, ctxt: *mut c_void) -> c_int;
-  pub fn xmlSearchNsByHref(doc: *mut c_void, node: *mut c_void, href: *const c_char)
-    -> *mut c_void;
-  pub fn xmlSearchNs(doc: *mut c_void, node: *mut c_void, prefix: *const c_char) -> *mut c_void;
+  pub fn xmlXPathSetContextNode(node: *const c_void, ctxt: *mut c_void) -> c_int;
+  pub fn xmlSearchNsByHref(
+    doc: *mut c_void,
+    node: *const c_void,
+    href: *const c_char,
+  ) -> *mut c_void;
+  pub fn xmlSearchNs(doc: *mut c_void, node: *const c_void, prefix: *const c_char) -> *mut c_void;
   // helper for xpath
   pub fn xmlXPathObjectNumberOfNodes(val: *const c_void) -> c_int;
   pub fn xmlXPathObjectGetNode(val: *const c_void, index: size_t) -> *mut c_void;
-  pub fn xmlFreeXPathObject(val: *const c_void);
+  pub fn xmlXPathFreeObject(val: *const c_void);
 
   // error handling functions
   // pub fn xmlSetGenericErrorFunc(ctx: *mut c_void, handler: *mut c_void);

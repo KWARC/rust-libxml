@@ -7,11 +7,9 @@ extern crate libc;
 
 /// Bindings to the C interface
 mod c_signatures;
-/// Global memory management
-pub mod global;
-/// Manipulations on the DOM representation
-pub mod tree;
 /// XML and HTML parsing
 pub mod parser;
+/// Manipulations on the DOM representation
+pub mod tree;
 /// `XPath` module for global lookup in the DOM
 pub mod xpath;

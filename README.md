@@ -5,16 +5,14 @@
 
 Rust wrapper for [libxml2](http://xmlsoft.org/).
 
-**CAUTION: Low-level wrapper without safety guarantees**
-
 The main goal of this project is to benefit from libxml2's maturity and stability while the native Rust XML crates mature to be near-drop-in replacements.
 
-As such, the crate exposes the libxml2 datastructures with minimal adaptations to the Rust model, leaving a lot of the potential concerns submerged in the C layer. That entails:
+As of the (upcoming) `0.2.0` release of the crate, there are some modest safety guarantees:
 
- * No Rust safety guarantees for mutability, as well as ownership - it is possible to own two Rust objects pointing to the same C pointer (with differing mutability).
- * No memory safety guarantees - it is possible to leak memory via e.g. careless use of unlink, among others.
+ * Mutability, as well as ownership - we use `Rc<RefCell<T>>` wrappers to ensure runtime safety of libxml2 operations already in the Rust layer.
+ * Memory safety guarantees - in particular `Node` and `Document` objects have automatic bookkeeping and deallocation on drop, for leak-free wrapper use.
  * No thread safety - libxml2's global memory management is a challenge to adapt in a thread-safe way with minimal intervention
 
-**COVERAGE**: Only covers a subset of libxml2 at the moment, contributions are welcome. We try to increase support with each release.
+**Coverage**: Only covers a subset of libxml2 at the moment, contributions are welcome. We try to increase support with each release.
 
-**WELCOME!** With these caveats, the contributors to the project are migrating production work towards Rust and find a continuing reliance on libxml2 a helpful relief for initial ports. As such, contributions to this crate are welcome, if your workflow is not yet fully supported.
+**Welcome!** With these caveats, the contributors to the project are migrating production work towards Rust and find a continuing reliance on libxml2 a helpful relief for initial ports. As such, contributions to this crate are welcome, if your workflow is not yet fully supported.

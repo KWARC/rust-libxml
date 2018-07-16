@@ -1,10 +1,11 @@
 //! The `XPath` functionality
 
 use c_signatures::*;
+use libc;
 use libc::{c_void, size_t};
-use tree::{Document, Node};
-use std::str;
 use std::ffi::{CStr, CString};
+use std::str;
+use tree::{Document, DocumentRef, Node};
 
 ///The xpath context
 #[derive(Clone)]
@@ -14,7 +15,6 @@ pub struct Context<'a> {
   ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
   pub document: &'a Document,
 }
-
 
 impl<'a> Drop for Context<'a> {
   ///free xpath context when it goes out of scope
@@ -30,13 +30,13 @@ impl<'a> Drop for Context<'a> {
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: *mut c_void,
+  document: DocumentRef,
 }
-
 
 impl<'a> Context<'a> {
   ///create the xpath context for a document
   pub fn new(doc: &Document) -> Result<Context, ()> {
-    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr) };
+    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr()) };
     if ctxtptr.is_null() {
       Err(())
     } else {
@@ -53,25 +53,32 @@ impl<'a> Context<'a> {
     let c_href = CString::new(href).unwrap();
     unsafe {
       let result = xmlXPathRegisterNs(self.context_ptr, c_prefix.as_ptr(), c_href.as_ptr());
-      if result != 0 { Err(()) } else { Ok(()) }
+      if result != 0 {
+        Err(())
+      } else {
+        Ok(())
+      }
     }
   }
 
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let result = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr(), self.context_ptr) };
-    if result.is_null() {
+    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr(), self.context_ptr) };
+    if ptr.is_null() {
       Err(())
     } else {
-      Ok(Object { ptr: result })
+      Ok(Object {
+        ptr,
+        document: self.document.0.clone(),
+      })
     }
   }
 
   /// localize xpath context to a specific Node
   pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
     unsafe {
-      let result = xmlXPathSetContextNode(node.node_ptr, self.context_ptr);
+      let result = xmlXPathSetContextNode(node.node_ptr(), self.context_ptr);
       if result != 0 {
         return Err(());
       }
@@ -102,7 +109,7 @@ impl Drop for Object {
   /// free the memory allocated
   fn drop(&mut self) {
     unsafe {
-      xmlFreeXPathObject(self.ptr);
+      xmlXPathFreeObject(self.ptr);
     }
   }
 }
@@ -133,7 +140,9 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      vec.push(Node { node_ptr: ptr }); //node_is_inserted : true
+
+      let node = Node::wrap(ptr, self.document.clone());
+      vec.push(node);
     }
     vec
   }
@@ -141,9 +150,11 @@ impl Object {
   /// use if the XPath used was meant to return a string, such as string(//foo/@attr)
   pub fn to_string(&self) -> String {
     unsafe {
-      let v = xmlXPathCastToString(self.ptr);
-      let c_string = CStr::from_ptr(v);
-      str::from_utf8(c_string.to_bytes()).unwrap().to_owned()
+      let receiver = xmlXPathCastToString(self.ptr);
+      let c_string = CStr::from_ptr(receiver);
+      let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      libc::free(receiver as *mut c_void);
+      rust_string
     }
   }
 }
