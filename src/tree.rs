@@ -69,8 +69,8 @@ pub(crate) struct _Document {
 }
 
 impl _Document {
-  pub fn insert_node(&mut self, node_ptr: *mut c_void, node: Node) {
-    // TODO: check that _Node.document is self
+  /// Internal bookkeeping function, so far only used by `Node::wrap`
+  pub(crate) fn insert_node(&mut self, node_ptr: *mut c_void, node: Node) {
     self.nodes.insert(node_ptr, node);
   }
 }
@@ -139,9 +139,7 @@ impl Document {
   }
 
   pub(crate) fn register_node(&self, node_ptr: *mut c_void) -> Node {
-    let node = Node::wrap(node_ptr, self.0.clone());
-    self.0.borrow_mut().nodes.insert(node_ptr, node.clone());
-    node
+    Node::wrap(node_ptr, self.0.clone())
   }
 
   /// Get the root element of the document
