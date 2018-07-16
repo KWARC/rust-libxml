@@ -3,9 +3,9 @@
 use c_signatures::*;
 use libc;
 use libc::{c_void, size_t};
-use tree::{Document, DocumentRef, Node};
-use std::str;
 use std::ffi::{CStr, CString};
+use std::str;
+use tree::{Document, DocumentRef, Node};
 
 ///The xpath context
 #[derive(Clone)]
@@ -15,7 +15,6 @@ pub struct Context<'a> {
   ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
   pub document: &'a Document,
 }
-
 
 impl<'a> Drop for Context<'a> {
   ///free xpath context when it goes out of scope
@@ -33,7 +32,6 @@ pub struct Object {
   pub ptr: *mut c_void,
   document: DocumentRef,
 }
-
 
 impl<'a> Context<'a> {
   ///create the xpath context for a document
@@ -55,7 +53,11 @@ impl<'a> Context<'a> {
     let c_href = CString::new(href).unwrap();
     unsafe {
       let result = xmlXPathRegisterNs(self.context_ptr, c_prefix.as_ptr(), c_href.as_ptr());
-      if result != 0 { Err(()) } else { Ok(()) }
+      if result != 0 {
+        Err(())
+      } else {
+        Ok(())
+      }
     }
   }
 
@@ -66,7 +68,10 @@ impl<'a> Context<'a> {
     if ptr.is_null() {
       Err(())
     } else {
-      Ok(Object { ptr, document: self.document.0.clone()})
+      Ok(Object {
+        ptr,
+        document: self.document.0.clone(),
+      })
     }
   }
 
@@ -136,10 +141,8 @@ impl Object {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
 
-      /* TODO: break next two lines into a method on _Docuemnt */
       let node = Node::wrap(ptr, self.document.clone());
-
-      vec.push(node); //node_is_inserted : true
+      vec.push(node);
     }
     vec
   }

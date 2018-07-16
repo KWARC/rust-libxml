@@ -24,7 +24,6 @@ struct _Node {
   unlinked: bool,
 }
 
-// TODO: Make node_ptr private, now pub(crate) is needed for xpath::get_nodes_as_vec
 /// An xml node
 #[derive(Clone, Debug)]
 pub struct Node(NodeRef);
@@ -49,7 +48,7 @@ impl Drop for Node {
   /// Free node if it isn't bound in some document
   fn drop(&mut self) {
     if self.0.borrow().unlinked {
-      let node_ptr = self.0.borrow().node_ptr;
+      let node_ptr = self.node_ptr_mut();
       if !node_ptr.is_null() {
         unsafe {
           xmlFreeNode(node_ptr);
@@ -902,9 +901,12 @@ impl Node {
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
     if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
-      self.set_unlinked();
-      unsafe {
-        xmlUnlinkNode(self.node_ptr());
+      if !self.0.borrow().unlinked {
+        // only unlink nodes that are currently marked as linked
+        self.set_unlinked();
+        unsafe {
+          xmlUnlinkNode(self.node_ptr());
+        }
       }
     }
   }

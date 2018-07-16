@@ -5,9 +5,9 @@ extern crate libxml;
 use std::fs::File;
 use std::io::Read;
 
+use libxml::parser::Parser;
 use libxml::tree::{Document, Namespace, Node, NodeType};
 use libxml::xpath::Context;
-use libxml::parser::Parser;
 
 #[test]
 /// Build a hello world XML doc
@@ -16,10 +16,9 @@ fn hello_builder() {
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
 
-  // This tests for functionality (return self if there is no root element) that is removed. 
+  // This tests for functionality (return self if there is no root element) that is removed.
   let doc_node = doc.get_root_element();
   assert_eq!(doc_node, None, "empty document has no root element");
-  
 
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
@@ -210,7 +209,11 @@ fn attribute_namespace_accessors() {
   let mut element = element_result.unwrap();
   doc.set_root_element(&element);
 
-  let ns_result = Namespace::new("myxml", "http://www.w3.org/XML/1998/namespace", &mut element);
+  let ns_result = Namespace::new(
+    "myxml",
+    "http://www.w3.org/XML/1998/namespace",
+    &mut element,
+  );
   assert!(ns_result.is_ok());
   let ns = ns_result.unwrap();
   element.set_attribute_ns("id", "testing", &ns);
@@ -269,11 +272,6 @@ fn node_can_unbind() {
   third_child.unlink();
   assert_eq!(element.get_child_nodes().len(), 0);
 
-  // Temporary: test explicit free on unbound nodes
-  //first_child.free();
-  //second_child.free();
-  //third_child.free();
-
   // Test reparenting via unlink
   let mut transfer = Node::new("transfer", None, &doc).unwrap();
   let mut transfer_child = element.add_child(&mut transfer).unwrap();
@@ -304,15 +302,27 @@ fn document_can_import_node() {
   let doc1 = create_document();
   let mut doc2 = create_document();
 
-  assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 2);
+  assert_eq!(
+    doc2.get_root_element().unwrap().get_child_elements().len(),
+    2
+  );
 
   let mut elements = doc1.get_root_element().unwrap().get_child_elements();
   let mut node = elements.pop().unwrap();
   node.unlink();
   let mut imported = doc2.import_node(&mut node).unwrap();
-  assert!(doc2.get_root_element().unwrap().add_child(&mut imported).is_ok());
+  assert!(
+    doc2
+      .get_root_element()
+      .unwrap()
+      .add_child(&mut imported)
+      .is_ok()
+  );
 
-  assert_eq!(doc2.get_root_element().unwrap().get_child_elements().len(), 3);
+  assert_eq!(
+    doc2.get_root_element().unwrap().get_child_elements().len(),
+    3
+  );
 }
 
 #[test]
