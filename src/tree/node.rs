@@ -3,7 +3,7 @@
 
 use c_signatures::*;
 use libc;
-use libc::{c_int, c_void};
+use libc::c_void;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::ffi::{CStr, CString};
@@ -15,64 +15,7 @@ use std::str;
 
 use tree::document::{Document, DocumentRef};
 use tree::namespace::Namespace;
-
-/// Types of xml nodes
-#[derive(Debug, PartialEq)]
-#[allow(missing_docs)]
-pub enum NodeType {
-  ElementNode,
-  AttributeNode,
-  TextNode,
-  CDataSectionNode,
-  EntityRefNode,
-  EntityNode,
-  PiNode,
-  CommentNode,
-  DocumentNode,
-  DocumentTypeNode,
-  DocumentFragNode,
-  NotationNode,
-  HtmlDocumentNode,
-  DTDNode,
-  ElementDecl,
-  AttributeDecl,
-  EntityDecl,
-  NamespaceDecl,
-  XIncludeStart,
-  XIncludeEnd,
-  DOCBDocumentNode,
-}
-
-impl NodeType {
-  /// converts an integer from libxml's `enum NodeType`
-  /// to an instance of our `NodeType`
-  pub fn from_c_int(i: c_int) -> Option<NodeType> {
-    match i {
-      1 => Some(NodeType::ElementNode),
-      2 => Some(NodeType::AttributeNode),
-      3 => Some(NodeType::TextNode),
-      4 => Some(NodeType::CDataSectionNode),
-      5 => Some(NodeType::EntityRefNode),
-      6 => Some(NodeType::EntityNode),
-      7 => Some(NodeType::PiNode),
-      8 => Some(NodeType::CommentNode),
-      9 => Some(NodeType::DocumentNode),
-      10 => Some(NodeType::DocumentTypeNode),
-      11 => Some(NodeType::DocumentFragNode),
-      12 => Some(NodeType::NotationNode),
-      13 => Some(NodeType::HtmlDocumentNode),
-      14 => Some(NodeType::DTDNode),
-      15 => Some(NodeType::ElementDecl),
-      16 => Some(NodeType::AttributeDecl),
-      17 => Some(NodeType::EntityDecl),
-      18 => Some(NodeType::NamespaceDecl),
-      19 => Some(NodeType::XIncludeStart),
-      20 => Some(NodeType::XIncludeEnd),
-      21 => Some(NodeType::DOCBDocumentNode),
-      _ => None,
-    }
-  }
-}
+use tree::nodetype::NodeType;
 
 type NodeRef = Rc<RefCell<_Node>>;
 
@@ -108,7 +51,7 @@ impl Eq for Node {}
 impl Drop for Node {
   /// Free node if it isn't bound in some document
   fn drop(&mut self) {
-    if self.0.borrow().unlinked {
+    if self.is_unlinked() {
       let node_ptr = self.node_ptr_mut();
       if !node_ptr.is_null() {
         unsafe {
@@ -664,7 +607,7 @@ impl Node {
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
     if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
-      if !self.0.borrow().unlinked {
+      if !self.is_unlinked() {
         // only unlink nodes that are currently marked as linked
         self.set_unlinked();
         unsafe {
