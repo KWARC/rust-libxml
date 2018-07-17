@@ -1,10 +1,10 @@
 //! The tree functionality
 //!
 
-pub mod document;
-pub mod namespace;
-pub mod node;
-pub mod nodetype;
+mod document;
+mod namespace;
+mod node;
+mod nodetype;
 
 pub use tree::document::Document;
 pub(crate) use tree::document::DocumentRef;
