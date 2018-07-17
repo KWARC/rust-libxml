@@ -14,7 +14,7 @@ This release adds fundamental breaking changes to the API. The API continues to 
    * `Document::get_root_element` now has an option type, and returns `None` for an empty Document
    * `Node::mock` now takes owner `Document` as argument
    * proofed tests with `valgrind` and removed all obvious memory leaks
-
+ * `Node::remove_attribute` and `Node::remove_property` now return a `Result` type, for better error-handling
 ### Removed
  * `global` module, which attempted to manage global libxml state for threaded workflows. May be readed after the API stabilizes
 

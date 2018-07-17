@@ -25,6 +25,7 @@ struct _Node {
   node_ptr: *mut c_void,
   /// Reference to parent `Document`
   document: DocumentRef,
+  /// Bookkeep removal from a parent
   unlinked: bool,
 }
 
@@ -212,7 +213,6 @@ impl Node {
   /// Add a previous sibling
   pub fn add_prev_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
     new_sibling.set_linked();
-    // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddPrevSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
         Err(())
@@ -225,7 +225,6 @@ impl Node {
   /// Add a next sibling
   pub fn add_next_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
     new_sibling.set_linked();
-    // TODO: Think of using a Result type, the libxml2 call returns NULL on error, or the child node on success
     unsafe {
       if xmlAddNextSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
         Err(())
@@ -292,9 +291,7 @@ impl Node {
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
-    // TODO: Ensure all calls to `.to_string_lossy` are working on properly deallocated CStr instances.
-    //       If that is not the case - memory will leak - can be checked with valgrind.
-    //       A safe way to free the memory is using libc::free -- I have experienced that xmlFree from libxml2 is not reliable
+    // A safe way to free the memory is using libc::free -- I have experienced that xmlFree from libxml2 is not reliable
     unsafe {
       libc::free(value_ptr as *mut c_void);
     }
@@ -347,14 +344,20 @@ impl Node {
   }
 
   /// Removes the property of given `name`
-  pub fn remove_property(&mut self, name: &str) {
-    // TODO: Should we make the API return a Result type here?
-    // Current behaviour on failures: silently return (noop)
+  pub fn remove_property(&mut self, name: &str) -> Result<(), ()> {
     let c_name = CString::new(name).unwrap();
     unsafe {
       let attr_node = xmlHasProp(self.node_ptr(), c_name.as_ptr());
       if !attr_node.is_null() {
-        xmlRemoveProp(attr_node);
+        if xmlRemoveProp(attr_node) == 0 {
+          Ok(())
+        } else {
+          // Propagate libxml2 failure to remove
+          Err(())
+        }
+      } else {
+        // silently no-op if asked to remove a property which is not present
+        Ok(())
       }
     }
   }
@@ -383,7 +386,7 @@ impl Node {
   }
 
   /// Alias for remove_property
-  pub fn remove_attribute(&mut self, name: &str) {
+  pub fn remove_attribute(&mut self, name: &str) -> Result<(), ()> {
     self.remove_property(name)
   }
 

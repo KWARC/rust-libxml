@@ -193,7 +193,7 @@ fn node_attributes_accessor() {
     Some("setter_value".to_string())
   );
   // Remove
-  child.remove_attribute("attribute");
+  assert!(child.remove_attribute("attribute").is_ok());
   assert_eq!(child.get_attribute("attribute"), None);
   // Recount
   let attributes = child.get_attributes();
