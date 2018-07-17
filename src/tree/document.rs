@@ -190,10 +190,13 @@ impl Document {
     }
   }
 
-  // TODO: Discuss use case, this could probably cause problems
   /// Cast the document as a libxml Node
   pub fn as_node(&self) -> Node {
-    // TODO: Memory management? Could be a major pain...
+    // Note: this method is important to keep, as it enables certain low-level libxml2 idioms
+    // In particular, method dispatch based on NodeType is only possible when the document can be cast as a Node
+    //
+    // Memory management is not an issue, as a document node can not be unbound/removed, and does not require
+    // any additional deallocation than the Drop of a Document object.
     self.register_node(self.doc_ptr())
   }
 
