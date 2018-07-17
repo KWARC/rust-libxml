@@ -5,6 +5,7 @@ This release adds fundamental breaking changes to the API. The API continues to 
 
 ### Added
  * `dup` and `dup_from` methods for deeply duplicating a libxml2 document
+ * `is_unlinked` for quick check if a `Node` has been unlinked from a parent
 
 ### Changed
  * safe API for `Node`s and `Document`s, with automatic pointer bookkeeping and memory deallocation, by @triptec
