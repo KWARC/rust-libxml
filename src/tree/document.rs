@@ -15,12 +15,11 @@ use tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 
-// TODO: Do the fields need to be public in crate?
 #[derive(Debug)]
 pub(crate) struct _Document {
   /// libxml's `DocumentPtr`
-  pub(crate) doc_ptr: *mut c_void,
-  pub(crate) nodes: HashMap<*mut c_void, Node>,
+  doc_ptr: *mut c_void,
+  nodes: HashMap<*mut c_void, Node>,
 }
 
 impl _Document {
