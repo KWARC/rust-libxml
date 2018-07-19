@@ -3,6 +3,7 @@
 
 use c_signatures::*;
 use libc::c_void;
+use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::ptr;
 use std::str;
@@ -18,7 +19,7 @@ pub struct Namespace {
 
 impl Namespace {
   /// Creates a new namespace
-  pub fn new(prefix: &str, href: &str, node: &mut Node) -> Result<Self, ()> {
+  pub fn new(prefix: &str, href: &str, node: &mut Node) -> Result<Self, Box<Error>> {
     let c_href = CString::new(href).unwrap();
     let c_prefix = CString::new(prefix).unwrap();
     let c_prefix_ptr = if prefix.is_empty() {
@@ -28,9 +29,9 @@ impl Namespace {
     };
 
     unsafe {
-      let ns = xmlNewNs(node.node_ptr_mut(), c_href.as_ptr(), c_prefix_ptr);
+      let ns = xmlNewNs(node.node_ptr_mut()?, c_href.as_ptr(), c_prefix_ptr);
       if ns.is_null() {
-        Err(())
+        Err(From::from("xmlNewNs returned NULL"))
       } else {
         Ok(Namespace { ns_ptr: ns })
       }

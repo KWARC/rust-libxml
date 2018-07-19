@@ -23,15 +23,17 @@ fn hello_builder() {
   assert!(hello_element_result.is_ok());
   let mut hello_element = hello_element_result.unwrap();
 
+  assert!(hello_element.set_content("world!").is_ok());
+
   doc.set_root_element(&hello_element);
 
-  hello_element.set_content("world!");
+  assert!(hello_element.set_content("world!").is_ok());
 
   let added = hello_element.new_child(None, "child");
   assert!(added.is_ok());
   let mut new_child = added.unwrap();
 
-  new_child.set_content("set content");
+  assert!(new_child.set_content("set content").is_ok());
 
   assert_eq!(new_child.get_content(), "set content");
   assert_eq!(hello_element.get_content(), "world!set content");
@@ -39,7 +41,7 @@ fn hello_builder() {
   let node_string = doc.node_to_string(&hello_element);
   assert!(node_string.len() > 1);
 
-  hello_element.set_name("world");
+  assert!(hello_element.set_name("world").is_ok());
   assert_eq!(hello_element.get_name(), "world");
 
   let doc_string = doc.to_string(false);

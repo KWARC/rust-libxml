@@ -94,7 +94,7 @@ fn node_attributes_accessor() {
   assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
 
   // Set
-  child.set_attribute("attribute", "setter_value");
+  assert!(child.set_attribute("attribute", "setter_value").is_ok());
   assert_eq!(
     child.get_attribute("attribute"),
     Some("setter_value".to_string())
@@ -123,7 +123,7 @@ fn attribute_namespace_accessors() {
   );
   assert!(ns_result.is_ok());
   let ns = ns_result.unwrap();
-  element.set_attribute_ns("id", "testing", &ns);
+  assert!(element.set_attribute_ns("id", "testing", &ns).is_ok());
 
   let id_attr = element.get_attribute_ns("id", "http://www.w3.org/XML/1998/namespace");
   assert!(id_attr.is_some());
@@ -138,7 +138,7 @@ fn attribute_namespace_accessors() {
   let fb_ns_result = Namespace::new("fb", "http://www.foobar.org", &mut element);
   assert!(fb_ns_result.is_ok());
   let fb_ns = fb_ns_result.unwrap();
-  element.set_attribute_ns("fb", "fb", &fb_ns);
+  assert!(element.set_attribute_ns("fb", "fb", &fb_ns).is_ok());
 
   let ns_prefix = element.lookup_namespace_prefix("http://www.w3.org/XML/1998/namespace");
   assert_eq!(ns_prefix, Some("xml".to_string())); // system ns has the global prefix when doing global lookup
@@ -163,13 +163,13 @@ fn node_can_unbind() {
   let mut element = element_result.unwrap();
   doc.set_root_element(&element);
 
-  let mut first = Node::new("first", None, &doc).unwrap();
-  let mut second = Node::new("second", None, &doc).unwrap();
-  let mut third = Node::new("third", None, &doc).unwrap();
+  let mut first_child = Node::new("first", None, &doc).unwrap();
+  let mut second_child = Node::new("second", None, &doc).unwrap();
+  let mut third_child = Node::new("third", None, &doc).unwrap();
 
-  let mut first_child = element.add_child(&mut first).unwrap();
-  let mut second_child = element.add_child(&mut second).unwrap();
-  let mut third_child = element.add_child(&mut third).unwrap();
+  assert!(element.add_child(&mut first_child).is_ok());
+  assert!(element.add_child(&mut second_child).is_ok());
+  assert!(element.add_child(&mut third_child).is_ok());
 
   assert_eq!(element.get_child_nodes().len(), 3);
   first_child.unbind_node();
@@ -181,20 +181,21 @@ fn node_can_unbind() {
 
   // Test reparenting via unlink
   let mut transfer = Node::new("transfer", None, &doc).unwrap();
-  let mut transfer_child = element.add_child(&mut transfer).unwrap();
-  transfer_child.append_text("test text");
+  assert!(element.add_child(&mut transfer).is_ok());
+  assert!(transfer.append_text("test text").is_ok());
   let mut receiver = Node::new("receiver", None, &doc).unwrap();
-  let mut receiver_child = element.add_child(&mut receiver).unwrap();
+  assert!(element.add_child(&mut receiver).is_ok());
   assert_eq!(element.get_child_nodes().len(), 2);
-  assert_eq!(transfer_child.get_child_nodes().len(), 1);
-  assert_eq!(receiver_child.get_child_nodes().len(), 0);
+  assert_eq!(transfer.get_child_nodes().len(), 1);
+  assert_eq!(receiver.get_child_nodes().len(), 0);
 
-  transfer_child.unlink();
+  transfer.unlink();
   assert_eq!(element.get_child_nodes().len(), 1);
-  assert_eq!(receiver_child.get_child_nodes().len(), 0);
-  let reparented_transfer = receiver_child.add_child(&mut transfer_child).unwrap();
-  assert_eq!(receiver_child.get_child_nodes().len(), 1);
-  assert_eq!(reparented_transfer.get_content(), "test text".to_owned());
+  assert_eq!(receiver.get_child_nodes().len(), 0);
+  assert!(receiver.add_child(&mut transfer).is_ok());
+  assert_eq!(receiver.get_child_nodes().len(), 1);
+  assert_eq!(transfer.get_content(), "test text".to_owned());
+  assert_eq!(transfer.get_parent(), Some(receiver));
 }
 
 #[test]
@@ -229,7 +230,7 @@ fn can_manage_attributes() {
   let pre_prop_value = hello_element.get_property(key);
   assert_eq!(pre_prop_value, None);
 
-  hello_element.set_attribute(key, value);
+  assert!(hello_element.set_attribute(key, value).is_ok());
   let new_value = hello_element.get_attribute(key);
   assert_eq!(new_value, Some(value.to_owned()));
 }
@@ -244,9 +245,9 @@ fn can_set_get_text_node_content() {
   doc.set_root_element(&hello_element);
 
   assert!(hello_element.get_content().is_empty());
-  hello_element.append_text("hello ");
+  assert!(hello_element.append_text("hello ").is_ok());
   assert_eq!(hello_element.get_content(), "hello ");
-  hello_element.append_text("world!");
+  assert!(hello_element.append_text("world!").is_ok());
   assert_eq!(hello_element.get_content(), "hello world!");
 }
 
@@ -267,7 +268,7 @@ fn can_work_with_namespaces() {
 
   // try to attach this namespace to a node
   assert!(root_node.get_namespace().is_none());
-  root_node.set_namespace(&mock_ns_result.unwrap());
+  assert!(root_node.set_namespace(&mock_ns_result.unwrap()).is_ok());
   let active_ns_opt = root_node.get_namespace();
   assert!(active_ns_opt.is_some());
   let active_ns = active_ns_opt.unwrap();

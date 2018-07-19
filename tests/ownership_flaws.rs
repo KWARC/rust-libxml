@@ -25,20 +25,17 @@ fn ownership_guards() {
     Some(String::from("value"))
   );
 
-  first_a.set_attribute("attribute", "newa");
+  // Setting an attribute will fail and return an error, as there are too many Rc references
+  // to the same node (Rc strong count of 3)
+  // see `Node::node_ptr_mut` for details
+  assert!(first_a.set_attribute("attribute", "newa").is_err());
 
   assert_eq!(
     first_a.get_attribute("attribute"),
-    Some(String::from("newa"))
+    Some(String::from("value"))
   );
-
-  // This currently PASSES - which is WRONG - we need
-  //1) compile error when first_b is assigned
-  // and
-  //2) it should never be possible that an immutable libxml variable changes value
   assert_eq!(
     first_b.get_attribute("attribute"),
-    Some(String::from("newa"))
+    Some(String::from("value"))
   );
-
 }
