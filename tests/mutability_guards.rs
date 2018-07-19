@@ -3,6 +3,7 @@
 extern crate libxml;
 
 use libxml::parser::Parser;
+use libxml::tree::set_node_rc_guard;
 
 #[test]
 fn ownership_guards() {
@@ -37,5 +38,22 @@ fn ownership_guards() {
   assert_eq!(
     first_b.get_attribute("attribute"),
     Some(String::from("value"))
+  );
+
+  // Try again with guard boosted, which allows the change
+  set_node_rc_guard(3);
+
+  // Setting an attribute will fail and return an error, as there are too many Rc references
+  // to the same node (Rc strong count of 3)
+  // see `Node::node_ptr_mut` for details
+  assert!(first_a.set_attribute("attribute", "newa").is_ok());
+
+  assert_eq!(
+    first_a.get_attribute("attribute"),
+    Some(String::from("newa"))
+  );
+  assert_eq!(
+    first_b.get_attribute("attribute"),
+    Some(String::from("newa"))
   );
 }
