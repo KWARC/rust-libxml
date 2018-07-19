@@ -216,10 +216,10 @@ impl Node {
   }
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
+  pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), ()> {
     new_sibling.set_linked();
     unsafe {
-      if xmlAddPrevSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
+      if xmlAddPrevSibling(self.node_ptr_mut(), new_sibling.node_ptr_mut()).is_null() {
         Err(())
       } else {
         Ok(())
@@ -228,10 +228,10 @@ impl Node {
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&self, new_sibling: &mut Node) -> Result<(), ()> {
+  pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), ()> {
     new_sibling.set_linked();
     unsafe {
-      if xmlAddNextSibling(self.node_ptr(), new_sibling.node_ptr()).is_null() {
+      if xmlAddNextSibling(self.node_ptr_mut(), new_sibling.node_ptr_mut()).is_null() {
         Err(())
       } else {
         Ok(())
@@ -332,7 +332,7 @@ impl Node {
   pub fn set_property(&mut self, name: &str, value: &str) {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
-    unsafe { xmlSetProp(self.node_ptr(), c_name.as_ptr(), c_value.as_ptr()) };
+    unsafe { xmlSetProp(self.node_ptr_mut(), c_name.as_ptr(), c_value.as_ptr()) };
   }
   /// Sets a namespaced attribute
   pub fn set_property_ns(&mut self, name: &str, value: &str, ns: &Namespace) {
@@ -340,7 +340,7 @@ impl Node {
     let c_value = CString::new(value).unwrap();
     unsafe {
       xmlSetNsProp(
-        self.node_ptr(),
+        self.node_ptr_mut(),
         ns.ns_ptr(),
         c_name.as_ptr(),
         c_value.as_ptr(),
@@ -352,7 +352,7 @@ impl Node {
   pub fn remove_property(&mut self, name: &str) -> Result<(), ()> {
     let c_name = CString::new(name).unwrap();
     unsafe {
-      let attr_node = xmlHasProp(self.node_ptr(), c_name.as_ptr());
+      let attr_node = xmlHasProp(self.node_ptr_mut(), c_name.as_ptr());
       if !attr_node.is_null() {
         if xmlRemoveProp(attr_node) == 0 {
           Ok(())
@@ -485,7 +485,7 @@ impl Node {
   /// Sets a `Namespace` for the node
   pub fn set_namespace(&mut self, namespace: &Namespace) {
     unsafe {
-      xmlSetNs(self.node_ptr(), namespace.ns_ptr());
+      xmlSetNs(self.node_ptr_mut(), namespace.ns_ptr());
     }
   }
 
@@ -554,7 +554,7 @@ impl Node {
   pub fn add_child(&mut self, child: &mut Node) -> Result<Node, ()> {
     child.set_linked();
     unsafe {
-      let new_child_ptr = xmlAddChild(self.node_ptr(), child.node_ptr());
+      let new_child_ptr = xmlAddChild(self.node_ptr_mut(), child.node_ptr());
       let new_child = self.ptr_as_option(new_child_ptr).ok_or(())?;
       Ok(new_child)
     }
@@ -603,7 +603,7 @@ impl Node {
     if c_len > 0 {
       let c_content = CString::new(content).unwrap();
       unsafe {
-        xmlNodeAddContentLen(self.node_ptr(), c_content.as_ptr(), c_len);
+        xmlNodeAddContentLen(self.node_ptr_mut(), c_content.as_ptr(), c_len);
       }
     }
   }
