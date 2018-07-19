@@ -1,5 +1,6 @@
 # Change Log
 ## [0.2.1 (in active dev)]
+ * Added `Node::set_node_rc_guard` which allows customizing the reference-count mutability threshold for Nodes.
 
 ## [0.2.0] 2018-19-07
 
