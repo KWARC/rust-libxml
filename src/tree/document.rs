@@ -108,7 +108,6 @@ impl Document {
   pub fn set_root_element(&mut self, root: &Node) {
     unsafe {
       xmlDocSetRootElement(self.doc_ptr(), root.node_ptr());
-      // root.node_is_inserted = true;
     }
   }
 

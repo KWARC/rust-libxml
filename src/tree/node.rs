@@ -6,6 +6,7 @@ use libc;
 use libc::c_void;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
 use std::mem;
@@ -89,8 +90,22 @@ impl Node {
   }
 
   /// Return underlying libxml node ptr
-  pub(crate) fn node_ptr_mut(&mut self) -> *mut c_void {
-    self.0.borrow_mut().node_ptr
+  pub(crate) fn node_ptr_mut(&mut self) -> Result<*mut c_void, String> {
+    let weak_count = Rc::weak_count(&self.0);
+    let strong_count = Rc::strong_count(&self.0);
+
+    // The basic idea would be to use `Rc::get_mut` to guard against multiple borrows.
+    // However, our approach to bookkeeping nodes implies there is *always* a second Rc reference
+    // in the document.nodes Hash. So rather than use `get_mut` directly, the
+    // correct check would be to have a weak count of 0 and a strong count <=2 (one for self, one for .nodes)
+    if weak_count == 0 && strong_count <= 2 {
+      Ok(self.0.borrow_mut().node_ptr)
+    } else {
+      Err(format!(
+        "Can not mutably reference a shared Node! Rc: weak count: {:?}; strong count: {:?}",
+        weak_count, strong_count
+      ))
+    }
   }
 
   /// Wrap a libxml node ptr with a Node
@@ -216,11 +231,11 @@ impl Node {
   }
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), ()> {
+  pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<Error>> {
     new_sibling.set_linked();
     unsafe {
-      if xmlAddPrevSibling(self.node_ptr_mut(), new_sibling.node_ptr_mut()).is_null() {
-        Err(())
+      if xmlAddPrevSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
+        Err(From::from("add_prev_sibling returned NULL"))
       } else {
         Ok(())
       }
@@ -228,11 +243,11 @@ impl Node {
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), ()> {
+  pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<Error>> {
     new_sibling.set_linked();
     unsafe {
-      if xmlAddNextSibling(self.node_ptr_mut(), new_sibling.node_ptr_mut()).is_null() {
-        Err(())
+      if xmlAddNextSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
+        Err(From::from("add_next_sibling returned NULL"))
       } else {
         Ok(())
       }
@@ -260,9 +275,10 @@ impl Node {
   }
 
   /// Sets the name of this `Node`
-  pub fn set_name(&mut self, name: &str) {
+  pub fn set_name(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
-    unsafe { xmlNodeSetName(self.node_ptr_mut(), c_name.as_ptr()) }
+    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_ptr()) }
+    Ok(())
   }
 
   /// Returns the content of the node
@@ -282,9 +298,10 @@ impl Node {
   }
 
   /// Sets the text content of this `Node`
-  pub fn set_content(&mut self, content: &str) {
+  pub fn set_content(&mut self, content: &str) -> Result<(), Box<Error>> {
     let c_content = CString::new(content).unwrap();
-    unsafe { xmlNodeSetContent(self.node_ptr_mut(), c_content.as_ptr()) }
+    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_ptr()) }
+    Ok(())
   }
 
   /// Returns the value of property `name`
@@ -329,36 +346,47 @@ impl Node {
   }
 
   /// Sets the value of property `name` to `value`
-  pub fn set_property(&mut self, name: &str, value: &str) {
+  pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
-    unsafe { xmlSetProp(self.node_ptr_mut(), c_name.as_ptr(), c_value.as_ptr()) };
+    unsafe { xmlSetProp(self.node_ptr_mut()?, c_name.as_ptr(), c_value.as_ptr()) };
+    Ok(())
   }
   /// Sets a namespaced attribute
-  pub fn set_property_ns(&mut self, name: &str, value: &str, ns: &Namespace) {
+  pub fn set_property_ns(
+    &mut self,
+    name: &str,
+    value: &str,
+    ns: &Namespace,
+  ) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe {
       xmlSetNsProp(
-        self.node_ptr_mut(),
+        self.node_ptr_mut()?,
         ns.ns_ptr(),
         c_name.as_ptr(),
         c_value.as_ptr(),
       )
     };
+    Ok(())
   }
 
   /// Removes the property of given `name`
-  pub fn remove_property(&mut self, name: &str) -> Result<(), ()> {
+  pub fn remove_property(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     unsafe {
-      let attr_node = xmlHasProp(self.node_ptr_mut(), c_name.as_ptr());
+      let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_ptr());
       if !attr_node.is_null() {
-        if xmlRemoveProp(attr_node) == 0 {
+        let remove_prop_status = xmlRemoveProp(attr_node);
+        if remove_prop_status == 0 {
           Ok(())
         } else {
           // Propagate libxml2 failure to remove
-          Err(())
+          Err(From::from(format!(
+            "libxml2 failed to remove property with status: {:?}",
+            remove_prop_status
+          )))
         }
       } else {
         // silently no-op if asked to remove a property which is not present
@@ -382,16 +410,21 @@ impl Node {
   }
 
   /// Alias for set_property
-  pub fn set_attribute(&mut self, name: &str, value: &str) {
+  pub fn set_attribute(&mut self, name: &str, value: &str) -> Result<(), Box<Error>> {
     self.set_property(name, value)
   }
   /// Alias for set_property_ns
-  pub fn set_attribute_ns(&mut self, name: &str, value: &str, ns: &Namespace) {
+  pub fn set_attribute_ns(
+    &mut self,
+    name: &str,
+    value: &str,
+    ns: &Namespace,
+  ) -> Result<(), Box<Error>> {
     self.set_property_ns(name, value, ns)
   }
 
   /// Alias for remove_property
-  pub fn remove_attribute(&mut self, name: &str) -> Result<(), ()> {
+  pub fn remove_attribute(&mut self, name: &str) -> Result<(), Box<Error>> {
     self.remove_property(name)
   }
 
@@ -483,10 +516,11 @@ impl Node {
   }
 
   /// Sets a `Namespace` for the node
-  pub fn set_namespace(&mut self, namespace: &Namespace) {
+  pub fn set_namespace(&mut self, namespace: &Namespace) -> Result<(), Box<Error>> {
     unsafe {
-      xmlSetNs(self.node_ptr_mut(), namespace.ns_ptr());
+      xmlSetNs(self.node_ptr_mut()?, namespace.ns_ptr());
     }
+    Ok(())
   }
 
   /// Looks up the prefix of a namespace from its URI, basedo around a given `Node`
@@ -535,8 +569,9 @@ impl Node {
 
   // TODO: Clear a future Document namespaces vec
   /// Removes the namespaces of this `Node` and it's children!
-  pub fn recursively_remove_namespaces(&mut self) {
-    unsafe { xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()) }
+  pub fn recursively_remove_namespaces(&mut self) -> Result<(), Box<Error>> {
+    unsafe { xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()?) }
+    Ok(())
   }
 
   /// Get a set of class names from this node's attributes
@@ -551,24 +586,26 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
-  pub fn add_child(&mut self, child: &mut Node) -> Result<Node, ()> {
+  pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
     child.set_linked();
     unsafe {
-      let new_child_ptr = xmlAddChild(self.node_ptr_mut(), child.node_ptr());
-      let new_child = self.ptr_as_option(new_child_ptr).ok_or(())?;
-      Ok(new_child)
+      let new_child_ptr = xmlAddChild(self.node_ptr_mut()?, child.node_ptr());
+      match self.ptr_as_option(new_child_ptr) {
+        Some(_) => Ok(()), // no point to return the node any longer, as child is mutably borrowed and can be reused
+        None => Err("add_child encountered NULL pointer".to_string()),
+      }
     }
   }
 
   /// Creates a new `Node` as child to the self `Node`
-  pub fn new_child(&mut self, ns: Option<Namespace>, name: &str) -> Result<Node, ()> {
+  pub fn new_child(&mut self, ns: Option<Namespace>, name: &str) -> Result<Node, Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(ns) => ns.ns_ptr(),
     };
     unsafe {
-      let new_ptr = xmlNewChild(self.node_ptr_mut(), ns_ptr, c_name.as_ptr(), ptr::null());
+      let new_ptr = xmlNewChild(self.node_ptr_mut()?, ns_ptr, c_name.as_ptr(), ptr::null());
       Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
   }
@@ -579,7 +616,7 @@ impl Node {
     ns: Option<Namespace>,
     name: &str,
     content: &str,
-  ) -> Result<Node, ()> {
+  ) -> Result<Node, Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let c_content = CString::new(content).unwrap();
     let ns_ptr = match ns {
@@ -588,7 +625,7 @@ impl Node {
     };
     unsafe {
       let new_ptr = xmlNewTextChild(
-        self.node_ptr_mut(),
+        self.node_ptr_mut()?,
         ns_ptr,
         c_name.as_ptr(),
         c_content.as_ptr(),
@@ -598,14 +635,15 @@ impl Node {
   }
 
   /// Append text to this `Node`
-  pub fn append_text(&mut self, content: &str) {
+  pub fn append_text(&mut self, content: &str) -> Result<(), Box<Error>> {
     let c_len = content.len() as i32;
     if c_len > 0 {
       let c_content = CString::new(content).unwrap();
       unsafe {
-        xmlNodeAddContentLen(self.node_ptr_mut(), c_content.as_ptr(), c_len);
+        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_ptr(), c_len);
       }
     }
+    Ok(())
   }
 
   /// Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
