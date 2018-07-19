@@ -27,6 +27,10 @@ impl _Document {
   pub(crate) fn insert_node(&mut self, node_ptr: *mut c_void, node: Node) {
     self.nodes.insert(node_ptr, node);
   }
+  /// Internal bookkeeping function, so far only used by `Node::wrap`
+  pub(crate) fn get_node(&self, node_ptr: *mut c_void) -> Option<&Node> {
+    self.nodes.get(&node_ptr)
+  }
 }
 
 /// A libxml2 Document

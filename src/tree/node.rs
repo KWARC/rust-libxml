@@ -49,11 +49,11 @@ impl PartialEq for Node {
 
 impl Eq for Node {}
 
-impl Drop for Node {
+impl Drop for _Node {
   /// Free node if it isn't bound in some document
   fn drop(&mut self) {
-    if self.is_unlinked() {
-      let node_ptr = self.node_ptr_mut();
+    if self.unlinked {
+      let node_ptr = self.node_ptr;
       if !node_ptr.is_null() {
         unsafe {
           xmlFreeNode(node_ptr);
@@ -95,6 +95,11 @@ impl Node {
 
   /// Wrap a libxml node ptr with a Node
   pub(crate) fn wrap(node_ptr: *mut c_void, document: DocumentRef) -> Node {
+    // If already seen, return saved Node
+    if let Some(node) = document.borrow().get_node(node_ptr) {
+      return node.clone();
+    }
+    // If newly encountered pointer, wrap
     let node = _Node {
       node_ptr,
       document: document.clone(),
