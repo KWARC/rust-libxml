@@ -1,5 +1,5 @@
 # Change Log
-## [0.2 (in active dev)]
+## [0.2.0 (in active dev)]
 
 This release adds fundamental breaking changes to the API. The API continues to be considered unstable until the `1.0.0` release.
 
