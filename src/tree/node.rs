@@ -18,6 +18,17 @@ use tree::document::{Document, DocumentRef};
 use tree::namespace::Namespace;
 use tree::nodetype::NodeType;
 
+/// Guard treshold for enforcing runtime mutability checks for Nodes
+pub static mut NODE_RC_MAX_GUARD: usize = 2;
+
+/// Set the guard value for the max Rc "strong count" allowed for mutable use of a Node
+/// Default is 2
+pub fn set_node_rc_guard(value: usize) {
+  unsafe {
+    NODE_RC_MAX_GUARD = value;
+  }
+}
+
 type NodeRef = Rc<RefCell<_Node>>;
 
 #[derive(Debug)]
@@ -98,7 +109,8 @@ impl Node {
     // However, our approach to bookkeeping nodes implies there is *always* a second Rc reference
     // in the document.nodes Hash. So rather than use `get_mut` directly, the
     // correct check would be to have a weak count of 0 and a strong count <=2 (one for self, one for .nodes)
-    if weak_count == 0 && strong_count <= 2 {
+    let guard_ok = unsafe { weak_count == 0 && strong_count <= NODE_RC_MAX_GUARD };
+    if guard_ok {
       Ok(self.0.borrow_mut().node_ptr)
     } else {
       Err(format!(
