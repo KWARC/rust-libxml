@@ -14,7 +14,11 @@ This release adds fundamental breaking changes to the API. The API continues to 
    * `Document::get_root_element` now has an option type, and returns `None` for an empty Document
    * `Node::mock` now takes owner `Document` as argument
    * proofed tests with `valgrind` and removed all obvious memory leaks
- * `Node::remove_attribute` and `Node::remove_property` now return a `Result` type, for better error-handling
+ * All node operations that modify a `Node` now both require a `&mut Node` argument and return a `Result` type. 
+   * Full list of changed signatures in Node: `remove_attribute`, `remove_property`, `set_name`, `set_content`, `set_property`, `set_property_ns`, `set_attribute`, `set_attribute_ns`, `remove_attribute`, `set_namespace`, `recursively_remove_namespaces`, `append_text` 
+ * Tree transforming operations that use operate on `&mut self`, and no longer return a Node if the return value is identical to the argument. 
+   * Changed signatures: `add_child`, `add_prev_sibling`, `add_next_sibling`
+ * `Result` types should always be checked for errors, as mutability conflicts are reported during runtime.
 ### Removed
  * `global` module, which attempted to manage global libxml state for threaded workflows. May be readed after the API stabilizes
 
