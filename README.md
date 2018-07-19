@@ -7,7 +7,7 @@ Rust wrapper for [libxml2](http://xmlsoft.org/).
 
 The main goal of this project is to benefit from libxml2's maturity and stability while the native Rust XML crates mature to be near-drop-in replacements.
 
-As of the (upcoming) `0.2.0` release of the crate, there are some modest safety guarantees:
+As of the `0.2.0` release of the crate, there are some modest safety guarantees:
 
  * Mutability, as well as ownership - we use `Rc<RefCell<T>>` wrappers to ensure runtime safety of libxml2 operations already in the Rust layer.
  * Memory safety guarantees - in particular `Node` and `Document` objects have automatic bookkeeping and deallocation on drop, for leak-free wrapper use.
