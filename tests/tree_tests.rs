@@ -36,7 +36,7 @@ fn node_sibling_accessors() {
   let mut doc = Document::new().unwrap();
   let hello_element_result = Node::new("hello", None, &doc);
   assert!(hello_element_result.is_ok());
-  let hello_element = hello_element_result.unwrap();
+  let mut hello_element = hello_element_result.unwrap();
   doc.set_root_element(&hello_element);
 
   let mut new_sibling = Node::new("sibling", None, &doc).unwrap();
