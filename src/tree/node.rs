@@ -114,8 +114,10 @@ impl Node {
       Ok(self.0.borrow_mut().node_ptr)
     } else {
       Err(format!(
-        "Can not mutably reference a shared Node! Rc: weak count: {:?}; strong count: {:?}",
-        weak_count, strong_count
+        "Can not mutably reference a shared Node {:?}! Rc: weak count: {:?}; strong count: {:?}",
+        self.get_name(),
+        weak_count,
+        strong_count,
       ))
     }
   }
@@ -211,11 +213,9 @@ impl Node {
   /// Returns all child nodes of the given node as a vector
   pub fn get_child_nodes(&self) -> Vec<Node> {
     let mut children = Vec::new();
-    if let Some(node) = self.get_first_child() {
-      children.push(node.clone());
-      let mut current_node = node;
-      while let Some(sibling) = current_node.get_next_sibling() {
-        current_node = sibling.clone();
+    if let Some(current_node) = self.get_first_child() {
+      children.push(current_node);
+      while let Some(sibling) = children.last().unwrap().get_next_sibling() {
         children.push(sibling)
       }
     }
