@@ -5,6 +5,7 @@
 #![deny(missing_docs)]
 extern crate libc;
 
+mod bindings;
 /// Bindings to the C interface
 mod c_signatures;
 /// XML and HTML parsing
