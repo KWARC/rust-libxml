@@ -172,19 +172,19 @@ impl Node {
 
   /// Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {
-    let ptr = unsafe { xmlNextSibling(self.node_ptr()) };
+    let ptr = xmlNextSibling(self.node_ptr());
     self.ptr_as_option(ptr)
   }
 
   /// Returns the previous sibling if it exists
   pub fn get_prev_sibling(&self) -> Option<Node> {
-    let ptr = unsafe { xmlPrevSibling(self.node_ptr()) };
+    let ptr = xmlPrevSibling(self.node_ptr());
     self.ptr_as_option(ptr)
   }
 
   /// Returns the first child if it exists
   pub fn get_first_child(&self) -> Option<Node> {
-    let ptr = unsafe { xmlGetFirstChild(self.node_ptr()) };
+    let ptr = xmlGetFirstChild(self.node_ptr());
     self.ptr_as_option(ptr)
   }
 
@@ -239,13 +239,13 @@ impl Node {
 
   /// Returns the parent if it exists
   pub fn get_parent(&self) -> Option<Node> {
-    let ptr = unsafe { xmlGetParent(self.node_ptr()) };
+    let ptr = xmlGetParent(self.node_ptr());
     self.ptr_as_option(ptr)
   }
 
   /// Get the node type
   pub fn get_type(&self) -> Option<NodeType> {
-    NodeType::from_c_int(unsafe { xmlGetNodeType(self.node_ptr()) })
+    NodeType::from_int(xmlGetNodeType(self.node_ptr()))
   }
 
   /// Add a previous sibling
@@ -284,7 +284,7 @@ impl Node {
 
   /// Returns the name of the node (empty string if name pointer is `NULL`)
   pub fn get_name(&self) -> String {
-    let name_ptr = unsafe { xmlNodeGetName(self.node_ptr()) };
+    let name_ptr = xmlNodeGetName(self.node_ptr());
     if name_ptr.is_null() {
       return String::new();
     } //empty string
@@ -488,13 +488,11 @@ impl Node {
 
   /// Gets the active namespace associated of this node
   pub fn get_namespace(&self) -> Option<Namespace> {
-    unsafe {
-      let ns_ptr = xmlNodeNs(self.node_ptr());
-      if ns_ptr.is_null() {
-        None
-      } else {
-        Some(Namespace { ns_ptr })
-      }
+    let ns_ptr = xmlNodeNs(self.node_ptr());
+    if ns_ptr.is_null() {
+      None
+    } else {
+      Some(Namespace { ns_ptr })
     }
   }
 
@@ -533,14 +531,12 @@ impl Node {
       return Vec::new();
     }
     let mut namespaces = Vec::new();
-    let mut ns_ptr = unsafe { xmlNodeNsDeclarations(self.node_ptr()) };
+    let mut ns_ptr = xmlNodeNsDeclarations(self.node_ptr());
     while !ns_ptr.is_null() {
-      unsafe {
-        if !xmlNsPrefix(ns_ptr).is_null() || !xmlNsHref(ns_ptr).is_null() {
-          namespaces.push(Namespace { ns_ptr });
-        }
-        ns_ptr = xmlNextNsSibling(ns_ptr);
+      if !xmlNsPrefix(ns_ptr).is_null() || !xmlNsHref(ns_ptr).is_null() {
+        namespaces.push(Namespace { ns_ptr });
       }
+      ns_ptr = xmlNextNsSibling(ns_ptr);
     }
     namespaces
   }
@@ -601,7 +597,7 @@ impl Node {
   // TODO: Clear a future Document namespaces vec
   /// Removes the namespaces of this `Node` and it's children!
   pub fn recursively_remove_namespaces(&mut self) -> Result<(), Box<Error>> {
-    unsafe { xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()?) }
+    xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()?);
     Ok(())
   }
 
