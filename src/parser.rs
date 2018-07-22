@@ -1,6 +1,7 @@
 //! The parser functionality
 
-use c_signatures::*;
+use bindings::*;
+use c_helpers::*;
 use tree::*;
 
 use std::ffi::{CStr, CString};
@@ -81,9 +82,9 @@ impl Parser {
   pub fn parse_file(&self, filename: &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap();
     let c_utf8 = CString::new("utf-8").unwrap();
-    let options: u32 = XmlParserOption::Recover as u32
-      + XmlParserOption::Noerror as u32
-      + XmlParserOption::Nowarning as u32;
+    let options: i32 = XmlParserOption::Recover as i32
+      + XmlParserOption::Noerror as i32
+      + XmlParserOption::Nowarning as i32;
     match self.format {
       ParseFormat::XML => unsafe {
         xmlKeepBlanksDefault(1);
@@ -97,9 +98,9 @@ impl Parser {
       ParseFormat::HTML => {
         // TODO: Allow user-specified options later on
         unsafe {
-          let options: u32 = HtmlParserOption::Recover as u32
-            + HtmlParserOption::Noerror as u32
-            + HtmlParserOption::Nowarning as u32;
+          let options: i32 = HtmlParserOption::Recover as i32
+            + HtmlParserOption::Noerror as i32
+            + HtmlParserOption::Nowarning as i32;
           xmlKeepBlanksDefault(1);
           let docptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
           if docptr.is_null() {
@@ -119,10 +120,15 @@ impl Parser {
     let c_url = CString::new("").unwrap();
     match self.format {
       ParseFormat::XML => unsafe {
-        let options: u32 = XmlParserOption::Recover as u32
-          + XmlParserOption::Noerror as u32
-          + XmlParserOption::Nowarning as u32;
-        let docptr = xmlReadDoc(c_string.as_ptr(), c_url.as_ptr(), c_utf8.as_ptr(), options);
+        let options: i32 = XmlParserOption::Recover as i32
+          + XmlParserOption::Noerror as i32
+          + XmlParserOption::Nowarning as i32;
+        let docptr = xmlReadDoc(
+          c_string.as_ptr() as *const u8,
+          c_url.as_ptr(),
+          c_utf8.as_ptr(),
+          options,
+        );
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
@@ -130,10 +136,15 @@ impl Parser {
         }
       },
       ParseFormat::HTML => unsafe {
-        let options: u32 = HtmlParserOption::Recover as u32
-          + HtmlParserOption::Noerror as u32
-          + HtmlParserOption::Nowarning as u32;
-        let docptr = htmlReadDoc(c_string.as_ptr(), c_url.as_ptr(), c_utf8.as_ptr(), options);
+        let options: i32 = HtmlParserOption::Recover as i32
+          + HtmlParserOption::Noerror as i32
+          + HtmlParserOption::Nowarning as i32;
+        let docptr = htmlReadDoc(
+          c_string.as_ptr() as *const u8,
+          c_url.as_ptr(),
+          c_utf8.as_ptr(),
+          options,
+        );
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
@@ -162,7 +173,7 @@ impl Parser {
         setWellFormednessHandler(ctxt);
         let docptr = htmlCtxtReadDoc(
           ctxt,
-          c_string.as_ptr(),
+          c_string.as_ptr() as *const u8,
           ptr::null_mut(),
           c_utf8.as_ptr(),
           10_596,

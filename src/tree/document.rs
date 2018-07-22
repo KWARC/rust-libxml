@@ -1,7 +1,6 @@
 //! Document feature set
 //!
 
-use c_signatures::*;
 use libc;
 use libc::{c_int, c_void};
 use std::cell::RefCell;
@@ -11,24 +10,28 @@ use std::ptr;
 use std::rc::Rc;
 use std::str;
 
+use bindings::*;
+use c_helpers::*;
+
 use tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 
 #[derive(Debug)]
 pub(crate) struct _Document {
-  /// libxml's `DocumentPtr`
-  doc_ptr: *mut c_void,
-  nodes: HashMap<*mut c_void, Node>,
+  /// pointer to a libxml document
+  doc_ptr: xmlDocPtr,
+  /// hashed pointer-to-Node bookkeeping table
+  nodes: HashMap<xmlNodePtr, Node>,
 }
 
 impl _Document {
   /// Internal bookkeeping function, so far only used by `Node::wrap`
-  pub(crate) fn insert_node(&mut self, node_ptr: *mut c_void, node: Node) {
+  pub(crate) fn insert_node(&mut self, node_ptr: xmlNodePtr, node: Node) {
     self.nodes.insert(node_ptr, node);
   }
   /// Internal bookkeeping function, so far only used by `Node::wrap`
-  pub(crate) fn get_node(&self, node_ptr: *mut c_void) -> Option<&Node> {
+  pub(crate) fn get_node(&self, node_ptr: xmlNodePtr) -> Option<&Node> {
     self.nodes.get(&node_ptr)
   }
 }
@@ -51,7 +54,7 @@ impl Document {
   pub fn new() -> Result<Self, ()> {
     unsafe {
       let c_version = CString::new("1.0").unwrap();
-      let doc_ptr = xmlNewDoc(c_version.as_ptr());
+      let doc_ptr = xmlNewDoc(c_version.as_ptr() as *const u8);
       if doc_ptr.is_null() {
         Err(())
       } else {
@@ -64,12 +67,12 @@ impl Document {
     }
   }
 
-  pub(crate) fn doc_ptr(&self) -> *mut c_void {
+  pub(crate) fn doc_ptr(&self) -> xmlDocPtr {
     self.0.borrow().doc_ptr
   }
 
   /// Creates a new `Document` from an existing libxml2 pointer
-  pub fn new_ptr(doc_ptr: *mut c_void) -> Self {
+  pub fn new_ptr(doc_ptr: xmlDocPtr) -> Self {
     let doc = _Document {
       doc_ptr,
       nodes: HashMap::new(),
@@ -88,7 +91,7 @@ impl Document {
     }
   }
 
-  pub(crate) fn register_node(&self, node_ptr: *mut c_void) -> Node {
+  pub(crate) fn register_node(&self, node_ptr: xmlNodePtr) -> Node {
     Node::wrap(node_ptr, self.0.clone())
   }
 
@@ -111,7 +114,7 @@ impl Document {
     }
   }
 
-  fn ptr_as_result(&mut self, node_ptr: *mut c_void) -> Result<Node, ()> {
+  fn ptr_as_result(&mut self, node_ptr: xmlNodePtr) -> Result<Node, ()> {
     if node_ptr.is_null() {
       Err(())
     } else {
@@ -135,19 +138,19 @@ impl Document {
     unsafe {
       // allocate a buffer to dump into
       let mut receiver = ptr::null_mut();
-      let size: c_int = 0;
+      let mut size: c_int = 0;
       let c_utf8 = CString::new("UTF-8").unwrap();
 
       if !format {
-        xmlDocDumpMemoryEnc(self.doc_ptr(), &mut receiver, &size, c_utf8.as_ptr(), 1);
+        xmlDocDumpMemoryEnc(self.doc_ptr(), &mut receiver, &mut size, c_utf8.as_ptr());
       } else {
         let current_indent = getIndentTreeOutput();
         setIndentTreeOutput(1);
-        xmlDocDumpFormatMemoryEnc(self.doc_ptr(), &mut receiver, &size, c_utf8.as_ptr(), 1);
+        xmlDocDumpFormatMemoryEnc(self.doc_ptr(), &mut receiver, &mut size, c_utf8.as_ptr(), 1);
         setIndentTreeOutput(current_indent);
       }
 
-      let c_string = CStr::from_ptr(receiver);
+      let c_string = CStr::from_ptr(receiver as *const i8);
       let node_string = c_string.to_string_lossy().into_owned();
       libc::free(receiver as *mut c_void);
 
@@ -170,7 +173,7 @@ impl Document {
         0, /* disable formatting */
       );
       let result_ptr = xmlBufferContent(buf);
-      let c_string = CStr::from_ptr(result_ptr);
+      let c_string = CStr::from_ptr(result_ptr as *const i8);
       let node_string = c_string.to_string_lossy().into_owned();
       xmlBufferFree(buf);
 
@@ -184,7 +187,11 @@ impl Document {
       let c_name = CString::new(name).unwrap();
       let c_content = CString::new(content).unwrap();
 
-      let node_ptr = xmlNewDocPI(self.doc_ptr(), c_name.as_ptr(), c_content.as_ptr());
+      let node_ptr = xmlNewDocPI(
+        self.doc_ptr(),
+        c_name.as_ptr() as *const u8,
+        c_content.as_ptr() as *const u8,
+      );
       if node_ptr.is_null() {
         Err(())
       } else {
@@ -200,7 +207,7 @@ impl Document {
     //
     // Memory management is not an issue, as a document node can not be unbound/removed, and does not require
     // any additional deallocation than the Drop of a Document object.
-    self.register_node(self.doc_ptr())
+    self.register_node(self.doc_ptr() as xmlNodePtr)
   }
 
   /// Duplicates the libxml2 Document into a new instance
