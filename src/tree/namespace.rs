@@ -1,8 +1,9 @@
 //! Namespace feature set
 //!
 
-use c_signatures::*;
-use libc::c_void;
+use bindings::*;
+use c_helpers::*;
+
 use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::ptr;
@@ -14,7 +15,7 @@ use tree::node::Node;
 #[derive(Clone)]
 pub struct Namespace {
   ///libxml's xmlNsPtr
-  pub(crate) ns_ptr: *mut c_void,
+  pub(crate) ns_ptr: xmlNsPtr,
 }
 
 impl Namespace {
@@ -29,7 +30,11 @@ impl Namespace {
     };
 
     unsafe {
-      let ns = xmlNewNs(node.node_ptr_mut()?, c_href.as_ptr(), c_prefix_ptr);
+      let ns = xmlNewNs(
+        node.node_ptr_mut()?,
+        c_href.as_ptr() as *const u8,
+        c_prefix_ptr as *const u8,
+      );
       if ns.is_null() {
         Err(From::from("xmlNewNs returned NULL"))
       } else {
@@ -37,7 +42,11 @@ impl Namespace {
       }
     }
   }
-  pub(crate) fn ns_ptr(&self) -> *mut c_void {
+
+  pub(crate) fn ns_ptr(&self) -> xmlNsPtr {
+    self.ns_ptr
+  }
+  pub(crate) fn ns_ptr_mut(&mut self) -> xmlNsPtr {
     self.ns_ptr
   }
   /// The namespace prefix

@@ -1,6 +1,7 @@
 //! The `XPath` functionality
 
-use c_signatures::*;
+use bindings::*;
+use c_helpers::*;
 use libc;
 use libc::{c_void, size_t};
 use std::ffi::{CStr, CString};
@@ -11,7 +12,7 @@ use tree::{Document, DocumentRef, Node};
 #[derive(Clone)]
 pub struct Context<'a> {
   ///libxml's `ContextPtr`
-  pub context_ptr: *mut c_void,
+  pub context_ptr: xmlXPathContextPtr,
   ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
   pub document: &'a Document,
 }
@@ -29,14 +30,14 @@ impl<'a> Drop for Context<'a> {
 #[derive(Clone)]
 pub struct Object {
   ///libxml's `ObjectPtr`
-  pub ptr: *mut c_void,
+  pub ptr: xmlXPathObjectPtr,
   document: DocumentRef,
 }
 
 impl<'a> Context<'a> {
   ///create the xpath context for a document
   pub fn new(doc: &Document) -> Result<Context, ()> {
-    let ctxtptr: *mut c_void = unsafe { xmlXPathNewContext(doc.doc_ptr()) };
+    let ctxtptr = unsafe { xmlXPathNewContext(doc.doc_ptr()) };
     if ctxtptr.is_null() {
       Err(())
     } else {
@@ -52,7 +53,11 @@ impl<'a> Context<'a> {
     let c_prefix = CString::new(prefix).unwrap();
     let c_href = CString::new(href).unwrap();
     unsafe {
-      let result = xmlXPathRegisterNs(self.context_ptr, c_prefix.as_ptr(), c_href.as_ptr());
+      let result = xmlXPathRegisterNs(
+        self.context_ptr,
+        c_prefix.as_ptr() as *const u8,
+        c_href.as_ptr() as *const u8,
+      );
       if result != 0 {
         Err(())
       } else {
@@ -64,7 +69,7 @@ impl<'a> Context<'a> {
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr(), self.context_ptr) };
+    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr() as *const u8, self.context_ptr) };
     if ptr.is_null() {
       Err(())
     } else {
@@ -136,7 +141,7 @@ impl Object {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<Node> = Vec::with_capacity(n);
     for i in 0..n {
-      let ptr: *mut c_void = unsafe { xmlXPathObjectGetNode(self.ptr, i as size_t) };
+      let ptr = unsafe { xmlXPathObjectGetNode(self.ptr, i as size_t) };
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
@@ -151,7 +156,7 @@ impl Object {
   pub fn to_string(&self) -> String {
     unsafe {
       let receiver = xmlXPathCastToString(self.ptr);
-      let c_string = CStr::from_ptr(receiver);
+      let c_string = CStr::from_ptr(receiver as *const i8);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       libc::free(receiver as *mut c_void);
       rust_string

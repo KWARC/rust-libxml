@@ -1,7 +1,5 @@
 //! Node, and related, feature set
 //!
-
-use c_signatures::*;
 use libc;
 use libc::c_void;
 use std::cell::RefCell;
@@ -17,6 +15,9 @@ use std::str;
 use tree::document::{Document, DocumentRef};
 use tree::namespace::Namespace;
 use tree::nodetype::NodeType;
+
+use bindings::*;
+use c_helpers::*;
 
 /// Guard treshold for enforcing runtime mutability checks for Nodes
 pub static mut NODE_RC_MAX_GUARD: usize = 2;
@@ -34,7 +35,7 @@ type NodeRef = Rc<RefCell<_Node>>;
 #[derive(Debug)]
 struct _Node {
   /// libxml's xmlNodePtr
-  node_ptr: *mut c_void,
+  node_ptr: xmlNodePtr,
   /// Reference to parent `Document`
   document: DocumentRef,
   /// Bookkeep removal from a parent
@@ -86,7 +87,12 @@ impl Node {
       Some(ns) => ns.ns_ptr(),
     };
     unsafe {
-      let node = xmlNewDocNode(doc.doc_ptr(), ns_ptr, c_name.as_ptr(), ptr::null());
+      let node = xmlNewDocNode(
+        doc.doc_ptr(),
+        ns_ptr,
+        c_name.as_ptr() as *const u8,
+        ptr::null(),
+      );
       if node.is_null() {
         Err(())
       } else {
@@ -96,12 +102,12 @@ impl Node {
   }
 
   /// Return underlying libxml node ptr
-  pub(crate) fn node_ptr(&self) -> *const c_void {
+  pub(crate) fn node_ptr(&self) -> xmlNodePtr {
     self.0.borrow().node_ptr
   }
 
   /// Return underlying libxml node ptr
-  pub(crate) fn node_ptr_mut(&mut self) -> Result<*mut c_void, String> {
+  pub(crate) fn node_ptr_mut(&mut self) -> Result<xmlNodePtr, String> {
     let weak_count = Rc::weak_count(&self.0);
     let strong_count = Rc::strong_count(&self.0);
 
@@ -123,7 +129,7 @@ impl Node {
   }
 
   /// Wrap a libxml node ptr with a Node
-  pub(crate) fn wrap(node_ptr: *mut c_void, document: DocumentRef) -> Node {
+  pub(crate) fn wrap(node_ptr: xmlNodePtr, document: DocumentRef) -> Node {
     // If already seen, return saved Node
     if let Some(node) = document.borrow().get_node(node_ptr) {
       return node.clone();
@@ -146,7 +152,7 @@ impl Node {
     // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
     let c_content = CString::new(content).unwrap();
     unsafe {
-      let node = xmlNewDocText(doc.doc_ptr(), c_content.as_ptr());
+      let node = xmlNewDocText(doc.doc_ptr(), c_content.as_ptr() as *const u8);
       if node.is_null() {
         Err(())
       } else {
@@ -161,7 +167,7 @@ impl Node {
 
   /// `libc::c_void` isn't hashable and cannot be made hashable
   pub fn to_hashable(&self) -> usize {
-    unsafe { mem::transmute::<*const libc::c_void, usize>(self.node_ptr()) }
+    unsafe { mem::transmute::<xmlNodePtr, usize>(self.node_ptr()) }
   }
 
   /// Returns the next sibling if it exists
@@ -289,7 +295,7 @@ impl Node {
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
-    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_ptr()) }
+    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_ptr() as *const u8) }
     Ok(())
   }
 
@@ -301,7 +307,7 @@ impl Node {
       //empty string when none
       return String::new();
     }
-    let c_string = unsafe { CStr::from_ptr(content_ptr) };
+    let c_string = unsafe { CStr::from_ptr(content_ptr as *const i8) };
     let rust_utf8 = c_string.to_string_lossy().into_owned();
     unsafe {
       libc::free(content_ptr as *mut c_void);
@@ -312,18 +318,18 @@ impl Node {
   /// Sets the text content of this `Node`
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<Error>> {
     let c_content = CString::new(content).unwrap();
-    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_ptr()) }
+    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_ptr() as *const u8) }
     Ok(())
   }
 
   /// Returns the value of property `name`
   pub fn get_property(&self, name: &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
-    let value_ptr = unsafe { xmlGetProp(self.node_ptr(), c_name.as_ptr()) };
+    let value_ptr = unsafe { xmlGetProp(self.node_ptr(), c_name.as_ptr() as *const u8) };
     if value_ptr.is_null() {
       return None;
     }
-    let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const i8) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
     // A safe way to free the memory is using libc::free -- I have experienced that xmlFree from libxml2 is not reliable
     unsafe {
@@ -336,11 +342,17 @@ impl Node {
   pub fn get_property_ns(&self, name: &str, ns: &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
     let c_ns = CString::new(ns).unwrap();
-    let value_ptr = unsafe { xmlGetNsProp(self.node_ptr(), c_name.as_ptr(), c_ns.as_ptr()) };
+    let value_ptr = unsafe {
+      xmlGetNsProp(
+        self.node_ptr(),
+        c_name.as_ptr() as *const u8,
+        c_ns.as_ptr() as *const u8,
+      )
+    };
     if value_ptr.is_null() {
       return None;
     }
-    let c_value_string = unsafe { CStr::from_ptr(value_ptr) };
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const i8) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
     unsafe {
       libc::free(value_ptr as *mut c_void);
@@ -352,8 +364,8 @@ impl Node {
   pub fn get_property_node(&self, name: &str) -> Option<Node> {
     let c_name = CString::new(name).unwrap();
     unsafe {
-      let attr_node = xmlHasProp(self.node_ptr(), c_name.as_ptr());
-      self.ptr_as_option(attr_node)
+      let attr_node = xmlHasProp(self.node_ptr(), c_name.as_ptr() as *const u8);
+      self.ptr_as_option(attr_node as xmlNodePtr)
     }
   }
 
@@ -361,7 +373,13 @@ impl Node {
   pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
-    unsafe { xmlSetProp(self.node_ptr_mut()?, c_name.as_ptr(), c_value.as_ptr()) };
+    unsafe {
+      xmlSetProp(
+        self.node_ptr_mut()?,
+        c_name.as_ptr() as *const u8,
+        c_value.as_ptr() as *const u8,
+      )
+    };
     Ok(())
   }
   /// Sets a namespaced attribute
@@ -377,8 +395,8 @@ impl Node {
       xmlSetNsProp(
         self.node_ptr_mut()?,
         ns.ns_ptr(),
-        c_name.as_ptr(),
-        c_value.as_ptr(),
+        c_name.as_ptr() as *const u8,
+        c_value.as_ptr() as *const u8,
       )
     };
     Ok(())
@@ -388,7 +406,7 @@ impl Node {
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     unsafe {
-      let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_ptr());
+      let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_ptr() as *const u8);
       if !attr_node.is_null() {
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -487,7 +505,7 @@ impl Node {
       Vec::new()
     } else {
       let mut namespaces = Vec::new();
-      let mut ptr_iter = list_ptr_raw as *mut *mut c_void;
+      let mut ptr_iter = list_ptr_raw as *mut xmlNsPtr;
       unsafe {
         while !ptr_iter.is_null() && !(*ptr_iter).is_null() {
           namespaces.push(Namespace { ns_ptr: *ptr_iter });
@@ -502,7 +520,7 @@ impl Node {
           DG: I could not improve on this state without creating memory leaks after ~1 hour, so I am
           marking it as future work.
         */
-        xmlFreeNs(list_ptr_raw);
+        xmlFreeNs(list_ptr_raw as xmlNsPtr);
       }
       namespaces
     }
@@ -542,7 +560,8 @@ impl Node {
     }
     let c_href = CString::new(href).unwrap();
     unsafe {
-      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_href.as_ptr());
+      let ptr_mut = self.node_ptr();
+      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href.as_ptr() as *const u8);
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr };
         let ns_prefix = ns.get_prefix();
@@ -563,7 +582,7 @@ impl Node {
       let ns_ptr = xmlSearchNs(
         xmlGetDoc(self.node_ptr()),
         self.node_ptr(),
-        c_prefix.as_ptr(),
+        c_prefix.as_ptr() as *const u8,
       );
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr };
@@ -601,7 +620,7 @@ impl Node {
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
     child.set_linked();
     unsafe {
-      let new_child_ptr = xmlAddChild(self.node_ptr_mut()?, child.node_ptr());
+      let new_child_ptr = xmlAddChild(self.node_ptr_mut()?, child.node_ptr_mut()?);
       match self.ptr_as_option(new_child_ptr) {
         Some(_) => Ok(()), // no point to return the node any longer, as child is mutably borrowed and can be reused
         None => Err("add_child encountered NULL pointer".to_string()),
@@ -614,10 +633,15 @@ impl Node {
     let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
-      Some(ns) => ns.ns_ptr(),
+      Some(mut ns) => ns.ns_ptr_mut(),
     };
     unsafe {
-      let new_ptr = xmlNewChild(self.node_ptr_mut()?, ns_ptr, c_name.as_ptr(), ptr::null());
+      let new_ptr = xmlNewChild(
+        self.node_ptr_mut()?,
+        ns_ptr,
+        c_name.as_ptr() as *const u8,
+        ptr::null(),
+      );
       Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
   }
@@ -633,14 +657,14 @@ impl Node {
     let c_content = CString::new(content).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
-      Some(ns) => ns.ns_ptr(),
+      Some(mut ns) => ns.ns_ptr_mut(),
     };
     unsafe {
       let new_ptr = xmlNewTextChild(
         self.node_ptr_mut()?,
         ns_ptr,
-        c_name.as_ptr(),
-        c_content.as_ptr(),
+        c_name.as_ptr() as *const u8,
+        c_content.as_ptr() as *const u8,
       );
       Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
@@ -652,7 +676,7 @@ impl Node {
     if c_len > 0 {
       let c_content = CString::new(content).unwrap();
       unsafe {
-        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_ptr(), c_len);
+        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_ptr() as *const u8, c_len);
       }
     }
     Ok(())
@@ -692,7 +716,7 @@ impl Node {
     self.0.borrow().unlinked
   }
 
-  fn ptr_as_option(&self, node_ptr: *mut c_void) -> Option<Node> {
+  fn ptr_as_option(&self, node_ptr: xmlNodePtr) -> Option<Node> {
     if node_ptr.is_null() {
       None
     } else {
