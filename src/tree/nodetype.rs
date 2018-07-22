@@ -1,6 +1,5 @@
 //! Types of libxml2 Nodes
 //!
-use libc::c_int;
 
 /// Types of xml nodes
 #[derive(Debug, PartialEq)]
@@ -32,7 +31,7 @@ pub enum NodeType {
 impl NodeType {
   /// converts an integer from libxml's `enum NodeType`
   /// to an instance of our `NodeType`
-  pub fn from_c_int(i: c_int) -> Option<NodeType> {
+  pub fn from_int(i: u32) -> Option<NodeType> {
     match i {
       1 => Some(NodeType::ElementNode),
       2 => Some(NodeType::AttributeNode),

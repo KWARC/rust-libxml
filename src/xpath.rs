@@ -122,7 +122,7 @@ impl Drop for Object {
 impl Object {
   ///get the number of nodes in the result set
   pub fn get_number_of_nodes(&self) -> usize {
-    let v = unsafe { xmlXPathObjectNumberOfNodes(self.ptr) };
+    let v = xmlXPathObjectNumberOfNodes(self.ptr);
     if v == -1 {
       panic!("rust-libxml: xpath: Passed in null pointer!");
     }
@@ -141,7 +141,7 @@ impl Object {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<Node> = Vec::with_capacity(n);
     for i in 0..n {
-      let ptr = unsafe { xmlXPathObjectGetNode(self.ptr, i as size_t) };
+      let ptr = xmlXPathObjectGetNode(self.ptr, i as size_t);
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }

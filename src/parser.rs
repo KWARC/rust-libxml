@@ -178,8 +178,7 @@ impl Parser {
           c_utf8.as_ptr(),
           10_596,
         ); // htmlParserOption = 4+32+64+256+2048+8192
-        let is_well_formed = htmlWellFormed(ctxt);
-        let well_formed_final = if is_well_formed > 0 {
+        let well_formed_final = if htmlWellFormed(ctxt) {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
           if !docptr.is_null() {
             let node_ptr = xmlDocGetRootElement(docptr);
