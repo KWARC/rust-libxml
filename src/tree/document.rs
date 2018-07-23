@@ -2,7 +2,7 @@
 //!
 
 use libc;
-use libc::{c_int, c_void};
+use libc::{c_char, c_int, c_void};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
@@ -150,7 +150,7 @@ impl Document {
         setIndentTreeOutput(current_indent);
       }
 
-      let c_string = CStr::from_ptr(receiver as *const i8);
+      let c_string = CStr::from_ptr(receiver as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
       libc::free(receiver as *mut c_void);
 
@@ -172,8 +172,8 @@ impl Document {
         1, // level of indentation
         0, /* disable formatting */
       );
-      let result_ptr = xmlBufferContent(buf);
-      let c_string = CStr::from_ptr(result_ptr as *const i8);
+      let result = xmlBufferContent(buf);
+      let c_string = CStr::from_ptr(result as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
       xmlBufferFree(buf);
 

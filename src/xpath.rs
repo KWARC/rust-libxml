@@ -3,7 +3,7 @@
 use bindings::*;
 use c_helpers::*;
 use libc;
-use libc::{c_void, size_t};
+use libc::{c_char, c_void, size_t};
 use std::ffi::{CStr, CString};
 use std::str;
 use tree::{Document, DocumentRef, Node};
@@ -157,7 +157,7 @@ impl Object {
   pub fn to_string(&self) -> String {
     unsafe {
       let receiver = xmlXPathCastToString(self.ptr);
-      let c_string = CStr::from_ptr(receiver as *const i8);
+      let c_string = CStr::from_ptr(receiver as *const c_char);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       libc::free(receiver as *mut c_void);
       rust_string
