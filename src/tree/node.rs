@@ -101,13 +101,14 @@ impl Node {
     }
   }
 
-  /// Return underlying libxml node ptr
-  pub(crate) fn node_ptr(&self) -> xmlNodePtr {
+  /// Immutably borrows the underlying libxml2 `xmlNodePtr` pointer
+  pub fn node_ptr(&self) -> xmlNodePtr {
     self.0.borrow().node_ptr
   }
 
-  /// Return underlying libxml node ptr
-  pub(crate) fn node_ptr_mut(&mut self) -> Result<xmlNodePtr, String> {
+  /// Mutably borrows the underlying libxml2 `xmlNodePtr` pointer
+  /// Also protects against mutability conflicts at runtime.
+  pub fn node_ptr_mut(&mut self) -> Result<xmlNodePtr, String> {
     let weak_count = Rc::weak_count(&self.0);
     let strong_count = Rc::strong_count(&self.0);
 

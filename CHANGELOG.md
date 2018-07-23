@@ -1,8 +1,12 @@
 # Change Log
 
 
-## [0.2.2 (in active dev)]
+## [0.2.2] (in active development)
 
+
+## [0.2.2] 2018-23-07
+
+ * Expose the underlying `libxml2` data structures in the public crate interface, to enable a first [libxslt](https://crates.io/crates/libxslt) crate proof of concept.
 
 ## [0.2.1] 2018-23-07
 

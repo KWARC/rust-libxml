@@ -67,7 +67,8 @@ impl Document {
     }
   }
 
-  pub(crate) fn doc_ptr(&self) -> xmlDocPtr {
+  /// Obtain the underlying libxml2 `xmlDocPtr` for this Document
+  pub fn doc_ptr(&self) -> xmlDocPtr {
     self.0.borrow().doc_ptr
   }
 

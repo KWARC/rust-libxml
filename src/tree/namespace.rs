@@ -43,10 +43,13 @@ impl Namespace {
     }
   }
 
-  pub(crate) fn ns_ptr(&self) -> xmlNsPtr {
+  /// Immutably borrows the underlying libxml2 `xmlNsPtr` pointer
+  pub fn ns_ptr(&self) -> xmlNsPtr {
     self.ns_ptr
   }
-  pub(crate) fn ns_ptr_mut(&mut self) -> xmlNsPtr {
+
+  /// Mutably borrows the underlying libxml2 `xmlNsPtr` pointer
+  pub fn ns_ptr_mut(&mut self) -> xmlNsPtr {
     self.ns_ptr
   }
   /// The namespace prefix
