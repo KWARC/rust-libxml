@@ -1,16 +1,37 @@
 # Change Log
+
+
 ## [0.2.1 (in active dev)]
- * Added `Node::set_node_rc_guard` which allows customizing the reference-count mutability threshold for Nodes.
+
+### Added
+
+ * `Node::set_node_rc_guard` which allows customizing the reference-count mutability threshold for Nodes.
+ * serialization tests for `Document`
+ * (crate internal) full set of libxml2 bindings as produced via `bindgen` (see #39)
+ * (crate internal) using libxml2's type language in the wrapper Rust modules
+ * (crate internal) setup bindings for reuse in higher-level crates, such as libxslt
+ 
+
+### Changed
+
+ * `NodeType::from_c_int` renamed to `NodeType::from_int`, now accepting a `u32` argument
+
+### Removed
+
+ * Removed dependence on custom C code; also removed gcc from build dependencies
+
 
 ## [0.2.0] 2018-19-07
 
 This release adds fundamental breaking changes to the API. The API continues to be considered unstable until the `1.0.0` release.
 
 ### Added
+
  * `dup` and `dup_from` methods for deeply duplicating a libxml2 document
  * `is_unlinked` for quick check if a `Node` has been unlinked from a parent
 
 ### Changed
+
  * safe API for `Node`s and `Document`s, with automatic pointer bookkeeping and memory deallocation, by @triptec
    * `Node`s are now bookkept by their owning document
    * libxml2 low-level memory deallocation is postponed until the `Document` is dropped, with the exception of unlinked nodes, who are deallocated on drop.
@@ -22,7 +43,9 @@ This release adds fundamental breaking changes to the API. The API continues to 
  * Tree transforming operations that use operate on `&mut self`, and no longer return a Node if the return value is identical to the argument. 
    * Changed signatures: `add_child`, `add_prev_sibling`, `add_next_sibling`
  * `Result` types should always be checked for errors, as mutability conflicts are reported during runtime.
+
 ### Removed
+
  * `global` module, which attempted to manage global libxml state for threaded workflows. May be readed after the API stabilizes
 
 
@@ -34,6 +57,7 @@ This release adds fundamental breaking changes to the API. The API continues to 
  
 * Workaround `.free` method for freeing nodes, until the `Rc<RefCell<_Node>>` free-on-drop solution by Andreas is introduced in 0.2
 
+
 ## [0.1.1] 2017-18-12
 
 ### Added
@@ -44,6 +68,7 @@ This release adds fundamental breaking changes to the API. The API continues to 
 ### Changed
 
 * Requiring owned `Node` function arguments only when consumed - `add_*` methods largely take `&Node` now.
+
 
 ## [0.1.0] 2017-09-11
 
@@ -57,6 +82,7 @@ Pushing up release to a 0.1, as contributor interest is starting to pick up, and
 ### Changed
 
 * Updated gcc build to newer incantation, upped dependency version.
+
 
 ## [0.0.75] 2017-04-06
 
@@ -73,6 +99,7 @@ Pushing up release to a 0.1, as contributor interest is starting to pick up, and
 * Refactored wrongly used `url` to `href` for namespace-related Node ops.
 * Fixed bug with Node's `get_content` method always returning empty
 * More stable `append_text` for node, added tests
+
 
 ## [0.0.74] 2016-25-12
 
