@@ -1,7 +1,7 @@
 //! Node, and related, feature set
 //!
 use libc;
-use libc::c_void;
+use libc::{c_char, c_void};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -307,7 +307,7 @@ impl Node {
       //empty string when none
       return String::new();
     }
-    let c_string = unsafe { CStr::from_ptr(content_ptr as *const i8) };
+    let c_string = unsafe { CStr::from_ptr(content_ptr as *const c_char) };
     let rust_utf8 = c_string.to_string_lossy().into_owned();
     unsafe {
       libc::free(content_ptr as *mut c_void);
@@ -329,7 +329,7 @@ impl Node {
     if value_ptr.is_null() {
       return None;
     }
-    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const i8) };
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
     // A safe way to free the memory is using libc::free -- I have experienced that xmlFree from libxml2 is not reliable
     unsafe {
@@ -352,7 +352,7 @@ impl Node {
     if value_ptr.is_null() {
       return None;
     }
-    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const i8) };
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
     unsafe {
       libc::free(value_ptr as *mut c_void);
