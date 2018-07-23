@@ -54,7 +54,7 @@ impl Document {
   pub fn new() -> Result<Self, ()> {
     unsafe {
       let c_version = CString::new("1.0").unwrap();
-      let doc_ptr = xmlNewDoc(c_version.as_ptr() as *const u8);
+      let doc_ptr = xmlNewDoc(c_version.as_bytes().as_ptr());
       if doc_ptr.is_null() {
         Err(())
       } else {
@@ -189,8 +189,8 @@ impl Document {
 
       let node_ptr = xmlNewDocPI(
         self.doc_ptr(),
-        c_name.as_ptr() as *const u8,
-        c_content.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
+        c_content.as_bytes().as_ptr(),
       );
       if node_ptr.is_null() {
         Err(())

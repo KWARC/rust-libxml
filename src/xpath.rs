@@ -55,8 +55,8 @@ impl<'a> Context<'a> {
     unsafe {
       let result = xmlXPathRegisterNs(
         self.context_ptr,
-        c_prefix.as_ptr() as *const u8,
-        c_href.as_ptr() as *const u8,
+        c_prefix.as_bytes().as_ptr(),
+        c_href.as_bytes().as_ptr(),
       );
       if result != 0 {
         Err(())
@@ -69,7 +69,8 @@ impl<'a> Context<'a> {
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_ptr() as *const u8, self.context_ptr) };
+    let ptr =
+      unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.context_ptr) };
     if ptr.is_null() {
       Err(())
     } else {
