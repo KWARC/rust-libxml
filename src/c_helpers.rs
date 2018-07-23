@@ -97,9 +97,6 @@ pub fn setIndentTreeOutput(indent: c_int) {
     xmlIndentTreeOutput = indent;
   }
 }
-pub fn getIndentTreeOutput() -> c_int {
-  unsafe { xmlIndentTreeOutput }
-}
 
 // dummy function: no debug output at all
 fn _ignoreInvalidTagsErrorFunc(_user_data: *mut c_void, error: xmlErrorPtr) {
