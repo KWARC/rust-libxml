@@ -32,7 +32,7 @@ impl Namespace {
     unsafe {
       let ns = xmlNewNs(
         node.node_ptr_mut()?,
-        c_href.as_ptr() as *const u8,
+        c_href.as_bytes().as_ptr(),
         c_prefix_ptr as *const u8,
       );
       if ns.is_null() {

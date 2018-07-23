@@ -90,7 +90,7 @@ impl Node {
       let node = xmlNewDocNode(
         doc.doc_ptr(),
         ns_ptr,
-        c_name.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
         ptr::null(),
       );
       if node.is_null() {
@@ -152,7 +152,7 @@ impl Node {
     // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
     let c_content = CString::new(content).unwrap();
     unsafe {
-      let node = xmlNewDocText(doc.doc_ptr(), c_content.as_ptr() as *const u8);
+      let node = xmlNewDocText(doc.doc_ptr(), c_content.as_bytes().as_ptr());
       if node.is_null() {
         Err(())
       } else {
@@ -295,7 +295,7 @@ impl Node {
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
-    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_ptr() as *const u8) }
+    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
     Ok(())
   }
 
@@ -318,14 +318,14 @@ impl Node {
   /// Sets the text content of this `Node`
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<Error>> {
     let c_content = CString::new(content).unwrap();
-    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_ptr() as *const u8) }
+    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_bytes().as_ptr()) }
     Ok(())
   }
 
   /// Returns the value of property `name`
   pub fn get_property(&self, name: &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
-    let value_ptr = unsafe { xmlGetProp(self.node_ptr(), c_name.as_ptr() as *const u8) };
+    let value_ptr = unsafe { xmlGetProp(self.node_ptr(), c_name.as_bytes().as_ptr()) };
     if value_ptr.is_null() {
       return None;
     }
@@ -345,8 +345,8 @@ impl Node {
     let value_ptr = unsafe {
       xmlGetNsProp(
         self.node_ptr(),
-        c_name.as_ptr() as *const u8,
-        c_ns.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
+        c_ns.as_bytes().as_ptr(),
       )
     };
     if value_ptr.is_null() {
@@ -364,7 +364,7 @@ impl Node {
   pub fn get_property_node(&self, name: &str) -> Option<Node> {
     let c_name = CString::new(name).unwrap();
     unsafe {
-      let attr_node = xmlHasProp(self.node_ptr(), c_name.as_ptr() as *const u8);
+      let attr_node = xmlHasProp(self.node_ptr(), c_name.as_bytes().as_ptr());
       self.ptr_as_option(attr_node as xmlNodePtr)
     }
   }
@@ -376,8 +376,8 @@ impl Node {
     unsafe {
       xmlSetProp(
         self.node_ptr_mut()?,
-        c_name.as_ptr() as *const u8,
-        c_value.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
+        c_value.as_bytes().as_ptr(),
       )
     };
     Ok(())
@@ -395,8 +395,8 @@ impl Node {
       xmlSetNsProp(
         self.node_ptr_mut()?,
         ns.ns_ptr(),
-        c_name.as_ptr() as *const u8,
-        c_value.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
+        c_value.as_bytes().as_ptr(),
       )
     };
     Ok(())
@@ -406,7 +406,7 @@ impl Node {
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     unsafe {
-      let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_ptr() as *const u8);
+      let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_bytes().as_ptr());
       if !attr_node.is_null() {
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -557,7 +557,7 @@ impl Node {
     let c_href = CString::new(href).unwrap();
     unsafe {
       let ptr_mut = self.node_ptr();
-      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href.as_ptr() as *const u8);
+      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href.as_bytes().as_ptr());
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr };
         let ns_prefix = ns.get_prefix();
@@ -578,7 +578,7 @@ impl Node {
       let ns_ptr = xmlSearchNs(
         xmlGetDoc(self.node_ptr()),
         self.node_ptr(),
-        c_prefix.as_ptr() as *const u8,
+        c_prefix.as_bytes().as_ptr(),
       );
       if !ns_ptr.is_null() {
         let ns = Namespace { ns_ptr };
@@ -635,7 +635,7 @@ impl Node {
       let new_ptr = xmlNewChild(
         self.node_ptr_mut()?,
         ns_ptr,
-        c_name.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
         ptr::null(),
       );
       Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
@@ -659,8 +659,8 @@ impl Node {
       let new_ptr = xmlNewTextChild(
         self.node_ptr_mut()?,
         ns_ptr,
-        c_name.as_ptr() as *const u8,
-        c_content.as_ptr() as *const u8,
+        c_name.as_bytes().as_ptr(),
+        c_content.as_bytes().as_ptr(),
       );
       Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
     }
@@ -672,7 +672,7 @@ impl Node {
     if c_len > 0 {
       let c_content = CString::new(content).unwrap();
       unsafe {
-        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_ptr() as *const u8, c_len);
+        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_bytes().as_ptr(), c_len);
       }
     }
     Ok(())
