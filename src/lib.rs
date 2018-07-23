@@ -6,7 +6,7 @@
 extern crate libc;
 
 /// Bindings to the C interface
-mod bindings;
+pub mod bindings;
 mod c_helpers;
 
 /// XML and HTML parsing

@@ -3,6 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(improper_ctypes)]
+#![allow(missing_docs)]
 
 /*
  * helper var until we figure out well-formedness checks
@@ -566,7 +567,7 @@ pub const XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION: u32 = 128;
 pub const XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION: u32 = 256;
 pub const XML_SCHEMAS_INCLUDING_CONVERT_NS: u32 = 512;
 extern "C" {
-  pub(crate) fn xmlCheckVersion(version: ::std::os::raw::c_int);
+  pub fn xmlCheckVersion(version: ::std::os::raw::c_int);
 }
 pub type va_list = __builtin_va_list;
 pub type __gnuc_va_list = __builtin_va_list;
@@ -679,7 +680,9 @@ fn bindgen_test_layout___mbstate_t__bindgen_ty_1() {
     concat!("Alignment of ", stringify!(__mbstate_t__bindgen_ty_1))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__mbstate_t__bindgen_ty_1>())).__wch as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__mbstate_t__bindgen_ty_1>())).__wch as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -689,7 +692,9 @@ fn bindgen_test_layout___mbstate_t__bindgen_ty_1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__mbstate_t__bindgen_ty_1>())).__wchb as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__mbstate_t__bindgen_ty_1>())).__wchb as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -1249,43 +1254,40 @@ pub type __io_close_fn = ::std::option::Option<
   unsafe extern "C" fn(__cookie: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int,
 >;
 extern "C" {
-  pub(crate) fn __underflow(arg1: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn __underflow(arg1: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __uflow(arg1: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn __uflow(arg1: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __overflow(
-    arg1: *mut _IO_FILE,
-    arg2: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn __overflow(arg1: *mut _IO_FILE, arg2: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_getc(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn _IO_getc(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_putc(__c: ::std::os::raw::c_int, __fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn _IO_putc(__c: ::std::os::raw::c_int, __fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_feof(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn _IO_feof(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_ferror(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn _IO_ferror(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_peekc_locked(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn _IO_peekc_locked(__fp: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_flockfile(arg1: *mut _IO_FILE);
+  pub fn _IO_flockfile(arg1: *mut _IO_FILE);
 }
 extern "C" {
-  pub(crate) fn _IO_funlockfile(arg1: *mut _IO_FILE);
+  pub fn _IO_funlockfile(arg1: *mut _IO_FILE);
 }
 extern "C" {
-  pub(crate) fn _IO_ftrylockfile(arg1: *mut _IO_FILE) -> ::std::os::raw::c_int;
+  pub fn _IO_ftrylockfile(arg1: *mut _IO_FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_vfscanf(
+  pub fn _IO_vfscanf(
     arg1: *mut _IO_FILE,
     arg2: *const ::std::os::raw::c_char,
     arg3: *mut __va_list_tag,
@@ -1293,28 +1295,20 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_vfprintf(
+  pub fn _IO_vfprintf(
     arg1: *mut _IO_FILE,
     arg2: *const ::std::os::raw::c_char,
     arg3: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn _IO_padn(
-    arg1: *mut _IO_FILE,
-    arg2: ::std::os::raw::c_int,
-    arg3: __ssize_t,
-  ) -> __ssize_t;
+  pub fn _IO_padn(arg1: *mut _IO_FILE, arg2: ::std::os::raw::c_int, arg3: __ssize_t) -> __ssize_t;
 }
 extern "C" {
-  pub(crate) fn _IO_sgetn(
-    arg1: *mut _IO_FILE,
-    arg2: *mut ::std::os::raw::c_void,
-    arg3: usize,
-  ) -> usize;
+  pub fn _IO_sgetn(arg1: *mut _IO_FILE, arg2: *mut ::std::os::raw::c_void, arg3: usize) -> usize;
 }
 extern "C" {
-  pub(crate) fn _IO_seekoff(
+  pub fn _IO_seekoff(
     arg1: *mut _IO_FILE,
     arg2: __off64_t,
     arg3: ::std::os::raw::c_int,
@@ -1322,14 +1316,14 @@ extern "C" {
   ) -> __off64_t;
 }
 extern "C" {
-  pub(crate) fn _IO_seekpos(
+  pub fn _IO_seekpos(
     arg1: *mut _IO_FILE,
     arg2: __off64_t,
     arg3: ::std::os::raw::c_int,
   ) -> __off64_t;
 }
 extern "C" {
-  pub(crate) fn _IO_free_backup_area(arg1: *mut _IO_FILE);
+  pub fn _IO_free_backup_area(arg1: *mut _IO_FILE);
 }
 pub type off_t = __off_t;
 pub type fpos_t = _G_fpos_t;
@@ -1346,16 +1340,16 @@ extern "C" {
   pub static mut stderr: *mut _IO_FILE;
 }
 extern "C" {
-  pub(crate) fn remove(__filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn remove(__filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn rename(
+  pub fn rename(
     __old: *const ::std::os::raw::c_char,
     __new: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn renameat(
+  pub fn renameat(
     __oldfd: ::std::os::raw::c_int,
     __old: *const ::std::os::raw::c_char,
     __newfd: ::std::os::raw::c_int,
@@ -1363,66 +1357,63 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn tmpfile() -> *mut FILE;
+  pub fn tmpfile() -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn tmpnam(__s: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn tmpnam(__s: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn tmpnam_r(__s: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn tmpnam_r(__s: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn tempnam(
+  pub fn tempnam(
     __dir: *const ::std::os::raw::c_char,
     __pfx: *const ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn fclose(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fclose(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fflush(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fflush(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fflush_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fflush_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fopen(
+  pub fn fopen(
     __filename: *const ::std::os::raw::c_char,
     __modes: *const ::std::os::raw::c_char,
   ) -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn freopen(
+  pub fn freopen(
     __filename: *const ::std::os::raw::c_char,
     __modes: *const ::std::os::raw::c_char,
     __stream: *mut FILE,
   ) -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn fdopen(
-    __fd: ::std::os::raw::c_int,
-    __modes: *const ::std::os::raw::c_char,
-  ) -> *mut FILE;
+  pub fn fdopen(__fd: ::std::os::raw::c_int, __modes: *const ::std::os::raw::c_char) -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn fmemopen(
+  pub fn fmemopen(
     __s: *mut ::std::os::raw::c_void,
     __len: usize,
     __modes: *const ::std::os::raw::c_char,
   ) -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn open_memstream(
+  pub fn open_memstream(
     __bufloc: *mut *mut ::std::os::raw::c_char,
     __sizeloc: *mut usize,
   ) -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn setbuf(__stream: *mut FILE, __buf: *mut ::std::os::raw::c_char);
+  pub fn setbuf(__stream: *mut FILE, __buf: *mut ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn setvbuf(
+  pub fn setvbuf(
     __stream: *mut FILE,
     __buf: *mut ::std::os::raw::c_char,
     __modes: ::std::os::raw::c_int,
@@ -1430,50 +1421,50 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn setbuffer(__stream: *mut FILE, __buf: *mut ::std::os::raw::c_char, __size: usize);
+  pub fn setbuffer(__stream: *mut FILE, __buf: *mut ::std::os::raw::c_char, __size: usize);
 }
 extern "C" {
-  pub(crate) fn setlinebuf(__stream: *mut FILE);
+  pub fn setlinebuf(__stream: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn fprintf(
+  pub fn fprintf(
     __stream: *mut FILE,
     __format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn printf(__format: *const ::std::os::raw::c_char, ...) -> ::std::os::raw::c_int;
+  pub fn printf(__format: *const ::std::os::raw::c_char, ...) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn sprintf(
+  pub fn sprintf(
     __s: *mut ::std::os::raw::c_char,
     __format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vfprintf(
+  pub fn vfprintf(
     __s: *mut FILE,
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vprintf(
+  pub fn vprintf(
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vsprintf(
+  pub fn vsprintf(
     __s: *mut ::std::os::raw::c_char,
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn snprintf(
+  pub fn snprintf(
     __s: *mut ::std::os::raw::c_char,
     __maxlen: usize,
     __format: *const ::std::os::raw::c_char,
@@ -1481,7 +1472,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vsnprintf(
+  pub fn vsnprintf(
     __s: *mut ::std::os::raw::c_char,
     __maxlen: usize,
     __format: *const ::std::os::raw::c_char,
@@ -1489,31 +1480,31 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vdprintf(
+  pub fn vdprintf(
     __fd: ::std::os::raw::c_int,
     __fmt: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn dprintf(
+  pub fn dprintf(
     __fd: ::std::os::raw::c_int,
     __fmt: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fscanf(
+  pub fn fscanf(
     __stream: *mut FILE,
     __format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn scanf(__format: *const ::std::os::raw::c_char, ...) -> ::std::os::raw::c_int;
+  pub fn scanf(__format: *const ::std::os::raw::c_char, ...) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn sscanf(
+  pub fn sscanf(
     __s: *const ::std::os::raw::c_char,
     __format: *const ::std::os::raw::c_char,
     ...
@@ -1521,7 +1512,7 @@ extern "C" {
 }
 extern "C" {
   #[link_name = "\u{1}__isoc99_fscanf"]
-  pub(crate) fn fscanf1(
+  pub fn fscanf1(
     __stream: *mut FILE,
     __format: *const ::std::os::raw::c_char,
     ...
@@ -1529,31 +1520,31 @@ extern "C" {
 }
 extern "C" {
   #[link_name = "\u{1}__isoc99_scanf"]
-  pub(crate) fn scanf1(__format: *const ::std::os::raw::c_char, ...) -> ::std::os::raw::c_int;
+  pub fn scanf1(__format: *const ::std::os::raw::c_char, ...) -> ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}__isoc99_sscanf"]
-  pub(crate) fn sscanf1(
+  pub fn sscanf1(
     __s: *const ::std::os::raw::c_char,
     __format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vfscanf(
+  pub fn vfscanf(
     __s: *mut FILE,
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vscanf(
+  pub fn vscanf(
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn vsscanf(
+  pub fn vsscanf(
     __s: *const ::std::os::raw::c_char,
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
@@ -1561,7 +1552,7 @@ extern "C" {
 }
 extern "C" {
   #[link_name = "\u{1}__isoc99_vfscanf"]
-  pub(crate) fn vfscanf1(
+  pub fn vfscanf1(
     __s: *mut FILE,
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
@@ -1569,76 +1560,70 @@ extern "C" {
 }
 extern "C" {
   #[link_name = "\u{1}__isoc99_vscanf"]
-  pub(crate) fn vscanf1(
+  pub fn vscanf1(
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}__isoc99_vsscanf"]
-  pub(crate) fn vsscanf1(
+  pub fn vsscanf1(
     __s: *const ::std::os::raw::c_char,
     __format: *const ::std::os::raw::c_char,
     __arg: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fgetc(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fgetc(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getc(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn getc(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getchar() -> ::std::os::raw::c_int;
+  pub fn getchar() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getc_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn getc_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getchar_unlocked() -> ::std::os::raw::c_int;
+  pub fn getchar_unlocked() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fgetc_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fgetc_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fputc(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fputc(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn putc(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn putc(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn putchar(__c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn putchar(__c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fputc_unlocked(
-    __c: ::std::os::raw::c_int,
-    __stream: *mut FILE,
-  ) -> ::std::os::raw::c_int;
+  pub fn fputc_unlocked(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn putc_unlocked(
-    __c: ::std::os::raw::c_int,
-    __stream: *mut FILE,
-  ) -> ::std::os::raw::c_int;
+  pub fn putc_unlocked(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn putchar_unlocked(__c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn putchar_unlocked(__c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getw(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn getw(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn putw(__w: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn putw(__w: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fgets(
+  pub fn fgets(
     __s: *mut ::std::os::raw::c_char,
     __n: ::std::os::raw::c_int,
     __stream: *mut FILE,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn __getdelim(
+  pub fn __getdelim(
     __lineptr: *mut *mut ::std::os::raw::c_char,
     __n: *mut usize,
     __delimiter: ::std::os::raw::c_int,
@@ -1646,7 +1631,7 @@ extern "C" {
   ) -> __ssize_t;
 }
 extern "C" {
-  pub(crate) fn getdelim(
+  pub fn getdelim(
     __lineptr: *mut *mut ::std::os::raw::c_char,
     __n: *mut usize,
     __delimiter: ::std::os::raw::c_int,
@@ -1654,26 +1639,23 @@ extern "C" {
   ) -> __ssize_t;
 }
 extern "C" {
-  pub(crate) fn getline(
+  pub fn getline(
     __lineptr: *mut *mut ::std::os::raw::c_char,
     __n: *mut usize,
     __stream: *mut FILE,
   ) -> __ssize_t;
 }
 extern "C" {
-  pub(crate) fn fputs(
-    __s: *const ::std::os::raw::c_char,
-    __stream: *mut FILE,
-  ) -> ::std::os::raw::c_int;
+  pub fn fputs(__s: *const ::std::os::raw::c_char, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn puts(__s: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn puts(__s: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ungetc(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn ungetc(__c: ::std::os::raw::c_int, __stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fread(
+  pub fn fread(
     __ptr: *mut ::std::os::raw::c_void,
     __size: usize,
     __n: usize,
@@ -1681,7 +1663,7 @@ extern "C" {
   ) -> usize;
 }
 extern "C" {
-  pub(crate) fn fwrite(
+  pub fn fwrite(
     __ptr: *const ::std::os::raw::c_void,
     __size: usize,
     __n: usize,
@@ -1689,7 +1671,7 @@ extern "C" {
   ) -> usize;
 }
 extern "C" {
-  pub(crate) fn fread_unlocked(
+  pub fn fread_unlocked(
     __ptr: *mut ::std::os::raw::c_void,
     __size: usize,
     __n: usize,
@@ -1697,7 +1679,7 @@ extern "C" {
   ) -> usize;
 }
 extern "C" {
-  pub(crate) fn fwrite_unlocked(
+  pub fn fwrite_unlocked(
     __ptr: *const ::std::os::raw::c_void,
     __size: usize,
     __n: usize,
@@ -1705,54 +1687,54 @@ extern "C" {
   ) -> usize;
 }
 extern "C" {
-  pub(crate) fn fseek(
+  pub fn fseek(
     __stream: *mut FILE,
     __off: ::std::os::raw::c_long,
     __whence: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ftell(__stream: *mut FILE) -> ::std::os::raw::c_long;
+  pub fn ftell(__stream: *mut FILE) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn rewind(__stream: *mut FILE);
+  pub fn rewind(__stream: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn fseeko(
+  pub fn fseeko(
     __stream: *mut FILE,
     __off: __off_t,
     __whence: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ftello(__stream: *mut FILE) -> __off_t;
+  pub fn ftello(__stream: *mut FILE) -> __off_t;
 }
 extern "C" {
-  pub(crate) fn fgetpos(__stream: *mut FILE, __pos: *mut fpos_t) -> ::std::os::raw::c_int;
+  pub fn fgetpos(__stream: *mut FILE, __pos: *mut fpos_t) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fsetpos(__stream: *mut FILE, __pos: *const fpos_t) -> ::std::os::raw::c_int;
+  pub fn fsetpos(__stream: *mut FILE, __pos: *const fpos_t) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn clearerr(__stream: *mut FILE);
+  pub fn clearerr(__stream: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn feof(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn feof(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ferror(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn ferror(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn clearerr_unlocked(__stream: *mut FILE);
+  pub fn clearerr_unlocked(__stream: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn feof_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn feof_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ferror_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn ferror_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn perror(__s: *const ::std::os::raw::c_char);
+  pub fn perror(__s: *const ::std::os::raw::c_char);
 }
 extern "C" {
   #[link_name = "\u{1}sys_nerr"]
@@ -1763,31 +1745,31 @@ extern "C" {
   pub static mut sys_errlist: [*const ::std::os::raw::c_char; 0usize];
 }
 extern "C" {
-  pub(crate) fn fileno(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fileno(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fileno_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn fileno_unlocked(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn popen(
+  pub fn popen(
     __command: *const ::std::os::raw::c_char,
     __modes: *const ::std::os::raw::c_char,
   ) -> *mut FILE;
 }
 extern "C" {
-  pub(crate) fn pclose(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn pclose(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ctermid(__s: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn ctermid(__s: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn flockfile(__stream: *mut FILE);
+  pub fn flockfile(__stream: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn ftrylockfile(__stream: *mut FILE) -> ::std::os::raw::c_int;
+  pub fn ftrylockfile(__stream: *mut FILE) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn funlockfile(__stream: *mut FILE);
+  pub fn funlockfile(__stream: *mut FILE);
 }
 /// xmlChar:
 ///
@@ -1796,88 +1778,88 @@ extern "C" {
 /// to xmlChar * (possibly making serialization back impossible).
 pub type xmlChar = ::std::os::raw::c_uchar;
 extern "C" {
-  pub(crate) fn xmlStrdup(cur: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlStrdup(cur: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrndup(cur: *const xmlChar, len: ::std::os::raw::c_int) -> *mut xmlChar;
+  pub fn xmlStrndup(cur: *const xmlChar, len: ::std::os::raw::c_int) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCharStrndup(
+  pub fn xmlCharStrndup(
     cur: *const ::std::os::raw::c_char,
     len: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCharStrdup(cur: *const ::std::os::raw::c_char) -> *mut xmlChar;
+  pub fn xmlCharStrdup(cur: *const ::std::os::raw::c_char) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrsub(
+  pub fn xmlStrsub(
     str: *const xmlChar,
     start: ::std::os::raw::c_int,
     len: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrchr(str: *const xmlChar, val: xmlChar) -> *const xmlChar;
+  pub fn xmlStrchr(str: *const xmlChar, val: xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrstr(str: *const xmlChar, val: *const xmlChar) -> *const xmlChar;
+  pub fn xmlStrstr(str: *const xmlChar, val: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrcasestr(str: *const xmlChar, val: *const xmlChar) -> *const xmlChar;
+  pub fn xmlStrcasestr(str: *const xmlChar, val: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrcmp(str1: *const xmlChar, str2: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlStrcmp(str1: *const xmlChar, str2: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrncmp(
+  pub fn xmlStrncmp(
     str1: *const xmlChar,
     str2: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrcasecmp(str1: *const xmlChar, str2: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlStrcasecmp(str1: *const xmlChar, str2: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrncasecmp(
+  pub fn xmlStrncasecmp(
     str1: *const xmlChar,
     str2: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrEqual(str1: *const xmlChar, str2: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlStrEqual(str1: *const xmlChar, str2: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrQEqual(
+  pub fn xmlStrQEqual(
     pref: *const xmlChar,
     name: *const xmlChar,
     str: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrlen(str: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlStrlen(str: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrcat(cur: *mut xmlChar, add: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlStrcat(cur: *mut xmlChar, add: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrncat(
+  pub fn xmlStrncat(
     cur: *mut xmlChar,
     add: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrncatNew(
+  pub fn xmlStrncatNew(
     str1: *const xmlChar,
     str2: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStrPrintf(
+  pub fn xmlStrPrintf(
     buf: *mut xmlChar,
     len: ::std::os::raw::c_int,
     msg: *const ::std::os::raw::c_char,
@@ -1885,7 +1867,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStrVPrintf(
+  pub fn xmlStrVPrintf(
     buf: *mut xmlChar,
     len: ::std::os::raw::c_int,
     msg: *const ::std::os::raw::c_char,
@@ -1893,48 +1875,41 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGetUTF8Char(
+  pub fn xmlGetUTF8Char(
     utf: *const ::std::os::raw::c_uchar,
     len: *mut ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCheckUTF8(utf: *const ::std::os::raw::c_uchar) -> ::std::os::raw::c_int;
+  pub fn xmlCheckUTF8(utf: *const ::std::os::raw::c_uchar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Strsize(
-    utf: *const xmlChar,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlUTF8Strsize(utf: *const xmlChar, len: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Strndup(utf: *const xmlChar, len: ::std::os::raw::c_int) -> *mut xmlChar;
+  pub fn xmlUTF8Strndup(utf: *const xmlChar, len: ::std::os::raw::c_int) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Strpos(utf: *const xmlChar, pos: ::std::os::raw::c_int) -> *const xmlChar;
+  pub fn xmlUTF8Strpos(utf: *const xmlChar, pos: ::std::os::raw::c_int) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Strloc(
-    utf: *const xmlChar,
-    utfchar: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlUTF8Strloc(utf: *const xmlChar, utfchar: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Strsub(
+  pub fn xmlUTF8Strsub(
     utf: *const xmlChar,
     start: ::std::os::raw::c_int,
     len: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Strlen(utf: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlUTF8Strlen(utf: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Size(utf: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlUTF8Size(utf: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUTF8Charcmp(utf1: *const xmlChar, utf2: *const xmlChar)
-    -> ::std::os::raw::c_int;
+  pub fn xmlUTF8Charcmp(utf1: *const xmlChar, utf2: *const xmlChar) -> ::std::os::raw::c_int;
 }
 pub type xmlParserInputBuffer = _xmlParserInputBuffer;
 pub type xmlParserInputBufferPtr = *mut xmlParserInputBuffer;
@@ -2054,16 +2029,16 @@ pub type xmlBuf = _xmlBuf;
 /// public
 pub type xmlBufPtr = *mut xmlBuf;
 extern "C" {
-  pub(crate) fn xmlBufContent(buf: *const xmlBuf) -> *mut xmlChar;
+  pub fn xmlBufContent(buf: *const xmlBuf) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlBufEnd(buf: xmlBufPtr) -> *mut xmlChar;
+  pub fn xmlBufEnd(buf: xmlBufPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlBufUse(buf: xmlBufPtr) -> usize;
+  pub fn xmlBufUse(buf: xmlBufPtr) -> usize;
 }
 extern "C" {
-  pub(crate) fn xmlBufShrink(buf: xmlBufPtr, len: usize) -> usize;
+  pub fn xmlBufShrink(buf: xmlBufPtr, len: usize) -> usize;
 }
 pub const xmlElementType_XML_ELEMENT_NODE: xmlElementType = 1;
 pub const xmlElementType_XML_ATTRIBUTE_NODE: xmlElementType = 2;
@@ -2560,70 +2535,70 @@ pub struct _xmlDict {
 pub type xmlDict = _xmlDict;
 pub type xmlDictPtr = *mut xmlDict;
 extern "C" {
-  pub(crate) fn xmlInitializeDict() -> ::std::os::raw::c_int;
+  pub fn xmlInitializeDict() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDictCreate() -> xmlDictPtr;
+  pub fn xmlDictCreate() -> xmlDictPtr;
 }
 extern "C" {
-  pub(crate) fn xmlDictSetLimit(dict: xmlDictPtr, limit: usize) -> usize;
+  pub fn xmlDictSetLimit(dict: xmlDictPtr, limit: usize) -> usize;
 }
 extern "C" {
-  pub(crate) fn xmlDictGetUsage(dict: xmlDictPtr) -> usize;
+  pub fn xmlDictGetUsage(dict: xmlDictPtr) -> usize;
 }
 extern "C" {
-  pub(crate) fn xmlDictCreateSub(sub: xmlDictPtr) -> xmlDictPtr;
+  pub fn xmlDictCreateSub(sub: xmlDictPtr) -> xmlDictPtr;
 }
 extern "C" {
-  pub(crate) fn xmlDictReference(dict: xmlDictPtr) -> ::std::os::raw::c_int;
+  pub fn xmlDictReference(dict: xmlDictPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDictFree(dict: xmlDictPtr);
+  pub fn xmlDictFree(dict: xmlDictPtr);
 }
 extern "C" {
-  pub(crate) fn xmlDictLookup(
+  pub fn xmlDictLookup(
     dict: xmlDictPtr,
     name: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlDictExists(
+  pub fn xmlDictExists(
     dict: xmlDictPtr,
     name: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlDictQLookup(
+  pub fn xmlDictQLookup(
     dict: xmlDictPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
   ) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlDictOwns(dict: xmlDictPtr, str: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlDictOwns(dict: xmlDictPtr, str: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDictSize(dict: xmlDictPtr) -> ::std::os::raw::c_int;
+  pub fn xmlDictSize(dict: xmlDictPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDictCleanup();
+  pub fn xmlDictCleanup();
 }
 extern "C" {
-  pub(crate) fn xmlRegexpCompile(regexp: *const xmlChar) -> xmlRegexpPtr;
+  pub fn xmlRegexpCompile(regexp: *const xmlChar) -> xmlRegexpPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRegFreeRegexp(regexp: xmlRegexpPtr);
+  pub fn xmlRegFreeRegexp(regexp: xmlRegexpPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRegexpExec(comp: xmlRegexpPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlRegexpExec(comp: xmlRegexpPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRegexpPrint(output: *mut FILE, regexp: xmlRegexpPtr);
+  pub fn xmlRegexpPrint(output: *mut FILE, regexp: xmlRegexpPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRegexpIsDeterminist(comp: xmlRegexpPtr) -> ::std::os::raw::c_int;
+  pub fn xmlRegexpIsDeterminist(comp: xmlRegexpPtr) -> ::std::os::raw::c_int;
 }
 /// xmlRegExecCallbacks:
 /// @exec: the regular expression context
@@ -2641,24 +2616,24 @@ pub type xmlRegExecCallbacks = ::std::option::Option<
   ),
 >;
 extern "C" {
-  pub(crate) fn xmlRegNewExecCtxt(
+  pub fn xmlRegNewExecCtxt(
     comp: xmlRegexpPtr,
     callback: xmlRegExecCallbacks,
     data: *mut ::std::os::raw::c_void,
   ) -> xmlRegExecCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRegFreeExecCtxt(exec: xmlRegExecCtxtPtr);
+  pub fn xmlRegFreeExecCtxt(exec: xmlRegExecCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRegExecPushString(
+  pub fn xmlRegExecPushString(
     exec: xmlRegExecCtxtPtr,
     value: *const xmlChar,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRegExecPushString2(
+  pub fn xmlRegExecPushString2(
     exec: xmlRegExecCtxtPtr,
     value: *const xmlChar,
     value2: *const xmlChar,
@@ -2666,7 +2641,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRegExecNextValues(
+  pub fn xmlRegExecNextValues(
     exec: xmlRegExecCtxtPtr,
     nbval: *mut ::std::os::raw::c_int,
     nbneg: *mut ::std::os::raw::c_int,
@@ -2675,7 +2650,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRegExecErrInfo(
+  pub fn xmlRegExecErrInfo(
     exec: xmlRegExecCtxtPtr,
     string: *mut *const xmlChar,
     nbval: *mut ::std::os::raw::c_int,
@@ -2692,16 +2667,16 @@ pub struct _xmlExpCtxt {
 pub type xmlExpCtxt = _xmlExpCtxt;
 pub type xmlExpCtxtPtr = *mut xmlExpCtxt;
 extern "C" {
-  pub(crate) fn xmlExpFreeCtxt(ctxt: xmlExpCtxtPtr);
+  pub fn xmlExpFreeCtxt(ctxt: xmlExpCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlExpNewCtxt(maxNodes: ::std::os::raw::c_int, dict: xmlDictPtr) -> xmlExpCtxtPtr;
+  pub fn xmlExpNewCtxt(maxNodes: ::std::os::raw::c_int, dict: xmlDictPtr) -> xmlExpCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpCtxtNbNodes(ctxt: xmlExpCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlExpCtxtNbNodes(ctxt: xmlExpCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlExpCtxtNbCons(ctxt: xmlExpCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlExpCtxtNbCons(ctxt: xmlExpCtxtPtr) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2726,40 +2701,37 @@ extern "C" {
   pub static mut emptyExp: xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpFree(ctxt: xmlExpCtxtPtr, expr: xmlExpNodePtr);
+  pub fn xmlExpFree(ctxt: xmlExpCtxtPtr, expr: xmlExpNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlExpRef(expr: xmlExpNodePtr);
+  pub fn xmlExpRef(expr: xmlExpNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlExpParse(
-    ctxt: xmlExpCtxtPtr,
-    expr: *const ::std::os::raw::c_char,
-  ) -> xmlExpNodePtr;
+  pub fn xmlExpParse(ctxt: xmlExpCtxtPtr, expr: *const ::std::os::raw::c_char) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpNewAtom(
+  pub fn xmlExpNewAtom(
     ctxt: xmlExpCtxtPtr,
     name: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpNewOr(
+  pub fn xmlExpNewOr(
     ctxt: xmlExpCtxtPtr,
     left: xmlExpNodePtr,
     right: xmlExpNodePtr,
   ) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpNewSeq(
+  pub fn xmlExpNewSeq(
     ctxt: xmlExpCtxtPtr,
     left: xmlExpNodePtr,
     right: xmlExpNodePtr,
   ) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpNewRange(
+  pub fn xmlExpNewRange(
     ctxt: xmlExpCtxtPtr,
     subset: xmlExpNodePtr,
     min: ::std::os::raw::c_int,
@@ -2767,13 +2739,13 @@ extern "C" {
   ) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpIsNillable(expr: xmlExpNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlExpIsNillable(expr: xmlExpNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlExpMaxToken(expr: xmlExpNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlExpMaxToken(expr: xmlExpNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlExpGetLanguage(
+  pub fn xmlExpGetLanguage(
     ctxt: xmlExpCtxtPtr,
     expr: xmlExpNodePtr,
     langList: *mut *const xmlChar,
@@ -2781,7 +2753,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlExpGetStart(
+  pub fn xmlExpGetStart(
     ctxt: xmlExpCtxtPtr,
     expr: xmlExpNodePtr,
     tokList: *mut *const xmlChar,
@@ -2789,7 +2761,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlExpStringDerive(
+  pub fn xmlExpStringDerive(
     ctxt: xmlExpCtxtPtr,
     expr: xmlExpNodePtr,
     str: *const xmlChar,
@@ -2797,21 +2769,21 @@ extern "C" {
   ) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpExpDerive(
+  pub fn xmlExpExpDerive(
     ctxt: xmlExpCtxtPtr,
     expr: xmlExpNodePtr,
     sub: xmlExpNodePtr,
   ) -> xmlExpNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlExpSubsume(
+  pub fn xmlExpSubsume(
     ctxt: xmlExpCtxtPtr,
     expr: xmlExpNodePtr,
     sub: xmlExpNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlExpDump(buf: xmlBufferPtr, expr: xmlExpNodePtr);
+  pub fn xmlExpDump(buf: xmlBufferPtr, expr: xmlExpNodePtr);
 }
 /// xmlElement:
 ///
@@ -4170,7 +4142,9 @@ fn bindgen_test_layout__xmlDOMWrapCtxt() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlDOMWrapCtxt>())).getNsForNodeFunc as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlDOMWrapCtxt>())).getNsForNodeFunc as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -4181,31 +4155,31 @@ fn bindgen_test_layout__xmlDOMWrapCtxt() {
   );
 }
 extern "C" {
-  pub(crate) fn xmlValidateNCName(
+  pub fn xmlValidateNCName(
     value: *const xmlChar,
     space: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateQName(
+  pub fn xmlValidateQName(
     value: *const xmlChar,
     space: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateName(
+  pub fn xmlValidateName(
     value: *const xmlChar,
     space: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNMToken(
+  pub fn xmlValidateNMToken(
     value: *const xmlChar,
     space: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBuildQName(
+  pub fn xmlBuildQName(
     ncname: *const xmlChar,
     prefix: *const xmlChar,
     memory: *mut xmlChar,
@@ -4213,96 +4187,81 @@ extern "C" {
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSplitQName2(name: *const xmlChar, prefix: *mut *mut xmlChar) -> *mut xmlChar;
+  pub fn xmlSplitQName2(name: *const xmlChar, prefix: *mut *mut xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSplitQName3(
-    name: *const xmlChar,
-    len: *mut ::std::os::raw::c_int,
-  ) -> *const xmlChar;
+  pub fn xmlSplitQName3(name: *const xmlChar, len: *mut ::std::os::raw::c_int) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSetBufferAllocationScheme(scheme: xmlBufferAllocationScheme);
+  pub fn xmlSetBufferAllocationScheme(scheme: xmlBufferAllocationScheme);
 }
 extern "C" {
-  pub(crate) fn xmlGetBufferAllocationScheme() -> xmlBufferAllocationScheme;
+  pub fn xmlGetBufferAllocationScheme() -> xmlBufferAllocationScheme;
 }
 extern "C" {
-  pub(crate) fn xmlBufferCreate() -> xmlBufferPtr;
+  pub fn xmlBufferCreate() -> xmlBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlBufferCreateSize(size: usize) -> xmlBufferPtr;
+  pub fn xmlBufferCreateSize(size: usize) -> xmlBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlBufferCreateStatic(
-    mem: *mut ::std::os::raw::c_void,
-    size: usize,
-  ) -> xmlBufferPtr;
+  pub fn xmlBufferCreateStatic(mem: *mut ::std::os::raw::c_void, size: usize) -> xmlBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlBufferResize(
-    buf: xmlBufferPtr,
-    size: ::std::os::raw::c_uint,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlBufferResize(buf: xmlBufferPtr, size: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferFree(buf: xmlBufferPtr);
+  pub fn xmlBufferFree(buf: xmlBufferPtr);
 }
 extern "C" {
-  pub(crate) fn xmlBufferDump(file: *mut FILE, buf: xmlBufferPtr) -> ::std::os::raw::c_int;
+  pub fn xmlBufferDump(file: *mut FILE, buf: xmlBufferPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferAdd(
+  pub fn xmlBufferAdd(
     buf: xmlBufferPtr,
     str: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferAddHead(
+  pub fn xmlBufferAddHead(
     buf: xmlBufferPtr,
     str: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferCat(buf: xmlBufferPtr, str: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlBufferCat(buf: xmlBufferPtr, str: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferCCat(
+  pub fn xmlBufferCCat(
     buf: xmlBufferPtr,
     str: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferShrink(
-    buf: xmlBufferPtr,
-    len: ::std::os::raw::c_uint,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlBufferShrink(buf: xmlBufferPtr, len: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferGrow(
-    buf: xmlBufferPtr,
-    len: ::std::os::raw::c_uint,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlBufferGrow(buf: xmlBufferPtr, len: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferEmpty(buf: xmlBufferPtr);
+  pub fn xmlBufferEmpty(buf: xmlBufferPtr);
 }
 extern "C" {
-  pub(crate) fn xmlBufferContent(buf: *const xmlBuffer) -> *const xmlChar;
+  pub fn xmlBufferContent(buf: *const xmlBuffer) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlBufferDetach(buf: xmlBufferPtr) -> *mut xmlChar;
+  pub fn xmlBufferDetach(buf: xmlBufferPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlBufferSetAllocationScheme(buf: xmlBufferPtr, scheme: xmlBufferAllocationScheme);
+  pub fn xmlBufferSetAllocationScheme(buf: xmlBufferPtr, scheme: xmlBufferAllocationScheme);
 }
 extern "C" {
-  pub(crate) fn xmlBufferLength(buf: *const xmlBuffer) -> ::std::os::raw::c_int;
+  pub fn xmlBufferLength(buf: *const xmlBuffer) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCreateIntSubset(
+  pub fn xmlCreateIntSubset(
     doc: xmlDocPtr,
     name: *const xmlChar,
     ExternalID: *const xmlChar,
@@ -4310,7 +4269,7 @@ extern "C" {
   ) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDtd(
+  pub fn xmlNewDtd(
     doc: xmlDocPtr,
     name: *const xmlChar,
     ExternalID: *const xmlChar,
@@ -4318,53 +4277,37 @@ extern "C" {
   ) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetIntSubset(doc: *const xmlDoc) -> xmlDtdPtr;
+  pub fn xmlGetIntSubset(doc: *const xmlDoc) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeDtd(cur: xmlDtdPtr);
+  pub fn xmlFreeDtd(cur: xmlDtdPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewGlobalNs(
-    doc: xmlDocPtr,
-    href: *const xmlChar,
-    prefix: *const xmlChar,
-  ) -> xmlNsPtr;
+  pub fn xmlNewGlobalNs(doc: xmlDocPtr, href: *const xmlChar, prefix: *const xmlChar) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewNs(
-    node: xmlNodePtr,
-    href: *const xmlChar,
-    prefix: *const xmlChar,
-  ) -> xmlNsPtr;
+  pub fn xmlNewNs(node: xmlNodePtr, href: *const xmlChar, prefix: *const xmlChar) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeNs(cur: xmlNsPtr);
+  pub fn xmlFreeNs(cur: xmlNsPtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreeNsList(cur: xmlNsPtr);
+  pub fn xmlFreeNsList(cur: xmlNsPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewDoc(version: *const xmlChar) -> xmlDocPtr;
+  pub fn xmlNewDoc(version: *const xmlChar) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeDoc(cur: xmlDocPtr);
+  pub fn xmlFreeDoc(cur: xmlDocPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewDocProp(
-    doc: xmlDocPtr,
-    name: *const xmlChar,
-    value: *const xmlChar,
-  ) -> xmlAttrPtr;
+  pub fn xmlNewDocProp(doc: xmlDocPtr, name: *const xmlChar, value: *const xmlChar) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewProp(
-    node: xmlNodePtr,
-    name: *const xmlChar,
-    value: *const xmlChar,
-  ) -> xmlAttrPtr;
+  pub fn xmlNewProp(node: xmlNodePtr, name: *const xmlChar, value: *const xmlChar) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewNsProp(
+  pub fn xmlNewNsProp(
     node: xmlNodePtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
@@ -4372,7 +4315,7 @@ extern "C" {
   ) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewNsPropEatName(
+  pub fn xmlNewNsPropEatName(
     node: xmlNodePtr,
     ns: xmlNsPtr,
     name: *mut xmlChar,
@@ -4380,25 +4323,25 @@ extern "C" {
   ) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreePropList(cur: xmlAttrPtr);
+  pub fn xmlFreePropList(cur: xmlAttrPtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreeProp(cur: xmlAttrPtr);
+  pub fn xmlFreeProp(cur: xmlAttrPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCopyProp(target: xmlNodePtr, cur: xmlAttrPtr) -> xmlAttrPtr;
+  pub fn xmlCopyProp(target: xmlNodePtr, cur: xmlAttrPtr) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyPropList(target: xmlNodePtr, cur: xmlAttrPtr) -> xmlAttrPtr;
+  pub fn xmlCopyPropList(target: xmlNodePtr, cur: xmlAttrPtr) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyDtd(dtd: xmlDtdPtr) -> xmlDtdPtr;
+  pub fn xmlCopyDtd(dtd: xmlDtdPtr) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyDoc(doc: xmlDocPtr, recursive: ::std::os::raw::c_int) -> xmlDocPtr;
+  pub fn xmlCopyDoc(doc: xmlDocPtr, recursive: ::std::os::raw::c_int) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocNode(
+  pub fn xmlNewDocNode(
     doc: xmlDocPtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
@@ -4406,7 +4349,7 @@ extern "C" {
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocNodeEatName(
+  pub fn xmlNewDocNodeEatName(
     doc: xmlDocPtr,
     ns: xmlNsPtr,
     name: *mut xmlChar,
@@ -4414,13 +4357,13 @@ extern "C" {
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewNode(ns: xmlNsPtr, name: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewNode(ns: xmlNsPtr, name: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewNodeEatName(ns: xmlNsPtr, name: *mut xmlChar) -> xmlNodePtr;
+  pub fn xmlNewNodeEatName(ns: xmlNsPtr, name: *mut xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewChild(
+  pub fn xmlNewChild(
     parent: xmlNodePtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
@@ -4428,68 +4371,64 @@ extern "C" {
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocText(doc: *const xmlDoc, content: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewDocText(doc: *const xmlDoc, content: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewText(content: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewText(content: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocPI(
-    doc: xmlDocPtr,
-    name: *const xmlChar,
-    content: *const xmlChar,
-  ) -> xmlNodePtr;
+  pub fn xmlNewDocPI(doc: xmlDocPtr, name: *const xmlChar, content: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewPI(name: *const xmlChar, content: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewPI(name: *const xmlChar, content: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocTextLen(
+  pub fn xmlNewDocTextLen(
     doc: xmlDocPtr,
     content: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextLen(content: *const xmlChar, len: ::std::os::raw::c_int) -> xmlNodePtr;
+  pub fn xmlNewTextLen(content: *const xmlChar, len: ::std::os::raw::c_int) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocComment(doc: xmlDocPtr, content: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewDocComment(doc: xmlDocPtr, content: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewComment(content: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewComment(content: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewCDataBlock(
+  pub fn xmlNewCDataBlock(
     doc: xmlDocPtr,
     content: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewCharRef(doc: xmlDocPtr, name: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewCharRef(doc: xmlDocPtr, name: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewReference(doc: *const xmlDoc, name: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlNewReference(doc: *const xmlDoc, name: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyNode(node: xmlNodePtr, recursive: ::std::os::raw::c_int) -> xmlNodePtr;
+  pub fn xmlCopyNode(node: xmlNodePtr, recursive: ::std::os::raw::c_int) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlDocCopyNode(
+  pub fn xmlDocCopyNode(
     node: xmlNodePtr,
     doc: xmlDocPtr,
     recursive: ::std::os::raw::c_int,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlDocCopyNodeList(doc: xmlDocPtr, node: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlDocCopyNodeList(doc: xmlDocPtr, node: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyNodeList(node: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlCopyNodeList(node: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextChild(
+  pub fn xmlNewTextChild(
     parent: xmlNodePtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
@@ -4497,7 +4436,7 @@ extern "C" {
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocRawNode(
+  pub fn xmlNewDocRawNode(
     doc: xmlDocPtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
@@ -4505,110 +4444,98 @@ extern "C" {
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewDocFragment(doc: xmlDocPtr) -> xmlNodePtr;
+  pub fn xmlNewDocFragment(doc: xmlDocPtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetLineNo(node: *const xmlNode) -> ::std::os::raw::c_long;
+  pub fn xmlGetLineNo(node: *const xmlNode) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn xmlGetNodePath(node: *const xmlNode) -> *mut xmlChar;
+  pub fn xmlGetNodePath(node: *const xmlNode) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlDocGetRootElement(doc: *const xmlDoc) -> xmlNodePtr;
+  pub fn xmlDocGetRootElement(doc: *const xmlDoc) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetLastChild(parent: *const xmlNode) -> xmlNodePtr;
+  pub fn xmlGetLastChild(parent: *const xmlNode) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNodeIsText(node: *const xmlNode) -> ::std::os::raw::c_int;
+  pub fn xmlNodeIsText(node: *const xmlNode) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsBlankNode(node: *const xmlNode) -> ::std::os::raw::c_int;
+  pub fn xmlIsBlankNode(node: *const xmlNode) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDocSetRootElement(doc: xmlDocPtr, root: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlDocSetRootElement(doc: xmlDocPtr, root: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNodeSetName(cur: xmlNodePtr, name: *const xmlChar);
+  pub fn xmlNodeSetName(cur: xmlNodePtr, name: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlAddChild(parent: xmlNodePtr, cur: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlAddChild(parent: xmlNodePtr, cur: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddChildList(parent: xmlNodePtr, cur: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlAddChildList(parent: xmlNodePtr, cur: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlReplaceNode(old: xmlNodePtr, cur: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlReplaceNode(old: xmlNodePtr, cur: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddPrevSibling(cur: xmlNodePtr, elem: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlAddPrevSibling(cur: xmlNodePtr, elem: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddSibling(cur: xmlNodePtr, elem: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlAddSibling(cur: xmlNodePtr, elem: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddNextSibling(cur: xmlNodePtr, elem: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlAddNextSibling(cur: xmlNodePtr, elem: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlUnlinkNode(cur: xmlNodePtr);
+  pub fn xmlUnlinkNode(cur: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlTextMerge(first: xmlNodePtr, second: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlTextMerge(first: xmlNodePtr, second: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlTextConcat(
+  pub fn xmlTextConcat(
     node: xmlNodePtr,
     content: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlFreeNodeList(cur: xmlNodePtr);
+  pub fn xmlFreeNodeList(cur: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreeNode(cur: xmlNodePtr);
+  pub fn xmlFreeNode(cur: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlSetTreeDoc(tree: xmlNodePtr, doc: xmlDocPtr);
+  pub fn xmlSetTreeDoc(tree: xmlNodePtr, doc: xmlDocPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSetListDoc(list: xmlNodePtr, doc: xmlDocPtr);
+  pub fn xmlSetListDoc(list: xmlNodePtr, doc: xmlDocPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSearchNs(
-    doc: xmlDocPtr,
-    node: xmlNodePtr,
-    nameSpace: *const xmlChar,
-  ) -> xmlNsPtr;
+  pub fn xmlSearchNs(doc: xmlDocPtr, node: xmlNodePtr, nameSpace: *const xmlChar) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSearchNsByHref(
-    doc: xmlDocPtr,
-    node: xmlNodePtr,
-    href: *const xmlChar,
-  ) -> xmlNsPtr;
+  pub fn xmlSearchNsByHref(doc: xmlDocPtr, node: xmlNodePtr, href: *const xmlChar) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetNsList(doc: *const xmlDoc, node: *const xmlNode) -> *mut xmlNsPtr;
+  pub fn xmlGetNsList(doc: *const xmlDoc, node: *const xmlNode) -> *mut xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSetNs(node: xmlNodePtr, ns: xmlNsPtr);
+  pub fn xmlSetNs(node: xmlNodePtr, ns: xmlNsPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCopyNamespace(cur: xmlNsPtr) -> xmlNsPtr;
+  pub fn xmlCopyNamespace(cur: xmlNsPtr) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyNamespaceList(cur: xmlNsPtr) -> xmlNsPtr;
+  pub fn xmlCopyNamespaceList(cur: xmlNsPtr) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSetProp(
-    node: xmlNodePtr,
-    name: *const xmlChar,
-    value: *const xmlChar,
-  ) -> xmlAttrPtr;
+  pub fn xmlSetProp(node: xmlNodePtr, name: *const xmlChar, value: *const xmlChar) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSetNsProp(
+  pub fn xmlSetNsProp(
     node: xmlNodePtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
@@ -4616,126 +4543,115 @@ extern "C" {
   ) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetNoNsProp(node: *const xmlNode, name: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlGetNoNsProp(node: *const xmlNode, name: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlGetProp(node: *const xmlNode, name: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlGetProp(node: *const xmlNode, name: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlHasProp(node: *const xmlNode, name: *const xmlChar) -> xmlAttrPtr;
+  pub fn xmlHasProp(node: *const xmlNode, name: *const xmlChar) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlHasNsProp(
+  pub fn xmlHasNsProp(
     node: *const xmlNode,
     name: *const xmlChar,
     nameSpace: *const xmlChar,
   ) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetNsProp(
+  pub fn xmlGetNsProp(
     node: *const xmlNode,
     name: *const xmlChar,
     nameSpace: *const xmlChar,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStringGetNodeList(doc: *const xmlDoc, value: *const xmlChar) -> xmlNodePtr;
+  pub fn xmlStringGetNodeList(doc: *const xmlDoc, value: *const xmlChar) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlStringLenGetNodeList(
+  pub fn xmlStringLenGetNodeList(
     doc: *const xmlDoc,
     value: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlNodeListGetString(
+  pub fn xmlNodeListGetString(
     doc: xmlDocPtr,
     list: *const xmlNode,
     inLine: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlNodeListGetRawString(
+  pub fn xmlNodeListGetRawString(
     doc: *const xmlDoc,
     list: *const xmlNode,
     inLine: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlNodeSetContent(cur: xmlNodePtr, content: *const xmlChar);
+  pub fn xmlNodeSetContent(cur: xmlNodePtr, content: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlNodeSetContentLen(
-    cur: xmlNodePtr,
-    content: *const xmlChar,
-    len: ::std::os::raw::c_int,
-  );
+  pub fn xmlNodeSetContentLen(cur: xmlNodePtr, content: *const xmlChar, len: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlNodeAddContent(cur: xmlNodePtr, content: *const xmlChar);
+  pub fn xmlNodeAddContent(cur: xmlNodePtr, content: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlNodeAddContentLen(
-    cur: xmlNodePtr,
-    content: *const xmlChar,
-    len: ::std::os::raw::c_int,
-  );
+  pub fn xmlNodeAddContentLen(cur: xmlNodePtr, content: *const xmlChar, len: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlNodeGetContent(cur: *const xmlNode) -> *mut xmlChar;
+  pub fn xmlNodeGetContent(cur: *const xmlNode) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlNodeBufGetContent(
-    buffer: xmlBufferPtr,
-    cur: *const xmlNode,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlNodeBufGetContent(buffer: xmlBufferPtr, cur: *const xmlNode) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufGetNodeContent(buf: xmlBufPtr, cur: *const xmlNode) -> ::std::os::raw::c_int;
+  pub fn xmlBufGetNodeContent(buf: xmlBufPtr, cur: *const xmlNode) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNodeGetLang(cur: *const xmlNode) -> *mut xmlChar;
+  pub fn xmlNodeGetLang(cur: *const xmlNode) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlNodeGetSpacePreserve(cur: *const xmlNode) -> ::std::os::raw::c_int;
+  pub fn xmlNodeGetSpacePreserve(cur: *const xmlNode) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNodeSetLang(cur: xmlNodePtr, lang: *const xmlChar);
+  pub fn xmlNodeSetLang(cur: xmlNodePtr, lang: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlNodeSetSpacePreserve(cur: xmlNodePtr, val: ::std::os::raw::c_int);
+  pub fn xmlNodeSetSpacePreserve(cur: xmlNodePtr, val: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlNodeGetBase(doc: *const xmlDoc, cur: *const xmlNode) -> *mut xmlChar;
+  pub fn xmlNodeGetBase(doc: *const xmlDoc, cur: *const xmlNode) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlNodeSetBase(cur: xmlNodePtr, uri: *const xmlChar);
+  pub fn xmlNodeSetBase(cur: xmlNodePtr, uri: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlRemoveProp(cur: xmlAttrPtr) -> ::std::os::raw::c_int;
+  pub fn xmlRemoveProp(cur: xmlAttrPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUnsetNsProp(
+  pub fn xmlUnsetNsProp(
     node: xmlNodePtr,
     ns: xmlNsPtr,
     name: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUnsetProp(node: xmlNodePtr, name: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlUnsetProp(node: xmlNodePtr, name: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufferWriteCHAR(buf: xmlBufferPtr, string: *const xmlChar);
+  pub fn xmlBufferWriteCHAR(buf: xmlBufferPtr, string: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlBufferWriteChar(buf: xmlBufferPtr, string: *const ::std::os::raw::c_char);
+  pub fn xmlBufferWriteChar(buf: xmlBufferPtr, string: *const ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn xmlBufferWriteQuotedString(buf: xmlBufferPtr, string: *const xmlChar);
+  pub fn xmlBufferWriteQuotedString(buf: xmlBufferPtr, string: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlAttrSerializeTxtContent(
+  pub fn xmlAttrSerializeTxtContent(
     buf: xmlBufferPtr,
     doc: xmlDocPtr,
     attr: xmlAttrPtr,
@@ -4743,10 +4659,10 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlReconciliateNs(doc: xmlDocPtr, tree: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlReconciliateNs(doc: xmlDocPtr, tree: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDocDumpFormatMemory(
+  pub fn xmlDocDumpFormatMemory(
     cur: xmlDocPtr,
     mem: *mut *mut xmlChar,
     size: *mut ::std::os::raw::c_int,
@@ -4754,14 +4670,10 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlDocDumpMemory(
-    cur: xmlDocPtr,
-    mem: *mut *mut xmlChar,
-    size: *mut ::std::os::raw::c_int,
-  );
+  pub fn xmlDocDumpMemory(cur: xmlDocPtr, mem: *mut *mut xmlChar, size: *mut ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDocDumpMemoryEnc(
+  pub fn xmlDocDumpMemoryEnc(
     out_doc: xmlDocPtr,
     doc_txt_ptr: *mut *mut xmlChar,
     doc_txt_len: *mut ::std::os::raw::c_int,
@@ -4769,7 +4681,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlDocDumpFormatMemoryEnc(
+  pub fn xmlDocDumpFormatMemoryEnc(
     out_doc: xmlDocPtr,
     doc_txt_ptr: *mut *mut xmlChar,
     doc_txt_len: *mut ::std::os::raw::c_int,
@@ -4778,33 +4690,33 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlDocFormatDump(
+  pub fn xmlDocFormatDump(
     f: *mut FILE,
     cur: xmlDocPtr,
     format: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDocDump(f: *mut FILE, cur: xmlDocPtr) -> ::std::os::raw::c_int;
+  pub fn xmlDocDump(f: *mut FILE, cur: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlElemDump(f: *mut FILE, doc: xmlDocPtr, cur: xmlNodePtr);
+  pub fn xmlElemDump(f: *mut FILE, doc: xmlDocPtr, cur: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlSaveFile(
+  pub fn xmlSaveFile(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveFormatFile(
+  pub fn xmlSaveFormatFile(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
     format: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBufNodeDump(
+  pub fn xmlBufNodeDump(
     buf: xmlBufPtr,
     doc: xmlDocPtr,
     cur: xmlNodePtr,
@@ -4813,7 +4725,7 @@ extern "C" {
   ) -> usize;
 }
 extern "C" {
-  pub(crate) fn xmlNodeDump(
+  pub fn xmlNodeDump(
     buf: xmlBufferPtr,
     doc: xmlDocPtr,
     cur: xmlNodePtr,
@@ -4822,14 +4734,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveFileTo(
+  pub fn xmlSaveFileTo(
     buf: xmlOutputBufferPtr,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveFormatFileTo(
+  pub fn xmlSaveFormatFileTo(
     buf: xmlOutputBufferPtr,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
@@ -4837,7 +4749,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNodeDumpOutput(
+  pub fn xmlNodeDumpOutput(
     buf: xmlOutputBufferPtr,
     doc: xmlDocPtr,
     cur: xmlNodePtr,
@@ -4847,7 +4759,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSaveFormatFileEnc(
+  pub fn xmlSaveFormatFileEnc(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
@@ -4855,45 +4767,42 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveFileEnc(
+  pub fn xmlSaveFileEnc(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsXHTML(
-    systemID: *const xmlChar,
-    publicID: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlIsXHTML(systemID: *const xmlChar, publicID: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGetDocCompressMode(doc: *const xmlDoc) -> ::std::os::raw::c_int;
+  pub fn xmlGetDocCompressMode(doc: *const xmlDoc) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSetDocCompressMode(doc: xmlDocPtr, mode: ::std::os::raw::c_int);
+  pub fn xmlSetDocCompressMode(doc: xmlDocPtr, mode: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlGetCompressMode() -> ::std::os::raw::c_int;
+  pub fn xmlGetCompressMode() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSetCompressMode(mode: ::std::os::raw::c_int);
+  pub fn xmlSetCompressMode(mode: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDOMWrapNewCtxt() -> xmlDOMWrapCtxtPtr;
+  pub fn xmlDOMWrapNewCtxt() -> xmlDOMWrapCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlDOMWrapFreeCtxt(ctxt: xmlDOMWrapCtxtPtr);
+  pub fn xmlDOMWrapFreeCtxt(ctxt: xmlDOMWrapCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlDOMWrapReconcileNamespaces(
+  pub fn xmlDOMWrapReconcileNamespaces(
     ctxt: xmlDOMWrapCtxtPtr,
     elem: xmlNodePtr,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDOMWrapAdoptNode(
+  pub fn xmlDOMWrapAdoptNode(
     ctxt: xmlDOMWrapCtxtPtr,
     sourceDoc: xmlDocPtr,
     node: xmlNodePtr,
@@ -4903,7 +4812,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDOMWrapRemoveNode(
+  pub fn xmlDOMWrapRemoveNode(
     ctxt: xmlDOMWrapCtxtPtr,
     doc: xmlDocPtr,
     node: xmlNodePtr,
@@ -4911,7 +4820,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDOMWrapCloneNode(
+  pub fn xmlDOMWrapCloneNode(
     ctxt: xmlDOMWrapCtxtPtr,
     sourceDoc: xmlDocPtr,
     node: xmlNodePtr,
@@ -4923,19 +4832,19 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlChildElementCount(parent: xmlNodePtr) -> ::std::os::raw::c_ulong;
+  pub fn xmlChildElementCount(parent: xmlNodePtr) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
-  pub(crate) fn xmlNextElementSibling(node: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlNextElementSibling(node: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlFirstElementChild(parent: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlFirstElementChild(parent: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlLastElementChild(parent: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlLastElementChild(parent: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlPreviousElementSibling(node: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlPreviousElementSibling(node: xmlNodePtr) -> xmlNodePtr;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -4994,24 +4903,23 @@ pub type xmlHashScannerFull = ::std::option::Option<
   ),
 >;
 extern "C" {
-  pub(crate) fn xmlHashCreate(size: ::std::os::raw::c_int) -> xmlHashTablePtr;
+  pub fn xmlHashCreate(size: ::std::os::raw::c_int) -> xmlHashTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlHashCreateDict(size: ::std::os::raw::c_int, dict: xmlDictPtr)
-    -> xmlHashTablePtr;
+  pub fn xmlHashCreateDict(size: ::std::os::raw::c_int, dict: xmlDictPtr) -> xmlHashTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlHashFree(table: xmlHashTablePtr, f: xmlHashDeallocator);
+  pub fn xmlHashFree(table: xmlHashTablePtr, f: xmlHashDeallocator);
 }
 extern "C" {
-  pub(crate) fn xmlHashAddEntry(
+  pub fn xmlHashAddEntry(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     userdata: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashUpdateEntry(
+  pub fn xmlHashUpdateEntry(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     userdata: *mut ::std::os::raw::c_void,
@@ -5019,7 +4927,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashAddEntry2(
+  pub fn xmlHashAddEntry2(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -5027,7 +4935,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashUpdateEntry2(
+  pub fn xmlHashUpdateEntry2(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -5036,33 +4944,33 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashAddEntry3(
-    table: xmlHashTablePtr,
-    name: *const xmlChar,
-    name2: *const xmlChar,
-    name3: *const xmlChar,
-    userdata: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlHashUpdateEntry3(
+  pub fn xmlHashAddEntry3(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
     name3: *const xmlChar,
     userdata: *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlHashUpdateEntry3(
+    table: xmlHashTablePtr,
+    name: *const xmlChar,
+    name2: *const xmlChar,
+    name3: *const xmlChar,
+    userdata: *mut ::std::os::raw::c_void,
     f: xmlHashDeallocator,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashRemoveEntry(
+  pub fn xmlHashRemoveEntry(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     f: xmlHashDeallocator,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashRemoveEntry2(
+  pub fn xmlHashRemoveEntry2(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -5070,7 +4978,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashRemoveEntry3(
+  pub fn xmlHashRemoveEntry3(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -5079,20 +4987,18 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashLookup(
+  pub fn xmlHashLookup(table: xmlHashTablePtr, name: *const xmlChar)
+    -> *mut ::std::os::raw::c_void;
+}
+extern "C" {
+  pub fn xmlHashLookup2(
     table: xmlHashTablePtr,
     name: *const xmlChar,
+    name2: *const xmlChar,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlHashLookup2(
-    table: xmlHashTablePtr,
-    name: *const xmlChar,
-    name2: *const xmlChar,
-  ) -> *mut ::std::os::raw::c_void;
-}
-extern "C" {
-  pub(crate) fn xmlHashLookup3(
+  pub fn xmlHashLookup3(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -5100,14 +5006,14 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlHashQLookup(
+  pub fn xmlHashQLookup(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     prefix: *const xmlChar,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlHashQLookup2(
+  pub fn xmlHashQLookup2(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     prefix: *const xmlChar,
@@ -5116,7 +5022,7 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlHashQLookup3(
+  pub fn xmlHashQLookup3(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     prefix: *const xmlChar,
@@ -5127,20 +5033,16 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlHashCopy(table: xmlHashTablePtr, f: xmlHashCopier) -> xmlHashTablePtr;
+  pub fn xmlHashCopy(table: xmlHashTablePtr, f: xmlHashCopier) -> xmlHashTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlHashSize(table: xmlHashTablePtr) -> ::std::os::raw::c_int;
+  pub fn xmlHashSize(table: xmlHashTablePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlHashScan(
-    table: xmlHashTablePtr,
-    f: xmlHashScanner,
-    data: *mut ::std::os::raw::c_void,
-  );
+  pub fn xmlHashScan(table: xmlHashTablePtr, f: xmlHashScanner, data: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlHashScan3(
+  pub fn xmlHashScan3(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -5150,14 +5052,14 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlHashScanFull(
+  pub fn xmlHashScanFull(
     table: xmlHashTablePtr,
     f: xmlHashScannerFull,
     data: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlHashScanFull3(
+  pub fn xmlHashScanFull3(
     table: xmlHashTablePtr,
     name: *const xmlChar,
     name2: *const xmlChar,
@@ -6128,74 +6030,68 @@ pub type xmlGenericErrorFunc = ::std::option::Option<
 ///
 /// Signature of the function to use when there is an error and
 /// the module handles the new error reporting mechanism.
-pub type xmlStructuredErrorFunc =
-  ::std::option::Option<unsafe fn(userData: *mut ::std::os::raw::c_void, error: xmlErrorPtr)>;
+pub type xmlStructuredErrorFunc = ::std::option::Option<
+  unsafe fn(userData: *mut ::std::os::raw::c_void, error: xmlErrorPtr),
+>;
 extern "C" {
-  pub(crate) fn xmlSetGenericErrorFunc(
-    ctx: *mut ::std::os::raw::c_void,
-    handler: xmlGenericErrorFunc,
-  );
+  pub fn xmlSetGenericErrorFunc(ctx: *mut ::std::os::raw::c_void, handler: xmlGenericErrorFunc);
 }
 extern "C" {
-  pub(crate) fn initGenericErrorDefaultFunc(handler: *mut xmlGenericErrorFunc);
+  pub fn initGenericErrorDefaultFunc(handler: *mut xmlGenericErrorFunc);
 }
 extern "C" {
-  pub(crate) fn xmlSetStructuredErrorFunc(
+  pub fn xmlSetStructuredErrorFunc(
     ctx: *mut ::std::os::raw::c_void,
     handler: xmlStructuredErrorFunc,
   );
 }
 extern "C" {
-  pub(crate) fn xmlParserError(
+  pub fn xmlParserError(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...);
+}
+extern "C" {
+  pub fn xmlParserWarning(
     ctx: *mut ::std::os::raw::c_void,
     msg: *const ::std::os::raw::c_char,
     ...
   );
 }
 extern "C" {
-  pub(crate) fn xmlParserWarning(
+  pub fn xmlParserValidityError(
     ctx: *mut ::std::os::raw::c_void,
     msg: *const ::std::os::raw::c_char,
     ...
   );
 }
 extern "C" {
-  pub(crate) fn xmlParserValidityError(
+  pub fn xmlParserValidityWarning(
     ctx: *mut ::std::os::raw::c_void,
     msg: *const ::std::os::raw::c_char,
     ...
   );
 }
 extern "C" {
-  pub(crate) fn xmlParserValidityWarning(
-    ctx: *mut ::std::os::raw::c_void,
-    msg: *const ::std::os::raw::c_char,
-    ...
-  );
+  pub fn xmlParserPrintFileInfo(input: xmlParserInputPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParserPrintFileInfo(input: xmlParserInputPtr);
+  pub fn xmlParserPrintFileContext(input: xmlParserInputPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParserPrintFileContext(input: xmlParserInputPtr);
+  pub fn xmlGetLastError() -> xmlErrorPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetLastError() -> xmlErrorPtr;
+  pub fn xmlResetLastError();
 }
 extern "C" {
-  pub(crate) fn xmlResetLastError();
+  pub fn xmlCtxtGetLastError(ctx: *mut ::std::os::raw::c_void) -> xmlErrorPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtGetLastError(ctx: *mut ::std::os::raw::c_void) -> xmlErrorPtr;
+  pub fn xmlCtxtResetLastError(ctx: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlCtxtResetLastError(ctx: *mut ::std::os::raw::c_void);
+  pub fn xmlResetError(err: xmlErrorPtr);
 }
 extern "C" {
-  pub(crate) fn xmlResetError(err: xmlErrorPtr);
-}
-extern "C" {
-  pub(crate) fn xmlCopyError(from: xmlErrorPtr, to: xmlErrorPtr) -> ::std::os::raw::c_int;
+  pub fn xmlCopyError(from: xmlErrorPtr, to: xmlErrorPtr) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6239,120 +6135,105 @@ pub type xmlListWalker = ::std::option::Option<
     -> ::std::os::raw::c_int,
 >;
 extern "C" {
-  pub(crate) fn xmlListCreate(
-    deallocator: xmlListDeallocator,
-    compare: xmlListDataCompare,
-  ) -> xmlListPtr;
+  pub fn xmlListCreate(deallocator: xmlListDeallocator, compare: xmlListDataCompare) -> xmlListPtr;
 }
 extern "C" {
-  pub(crate) fn xmlListDelete(l: xmlListPtr);
+  pub fn xmlListDelete(l: xmlListPtr);
 }
 extern "C" {
-  pub(crate) fn xmlListSearch(
+  pub fn xmlListSearch(
     l: xmlListPtr,
     data: *mut ::std::os::raw::c_void,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlListReverseSearch(
+  pub fn xmlListReverseSearch(
     l: xmlListPtr,
     data: *mut ::std::os::raw::c_void,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlListInsert(
+  pub fn xmlListInsert(l: xmlListPtr, data: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlListAppend(l: xmlListPtr, data: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlListRemoveFirst(
     l: xmlListPtr,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlListAppend(
+  pub fn xmlListRemoveLast(
     l: xmlListPtr,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlListRemoveFirst(
+  pub fn xmlListRemoveAll(
     l: xmlListPtr,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlListRemoveLast(
+  pub fn xmlListClear(l: xmlListPtr);
+}
+extern "C" {
+  pub fn xmlListEmpty(l: xmlListPtr) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlListFront(l: xmlListPtr) -> xmlLinkPtr;
+}
+extern "C" {
+  pub fn xmlListEnd(l: xmlListPtr) -> xmlLinkPtr;
+}
+extern "C" {
+  pub fn xmlListSize(l: xmlListPtr) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlListPopFront(l: xmlListPtr);
+}
+extern "C" {
+  pub fn xmlListPopBack(l: xmlListPtr);
+}
+extern "C" {
+  pub fn xmlListPushFront(
     l: xmlListPtr,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlListRemoveAll(
-    l: xmlListPtr,
-    data: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlListPushBack(l: xmlListPtr, data: *mut ::std::os::raw::c_void)
+    -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlListClear(l: xmlListPtr);
+  pub fn xmlListReverse(l: xmlListPtr);
 }
 extern "C" {
-  pub(crate) fn xmlListEmpty(l: xmlListPtr) -> ::std::os::raw::c_int;
+  pub fn xmlListSort(l: xmlListPtr);
 }
 extern "C" {
-  pub(crate) fn xmlListFront(l: xmlListPtr) -> xmlLinkPtr;
+  pub fn xmlListWalk(l: xmlListPtr, walker: xmlListWalker, user: *const ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlListEnd(l: xmlListPtr) -> xmlLinkPtr;
-}
-extern "C" {
-  pub(crate) fn xmlListSize(l: xmlListPtr) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlListPopFront(l: xmlListPtr);
-}
-extern "C" {
-  pub(crate) fn xmlListPopBack(l: xmlListPtr);
-}
-extern "C" {
-  pub(crate) fn xmlListPushFront(
-    l: xmlListPtr,
-    data: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlListPushBack(
-    l: xmlListPtr,
-    data: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlListReverse(l: xmlListPtr);
-}
-extern "C" {
-  pub(crate) fn xmlListSort(l: xmlListPtr);
-}
-extern "C" {
-  pub(crate) fn xmlListWalk(
+  pub fn xmlListReverseWalk(
     l: xmlListPtr,
     walker: xmlListWalker,
     user: *const ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlListReverseWalk(
-    l: xmlListPtr,
-    walker: xmlListWalker,
-    user: *const ::std::os::raw::c_void,
-  );
+  pub fn xmlListMerge(l1: xmlListPtr, l2: xmlListPtr);
 }
 extern "C" {
-  pub(crate) fn xmlListMerge(l1: xmlListPtr, l2: xmlListPtr);
+  pub fn xmlListDup(old: xmlListPtr) -> xmlListPtr;
 }
 extern "C" {
-  pub(crate) fn xmlListDup(old: xmlListPtr) -> xmlListPtr;
+  pub fn xmlListCopy(cur: xmlListPtr, old: xmlListPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlListCopy(cur: xmlListPtr, old: xmlListPtr) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlLinkGetData(lk: xmlLinkPtr) -> *mut ::std::os::raw::c_void;
+  pub fn xmlLinkGetData(lk: xmlLinkPtr) -> *mut ::std::os::raw::c_void;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6375,25 +6256,25 @@ pub struct _xmlAutomataState {
 pub type xmlAutomataState = _xmlAutomataState;
 pub type xmlAutomataStatePtr = *mut xmlAutomataState;
 extern "C" {
-  pub(crate) fn xmlNewAutomata() -> xmlAutomataPtr;
+  pub fn xmlNewAutomata() -> xmlAutomataPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeAutomata(am: xmlAutomataPtr);
+  pub fn xmlFreeAutomata(am: xmlAutomataPtr);
 }
 extern "C" {
-  pub(crate) fn xmlAutomataGetInitState(am: xmlAutomataPtr) -> xmlAutomataStatePtr;
+  pub fn xmlAutomataGetInitState(am: xmlAutomataPtr) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataSetFinalState(
+  pub fn xmlAutomataSetFinalState(
     am: xmlAutomataPtr,
     state: xmlAutomataStatePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewState(am: xmlAutomataPtr) -> xmlAutomataStatePtr;
+  pub fn xmlAutomataNewState(am: xmlAutomataPtr) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewTransition(
+  pub fn xmlAutomataNewTransition(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
@@ -6402,17 +6283,7 @@ extern "C" {
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewTransition2(
-    am: xmlAutomataPtr,
-    from: xmlAutomataStatePtr,
-    to: xmlAutomataStatePtr,
-    token: *const xmlChar,
-    token2: *const xmlChar,
-    data: *mut ::std::os::raw::c_void,
-  ) -> xmlAutomataStatePtr;
-}
-extern "C" {
-  pub(crate) fn xmlAutomataNewNegTrans(
+  pub fn xmlAutomataNewTransition2(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
@@ -6422,7 +6293,17 @@ extern "C" {
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewCountTrans(
+  pub fn xmlAutomataNewNegTrans(
+    am: xmlAutomataPtr,
+    from: xmlAutomataStatePtr,
+    to: xmlAutomataStatePtr,
+    token: *const xmlChar,
+    token2: *const xmlChar,
+    data: *mut ::std::os::raw::c_void,
+  ) -> xmlAutomataStatePtr;
+}
+extern "C" {
+  pub fn xmlAutomataNewCountTrans(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
@@ -6433,30 +6314,7 @@ extern "C" {
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewCountTrans2(
-    am: xmlAutomataPtr,
-    from: xmlAutomataStatePtr,
-    to: xmlAutomataStatePtr,
-    token: *const xmlChar,
-    token2: *const xmlChar,
-    min: ::std::os::raw::c_int,
-    max: ::std::os::raw::c_int,
-    data: *mut ::std::os::raw::c_void,
-  ) -> xmlAutomataStatePtr;
-}
-extern "C" {
-  pub(crate) fn xmlAutomataNewOnceTrans(
-    am: xmlAutomataPtr,
-    from: xmlAutomataStatePtr,
-    to: xmlAutomataStatePtr,
-    token: *const xmlChar,
-    min: ::std::os::raw::c_int,
-    max: ::std::os::raw::c_int,
-    data: *mut ::std::os::raw::c_void,
-  ) -> xmlAutomataStatePtr;
-}
-extern "C" {
-  pub(crate) fn xmlAutomataNewOnceTrans2(
+  pub fn xmlAutomataNewCountTrans2(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
@@ -6468,7 +6326,30 @@ extern "C" {
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewAllTrans(
+  pub fn xmlAutomataNewOnceTrans(
+    am: xmlAutomataPtr,
+    from: xmlAutomataStatePtr,
+    to: xmlAutomataStatePtr,
+    token: *const xmlChar,
+    min: ::std::os::raw::c_int,
+    max: ::std::os::raw::c_int,
+    data: *mut ::std::os::raw::c_void,
+  ) -> xmlAutomataStatePtr;
+}
+extern "C" {
+  pub fn xmlAutomataNewOnceTrans2(
+    am: xmlAutomataPtr,
+    from: xmlAutomataStatePtr,
+    to: xmlAutomataStatePtr,
+    token: *const xmlChar,
+    token2: *const xmlChar,
+    min: ::std::os::raw::c_int,
+    max: ::std::os::raw::c_int,
+    data: *mut ::std::os::raw::c_void,
+  ) -> xmlAutomataStatePtr;
+}
+extern "C" {
+  pub fn xmlAutomataNewAllTrans(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
@@ -6476,22 +6357,14 @@ extern "C" {
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewEpsilon(
+  pub fn xmlAutomataNewEpsilon(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewCountedTrans(
-    am: xmlAutomataPtr,
-    from: xmlAutomataStatePtr,
-    to: xmlAutomataStatePtr,
-    counter: ::std::os::raw::c_int,
-  ) -> xmlAutomataStatePtr;
-}
-extern "C" {
-  pub(crate) fn xmlAutomataNewCounterTrans(
+  pub fn xmlAutomataNewCountedTrans(
     am: xmlAutomataPtr,
     from: xmlAutomataStatePtr,
     to: xmlAutomataStatePtr,
@@ -6499,17 +6372,25 @@ extern "C" {
   ) -> xmlAutomataStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataNewCounter(
+  pub fn xmlAutomataNewCounterTrans(
+    am: xmlAutomataPtr,
+    from: xmlAutomataStatePtr,
+    to: xmlAutomataStatePtr,
+    counter: ::std::os::raw::c_int,
+  ) -> xmlAutomataStatePtr;
+}
+extern "C" {
+  pub fn xmlAutomataNewCounter(
     am: xmlAutomataPtr,
     min: ::std::os::raw::c_int,
     max: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataCompile(am: xmlAutomataPtr) -> xmlRegexpPtr;
+  pub fn xmlAutomataCompile(am: xmlAutomataPtr) -> xmlRegexpPtr;
 }
 extern "C" {
-  pub(crate) fn xmlAutomataIsDeterminist(am: xmlAutomataPtr) -> ::std::os::raw::c_int;
+  pub fn xmlAutomataIsDeterminist(am: xmlAutomataPtr) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6748,7 +6629,7 @@ pub type xmlIDTablePtr = *mut xmlIDTable;
 pub type xmlRefTable = _xmlHashTable;
 pub type xmlRefTablePtr = *mut xmlRefTable;
 extern "C" {
-  pub(crate) fn xmlAddNotationDecl(
+  pub fn xmlAddNotationDecl(
     ctxt: xmlValidCtxtPtr,
     dtd: xmlDtdPtr,
     name: *const xmlChar,
@@ -6757,47 +6638,47 @@ extern "C" {
   ) -> xmlNotationPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyNotationTable(table: xmlNotationTablePtr) -> xmlNotationTablePtr;
+  pub fn xmlCopyNotationTable(table: xmlNotationTablePtr) -> xmlNotationTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeNotationTable(table: xmlNotationTablePtr);
+  pub fn xmlFreeNotationTable(table: xmlNotationTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpNotationDecl(buf: xmlBufferPtr, nota: xmlNotationPtr);
+  pub fn xmlDumpNotationDecl(buf: xmlBufferPtr, nota: xmlNotationPtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpNotationTable(buf: xmlBufferPtr, table: xmlNotationTablePtr);
+  pub fn xmlDumpNotationTable(buf: xmlBufferPtr, table: xmlNotationTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewElementContent(
+  pub fn xmlNewElementContent(
     name: *const xmlChar,
     type_: xmlElementContentType,
   ) -> xmlElementContentPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyElementContent(content: xmlElementContentPtr) -> xmlElementContentPtr;
+  pub fn xmlCopyElementContent(content: xmlElementContentPtr) -> xmlElementContentPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeElementContent(cur: xmlElementContentPtr);
+  pub fn xmlFreeElementContent(cur: xmlElementContentPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewDocElementContent(
+  pub fn xmlNewDocElementContent(
     doc: xmlDocPtr,
     name: *const xmlChar,
     type_: xmlElementContentType,
   ) -> xmlElementContentPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyDocElementContent(
+  pub fn xmlCopyDocElementContent(
     doc: xmlDocPtr,
     content: xmlElementContentPtr,
   ) -> xmlElementContentPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeDocElementContent(doc: xmlDocPtr, cur: xmlElementContentPtr);
+  pub fn xmlFreeDocElementContent(doc: xmlDocPtr, cur: xmlElementContentPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSnprintfElementContent(
+  pub fn xmlSnprintfElementContent(
     buf: *mut ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
     content: xmlElementContentPtr,
@@ -6805,14 +6686,14 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSprintfElementContent(
+  pub fn xmlSprintfElementContent(
     buf: *mut ::std::os::raw::c_char,
     content: xmlElementContentPtr,
     englob: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlAddElementDecl(
+  pub fn xmlAddElementDecl(
     ctxt: xmlValidCtxtPtr,
     dtd: xmlDtdPtr,
     name: *const xmlChar,
@@ -6821,28 +6702,28 @@ extern "C" {
   ) -> xmlElementPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyElementTable(table: xmlElementTablePtr) -> xmlElementTablePtr;
+  pub fn xmlCopyElementTable(table: xmlElementTablePtr) -> xmlElementTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeElementTable(table: xmlElementTablePtr);
+  pub fn xmlFreeElementTable(table: xmlElementTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpElementTable(buf: xmlBufferPtr, table: xmlElementTablePtr);
+  pub fn xmlDumpElementTable(buf: xmlBufferPtr, table: xmlElementTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpElementDecl(buf: xmlBufferPtr, elem: xmlElementPtr);
+  pub fn xmlDumpElementDecl(buf: xmlBufferPtr, elem: xmlElementPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCreateEnumeration(name: *const xmlChar) -> xmlEnumerationPtr;
+  pub fn xmlCreateEnumeration(name: *const xmlChar) -> xmlEnumerationPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeEnumeration(cur: xmlEnumerationPtr);
+  pub fn xmlFreeEnumeration(cur: xmlEnumerationPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCopyEnumeration(cur: xmlEnumerationPtr) -> xmlEnumerationPtr;
+  pub fn xmlCopyEnumeration(cur: xmlEnumerationPtr) -> xmlEnumerationPtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddAttributeDecl(
+  pub fn xmlAddAttributeDecl(
     ctxt: xmlValidCtxtPtr,
     dtd: xmlDtdPtr,
     elem: *const xmlChar,
@@ -6855,19 +6736,19 @@ extern "C" {
   ) -> xmlAttributePtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyAttributeTable(table: xmlAttributeTablePtr) -> xmlAttributeTablePtr;
+  pub fn xmlCopyAttributeTable(table: xmlAttributeTablePtr) -> xmlAttributeTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeAttributeTable(table: xmlAttributeTablePtr);
+  pub fn xmlFreeAttributeTable(table: xmlAttributeTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpAttributeTable(buf: xmlBufferPtr, table: xmlAttributeTablePtr);
+  pub fn xmlDumpAttributeTable(buf: xmlBufferPtr, table: xmlAttributeTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpAttributeDecl(buf: xmlBufferPtr, attr: xmlAttributePtr);
+  pub fn xmlDumpAttributeDecl(buf: xmlBufferPtr, attr: xmlAttributePtr);
 }
 extern "C" {
-  pub(crate) fn xmlAddID(
+  pub fn xmlAddID(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     value: *const xmlChar,
@@ -6875,23 +6756,19 @@ extern "C" {
   ) -> xmlIDPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeIDTable(table: xmlIDTablePtr);
+  pub fn xmlFreeIDTable(table: xmlIDTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlGetID(doc: xmlDocPtr, ID: *const xmlChar) -> xmlAttrPtr;
+  pub fn xmlGetID(doc: xmlDocPtr, ID: *const xmlChar) -> xmlAttrPtr;
 }
 extern "C" {
-  pub(crate) fn xmlIsID(
-    doc: xmlDocPtr,
-    elem: xmlNodePtr,
-    attr: xmlAttrPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlIsID(doc: xmlDocPtr, elem: xmlNodePtr, attr: xmlAttrPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRemoveID(doc: xmlDocPtr, attr: xmlAttrPtr) -> ::std::os::raw::c_int;
+  pub fn xmlRemoveID(doc: xmlDocPtr, attr: xmlAttrPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlAddRef(
+  pub fn xmlAddRef(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     value: *const xmlChar,
@@ -6899,39 +6776,35 @@ extern "C" {
   ) -> xmlRefPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeRefTable(table: xmlRefTablePtr);
+  pub fn xmlFreeRefTable(table: xmlRefTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlIsRef(
-    doc: xmlDocPtr,
-    elem: xmlNodePtr,
-    attr: xmlAttrPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlIsRef(doc: xmlDocPtr, elem: xmlNodePtr, attr: xmlAttrPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRemoveRef(doc: xmlDocPtr, attr: xmlAttrPtr) -> ::std::os::raw::c_int;
+  pub fn xmlRemoveRef(doc: xmlDocPtr, attr: xmlAttrPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGetRefs(doc: xmlDocPtr, ID: *const xmlChar) -> xmlListPtr;
+  pub fn xmlGetRefs(doc: xmlDocPtr, ID: *const xmlChar) -> xmlListPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewValidCtxt() -> xmlValidCtxtPtr;
+  pub fn xmlNewValidCtxt() -> xmlValidCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeValidCtxt(arg1: xmlValidCtxtPtr);
+  pub fn xmlFreeValidCtxt(arg1: xmlValidCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlValidateRoot(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
+  pub fn xmlValidateRoot(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateElementDecl(
+  pub fn xmlValidateElementDecl(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlElementPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidNormalizeAttributeValue(
+  pub fn xmlValidNormalizeAttributeValue(
     doc: xmlDocPtr,
     elem: xmlNodePtr,
     name: *const xmlChar,
@@ -6939,7 +6812,7 @@ extern "C" {
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlValidCtxtNormalizeAttributeValue(
+  pub fn xmlValidCtxtNormalizeAttributeValue(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
@@ -6948,56 +6821,54 @@ extern "C" {
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlValidateAttributeDecl(
+  pub fn xmlValidateAttributeDecl(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     attr: xmlAttributePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateAttributeValue(
+  pub fn xmlValidateAttributeValue(
     type_: xmlAttributeType,
     value: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNotationDecl(
+  pub fn xmlValidateNotationDecl(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     nota: xmlNotationPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateDtd(
+  pub fn xmlValidateDtd(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     dtd: xmlDtdPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateDtdFinal(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr)
-    -> ::std::os::raw::c_int;
+  pub fn xmlValidateDtdFinal(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateDocument(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr)
-    -> ::std::os::raw::c_int;
+  pub fn xmlValidateDocument(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateElement(
+  pub fn xmlValidateElement(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateOneElement(
+  pub fn xmlValidateOneElement(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateOneAttribute(
+  pub fn xmlValidateOneAttribute(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
@@ -7006,7 +6877,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateOneNamespace(
+  pub fn xmlValidateOneNamespace(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
@@ -7016,30 +6887,27 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateDocumentFinal(
-    ctxt: xmlValidCtxtPtr,
-    doc: xmlDocPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlValidateDocumentFinal(ctxt: xmlValidCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNotationUse(
+  pub fn xmlValidateNotationUse(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     notationName: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsMixedElement(doc: xmlDocPtr, name: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlIsMixedElement(doc: xmlDocPtr, name: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGetDtdAttrDesc(
+  pub fn xmlGetDtdAttrDesc(
     dtd: xmlDtdPtr,
     elem: *const xmlChar,
     name: *const xmlChar,
   ) -> xmlAttributePtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetDtdQAttrDesc(
+  pub fn xmlGetDtdQAttrDesc(
     dtd: xmlDtdPtr,
     elem: *const xmlChar,
     name: *const xmlChar,
@@ -7047,20 +6915,20 @@ extern "C" {
   ) -> xmlAttributePtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetDtdNotationDesc(dtd: xmlDtdPtr, name: *const xmlChar) -> xmlNotationPtr;
+  pub fn xmlGetDtdNotationDesc(dtd: xmlDtdPtr, name: *const xmlChar) -> xmlNotationPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetDtdQElementDesc(
+  pub fn xmlGetDtdQElementDesc(
     dtd: xmlDtdPtr,
     name: *const xmlChar,
     prefix: *const xmlChar,
   ) -> xmlElementPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetDtdElementDesc(dtd: xmlDtdPtr, name: *const xmlChar) -> xmlElementPtr;
+  pub fn xmlGetDtdElementDesc(dtd: xmlDtdPtr, name: *const xmlChar) -> xmlElementPtr;
 }
 extern "C" {
-  pub(crate) fn xmlValidGetPotentialChildren(
+  pub fn xmlValidGetPotentialChildren(
     ctree: *mut xmlElementContent,
     names: *mut *const xmlChar,
     len: *mut ::std::os::raw::c_int,
@@ -7068,7 +6936,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidGetValidElements(
+  pub fn xmlValidGetValidElements(
     prev: *mut xmlNode,
     next: *mut xmlNode,
     names: *mut *const xmlChar,
@@ -7076,25 +6944,25 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNameValue(value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlValidateNameValue(value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNamesValue(value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlValidateNamesValue(value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNmtokenValue(value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlValidateNmtokenValue(value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidateNmtokensValue(value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlValidateNmtokensValue(value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidBuildContentModel(
+  pub fn xmlValidBuildContentModel(
     ctxt: xmlValidCtxtPtr,
     elem: xmlElementPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidatePushElement(
+  pub fn xmlValidatePushElement(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
@@ -7102,14 +6970,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidatePushCData(
+  pub fn xmlValidatePushCData(
     ctxt: xmlValidCtxtPtr,
     data: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlValidatePopElement(
+  pub fn xmlValidatePopElement(
     ctxt: xmlValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
@@ -7352,10 +7220,10 @@ fn bindgen_test_layout__xmlEntity() {
 pub type xmlEntitiesTable = _xmlHashTable;
 pub type xmlEntitiesTablePtr = *mut xmlEntitiesTable;
 extern "C" {
-  pub(crate) fn xmlInitializePredefinedEntities();
+  pub fn xmlInitializePredefinedEntities();
 }
 extern "C" {
-  pub(crate) fn xmlNewEntity(
+  pub fn xmlNewEntity(
     doc: xmlDocPtr,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -7365,7 +7233,7 @@ extern "C" {
   ) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddDocEntity(
+  pub fn xmlAddDocEntity(
     doc: xmlDocPtr,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -7375,7 +7243,7 @@ extern "C" {
   ) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddDtdEntity(
+  pub fn xmlAddDtdEntity(
     doc: xmlDocPtr,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -7385,43 +7253,43 @@ extern "C" {
   ) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetPredefinedEntity(name: *const xmlChar) -> xmlEntityPtr;
+  pub fn xmlGetPredefinedEntity(name: *const xmlChar) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetDocEntity(doc: *const xmlDoc, name: *const xmlChar) -> xmlEntityPtr;
+  pub fn xmlGetDocEntity(doc: *const xmlDoc, name: *const xmlChar) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetDtdEntity(doc: xmlDocPtr, name: *const xmlChar) -> xmlEntityPtr;
+  pub fn xmlGetDtdEntity(doc: xmlDocPtr, name: *const xmlChar) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetParameterEntity(doc: xmlDocPtr, name: *const xmlChar) -> xmlEntityPtr;
+  pub fn xmlGetParameterEntity(doc: xmlDocPtr, name: *const xmlChar) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlEncodeEntities(doc: xmlDocPtr, input: *const xmlChar) -> *const xmlChar;
+  pub fn xmlEncodeEntities(doc: xmlDocPtr, input: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlEncodeEntitiesReentrant(doc: xmlDocPtr, input: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlEncodeEntitiesReentrant(doc: xmlDocPtr, input: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlEncodeSpecialChars(doc: *const xmlDoc, input: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlEncodeSpecialChars(doc: *const xmlDoc, input: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCreateEntitiesTable() -> xmlEntitiesTablePtr;
+  pub fn xmlCreateEntitiesTable() -> xmlEntitiesTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlCopyEntitiesTable(table: xmlEntitiesTablePtr) -> xmlEntitiesTablePtr;
+  pub fn xmlCopyEntitiesTable(table: xmlEntitiesTablePtr) -> xmlEntitiesTablePtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeEntitiesTable(table: xmlEntitiesTablePtr);
+  pub fn xmlFreeEntitiesTable(table: xmlEntitiesTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpEntitiesTable(buf: xmlBufferPtr, table: xmlEntitiesTablePtr);
+  pub fn xmlDumpEntitiesTable(buf: xmlBufferPtr, table: xmlEntitiesTablePtr);
 }
 extern "C" {
-  pub(crate) fn xmlDumpEntityDecl(buf: xmlBufferPtr, ent: xmlEntityPtr);
+  pub fn xmlDumpEntityDecl(buf: xmlBufferPtr, ent: xmlEntityPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCleanupPredefinedEntities();
+  pub fn xmlCleanupPredefinedEntities();
 }
 /// xmlParserInputDeallocate:
 /// @str:  the string to deallocate
@@ -7659,7 +7527,9 @@ fn bindgen_test_layout__xmlParserNodeInfo() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserNodeInfo>())).begin_line as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserNodeInfo>())).begin_line as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -7711,7 +7581,9 @@ fn bindgen_test_layout__xmlParserNodeInfoSeq() {
     concat!("Alignment of ", stringify!(_xmlParserNodeInfoSeq))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserNodeInfoSeq>())).maximum as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserNodeInfoSeq>())).maximum as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -7930,7 +7802,9 @@ fn bindgen_test_layout__xmlParserCtxt() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserCtxt>())).replaceEntities as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserCtxt>())).replaceEntities as *const _ as usize
+    },
     28usize,
     concat!(
       "Offset of field: ",
@@ -8090,7 +7964,9 @@ fn bindgen_test_layout__xmlParserCtxt() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserCtxt>())).hasExternalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserCtxt>())).hasExternalSubset as *const _ as usize
+    },
     140usize,
     concat!(
       "Offset of field: ",
@@ -8840,7 +8716,9 @@ fn bindgen_test_layout__xmlSAXLocator() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXLocator>())).getColumnNumber as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXLocator>())).getColumnNumber as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -9020,14 +8898,16 @@ pub type setDocumentLocatorSAXFunc = ::std::option::Option<
 /// @ctx:  the user data (XML parser context)
 ///
 /// Called when the document start being processed.
-pub type startDocumentSAXFunc =
-  ::std::option::Option<unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void)>;
+pub type startDocumentSAXFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void),
+>;
 /// endDocumentSAXFunc:
 /// @ctx:  the user data (XML parser context)
 ///
 /// Called when the document end has been detected.
-pub type endDocumentSAXFunc =
-  ::std::option::Option<unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void)>;
+pub type endDocumentSAXFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void),
+>;
 /// startElementSAXFunc:
 /// @ctx:  the user data (XML parser context)
 /// @name:  The element name, including namespace prefix
@@ -9284,7 +9164,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     concat!("Alignment of ", stringify!(_xmlSAXHandler))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).internalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).internalSubset as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -9304,7 +9186,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).hasInternalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).hasInternalSubset as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -9314,7 +9198,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).hasExternalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).hasExternalSubset as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -9384,7 +9270,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).unparsedEntityDecl as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).unparsedEntityDecl as *const _ as usize
+    },
     80usize,
     concat!(
       "Offset of field: ",
@@ -9394,7 +9282,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).setDocumentLocator as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).setDocumentLocator as *const _ as usize
+    },
     88usize,
     concat!(
       "Offset of field: ",
@@ -9464,7 +9354,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).ignorableWhitespace as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).ignorableWhitespace as *const _ as usize
+    },
     144usize,
     concat!(
       "Offset of field: ",
@@ -9526,7 +9418,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).getParameterEntity as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).getParameterEntity as *const _ as usize
+    },
     192usize,
     concat!(
       "Offset of field: ",
@@ -9546,7 +9440,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).externalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).externalSubset as *const _ as usize
+    },
     208usize,
     concat!(
       "Offset of field: ",
@@ -9576,7 +9472,9 @@ fn bindgen_test_layout__xmlSAXHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandler>())).startElementNs as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandler>())).startElementNs as *const _ as usize
+    },
     232usize,
     concat!(
       "Offset of field: ",
@@ -9653,7 +9551,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     concat!("Alignment of ", stringify!(_xmlSAXHandlerV1))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).internalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).internalSubset as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -9663,7 +9563,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).isStandalone as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).isStandalone as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -9673,7 +9575,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).hasInternalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).hasInternalSubset as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -9683,7 +9587,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).hasExternalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).hasExternalSubset as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -9693,7 +9599,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).resolveEntity as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).resolveEntity as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -9723,7 +9631,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).notationDecl as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).notationDecl as *const _ as usize
+    },
     56usize,
     concat!(
       "Offset of field: ",
@@ -9733,7 +9643,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).attributeDecl as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).attributeDecl as *const _ as usize
+    },
     64usize,
     concat!(
       "Offset of field: ",
@@ -9753,7 +9665,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).unparsedEntityDecl as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).unparsedEntityDecl as *const _ as usize
+    },
     80usize,
     concat!(
       "Offset of field: ",
@@ -9763,7 +9677,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).setDocumentLocator as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).setDocumentLocator as *const _ as usize
+    },
     88usize,
     concat!(
       "Offset of field: ",
@@ -9773,7 +9689,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).startDocument as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).startDocument as *const _ as usize
+    },
     96usize,
     concat!(
       "Offset of field: ",
@@ -9793,7 +9711,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).startElement as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).startElement as *const _ as usize
+    },
     112usize,
     concat!(
       "Offset of field: ",
@@ -9897,7 +9817,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).getParameterEntity as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).getParameterEntity as *const _ as usize
+    },
     192usize,
     concat!(
       "Offset of field: ",
@@ -9917,7 +9839,9 @@ fn bindgen_test_layout__xmlSAXHandlerV1() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).externalSubset as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSAXHandlerV1>())).externalSubset as *const _ as usize
+    },
     208usize,
     concat!(
       "Offset of field: ",
@@ -9954,13 +9878,13 @@ pub type xmlExternalEntityLoader = ::std::option::Option<
 >;
 pub type iconv_t = *mut ::std::os::raw::c_void;
 extern "C" {
-  pub(crate) fn iconv_open(
+  pub fn iconv_open(
     __tocode: *const ::std::os::raw::c_char,
     __fromcode: *const ::std::os::raw::c_char,
   ) -> iconv_t;
 }
 extern "C" {
-  pub(crate) fn iconv(
+  pub fn iconv(
     __cd: iconv_t,
     __inbuf: *mut *mut ::std::os::raw::c_char,
     __inbytesleft: *mut usize,
@@ -9969,7 +9893,7 @@ extern "C" {
   ) -> usize;
 }
 extern "C" {
-  pub(crate) fn iconv_close(__cd: iconv_t) -> ::std::os::raw::c_int;
+  pub fn iconv_close(__cd: iconv_t) -> ::std::os::raw::c_int;
 }
 pub type wchar_t = ::std::os::raw::c_int;
 #[repr(C)]
@@ -10035,25 +9959,22 @@ pub type OldUChar = ::std::os::raw::c_ushort;
 pub type UChar32 = i32;
 pub type UVersionInfo = [u8; 4usize];
 extern "C" {
-  pub(crate) fn u_versionFromString_60(
+  pub fn u_versionFromString_60(
     versionArray: *mut u8,
     versionString: *const ::std::os::raw::c_char,
   );
 }
 extern "C" {
-  pub(crate) fn u_versionFromUString_60(versionArray: *mut u8, versionString: *const UChar);
+  pub fn u_versionFromUString_60(versionArray: *mut u8, versionString: *const UChar);
 }
 extern "C" {
-  pub(crate) fn u_versionToString_60(
-    versionArray: *mut u8,
-    versionString: *mut ::std::os::raw::c_char,
-  );
+  pub fn u_versionToString_60(versionArray: *mut u8, versionString: *mut ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn u_getVersion_60(versionArray: *mut u8);
+  pub fn u_getVersion_60(versionArray: *mut u8);
 }
 extern "C" {
-  pub(crate) fn utf8_nextCharSafeBody_60(
+  pub fn utf8_nextCharSafeBody_60(
     s: *const u8,
     pi: *mut i32,
     length: i32,
@@ -10062,7 +9983,7 @@ extern "C" {
   ) -> UChar32;
 }
 extern "C" {
-  pub(crate) fn utf8_appendCharSafeBody_60(
+  pub fn utf8_appendCharSafeBody_60(
     s: *mut u8,
     i: i32,
     length: i32,
@@ -10071,7 +9992,7 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn utf8_prevCharSafeBody_60(
+  pub fn utf8_prevCharSafeBody_60(
     s: *const u8,
     start: i32,
     pi: *mut i32,
@@ -10080,7 +10001,7 @@ extern "C" {
   ) -> UChar32;
 }
 extern "C" {
-  pub(crate) fn utf8_back1SafeBody_60(s: *const u8, start: i32, i: i32) -> i32;
+  pub fn utf8_back1SafeBody_60(s: *const u8, start: i32, i: i32) -> i32;
 }
 extern "C" {
   #[link_name = "\u{1}utf8_countTrailBytes_60"]
@@ -10249,7 +10170,7 @@ pub const UErrorCode_U_PLUGIN_ERROR_LIMIT: UErrorCode = 66818;
 pub const UErrorCode_U_ERROR_LIMIT: UErrorCode = 66818;
 pub type UErrorCode = i32;
 extern "C" {
-  pub(crate) fn u_errorName_60(code: UErrorCode) -> *const ::std::os::raw::c_char;
+  pub fn u_errorName_60(code: UErrorCode) -> *const ::std::os::raw::c_char;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -10288,7 +10209,9 @@ fn bindgen_test_layout_UConverterFromUnicodeArgs() {
     concat!("Alignment of ", stringify!(UConverterFromUnicodeArgs))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).size as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).size as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -10298,7 +10221,9 @@ fn bindgen_test_layout_UConverterFromUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).flush as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).flush as *const _ as usize
+    },
     2usize,
     concat!(
       "Offset of field: ",
@@ -10308,7 +10233,9 @@ fn bindgen_test_layout_UConverterFromUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).converter as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).converter as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -10318,7 +10245,9 @@ fn bindgen_test_layout_UConverterFromUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).source as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).source as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -10340,7 +10269,9 @@ fn bindgen_test_layout_UConverterFromUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).target as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).target as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -10362,7 +10293,9 @@ fn bindgen_test_layout_UConverterFromUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).offsets as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterFromUnicodeArgs>())).offsets as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -10407,7 +10340,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).flush as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).flush as *const _ as usize
+    },
     2usize,
     concat!(
       "Offset of field: ",
@@ -10417,7 +10352,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).converter as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).converter as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -10427,7 +10364,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).source as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).source as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -10437,7 +10376,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).sourceLimit as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).sourceLimit as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -10447,7 +10388,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).target as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).target as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -10457,7 +10400,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).targetLimit as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).targetLimit as *const _ as usize
+    },
     40usize,
     concat!(
       "Offset of field: ",
@@ -10467,7 +10412,9 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).offsets as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<UConverterToUnicodeArgs>())).offsets as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -10478,7 +10425,7 @@ fn bindgen_test_layout_UConverterToUnicodeArgs() {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_FROM_U_CALLBACK_STOP_60(
+  pub fn UCNV_FROM_U_CALLBACK_STOP_60(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -10489,7 +10436,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_TO_U_CALLBACK_STOP_60(
+  pub fn UCNV_TO_U_CALLBACK_STOP_60(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -10499,7 +10446,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_FROM_U_CALLBACK_SKIP_60(
+  pub fn UCNV_FROM_U_CALLBACK_SKIP_60(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -10510,7 +10457,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_FROM_U_CALLBACK_SUBSTITUTE_60(
+  pub fn UCNV_FROM_U_CALLBACK_SUBSTITUTE_60(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -10521,7 +10468,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_FROM_U_CALLBACK_ESCAPE_60(
+  pub fn UCNV_FROM_U_CALLBACK_ESCAPE_60(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -10532,7 +10479,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_TO_U_CALLBACK_SKIP_60(
+  pub fn UCNV_TO_U_CALLBACK_SKIP_60(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -10542,7 +10489,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_TO_U_CALLBACK_SUBSTITUTE_60(
+  pub fn UCNV_TO_U_CALLBACK_SUBSTITUTE_60(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -10552,7 +10499,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn UCNV_TO_U_CALLBACK_ESCAPE_60(
+  pub fn UCNV_TO_U_CALLBACK_ESCAPE_60(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -10567,37 +10514,37 @@ pub struct UEnumeration {
   _unused: [u8; 0],
 }
 extern "C" {
-  pub(crate) fn uenum_close_60(en: *mut UEnumeration);
+  pub fn uenum_close_60(en: *mut UEnumeration);
 }
 extern "C" {
-  pub(crate) fn uenum_count_60(en: *mut UEnumeration, status: *mut UErrorCode) -> i32;
+  pub fn uenum_count_60(en: *mut UEnumeration, status: *mut UErrorCode) -> i32;
 }
 extern "C" {
-  pub(crate) fn uenum_unext_60(
+  pub fn uenum_unext_60(
     en: *mut UEnumeration,
     resultLength: *mut i32,
     status: *mut UErrorCode,
   ) -> *const UChar;
 }
 extern "C" {
-  pub(crate) fn uenum_next_60(
+  pub fn uenum_next_60(
     en: *mut UEnumeration,
     resultLength: *mut i32,
     status: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn uenum_reset_60(en: *mut UEnumeration, status: *mut UErrorCode);
+  pub fn uenum_reset_60(en: *mut UEnumeration, status: *mut UErrorCode);
 }
 extern "C" {
-  pub(crate) fn uenum_openUCharStringsEnumeration_60(
+  pub fn uenum_openUCharStringsEnumeration_60(
     strings: *const *const UChar,
     count: i32,
     ec: *mut UErrorCode,
   ) -> *mut UEnumeration;
 }
 extern "C" {
-  pub(crate) fn uenum_openCharStringsEnumeration_60(
+  pub fn uenum_openCharStringsEnumeration_60(
     strings: *const *const ::std::os::raw::c_char,
     count: i32,
     ec: *mut UErrorCode,
@@ -10671,36 +10618,36 @@ pub type UConverterFromUCallback = ::std::option::Option<
   ),
 >;
 extern "C" {
-  pub(crate) fn ucnv_compareNames_60(
+  pub fn ucnv_compareNames_60(
     name1: *const ::std::os::raw::c_char,
     name2: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn ucnv_open_60(
+  pub fn ucnv_open_60(
     converterName: *const ::std::os::raw::c_char,
     err: *mut UErrorCode,
   ) -> *mut UConverter;
 }
 extern "C" {
-  pub(crate) fn ucnv_openU_60(name: *const UChar, err: *mut UErrorCode) -> *mut UConverter;
+  pub fn ucnv_openU_60(name: *const UChar, err: *mut UErrorCode) -> *mut UConverter;
 }
 extern "C" {
-  pub(crate) fn ucnv_openCCSID_60(
+  pub fn ucnv_openCCSID_60(
     codepage: i32,
     platform: UConverterPlatform,
     err: *mut UErrorCode,
   ) -> *mut UConverter;
 }
 extern "C" {
-  pub(crate) fn ucnv_openPackage_60(
+  pub fn ucnv_openPackage_60(
     packageName: *const ::std::os::raw::c_char,
     converterName: *const ::std::os::raw::c_char,
     err: *mut UErrorCode,
   ) -> *mut UConverter;
 }
 extern "C" {
-  pub(crate) fn ucnv_safeClone_60(
+  pub fn ucnv_safeClone_60(
     cnv: *const UConverter,
     stackBuffer: *mut ::std::os::raw::c_void,
     pBufferSize: *mut i32,
@@ -10708,10 +10655,10 @@ extern "C" {
   ) -> *mut UConverter;
 }
 extern "C" {
-  pub(crate) fn ucnv_close_60(converter: *mut UConverter);
+  pub fn ucnv_close_60(converter: *mut UConverter);
 }
 extern "C" {
-  pub(crate) fn ucnv_getSubstChars_60(
+  pub fn ucnv_getSubstChars_60(
     converter: *const UConverter,
     subChars: *mut ::std::os::raw::c_char,
     len: *mut i8,
@@ -10719,7 +10666,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_setSubstChars_60(
+  pub fn ucnv_setSubstChars_60(
     converter: *mut UConverter,
     subChars: *const ::std::os::raw::c_char,
     len: i8,
@@ -10727,7 +10674,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_setSubstString_60(
+  pub fn ucnv_setSubstString_60(
     cnv: *mut UConverter,
     s: *const UChar,
     length: i32,
@@ -10735,7 +10682,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_getInvalidChars_60(
+  pub fn ucnv_getInvalidChars_60(
     converter: *const UConverter,
     errBytes: *mut ::std::os::raw::c_char,
     len: *mut i8,
@@ -10743,7 +10690,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_getInvalidUChars_60(
+  pub fn ucnv_getInvalidUChars_60(
     converter: *const UConverter,
     errUChars: *mut UChar,
     len: *mut i8,
@@ -10751,22 +10698,22 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_reset_60(converter: *mut UConverter);
+  pub fn ucnv_reset_60(converter: *mut UConverter);
 }
 extern "C" {
-  pub(crate) fn ucnv_resetToUnicode_60(converter: *mut UConverter);
+  pub fn ucnv_resetToUnicode_60(converter: *mut UConverter);
 }
 extern "C" {
-  pub(crate) fn ucnv_resetFromUnicode_60(converter: *mut UConverter);
+  pub fn ucnv_resetFromUnicode_60(converter: *mut UConverter);
 }
 extern "C" {
-  pub(crate) fn ucnv_getMaxCharSize_60(converter: *const UConverter) -> i8;
+  pub fn ucnv_getMaxCharSize_60(converter: *const UConverter) -> i8;
 }
 extern "C" {
-  pub(crate) fn ucnv_getMinCharSize_60(converter: *const UConverter) -> i8;
+  pub fn ucnv_getMinCharSize_60(converter: *const UConverter) -> i8;
 }
 extern "C" {
-  pub(crate) fn ucnv_getDisplayName_60(
+  pub fn ucnv_getDisplayName_60(
     converter: *const UConverter,
     displayLocale: *const ::std::os::raw::c_char,
     displayName: *mut UChar,
@@ -10775,25 +10722,25 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_getName_60(
+  pub fn ucnv_getName_60(
     converter: *const UConverter,
     err: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_getCCSID_60(converter: *const UConverter, err: *mut UErrorCode) -> i32;
+  pub fn ucnv_getCCSID_60(converter: *const UConverter, err: *mut UErrorCode) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_getPlatform_60(
+  pub fn ucnv_getPlatform_60(
     converter: *const UConverter,
     err: *mut UErrorCode,
   ) -> UConverterPlatform;
 }
 extern "C" {
-  pub(crate) fn ucnv_getType_60(converter: *const UConverter) -> UConverterType;
+  pub fn ucnv_getType_60(converter: *const UConverter) -> UConverterType;
 }
 extern "C" {
-  pub(crate) fn ucnv_getStarters_60(
+  pub fn ucnv_getStarters_60(
     converter: *const UConverter,
     starters: *mut UBool,
     err: *mut UErrorCode,
@@ -10804,7 +10751,7 @@ pub const UConverterUnicodeSet_UCNV_ROUNDTRIP_AND_FALLBACK_SET: UConverterUnicod
 pub const UConverterUnicodeSet_UCNV_SET_COUNT: UConverterUnicodeSet = 2;
 pub type UConverterUnicodeSet = u32;
 extern "C" {
-  pub(crate) fn ucnv_getUnicodeSet_60(
+  pub fn ucnv_getUnicodeSet_60(
     cnv: *const UConverter,
     setFillIn: *mut USet,
     whichSet: UConverterUnicodeSet,
@@ -10812,21 +10759,21 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_getToUCallBack_60(
+  pub fn ucnv_getToUCallBack_60(
     converter: *const UConverter,
     action: *mut UConverterToUCallback,
     context: *mut *const ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_getFromUCallBack_60(
+  pub fn ucnv_getFromUCallBack_60(
     converter: *const UConverter,
     action: *mut UConverterFromUCallback,
     context: *mut *const ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_setToUCallBack_60(
+  pub fn ucnv_setToUCallBack_60(
     converter: *mut UConverter,
     newAction: UConverterToUCallback,
     newContext: *const ::std::os::raw::c_void,
@@ -10836,7 +10783,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_setFromUCallBack_60(
+  pub fn ucnv_setFromUCallBack_60(
     converter: *mut UConverter,
     newAction: UConverterFromUCallback,
     newContext: *const ::std::os::raw::c_void,
@@ -10846,7 +10793,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_fromUnicode_60(
+  pub fn ucnv_fromUnicode_60(
     converter: *mut UConverter,
     target: *mut *mut ::std::os::raw::c_char,
     targetLimit: *const ::std::os::raw::c_char,
@@ -10858,7 +10805,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_toUnicode_60(
+  pub fn ucnv_toUnicode_60(
     converter: *mut UConverter,
     target: *mut *mut UChar,
     targetLimit: *const UChar,
@@ -10870,7 +10817,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_fromUChars_60(
+  pub fn ucnv_fromUChars_60(
     cnv: *mut UConverter,
     dest: *mut ::std::os::raw::c_char,
     destCapacity: i32,
@@ -10880,7 +10827,7 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_toUChars_60(
+  pub fn ucnv_toUChars_60(
     cnv: *mut UConverter,
     dest: *mut UChar,
     destCapacity: i32,
@@ -10890,7 +10837,7 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_getNextUChar_60(
+  pub fn ucnv_getNextUChar_60(
     converter: *mut UConverter,
     source: *mut *const ::std::os::raw::c_char,
     sourceLimit: *const ::std::os::raw::c_char,
@@ -10898,7 +10845,7 @@ extern "C" {
   ) -> UChar32;
 }
 extern "C" {
-  pub(crate) fn ucnv_convertEx_60(
+  pub fn ucnv_convertEx_60(
     targetCnv: *mut UConverter,
     sourceCnv: *mut UConverter,
     target: *mut *mut ::std::os::raw::c_char,
@@ -10915,7 +10862,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_convert_60(
+  pub fn ucnv_convert_60(
     toConverterName: *const ::std::os::raw::c_char,
     fromConverterName: *const ::std::os::raw::c_char,
     target: *mut ::std::os::raw::c_char,
@@ -10926,7 +10873,7 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_toAlgorithmic_60(
+  pub fn ucnv_toAlgorithmic_60(
     algorithmicType: UConverterType,
     cnv: *mut UConverter,
     target: *mut ::std::os::raw::c_char,
@@ -10937,7 +10884,7 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_fromAlgorithmic_60(
+  pub fn ucnv_fromAlgorithmic_60(
     cnv: *mut UConverter,
     algorithmicType: UConverterType,
     target: *mut ::std::os::raw::c_char,
@@ -10948,91 +10895,84 @@ extern "C" {
   ) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_flushCache_60() -> i32;
+  pub fn ucnv_flushCache_60() -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_countAvailable_60() -> i32;
+  pub fn ucnv_countAvailable_60() -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_getAvailableName_60(n: i32) -> *const ::std::os::raw::c_char;
+  pub fn ucnv_getAvailableName_60(n: i32) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_openAllNames_60(pErrorCode: *mut UErrorCode) -> *mut UEnumeration;
+  pub fn ucnv_openAllNames_60(pErrorCode: *mut UErrorCode) -> *mut UEnumeration;
 }
 extern "C" {
-  pub(crate) fn ucnv_countAliases_60(
+  pub fn ucnv_countAliases_60(
     alias: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> u16;
 }
 extern "C" {
-  pub(crate) fn ucnv_getAlias_60(
+  pub fn ucnv_getAlias_60(
     alias: *const ::std::os::raw::c_char,
     n: u16,
     pErrorCode: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_getAliases_60(
+  pub fn ucnv_getAliases_60(
     alias: *const ::std::os::raw::c_char,
     aliases: *mut *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   );
 }
 extern "C" {
-  pub(crate) fn ucnv_openStandardNames_60(
+  pub fn ucnv_openStandardNames_60(
     convName: *const ::std::os::raw::c_char,
     standard: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> *mut UEnumeration;
 }
 extern "C" {
-  pub(crate) fn ucnv_countStandards_60() -> u16;
+  pub fn ucnv_countStandards_60() -> u16;
 }
 extern "C" {
-  pub(crate) fn ucnv_getStandard_60(
-    n: u16,
-    pErrorCode: *mut UErrorCode,
-  ) -> *const ::std::os::raw::c_char;
+  pub fn ucnv_getStandard_60(n: u16, pErrorCode: *mut UErrorCode) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_getStandardName_60(
+  pub fn ucnv_getStandardName_60(
     name: *const ::std::os::raw::c_char,
     standard: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_getCanonicalName_60(
+  pub fn ucnv_getCanonicalName_60(
     alias: *const ::std::os::raw::c_char,
     standard: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_getDefaultName_60() -> *const ::std::os::raw::c_char;
+  pub fn ucnv_getDefaultName_60() -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_setDefaultName_60(name: *const ::std::os::raw::c_char);
+  pub fn ucnv_setDefaultName_60(name: *const ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn ucnv_fixFileSeparator_60(
-    cnv: *const UConverter,
-    source: *mut UChar,
-    sourceLen: i32,
-  );
+  pub fn ucnv_fixFileSeparator_60(cnv: *const UConverter, source: *mut UChar, sourceLen: i32);
 }
 extern "C" {
-  pub(crate) fn ucnv_isAmbiguous_60(cnv: *const UConverter) -> UBool;
+  pub fn ucnv_isAmbiguous_60(cnv: *const UConverter) -> UBool;
 }
 extern "C" {
-  pub(crate) fn ucnv_setFallback_60(cnv: *mut UConverter, usesFallback: UBool);
+  pub fn ucnv_setFallback_60(cnv: *mut UConverter, usesFallback: UBool);
 }
 extern "C" {
-  pub(crate) fn ucnv_usesFallback_60(cnv: *const UConverter) -> UBool;
+  pub fn ucnv_usesFallback_60(cnv: *const UConverter) -> UBool;
 }
 extern "C" {
-  pub(crate) fn ucnv_detectUnicodeSignature_60(
+  pub fn ucnv_detectUnicodeSignature_60(
     source: *const ::std::os::raw::c_char,
     sourceLength: i32,
     signatureLength: *mut i32,
@@ -11040,13 +10980,13 @@ extern "C" {
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ucnv_fromUCountPending_60(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
+  pub fn ucnv_fromUCountPending_60(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_toUCountPending_60(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
+  pub fn ucnv_toUCountPending_60(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
 }
 extern "C" {
-  pub(crate) fn ucnv_isFixedWidth_60(cnv: *mut UConverter, status: *mut UErrorCode) -> UBool;
+  pub fn ucnv_isFixedWidth_60(cnv: *mut UConverter, status: *mut UErrorCode) -> UBool;
 }
 pub const xmlCharEncoding_XML_CHAR_ENCODING_ERROR: xmlCharEncoding = -1;
 pub const xmlCharEncoding_XML_CHAR_ENCODING_NONE: xmlCharEncoding = 0;
@@ -11195,7 +11135,9 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).input as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).input as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -11205,7 +11147,9 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).output as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).output as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -11215,7 +11159,9 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).iconv_in as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).iconv_in as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -11225,7 +11171,9 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).iconv_out as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).iconv_out as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -11235,7 +11183,9 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).uconv_in as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).uconv_in as *const _ as usize
+    },
     40usize,
     concat!(
       "Offset of field: ",
@@ -11245,7 +11195,9 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).uconv_out as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlCharEncodingHandler>())).uconv_out as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -11256,84 +11208,83 @@ fn bindgen_test_layout__xmlCharEncodingHandler() {
   );
 }
 extern "C" {
-  pub(crate) fn xmlInitCharEncodingHandlers();
+  pub fn xmlInitCharEncodingHandlers();
 }
 extern "C" {
-  pub(crate) fn xmlCleanupCharEncodingHandlers();
+  pub fn xmlCleanupCharEncodingHandlers();
 }
 extern "C" {
-  pub(crate) fn xmlRegisterCharEncodingHandler(handler: xmlCharEncodingHandlerPtr);
+  pub fn xmlRegisterCharEncodingHandler(handler: xmlCharEncodingHandlerPtr);
 }
 extern "C" {
-  pub(crate) fn xmlGetCharEncodingHandler(enc: xmlCharEncoding) -> xmlCharEncodingHandlerPtr;
+  pub fn xmlGetCharEncodingHandler(enc: xmlCharEncoding) -> xmlCharEncodingHandlerPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFindCharEncodingHandler(
+  pub fn xmlFindCharEncodingHandler(
     name: *const ::std::os::raw::c_char,
   ) -> xmlCharEncodingHandlerPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewCharEncodingHandler(
+  pub fn xmlNewCharEncodingHandler(
     name: *const ::std::os::raw::c_char,
     input: xmlCharEncodingInputFunc,
     output: xmlCharEncodingOutputFunc,
   ) -> xmlCharEncodingHandlerPtr;
 }
 extern "C" {
-  pub(crate) fn xmlAddEncodingAlias(
+  pub fn xmlAddEncodingAlias(
     name: *const ::std::os::raw::c_char,
     alias: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlDelEncodingAlias(alias: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlDelEncodingAlias(alias: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGetEncodingAlias(
-    alias: *const ::std::os::raw::c_char,
-  ) -> *const ::std::os::raw::c_char;
+  pub fn xmlGetEncodingAlias(alias: *const ::std::os::raw::c_char)
+    -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlCleanupEncodingAliases();
+  pub fn xmlCleanupEncodingAliases();
 }
 extern "C" {
-  pub(crate) fn xmlParseCharEncoding(name: *const ::std::os::raw::c_char) -> xmlCharEncoding;
+  pub fn xmlParseCharEncoding(name: *const ::std::os::raw::c_char) -> xmlCharEncoding;
 }
 extern "C" {
-  pub(crate) fn xmlGetCharEncodingName(enc: xmlCharEncoding) -> *const ::std::os::raw::c_char;
+  pub fn xmlGetCharEncodingName(enc: xmlCharEncoding) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlDetectCharEncoding(
+  pub fn xmlDetectCharEncoding(
     in_: *const ::std::os::raw::c_uchar,
     len: ::std::os::raw::c_int,
   ) -> xmlCharEncoding;
 }
 extern "C" {
-  pub(crate) fn xmlCharEncOutFunc(
+  pub fn xmlCharEncOutFunc(
     handler: *mut xmlCharEncodingHandler,
     out: xmlBufferPtr,
     in_: xmlBufferPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCharEncInFunc(
+  pub fn xmlCharEncInFunc(
     handler: *mut xmlCharEncodingHandler,
     out: xmlBufferPtr,
     in_: xmlBufferPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCharEncFirstLine(
+  pub fn xmlCharEncFirstLine(
     handler: *mut xmlCharEncodingHandler,
     out: xmlBufferPtr,
     in_: xmlBufferPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCharEncCloseFunc(handler: *mut xmlCharEncodingHandler) -> ::std::os::raw::c_int;
+  pub fn xmlCharEncCloseFunc(handler: *mut xmlCharEncodingHandler) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn UTF8Toisolat1(
+  pub fn UTF8Toisolat1(
     out: *mut ::std::os::raw::c_uchar,
     outlen: *mut ::std::os::raw::c_int,
     in_: *const ::std::os::raw::c_uchar,
@@ -11341,7 +11292,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn isolat1ToUTF8(
+  pub fn isolat1ToUTF8(
     out: *mut ::std::os::raw::c_uchar,
     outlen: *mut ::std::os::raw::c_int,
     in_: *const ::std::os::raw::c_uchar,
@@ -11560,85 +11511,85 @@ fn bindgen_test_layout_lldiv_t() {
   );
 }
 extern "C" {
-  pub(crate) fn __ctype_get_mb_cur_max() -> usize;
+  pub fn __ctype_get_mb_cur_max() -> usize;
 }
 extern "C" {
-  pub(crate) fn atof(__nptr: *const ::std::os::raw::c_char) -> f64;
+  pub fn atof(__nptr: *const ::std::os::raw::c_char) -> f64;
 }
 extern "C" {
-  pub(crate) fn atoi(__nptr: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn atoi(__nptr: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn atol(__nptr: *const ::std::os::raw::c_char) -> ::std::os::raw::c_long;
+  pub fn atol(__nptr: *const ::std::os::raw::c_char) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn atoll(__nptr: *const ::std::os::raw::c_char) -> ::std::os::raw::c_longlong;
+  pub fn atoll(__nptr: *const ::std::os::raw::c_char) -> ::std::os::raw::c_longlong;
 }
 extern "C" {
-  pub(crate) fn strtod(
+  pub fn strtod(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
   ) -> f64;
 }
 extern "C" {
-  pub(crate) fn strtof(
+  pub fn strtof(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
   ) -> f32;
 }
 extern "C" {
-  pub(crate) fn strtold(
+  pub fn strtold(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
   ) -> f64;
 }
 extern "C" {
-  pub(crate) fn strtol(
+  pub fn strtol(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
     __base: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn strtoul(
+  pub fn strtoul(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
     __base: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
-  pub(crate) fn strtoq(
+  pub fn strtoq(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
     __base: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_longlong;
 }
 extern "C" {
-  pub(crate) fn strtouq(
+  pub fn strtouq(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
     __base: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_ulonglong;
 }
 extern "C" {
-  pub(crate) fn strtoll(
+  pub fn strtoll(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
     __base: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_longlong;
 }
 extern "C" {
-  pub(crate) fn strtoull(
+  pub fn strtoull(
     __nptr: *const ::std::os::raw::c_char,
     __endptr: *mut *mut ::std::os::raw::c_char,
     __base: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_ulonglong;
 }
 extern "C" {
-  pub(crate) fn l64a(__n: ::std::os::raw::c_long) -> *mut ::std::os::raw::c_char;
+  pub fn l64a(__n: ::std::os::raw::c_long) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn a64l(__s: *const ::std::os::raw::c_char) -> ::std::os::raw::c_long;
+  pub fn a64l(__s: *const ::std::os::raw::c_char) -> ::std::os::raw::c_long;
 }
 pub type u_char = __u_char;
 pub type u_short = __u_short;
@@ -11810,7 +11761,7 @@ fn bindgen_test_layout_fd_set() {
 }
 pub type fd_mask = __fd_mask;
 extern "C" {
-  pub(crate) fn select(
+  pub fn select(
     __nfds: ::std::os::raw::c_int,
     __readfds: *mut fd_set,
     __writefds: *mut fd_set,
@@ -11819,7 +11770,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn pselect(
+  pub fn pselect(
     __nfds: ::std::os::raw::c_int,
     __readfds: *mut fd_set,
     __writefds: *mut fd_set,
@@ -11829,13 +11780,13 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn gnu_dev_major(__dev: __dev_t) -> ::std::os::raw::c_uint;
+  pub fn gnu_dev_major(__dev: __dev_t) -> ::std::os::raw::c_uint;
 }
 extern "C" {
-  pub(crate) fn gnu_dev_minor(__dev: __dev_t) -> ::std::os::raw::c_uint;
+  pub fn gnu_dev_minor(__dev: __dev_t) -> ::std::os::raw::c_uint;
 }
 extern "C" {
-  pub(crate) fn gnu_dev_makedev(
+  pub fn gnu_dev_makedev(
     __major: ::std::os::raw::c_uint,
     __minor: ::std::os::raw::c_uint,
   ) -> __dev_t;
@@ -11873,7 +11824,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     concat!("Alignment of ", stringify!(__pthread_rwlock_arch_t))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__readers as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__readers as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -11883,7 +11836,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__writers as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__writers as *const _ as usize
+    },
     4usize,
     concat!(
       "Offset of field: ",
@@ -11917,7 +11872,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad3 as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad3 as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -11927,7 +11884,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad4 as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad4 as *const _ as usize
+    },
     20usize,
     concat!(
       "Offset of field: ",
@@ -11949,7 +11908,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__shared as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__shared as *const _ as usize
+    },
     28usize,
     concat!(
       "Offset of field: ",
@@ -11959,7 +11920,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__rwelision as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__rwelision as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -11969,7 +11932,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad1 as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad1 as *const _ as usize
+    },
     33usize,
     concat!(
       "Offset of field: ",
@@ -11979,7 +11944,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad2 as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__pad2 as *const _ as usize
+    },
     40usize,
     concat!(
       "Offset of field: ",
@@ -11989,7 +11956,9 @@ fn bindgen_test_layout___pthread_rwlock_arch_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__flags as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_rwlock_arch_t>())).__flags as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -12018,7 +11987,9 @@ fn bindgen_test_layout___pthread_internal_list() {
     concat!("Alignment of ", stringify!(__pthread_internal_list))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_internal_list>())).__prev as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_internal_list>())).__prev as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -12028,7 +11999,9 @@ fn bindgen_test_layout___pthread_internal_list() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_internal_list>())).__next as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_internal_list>())).__next as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -12378,7 +12351,9 @@ fn bindgen_test_layout___pthread_cond_s() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__pthread_cond_s>())).__g1_orig_size as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__pthread_cond_s>())).__g1_orig_size as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -12795,7 +12770,9 @@ fn bindgen_test_layout_pthread_barrierattr_t() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<pthread_barrierattr_t>())).__align as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<pthread_barrierattr_t>())).__align as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -12806,20 +12783,20 @@ fn bindgen_test_layout_pthread_barrierattr_t() {
   );
 }
 extern "C" {
-  pub(crate) fn random() -> ::std::os::raw::c_long;
+  pub fn random() -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn srandom(__seed: ::std::os::raw::c_uint);
+  pub fn srandom(__seed: ::std::os::raw::c_uint);
 }
 extern "C" {
-  pub(crate) fn initstate(
+  pub fn initstate(
     __seed: ::std::os::raw::c_uint,
     __statebuf: *mut ::std::os::raw::c_char,
     __statelen: usize,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn setstate(__statebuf: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn setstate(__statebuf: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -12916,16 +12893,16 @@ fn bindgen_test_layout_random_data() {
   );
 }
 extern "C" {
-  pub(crate) fn random_r(__buf: *mut random_data, __result: *mut i32) -> ::std::os::raw::c_int;
+  pub fn random_r(__buf: *mut random_data, __result: *mut i32) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn srandom_r(
+  pub fn srandom_r(
     __seed: ::std::os::raw::c_uint,
     __buf: *mut random_data,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn initstate_r(
+  pub fn initstate_r(
     __seed: ::std::os::raw::c_uint,
     __statebuf: *mut ::std::os::raw::c_char,
     __statelen: usize,
@@ -12933,46 +12910,46 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn setstate_r(
+  pub fn setstate_r(
     __statebuf: *mut ::std::os::raw::c_char,
     __buf: *mut random_data,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn rand() -> ::std::os::raw::c_int;
+  pub fn rand() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn srand(__seed: ::std::os::raw::c_uint);
+  pub fn srand(__seed: ::std::os::raw::c_uint);
 }
 extern "C" {
-  pub(crate) fn rand_r(__seed: *mut ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn rand_r(__seed: *mut ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn drand48() -> f64;
+  pub fn drand48() -> f64;
 }
 extern "C" {
-  pub(crate) fn erand48(__xsubi: *mut ::std::os::raw::c_ushort) -> f64;
+  pub fn erand48(__xsubi: *mut ::std::os::raw::c_ushort) -> f64;
 }
 extern "C" {
-  pub(crate) fn lrand48() -> ::std::os::raw::c_long;
+  pub fn lrand48() -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn nrand48(__xsubi: *mut ::std::os::raw::c_ushort) -> ::std::os::raw::c_long;
+  pub fn nrand48(__xsubi: *mut ::std::os::raw::c_ushort) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn mrand48() -> ::std::os::raw::c_long;
+  pub fn mrand48() -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn jrand48(__xsubi: *mut ::std::os::raw::c_ushort) -> ::std::os::raw::c_long;
+  pub fn jrand48(__xsubi: *mut ::std::os::raw::c_ushort) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn srand48(__seedval: ::std::os::raw::c_long);
+  pub fn srand48(__seedval: ::std::os::raw::c_long);
 }
 extern "C" {
-  pub(crate) fn seed48(__seed16v: *mut ::std::os::raw::c_ushort) -> *mut ::std::os::raw::c_ushort;
+  pub fn seed48(__seed16v: *mut ::std::os::raw::c_ushort) -> *mut ::std::os::raw::c_ushort;
 }
 extern "C" {
-  pub(crate) fn lcong48(__param: *mut ::std::os::raw::c_ushort);
+  pub fn lcong48(__param: *mut ::std::os::raw::c_ushort);
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -13047,106 +13024,100 @@ fn bindgen_test_layout_drand48_data() {
   );
 }
 extern "C" {
-  pub(crate) fn drand48_r(__buffer: *mut drand48_data, __result: *mut f64)
-    -> ::std::os::raw::c_int;
+  pub fn drand48_r(__buffer: *mut drand48_data, __result: *mut f64) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn erand48_r(
+  pub fn erand48_r(
     __xsubi: *mut ::std::os::raw::c_ushort,
     __buffer: *mut drand48_data,
     __result: *mut f64,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn lrand48_r(
+  pub fn lrand48_r(
     __buffer: *mut drand48_data,
     __result: *mut ::std::os::raw::c_long,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn nrand48_r(
+  pub fn nrand48_r(
     __xsubi: *mut ::std::os::raw::c_ushort,
     __buffer: *mut drand48_data,
     __result: *mut ::std::os::raw::c_long,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mrand48_r(
+  pub fn mrand48_r(
     __buffer: *mut drand48_data,
     __result: *mut ::std::os::raw::c_long,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn jrand48_r(
+  pub fn jrand48_r(
     __xsubi: *mut ::std::os::raw::c_ushort,
     __buffer: *mut drand48_data,
     __result: *mut ::std::os::raw::c_long,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn srand48_r(
+  pub fn srand48_r(
     __seedval: ::std::os::raw::c_long,
     __buffer: *mut drand48_data,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn seed48_r(
+  pub fn seed48_r(
     __seed16v: *mut ::std::os::raw::c_ushort,
     __buffer: *mut drand48_data,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn lcong48_r(
+  pub fn lcong48_r(
     __param: *mut ::std::os::raw::c_ushort,
     __buffer: *mut drand48_data,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn malloc(__size: usize) -> *mut ::std::os::raw::c_void;
+  pub fn malloc(__size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn calloc(__nmemb: usize, __size: usize) -> *mut ::std::os::raw::c_void;
+  pub fn calloc(__nmemb: usize, __size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn realloc(
-    __ptr: *mut ::std::os::raw::c_void,
-    __size: usize,
-  ) -> *mut ::std::os::raw::c_void;
+  pub fn realloc(__ptr: *mut ::std::os::raw::c_void, __size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn free(__ptr: *mut ::std::os::raw::c_void);
+  pub fn free(__ptr: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn alloca(__size: usize) -> *mut ::std::os::raw::c_void;
+  pub fn alloca(__size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn valloc(__size: usize) -> *mut ::std::os::raw::c_void;
+  pub fn valloc(__size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn posix_memalign(
+  pub fn posix_memalign(
     __memptr: *mut *mut ::std::os::raw::c_void,
     __alignment: usize,
     __size: usize,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn aligned_alloc(__alignment: usize, __size: usize) -> *mut ::std::os::raw::c_void;
+  pub fn aligned_alloc(__alignment: usize, __size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn abort();
+  pub fn abort();
 }
 extern "C" {
-  pub(crate) fn atexit(
+  pub fn atexit(__func: ::std::option::Option<unsafe extern "C" fn()>) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn at_quick_exit(
     __func: ::std::option::Option<unsafe extern "C" fn()>,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn at_quick_exit(
-    __func: ::std::option::Option<unsafe extern "C" fn()>,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn on_exit(
+  pub fn on_exit(
     __func: ::std::option::Option<
       unsafe extern "C" fn(__status: ::std::os::raw::c_int, __arg: *mut ::std::os::raw::c_void),
     >,
@@ -13154,53 +13125,53 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn exit(__status: ::std::os::raw::c_int);
+  pub fn exit(__status: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn quick_exit(__status: ::std::os::raw::c_int);
+  pub fn quick_exit(__status: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn _Exit(__status: ::std::os::raw::c_int);
+  pub fn _Exit(__status: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn getenv(__name: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn getenv(__name: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn putenv(__string: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn putenv(__string: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn setenv(
+  pub fn setenv(
     __name: *const ::std::os::raw::c_char,
     __value: *const ::std::os::raw::c_char,
     __replace: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn unsetenv(__name: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn unsetenv(__name: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn clearenv() -> ::std::os::raw::c_int;
+  pub fn clearenv() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mktemp(__template: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn mktemp(__template: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn mkstemp(__template: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn mkstemp(__template: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mkstemps(
+  pub fn mkstemps(
     __template: *mut ::std::os::raw::c_char,
     __suffixlen: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mkdtemp(__template: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn mkdtemp(__template: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn system(__command: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn system(__command: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn realpath(
+  pub fn realpath(
     __name: *const ::std::os::raw::c_char,
     __resolved: *mut ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_char;
@@ -13210,7 +13181,7 @@ pub type __compar_fn_t = ::std::option::Option<
     -> ::std::os::raw::c_int,
 >;
 extern "C" {
-  pub(crate) fn bsearch(
+  pub fn bsearch(
     __key: *const ::std::os::raw::c_void,
     __base: *const ::std::os::raw::c_void,
     __nmemb: usize,
@@ -13219,7 +13190,7 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn qsort(
+  pub fn qsort(
     __base: *mut ::std::os::raw::c_void,
     __nmemb: usize,
     __size: usize,
@@ -13227,28 +13198,26 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn abs(__x: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn abs(__x: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn labs(__x: ::std::os::raw::c_long) -> ::std::os::raw::c_long;
+  pub fn labs(__x: ::std::os::raw::c_long) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn llabs(__x: ::std::os::raw::c_longlong) -> ::std::os::raw::c_longlong;
+  pub fn llabs(__x: ::std::os::raw::c_longlong) -> ::std::os::raw::c_longlong;
 }
 extern "C" {
-  pub(crate) fn div(__numer: ::std::os::raw::c_int, __denom: ::std::os::raw::c_int) -> div_t;
+  pub fn div(__numer: ::std::os::raw::c_int, __denom: ::std::os::raw::c_int) -> div_t;
 }
 extern "C" {
-  pub(crate) fn ldiv(__numer: ::std::os::raw::c_long, __denom: ::std::os::raw::c_long) -> ldiv_t;
+  pub fn ldiv(__numer: ::std::os::raw::c_long, __denom: ::std::os::raw::c_long) -> ldiv_t;
 }
 extern "C" {
-  pub(crate) fn lldiv(
-    __numer: ::std::os::raw::c_longlong,
-    __denom: ::std::os::raw::c_longlong,
-  ) -> lldiv_t;
+  pub fn lldiv(__numer: ::std::os::raw::c_longlong, __denom: ::std::os::raw::c_longlong)
+    -> lldiv_t;
 }
 extern "C" {
-  pub(crate) fn ecvt(
+  pub fn ecvt(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13256,7 +13225,7 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn fcvt(
+  pub fn fcvt(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13264,14 +13233,14 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn gcvt(
+  pub fn gcvt(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __buf: *mut ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn qecvt(
+  pub fn qecvt(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13279,7 +13248,7 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn qfcvt(
+  pub fn qfcvt(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13287,14 +13256,14 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn qgcvt(
+  pub fn qgcvt(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __buf: *mut ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn ecvt_r(
+  pub fn ecvt_r(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13304,7 +13273,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn fcvt_r(
+  pub fn fcvt_r(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13314,7 +13283,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn qecvt_r(
+  pub fn qecvt_r(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13324,7 +13293,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn qfcvt_r(
+  pub fn qfcvt_r(
     __value: f64,
     __ndigit: ::std::os::raw::c_int,
     __decpt: *mut ::std::os::raw::c_int,
@@ -13334,48 +13303,36 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mblen(__s: *const ::std::os::raw::c_char, __n: usize) -> ::std::os::raw::c_int;
+  pub fn mblen(__s: *const ::std::os::raw::c_char, __n: usize) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mbtowc(
+  pub fn mbtowc(
     __pwc: *mut wchar_t,
     __s: *const ::std::os::raw::c_char,
     __n: usize,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn wctomb(__s: *mut ::std::os::raw::c_char, __wchar: wchar_t)
-    -> ::std::os::raw::c_int;
+  pub fn wctomb(__s: *mut ::std::os::raw::c_char, __wchar: wchar_t) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn mbstowcs(
-    __pwcs: *mut wchar_t,
-    __s: *const ::std::os::raw::c_char,
-    __n: usize,
-  ) -> usize;
+  pub fn mbstowcs(__pwcs: *mut wchar_t, __s: *const ::std::os::raw::c_char, __n: usize) -> usize;
 }
 extern "C" {
-  pub(crate) fn wcstombs(
-    __s: *mut ::std::os::raw::c_char,
-    __pwcs: *const wchar_t,
-    __n: usize,
-  ) -> usize;
+  pub fn wcstombs(__s: *mut ::std::os::raw::c_char, __pwcs: *const wchar_t, __n: usize) -> usize;
 }
 extern "C" {
-  pub(crate) fn rpmatch(__response: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn rpmatch(__response: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getsubopt(
+  pub fn getsubopt(
     __optionp: *mut *mut ::std::os::raw::c_char,
     __tokens: *const *const ::std::os::raw::c_char,
     __valuep: *mut *mut ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getloadavg(
-    __loadavg: *mut f64,
-    __nelem: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn getloadavg(__loadavg: *mut f64, __nelem: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 /// Various defines for the various Link properties.
 ///
@@ -13408,8 +13365,9 @@ pub type xlinkActuate = u32;
 ///
 /// This is the prototype for the link detection routine.
 /// It calls the default link detection callbacks upon link detection.
-pub type xlinkNodeDetectFunc =
-  ::std::option::Option<unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, node: xmlNodePtr)>;
+pub type xlinkNodeDetectFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, node: xmlNodePtr),
+>;
 /// xlinkSimpleLinkFunk:
 /// @ctx:  user data pointer
 /// @node:  the node carrying the link
@@ -13540,46 +13498,46 @@ fn bindgen_test_layout__xlinkHandler() {
   );
 }
 extern "C" {
-  pub(crate) fn xlinkGetDefaultDetect() -> xlinkNodeDetectFunc;
+  pub fn xlinkGetDefaultDetect() -> xlinkNodeDetectFunc;
 }
 extern "C" {
-  pub(crate) fn xlinkSetDefaultDetect(func: xlinkNodeDetectFunc);
+  pub fn xlinkSetDefaultDetect(func: xlinkNodeDetectFunc);
 }
 extern "C" {
-  pub(crate) fn xlinkGetDefaultHandler() -> xlinkHandlerPtr;
+  pub fn xlinkGetDefaultHandler() -> xlinkHandlerPtr;
 }
 extern "C" {
-  pub(crate) fn xlinkSetDefaultHandler(handler: xlinkHandlerPtr);
+  pub fn xlinkSetDefaultHandler(handler: xlinkHandlerPtr);
 }
 extern "C" {
-  pub(crate) fn xlinkIsLink(doc: xmlDocPtr, node: xmlNodePtr) -> xlinkType;
+  pub fn xlinkIsLink(doc: xmlDocPtr, node: xmlNodePtr) -> xlinkType;
 }
 extern "C" {
-  pub(crate) fn getPublicId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
+  pub fn getPublicId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn getSystemId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
+  pub fn getSystemId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn setDocumentLocator(ctx: *mut ::std::os::raw::c_void, loc: xmlSAXLocatorPtr);
+  pub fn setDocumentLocator(ctx: *mut ::std::os::raw::c_void, loc: xmlSAXLocatorPtr);
 }
 extern "C" {
-  pub(crate) fn getLineNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn getLineNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn getColumnNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn getColumnNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn isStandalone(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn isStandalone(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn hasInternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn hasInternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn hasExternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn hasExternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn internalSubset(
+  pub fn internalSubset(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     ExternalID: *const xmlChar,
@@ -13587,7 +13545,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn externalSubset(
+  pub fn externalSubset(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     ExternalID: *const xmlChar,
@@ -13595,23 +13553,21 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn getEntity(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar) -> xmlEntityPtr;
+  pub fn getEntity(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn getParameterEntity(
-    ctx: *mut ::std::os::raw::c_void,
-    name: *const xmlChar,
-  ) -> xmlEntityPtr;
+  pub fn getParameterEntity(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar)
+    -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn resolveEntity(
+  pub fn resolveEntity(
     ctx: *mut ::std::os::raw::c_void,
     publicId: *const xmlChar,
     systemId: *const xmlChar,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn entityDecl(
+  pub fn entityDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -13621,7 +13577,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn attributeDecl(
+  pub fn attributeDecl(
     ctx: *mut ::std::os::raw::c_void,
     elem: *const xmlChar,
     fullname: *const xmlChar,
@@ -13632,7 +13588,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn elementDecl(
+  pub fn elementDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -13640,7 +13596,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn notationDecl(
+  pub fn notationDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     publicId: *const xmlChar,
@@ -13648,7 +13604,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn unparsedEntityDecl(
+  pub fn unparsedEntityDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     publicId: *const xmlChar,
@@ -13657,128 +13613,123 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn startDocument(ctx: *mut ::std::os::raw::c_void);
+  pub fn startDocument(ctx: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn endDocument(ctx: *mut ::std::os::raw::c_void);
+  pub fn endDocument(ctx: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn attribute(
+  pub fn attribute(
     ctx: *mut ::std::os::raw::c_void,
     fullname: *const xmlChar,
     value: *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn startElement(
+  pub fn startElement(
     ctx: *mut ::std::os::raw::c_void,
     fullname: *const xmlChar,
     atts: *mut *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn endElement(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+  pub fn endElement(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn reference(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+  pub fn reference(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn characters(
+  pub fn characters(
     ctx: *mut ::std::os::raw::c_void,
     ch: *const xmlChar,
     len: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn ignorableWhitespace(
+  pub fn ignorableWhitespace(
     ctx: *mut ::std::os::raw::c_void,
     ch: *const xmlChar,
     len: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn processingInstruction(
+  pub fn processingInstruction(
     ctx: *mut ::std::os::raw::c_void,
     target: *const xmlChar,
     data: *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn globalNamespace(
+  pub fn globalNamespace(
     ctx: *mut ::std::os::raw::c_void,
     href: *const xmlChar,
     prefix: *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn setNamespace(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+  pub fn setNamespace(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn getNamespace(ctx: *mut ::std::os::raw::c_void) -> xmlNsPtr;
+  pub fn getNamespace(ctx: *mut ::std::os::raw::c_void) -> xmlNsPtr;
 }
 extern "C" {
-  pub(crate) fn checkNamespace(
+  pub fn checkNamespace(
     ctx: *mut ::std::os::raw::c_void,
     nameSpace: *mut xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn namespaceDecl(
+  pub fn namespaceDecl(
     ctx: *mut ::std::os::raw::c_void,
     href: *const xmlChar,
     prefix: *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn comment(ctx: *mut ::std::os::raw::c_void, value: *const xmlChar);
+  pub fn comment(ctx: *mut ::std::os::raw::c_void, value: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn cdataBlock(
+  pub fn cdataBlock(
     ctx: *mut ::std::os::raw::c_void,
     value: *const xmlChar,
     len: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn initxmlDefaultSAXHandler(
-    hdlr: *mut xmlSAXHandlerV1,
-    warning: ::std::os::raw::c_int,
-  );
+  pub fn initxmlDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1, warning: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn inithtmlDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1);
+  pub fn inithtmlDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1);
 }
 extern "C" {
-  pub(crate) fn initdocbDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1);
+  pub fn initdocbDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2GetPublicId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
+  pub fn xmlSAX2GetPublicId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2GetSystemId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
+  pub fn xmlSAX2GetSystemId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2SetDocumentLocator(ctx: *mut ::std::os::raw::c_void, loc: xmlSAXLocatorPtr);
+  pub fn xmlSAX2SetDocumentLocator(ctx: *mut ::std::os::raw::c_void, loc: xmlSAXLocatorPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2GetLineNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlSAX2GetLineNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2GetColumnNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlSAX2GetColumnNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2IsStandalone(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlSAX2IsStandalone(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2HasInternalSubset(ctx: *mut ::std::os::raw::c_void)
-    -> ::std::os::raw::c_int;
+  pub fn xmlSAX2HasInternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2HasExternalSubset(ctx: *mut ::std::os::raw::c_void)
-    -> ::std::os::raw::c_int;
+  pub fn xmlSAX2HasExternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2InternalSubset(
+  pub fn xmlSAX2InternalSubset(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     ExternalID: *const xmlChar,
@@ -13786,7 +13737,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2ExternalSubset(
+  pub fn xmlSAX2ExternalSubset(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     ExternalID: *const xmlChar,
@@ -13794,26 +13745,23 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2GetEntity(
+  pub fn xmlSAX2GetEntity(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar) -> xmlEntityPtr;
+}
+extern "C" {
+  pub fn xmlSAX2GetParameterEntity(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
   ) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2GetParameterEntity(
-    ctx: *mut ::std::os::raw::c_void,
-    name: *const xmlChar,
-  ) -> xmlEntityPtr;
-}
-extern "C" {
-  pub(crate) fn xmlSAX2ResolveEntity(
+  pub fn xmlSAX2ResolveEntity(
     ctx: *mut ::std::os::raw::c_void,
     publicId: *const xmlChar,
     systemId: *const xmlChar,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2EntityDecl(
+  pub fn xmlSAX2EntityDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -13823,7 +13771,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2AttributeDecl(
+  pub fn xmlSAX2AttributeDecl(
     ctx: *mut ::std::os::raw::c_void,
     elem: *const xmlChar,
     fullname: *const xmlChar,
@@ -13834,7 +13782,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2ElementDecl(
+  pub fn xmlSAX2ElementDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     type_: ::std::os::raw::c_int,
@@ -13842,7 +13790,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2NotationDecl(
+  pub fn xmlSAX2NotationDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     publicId: *const xmlChar,
@@ -13850,7 +13798,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2UnparsedEntityDecl(
+  pub fn xmlSAX2UnparsedEntityDecl(
     ctx: *mut ::std::os::raw::c_void,
     name: *const xmlChar,
     publicId: *const xmlChar,
@@ -13859,23 +13807,23 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2StartDocument(ctx: *mut ::std::os::raw::c_void);
+  pub fn xmlSAX2StartDocument(ctx: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2EndDocument(ctx: *mut ::std::os::raw::c_void);
+  pub fn xmlSAX2EndDocument(ctx: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2StartElement(
+  pub fn xmlSAX2StartElement(
     ctx: *mut ::std::os::raw::c_void,
     fullname: *const xmlChar,
     atts: *mut *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2EndElement(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+  pub fn xmlSAX2EndElement(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2StartElementNs(
+  pub fn xmlSAX2StartElementNs(
     ctx: *mut ::std::os::raw::c_void,
     localname: *const xmlChar,
     prefix: *const xmlChar,
@@ -13888,7 +13836,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2EndElementNs(
+  pub fn xmlSAX2EndElementNs(
     ctx: *mut ::std::os::raw::c_void,
     localname: *const xmlChar,
     prefix: *const xmlChar,
@@ -13896,83 +13844,82 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2Reference(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+  pub fn xmlSAX2Reference(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2Characters(
+  pub fn xmlSAX2Characters(
     ctx: *mut ::std::os::raw::c_void,
     ch: *const xmlChar,
     len: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2IgnorableWhitespace(
+  pub fn xmlSAX2IgnorableWhitespace(
     ctx: *mut ::std::os::raw::c_void,
     ch: *const xmlChar,
     len: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2ProcessingInstruction(
+  pub fn xmlSAX2ProcessingInstruction(
     ctx: *mut ::std::os::raw::c_void,
     target: *const xmlChar,
     data: *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAX2Comment(ctx: *mut ::std::os::raw::c_void, value: *const xmlChar);
+  pub fn xmlSAX2Comment(ctx: *mut ::std::os::raw::c_void, value: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2CDataBlock(
+  pub fn xmlSAX2CDataBlock(
     ctx: *mut ::std::os::raw::c_void,
     value: *const xmlChar,
     len: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSAXDefaultVersion(version: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlSAXDefaultVersion(version: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAXVersion(
+  pub fn xmlSAXVersion(
     hdlr: *mut xmlSAXHandler,
     version: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAX2InitDefaultSAXHandler(
-    hdlr: *mut xmlSAXHandler,
-    warning: ::std::os::raw::c_int,
-  );
+  pub fn xmlSAX2InitDefaultSAXHandler(hdlr: *mut xmlSAXHandler, warning: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlSAX2InitHtmlDefaultSAXHandler(hdlr: *mut xmlSAXHandler);
+  pub fn xmlSAX2InitHtmlDefaultSAXHandler(hdlr: *mut xmlSAXHandler);
 }
 extern "C" {
-  pub(crate) fn htmlDefaultSAXHandlerInit();
+  pub fn htmlDefaultSAXHandlerInit();
 }
 extern "C" {
-  pub(crate) fn xmlSAX2InitDocbDefaultSAXHandler(hdlr: *mut xmlSAXHandler);
+  pub fn xmlSAX2InitDocbDefaultSAXHandler(hdlr: *mut xmlSAXHandler);
 }
 extern "C" {
-  pub(crate) fn docbDefaultSAXHandlerInit();
+  pub fn docbDefaultSAXHandlerInit();
 }
 extern "C" {
-  pub(crate) fn xmlDefaultSAXHandlerInit();
+  pub fn xmlDefaultSAXHandlerInit();
 }
 /// xmlFreeFunc:
 /// @mem: an already allocated block of memory
 ///
 /// Signature for a free() implementation.
-pub type xmlFreeFunc =
-  ::std::option::Option<unsafe extern "C" fn(mem: *mut ::std::os::raw::c_void)>;
+pub type xmlFreeFunc = ::std::option::Option<
+  unsafe extern "C" fn(mem: *mut ::std::os::raw::c_void),
+>;
 /// xmlMallocFunc:
 /// @size:  the size requested in bytes
 ///
 /// Signature for a malloc() implementation.
 ///
 /// Returns a pointer to the newly allocated block or NULL in case of error.
-pub type xmlMallocFunc =
-  ::std::option::Option<unsafe extern "C" fn(size: usize) -> *mut ::std::os::raw::c_void>;
+pub type xmlMallocFunc = ::std::option::Option<
+  unsafe extern "C" fn(size: usize) -> *mut ::std::os::raw::c_void,
+>;
 /// xmlReallocFunc:
 /// @mem: an already allocated block of memory
 /// @size:  the new size requested in bytes
@@ -13994,7 +13941,7 @@ pub type xmlStrdupFunc = ::std::option::Option<
   unsafe extern "C" fn(str: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char,
 >;
 extern "C" {
-  pub(crate) fn xmlMemSetup(
+  pub fn xmlMemSetup(
     freeFunc: xmlFreeFunc,
     mallocFunc: xmlMallocFunc,
     reallocFunc: xmlReallocFunc,
@@ -14002,7 +13949,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlMemGet(
+  pub fn xmlMemGet(
     freeFunc: *mut xmlFreeFunc,
     mallocFunc: *mut xmlMallocFunc,
     reallocFunc: *mut xmlReallocFunc,
@@ -14010,7 +13957,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGcMemSetup(
+  pub fn xmlGcMemSetup(
     freeFunc: xmlFreeFunc,
     mallocFunc: xmlMallocFunc,
     mallocAtomicFunc: xmlMallocFunc,
@@ -14019,7 +13966,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGcMemGet(
+  pub fn xmlGcMemGet(
     freeFunc: *mut xmlFreeFunc,
     mallocFunc: *mut xmlMallocFunc,
     mallocAtomicFunc: *mut xmlMallocFunc,
@@ -14028,53 +13975,53 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlInitMemory() -> ::std::os::raw::c_int;
+  pub fn xmlInitMemory() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCleanupMemory();
+  pub fn xmlCleanupMemory();
 }
 extern "C" {
-  pub(crate) fn xmlMemUsed() -> ::std::os::raw::c_int;
+  pub fn xmlMemUsed() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlMemBlocks() -> ::std::os::raw::c_int;
+  pub fn xmlMemBlocks() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlMemDisplay(fp: *mut FILE);
+  pub fn xmlMemDisplay(fp: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn xmlMemDisplayLast(fp: *mut FILE, nbBytes: ::std::os::raw::c_long);
+  pub fn xmlMemDisplayLast(fp: *mut FILE, nbBytes: ::std::os::raw::c_long);
 }
 extern "C" {
-  pub(crate) fn xmlMemShow(fp: *mut FILE, nr: ::std::os::raw::c_int);
+  pub fn xmlMemShow(fp: *mut FILE, nr: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlMemoryDump();
+  pub fn xmlMemoryDump();
 }
 extern "C" {
-  pub(crate) fn xmlMemMalloc(size: usize) -> *mut ::std::os::raw::c_void;
+  pub fn xmlMemMalloc(size: usize) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlMemRealloc(
+  pub fn xmlMemRealloc(
     ptr: *mut ::std::os::raw::c_void,
     size: usize,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlMemFree(ptr: *mut ::std::os::raw::c_void);
+  pub fn xmlMemFree(ptr: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlMemoryStrdup(str: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+  pub fn xmlMemoryStrdup(str: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlMallocLoc(
+  pub fn xmlMallocLoc(
     size: usize,
     file: *const ::std::os::raw::c_char,
     line: ::std::os::raw::c_int,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlReallocLoc(
+  pub fn xmlReallocLoc(
     ptr: *mut ::std::os::raw::c_void,
     size: usize,
     file: *const ::std::os::raw::c_char,
@@ -14082,24 +14029,24 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlMallocAtomicLoc(
+  pub fn xmlMallocAtomicLoc(
     size: usize,
     file: *const ::std::os::raw::c_char,
     line: ::std::os::raw::c_int,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlMemStrdupLoc(
+  pub fn xmlMemStrdupLoc(
     str: *const ::std::os::raw::c_char,
     file: *const ::std::os::raw::c_char,
     line: ::std::os::raw::c_int,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlInitGlobals();
+  pub fn xmlInitGlobals();
 }
 extern "C" {
-  pub(crate) fn xmlCleanupGlobals();
+  pub fn xmlCleanupGlobals();
 }
 /// xmlParserInputBufferCreateFilenameFunc:
 /// @URI: the URI to read from
@@ -14131,12 +14078,12 @@ pub type xmlOutputBufferCreateFilenameFunc = ::std::option::Option<
   ) -> xmlOutputBufferPtr,
 >;
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateFilenameDefault(
+  pub fn xmlParserInputBufferCreateFilenameDefault(
     func: xmlParserInputBufferCreateFilenameFunc,
   ) -> xmlParserInputBufferCreateFilenameFunc;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferCreateFilenameDefault(
+  pub fn xmlOutputBufferCreateFilenameDefault(
     func: xmlOutputBufferCreateFilenameFunc,
   ) -> xmlOutputBufferCreateFilenameFunc;
 }
@@ -14202,7 +14149,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     concat!("Alignment of ", stringify!(_xmlGlobalState))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlParserVersion as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlParserVersion as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -14300,7 +14249,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlGenericError as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlGenericError as *const _ as usize
+    },
     744usize,
     concat!(
       "Offset of field: ",
@@ -14310,7 +14261,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlStructuredError as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlStructuredError as *const _ as usize
+    },
     752usize,
     concat!(
       "Offset of field: ",
@@ -14466,7 +14419,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlSaveNoEmptyTags as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlSaveNoEmptyTags as *const _ as usize
+    },
     812usize,
     concat!(
       "Offset of field: ",
@@ -14476,7 +14431,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlIndentTreeOutput as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlIndentTreeOutput as *const _ as usize
+    },
     816usize,
     concat!(
       "Offset of field: ",
@@ -14486,7 +14443,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlTreeIndentString as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlTreeIndentString as *const _ as usize
+    },
     824usize,
     concat!(
       "Offset of field: ",
@@ -14520,7 +14479,9 @@ fn bindgen_test_layout__xmlGlobalState() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlGlobalState>())).xmlMallocAtomic as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlGlobalState>())).xmlMallocAtomic as *const _ as usize
+    },
     848usize,
     concat!(
       "Offset of field: ",
@@ -14593,86 +14554,84 @@ pub struct _xmlRMutex {
 pub type xmlRMutex = _xmlRMutex;
 pub type xmlRMutexPtr = *mut xmlRMutex;
 extern "C" {
-  pub(crate) fn xmlNewMutex() -> xmlMutexPtr;
+  pub fn xmlNewMutex() -> xmlMutexPtr;
 }
 extern "C" {
-  pub(crate) fn xmlMutexLock(tok: xmlMutexPtr);
+  pub fn xmlMutexLock(tok: xmlMutexPtr);
 }
 extern "C" {
-  pub(crate) fn xmlMutexUnlock(tok: xmlMutexPtr);
+  pub fn xmlMutexUnlock(tok: xmlMutexPtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreeMutex(tok: xmlMutexPtr);
+  pub fn xmlFreeMutex(tok: xmlMutexPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewRMutex() -> xmlRMutexPtr;
+  pub fn xmlNewRMutex() -> xmlRMutexPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRMutexLock(tok: xmlRMutexPtr);
+  pub fn xmlRMutexLock(tok: xmlRMutexPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRMutexUnlock(tok: xmlRMutexPtr);
+  pub fn xmlRMutexUnlock(tok: xmlRMutexPtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreeRMutex(tok: xmlRMutexPtr);
+  pub fn xmlFreeRMutex(tok: xmlRMutexPtr);
 }
 extern "C" {
-  pub(crate) fn xmlInitThreads();
+  pub fn xmlInitThreads();
 }
 extern "C" {
-  pub(crate) fn xmlLockLibrary();
+  pub fn xmlLockLibrary();
 }
 extern "C" {
-  pub(crate) fn xmlUnlockLibrary();
+  pub fn xmlUnlockLibrary();
 }
 extern "C" {
-  pub(crate) fn xmlGetThreadId() -> ::std::os::raw::c_int;
+  pub fn xmlGetThreadId() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsMainThread() -> ::std::os::raw::c_int;
+  pub fn xmlIsMainThread() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCleanupThreads();
+  pub fn xmlCleanupThreads();
 }
 extern "C" {
-  pub(crate) fn xmlGetGlobalState() -> xmlGlobalStatePtr;
+  pub fn xmlGetGlobalState() -> xmlGlobalStatePtr;
 }
 extern "C" {
-  pub(crate) fn xmlInitializeGlobalState(gs: xmlGlobalStatePtr);
+  pub fn xmlInitializeGlobalState(gs: xmlGlobalStatePtr);
 }
 extern "C" {
-  pub(crate) fn xmlThrDefSetGenericErrorFunc(
+  pub fn xmlThrDefSetGenericErrorFunc(
     ctx: *mut ::std::os::raw::c_void,
     handler: xmlGenericErrorFunc,
   );
 }
 extern "C" {
-  pub(crate) fn xmlThrDefSetStructuredErrorFunc(
+  pub fn xmlThrDefSetStructuredErrorFunc(
     ctx: *mut ::std::os::raw::c_void,
     handler: xmlStructuredErrorFunc,
   );
 }
 extern "C" {
-  pub(crate) fn xmlRegisterNodeDefault(func: xmlRegisterNodeFunc) -> xmlRegisterNodeFunc;
+  pub fn xmlRegisterNodeDefault(func: xmlRegisterNodeFunc) -> xmlRegisterNodeFunc;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefRegisterNodeDefault(func: xmlRegisterNodeFunc) -> xmlRegisterNodeFunc;
+  pub fn xmlThrDefRegisterNodeDefault(func: xmlRegisterNodeFunc) -> xmlRegisterNodeFunc;
 }
 extern "C" {
-  pub(crate) fn xmlDeregisterNodeDefault(func: xmlDeregisterNodeFunc) -> xmlDeregisterNodeFunc;
+  pub fn xmlDeregisterNodeDefault(func: xmlDeregisterNodeFunc) -> xmlDeregisterNodeFunc;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefDeregisterNodeDefault(
-    func: xmlDeregisterNodeFunc,
-  ) -> xmlDeregisterNodeFunc;
+  pub fn xmlThrDefDeregisterNodeDefault(func: xmlDeregisterNodeFunc) -> xmlDeregisterNodeFunc;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefOutputBufferCreateFilenameDefault(
+  pub fn xmlThrDefOutputBufferCreateFilenameDefault(
     func: xmlOutputBufferCreateFilenameFunc,
   ) -> xmlOutputBufferCreateFilenameFunc;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefParserInputBufferCreateFilenameDefault(
+  pub fn xmlThrDefParserInputBufferCreateFilenameDefault(
     func: xmlParserInputBufferCreateFilenameFunc,
   ) -> xmlParserInputBufferCreateFilenameFunc;
 }
@@ -14697,248 +14656,239 @@ extern "C" {
   pub static mut xmlMemStrdup: xmlStrdupFunc;
 }
 extern "C" {
-  pub(crate) fn __docbDefaultSAXHandler() -> *mut xmlSAXHandlerV1;
+  pub fn __docbDefaultSAXHandler() -> *mut xmlSAXHandlerV1;
 }
 extern "C" {
   #[link_name = "\u{1}docbDefaultSAXHandler"]
   pub static mut docbDefaultSAXHandler: xmlSAXHandlerV1;
 }
 extern "C" {
-  pub(crate) fn __htmlDefaultSAXHandler() -> *mut xmlSAXHandlerV1;
+  pub fn __htmlDefaultSAXHandler() -> *mut xmlSAXHandlerV1;
 }
 extern "C" {
   #[link_name = "\u{1}htmlDefaultSAXHandler"]
   pub static mut htmlDefaultSAXHandler: xmlSAXHandlerV1;
 }
 extern "C" {
-  pub(crate) fn __xmlLastError() -> *mut xmlError;
+  pub fn __xmlLastError() -> *mut xmlError;
 }
 extern "C" {
   #[link_name = "\u{1}xmlLastError"]
   pub static mut xmlLastError: xmlError;
 }
 extern "C" {
-  pub(crate) fn __oldXMLWDcompatibility() -> *mut ::std::os::raw::c_int;
+  pub fn __oldXMLWDcompatibility() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}oldXMLWDcompatibility"]
   pub static mut oldXMLWDcompatibility: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlBufferAllocScheme() -> *mut xmlBufferAllocationScheme;
+  pub fn __xmlBufferAllocScheme() -> *mut xmlBufferAllocationScheme;
 }
 extern "C" {
   #[link_name = "\u{1}xmlBufferAllocScheme"]
   pub static mut xmlBufferAllocScheme: xmlBufferAllocationScheme;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefBufferAllocScheme(
-    v: xmlBufferAllocationScheme,
-  ) -> xmlBufferAllocationScheme;
+  pub fn xmlThrDefBufferAllocScheme(v: xmlBufferAllocationScheme) -> xmlBufferAllocationScheme;
 }
 extern "C" {
-  pub(crate) fn __xmlDefaultBufferSize() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlDefaultBufferSize() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlDefaultBufferSize"]
   pub static mut xmlDefaultBufferSize: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefDefaultBufferSize(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefDefaultBufferSize(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlDefaultSAXHandler() -> *mut xmlSAXHandlerV1;
+  pub fn __xmlDefaultSAXHandler() -> *mut xmlSAXHandlerV1;
 }
 extern "C" {
   #[link_name = "\u{1}xmlDefaultSAXHandler"]
   pub static mut xmlDefaultSAXHandler: xmlSAXHandlerV1;
 }
 extern "C" {
-  pub(crate) fn __xmlDefaultSAXLocator() -> *mut xmlSAXLocator;
+  pub fn __xmlDefaultSAXLocator() -> *mut xmlSAXLocator;
 }
 extern "C" {
   #[link_name = "\u{1}xmlDefaultSAXLocator"]
   pub static mut xmlDefaultSAXLocator: xmlSAXLocator;
 }
 extern "C" {
-  pub(crate) fn __xmlDoValidityCheckingDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlDoValidityCheckingDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlDoValidityCheckingDefaultValue"]
   pub static mut xmlDoValidityCheckingDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefDoValidityCheckingDefaultValue(
-    v: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefDoValidityCheckingDefaultValue(v: ::std::os::raw::c_int)
+    -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlGenericError() -> *mut xmlGenericErrorFunc;
+  pub fn __xmlGenericError() -> *mut xmlGenericErrorFunc;
 }
 extern "C" {
   #[link_name = "\u{1}xmlGenericError"]
   pub static mut xmlGenericError: xmlGenericErrorFunc;
 }
 extern "C" {
-  pub(crate) fn __xmlStructuredError() -> *mut xmlStructuredErrorFunc;
+  pub fn __xmlStructuredError() -> *mut xmlStructuredErrorFunc;
 }
 extern "C" {
   #[link_name = "\u{1}xmlStructuredError"]
   pub static mut xmlStructuredError: xmlStructuredErrorFunc;
 }
 extern "C" {
-  pub(crate) fn __xmlGenericErrorContext() -> *mut *mut ::std::os::raw::c_void;
+  pub fn __xmlGenericErrorContext() -> *mut *mut ::std::os::raw::c_void;
 }
 extern "C" {
   #[link_name = "\u{1}xmlGenericErrorContext"]
   pub static mut xmlGenericErrorContext: *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn __xmlStructuredErrorContext() -> *mut *mut ::std::os::raw::c_void;
+  pub fn __xmlStructuredErrorContext() -> *mut *mut ::std::os::raw::c_void;
 }
 extern "C" {
   #[link_name = "\u{1}xmlStructuredErrorContext"]
   pub static mut xmlStructuredErrorContext: *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn __xmlGetWarningsDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlGetWarningsDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlGetWarningsDefaultValue"]
   pub static mut xmlGetWarningsDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefGetWarningsDefaultValue(v: ::std::os::raw::c_int)
-    -> ::std::os::raw::c_int;
+  pub fn xmlThrDefGetWarningsDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlIndentTreeOutput() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlIndentTreeOutput() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlIndentTreeOutput"]
   pub static mut xmlIndentTreeOutput: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefIndentTreeOutput(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefIndentTreeOutput(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlTreeIndentString() -> *mut *const ::std::os::raw::c_char;
+  pub fn __xmlTreeIndentString() -> *mut *const ::std::os::raw::c_char;
 }
 extern "C" {
   #[link_name = "\u{1}xmlTreeIndentString"]
   pub static mut xmlTreeIndentString: *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefTreeIndentString(
+  pub fn xmlThrDefTreeIndentString(
     v: *const ::std::os::raw::c_char,
   ) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn __xmlKeepBlanksDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlKeepBlanksDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlKeepBlanksDefaultValue"]
   pub static mut xmlKeepBlanksDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefKeepBlanksDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefKeepBlanksDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlLineNumbersDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlLineNumbersDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlLineNumbersDefaultValue"]
   pub static mut xmlLineNumbersDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefLineNumbersDefaultValue(v: ::std::os::raw::c_int)
-    -> ::std::os::raw::c_int;
+  pub fn xmlThrDefLineNumbersDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlLoadExtDtdDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlLoadExtDtdDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlLoadExtDtdDefaultValue"]
   pub static mut xmlLoadExtDtdDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefLoadExtDtdDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefLoadExtDtdDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlParserDebugEntities() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlParserDebugEntities() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlParserDebugEntities"]
   pub static mut xmlParserDebugEntities: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefParserDebugEntities(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefParserDebugEntities(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlParserVersion() -> *mut *const ::std::os::raw::c_char;
+  pub fn __xmlParserVersion() -> *mut *const ::std::os::raw::c_char;
 }
 extern "C" {
   #[link_name = "\u{1}xmlParserVersion"]
   pub static mut xmlParserVersion: *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn __xmlPedanticParserDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlPedanticParserDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlPedanticParserDefaultValue"]
   pub static mut xmlPedanticParserDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefPedanticParserDefaultValue(
-    v: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefPedanticParserDefaultValue(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlSaveNoEmptyTags() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlSaveNoEmptyTags() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlSaveNoEmptyTags"]
   pub static mut xmlSaveNoEmptyTags: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefSaveNoEmptyTags(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefSaveNoEmptyTags(v: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlSubstituteEntitiesDefaultValue() -> *mut ::std::os::raw::c_int;
+  pub fn __xmlSubstituteEntitiesDefaultValue() -> *mut ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlSubstituteEntitiesDefaultValue"]
   pub static mut xmlSubstituteEntitiesDefaultValue: ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlThrDefSubstituteEntitiesDefaultValue(
-    v: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlThrDefSubstituteEntitiesDefaultValue(v: ::std::os::raw::c_int)
+    -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlRegisterNodeDefaultValue() -> *mut xmlRegisterNodeFunc;
+  pub fn __xmlRegisterNodeDefaultValue() -> *mut xmlRegisterNodeFunc;
 }
 extern "C" {
   #[link_name = "\u{1}xmlRegisterNodeDefaultValue"]
   pub static mut xmlRegisterNodeDefaultValue: xmlRegisterNodeFunc;
 }
 extern "C" {
-  pub(crate) fn __xmlDeregisterNodeDefaultValue() -> *mut xmlDeregisterNodeFunc;
+  pub fn __xmlDeregisterNodeDefaultValue() -> *mut xmlDeregisterNodeFunc;
 }
 extern "C" {
   #[link_name = "\u{1}xmlDeregisterNodeDefaultValue"]
   pub static mut xmlDeregisterNodeDefaultValue: xmlDeregisterNodeFunc;
 }
 extern "C" {
-  pub(crate) fn __xmlParserInputBufferCreateFilenameValue(
-) -> *mut xmlParserInputBufferCreateFilenameFunc;
+  pub fn __xmlParserInputBufferCreateFilenameValue() -> *mut xmlParserInputBufferCreateFilenameFunc;
 }
 extern "C" {
   #[link_name = "\u{1}xmlParserInputBufferCreateFilenameValue"]
   pub static mut xmlParserInputBufferCreateFilenameValue: xmlParserInputBufferCreateFilenameFunc;
 }
 extern "C" {
-  pub(crate) fn __xmlOutputBufferCreateFilenameValue() -> *mut xmlOutputBufferCreateFilenameFunc;
+  pub fn __xmlOutputBufferCreateFilenameValue() -> *mut xmlOutputBufferCreateFilenameFunc;
 }
 extern "C" {
   #[link_name = "\u{1}xmlOutputBufferCreateFilenameValue"]
@@ -14970,7 +14920,9 @@ fn bindgen_test_layout__xmlParserInputBuffer() {
     concat!("Alignment of ", stringify!(_xmlParserInputBuffer))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserInputBuffer>())).context as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserInputBuffer>())).context as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -14980,7 +14932,9 @@ fn bindgen_test_layout__xmlParserInputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserInputBuffer>())).readcallback as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserInputBuffer>())).readcallback as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -14990,7 +14944,9 @@ fn bindgen_test_layout__xmlParserInputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserInputBuffer>())).closecallback as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserInputBuffer>())).closecallback as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -15000,7 +14956,9 @@ fn bindgen_test_layout__xmlParserInputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserInputBuffer>())).encoder as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserInputBuffer>())).encoder as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -15030,7 +14988,9 @@ fn bindgen_test_layout__xmlParserInputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserInputBuffer>())).compressed as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserInputBuffer>())).compressed as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -15050,7 +15010,9 @@ fn bindgen_test_layout__xmlParserInputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlParserInputBuffer>())).rawconsumed as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlParserInputBuffer>())).rawconsumed as *const _ as usize
+    },
     56usize,
     concat!(
       "Offset of field: ",
@@ -15095,7 +15057,9 @@ fn bindgen_test_layout__xmlOutputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlOutputBuffer>())).writecallback as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlOutputBuffer>())).writecallback as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -15105,7 +15069,9 @@ fn bindgen_test_layout__xmlOutputBuffer() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlOutputBuffer>())).closecallback as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlOutputBuffer>())).closecallback as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -15166,51 +15132,51 @@ fn bindgen_test_layout__xmlOutputBuffer() {
   );
 }
 extern "C" {
-  pub(crate) fn xmlCleanupInputCallbacks();
+  pub fn xmlCleanupInputCallbacks();
 }
 extern "C" {
-  pub(crate) fn xmlPopInputCallbacks() -> ::std::os::raw::c_int;
+  pub fn xmlPopInputCallbacks() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRegisterDefaultInputCallbacks();
+  pub fn xmlRegisterDefaultInputCallbacks();
 }
 extern "C" {
-  pub(crate) fn xmlAllocParserInputBuffer(enc: xmlCharEncoding) -> xmlParserInputBufferPtr;
+  pub fn xmlAllocParserInputBuffer(enc: xmlCharEncoding) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateFilename(
+  pub fn xmlParserInputBufferCreateFilename(
     URI: *const ::std::os::raw::c_char,
     enc: xmlCharEncoding,
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateFile(
+  pub fn xmlParserInputBufferCreateFile(
     file: *mut FILE,
     enc: xmlCharEncoding,
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateFd(
+  pub fn xmlParserInputBufferCreateFd(
     fd: ::std::os::raw::c_int,
     enc: xmlCharEncoding,
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateMem(
+  pub fn xmlParserInputBufferCreateMem(
     mem: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
     enc: xmlCharEncoding,
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateStatic(
+  pub fn xmlParserInputBufferCreateStatic(
     mem: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
     enc: xmlCharEncoding,
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferCreateIO(
+  pub fn xmlParserInputBufferCreateIO(
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
     ioctx: *mut ::std::os::raw::c_void,
@@ -15218,34 +15184,34 @@ extern "C" {
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferRead(
+  pub fn xmlParserInputBufferRead(
     in_: xmlParserInputBufferPtr,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferGrow(
+  pub fn xmlParserInputBufferGrow(
     in_: xmlParserInputBufferPtr,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputBufferPush(
+  pub fn xmlParserInputBufferPush(
     in_: xmlParserInputBufferPtr,
     len: ::std::os::raw::c_int,
     buf: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlFreeParserInputBuffer(in_: xmlParserInputBufferPtr);
+  pub fn xmlFreeParserInputBuffer(in_: xmlParserInputBufferPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParserGetDirectory(
+  pub fn xmlParserGetDirectory(
     filename: *const ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlRegisterInputCallbacks(
+  pub fn xmlRegisterInputCallbacks(
     matchFunc: xmlInputMatchCallback,
     openFunc: xmlInputOpenCallback,
     readFunc: xmlInputReadCallback,
@@ -15253,47 +15219,47 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlParserInputBufferCreateFilename(
+  pub fn __xmlParserInputBufferCreateFilename(
     URI: *const ::std::os::raw::c_char,
     enc: xmlCharEncoding,
   ) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCleanupOutputCallbacks();
+  pub fn xmlCleanupOutputCallbacks();
 }
 extern "C" {
-  pub(crate) fn xmlRegisterDefaultOutputCallbacks();
+  pub fn xmlRegisterDefaultOutputCallbacks();
 }
 extern "C" {
-  pub(crate) fn xmlAllocOutputBuffer(encoder: xmlCharEncodingHandlerPtr) -> xmlOutputBufferPtr;
+  pub fn xmlAllocOutputBuffer(encoder: xmlCharEncodingHandlerPtr) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferCreateFilename(
+  pub fn xmlOutputBufferCreateFilename(
     URI: *const ::std::os::raw::c_char,
     encoder: xmlCharEncodingHandlerPtr,
     compression: ::std::os::raw::c_int,
   ) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferCreateFile(
+  pub fn xmlOutputBufferCreateFile(
     file: *mut FILE,
     encoder: xmlCharEncodingHandlerPtr,
   ) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferCreateBuffer(
+  pub fn xmlOutputBufferCreateBuffer(
     buffer: xmlBufferPtr,
     encoder: xmlCharEncodingHandlerPtr,
   ) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferCreateFd(
+  pub fn xmlOutputBufferCreateFd(
     fd: ::std::os::raw::c_int,
     encoder: xmlCharEncodingHandlerPtr,
   ) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferCreateIO(
+  pub fn xmlOutputBufferCreateIO(
     iowrite: xmlOutputWriteCallback,
     ioclose: xmlOutputCloseCallback,
     ioctx: *mut ::std::os::raw::c_void,
@@ -15301,39 +15267,39 @@ extern "C" {
   ) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferGetContent(out: xmlOutputBufferPtr) -> *const xmlChar;
+  pub fn xmlOutputBufferGetContent(out: xmlOutputBufferPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferGetSize(out: xmlOutputBufferPtr) -> usize;
+  pub fn xmlOutputBufferGetSize(out: xmlOutputBufferPtr) -> usize;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferWrite(
+  pub fn xmlOutputBufferWrite(
     out: xmlOutputBufferPtr,
     len: ::std::os::raw::c_int,
     buf: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferWriteString(
+  pub fn xmlOutputBufferWriteString(
     out: xmlOutputBufferPtr,
     str: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferWriteEscape(
+  pub fn xmlOutputBufferWriteEscape(
     out: xmlOutputBufferPtr,
     str: *const xmlChar,
     escaping: xmlCharEncodingOutputFunc,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferFlush(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
+  pub fn xmlOutputBufferFlush(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlOutputBufferClose(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
+  pub fn xmlOutputBufferClose(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRegisterOutputCallbacks(
+  pub fn xmlRegisterOutputCallbacks(
     matchFunc: xmlOutputMatchCallback,
     openFunc: xmlOutputOpenCallback,
     writeFunc: xmlOutputWriteCallback,
@@ -15341,166 +15307,158 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn __xmlOutputBufferCreateFilename(
+  pub fn __xmlOutputBufferCreateFilename(
     URI: *const ::std::os::raw::c_char,
     encoder: xmlCharEncodingHandlerPtr,
     compression: ::std::os::raw::c_int,
   ) -> xmlOutputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRegisterHTTPPostCallbacks();
+  pub fn xmlRegisterHTTPPostCallbacks();
 }
 extern "C" {
-  pub(crate) fn xmlCheckHTTPInput(
-    ctxt: xmlParserCtxtPtr,
-    ret: xmlParserInputPtr,
-  ) -> xmlParserInputPtr;
+  pub fn xmlCheckHTTPInput(ctxt: xmlParserCtxtPtr, ret: xmlParserInputPtr) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNoNetExternalEntityLoader(
+  pub fn xmlNoNetExternalEntityLoader(
     URL: *const ::std::os::raw::c_char,
     ID: *const ::std::os::raw::c_char,
     ctxt: xmlParserCtxtPtr,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNormalizeWindowsPath(path: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlNormalizeWindowsPath(path: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCheckFilename(path: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlCheckFilename(path: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// Default 'file://' protocol callbacks
-  pub(crate) fn xmlFileMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlFileMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlFileOpen(filename: *const ::std::os::raw::c_char)
-    -> *mut ::std::os::raw::c_void;
+  pub fn xmlFileOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlFileRead(
+  pub fn xmlFileRead(
     context: *mut ::std::os::raw::c_void,
     buffer: *mut ::std::os::raw::c_char,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlFileClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlFileClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIOHTTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlIOHTTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIOHTTPOpen(
-    filename: *const ::std::os::raw::c_char,
-  ) -> *mut ::std::os::raw::c_void;
+  pub fn xmlIOHTTPOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlIOHTTPOpenW(
+  pub fn xmlIOHTTPOpenW(
     post_uri: *const ::std::os::raw::c_char,
     compression: ::std::os::raw::c_int,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlIOHTTPRead(
+  pub fn xmlIOHTTPRead(
     context: *mut ::std::os::raw::c_void,
     buffer: *mut ::std::os::raw::c_char,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIOHTTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlIOHTTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIOFTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlIOFTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIOFTPOpen(
-    filename: *const ::std::os::raw::c_char,
-  ) -> *mut ::std::os::raw::c_void;
+  pub fn xmlIOFTPOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlIOFTPRead(
+  pub fn xmlIOFTPRead(
     context: *mut ::std::os::raw::c_void,
     buffer: *mut ::std::os::raw::c_char,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIOFTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlIOFTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlInitParser();
+  pub fn xmlInitParser();
 }
 extern "C" {
-  pub(crate) fn xmlCleanupParser();
+  pub fn xmlCleanupParser();
 }
 extern "C" {
-  pub(crate) fn xmlParserInputRead(
+  pub fn xmlParserInputRead(
     in_: xmlParserInputPtr,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParserInputGrow(
+  pub fn xmlParserInputGrow(
     in_: xmlParserInputPtr,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseDoc(cur: *const xmlChar) -> xmlDocPtr;
+  pub fn xmlParseDoc(cur: *const xmlChar) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+  pub fn xmlParseFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseMemory(
+  pub fn xmlParseMemory(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSubstituteEntitiesDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlSubstituteEntitiesDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlKeepBlanksDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlKeepBlanksDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStopParser(ctxt: xmlParserCtxtPtr);
+  pub fn xmlStopParser(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlPedanticParserDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlPedanticParserDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlLineNumbersDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlLineNumbersDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRecoverDoc(cur: *const xmlChar) -> xmlDocPtr;
+  pub fn xmlRecoverDoc(cur: *const xmlChar) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRecoverMemory(
+  pub fn xmlRecoverMemory(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRecoverFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+  pub fn xmlRecoverFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseDocument(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlParseDocument(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseExtParsedEnt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlParseExtParsedEnt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAXUserParseFile(
+  pub fn xmlSAXUserParseFile(
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
     filename: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAXUserParseMemory(
+  pub fn xmlSAXUserParseMemory(
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
     buffer: *const ::std::os::raw::c_char,
@@ -15508,14 +15466,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseDoc(
+  pub fn xmlSAXParseDoc(
     sax: xmlSAXHandlerPtr,
     cur: *const xmlChar,
     recovery: ::std::os::raw::c_int,
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseMemory(
+  pub fn xmlSAXParseMemory(
     sax: xmlSAXHandlerPtr,
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -15523,7 +15481,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseMemoryWithData(
+  pub fn xmlSAXParseMemoryWithData(
     sax: xmlSAXHandlerPtr,
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -15532,14 +15490,14 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseFile(
+  pub fn xmlSAXParseFile(
     sax: xmlSAXHandlerPtr,
     filename: *const ::std::os::raw::c_char,
     recovery: ::std::os::raw::c_int,
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseFileWithData(
+  pub fn xmlSAXParseFileWithData(
     sax: xmlSAXHandlerPtr,
     filename: *const ::std::os::raw::c_char,
     recovery: ::std::os::raw::c_int,
@@ -15547,33 +15505,33 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseEntity(
+  pub fn xmlSAXParseEntity(
     sax: xmlSAXHandlerPtr,
     filename: *const ::std::os::raw::c_char,
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseEntity(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+  pub fn xmlParseEntity(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSAXParseDTD(
+  pub fn xmlSAXParseDTD(
     sax: xmlSAXHandlerPtr,
     ExternalID: *const xmlChar,
     SystemID: *const xmlChar,
   ) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseDTD(ExternalID: *const xmlChar, SystemID: *const xmlChar) -> xmlDtdPtr;
+  pub fn xmlParseDTD(ExternalID: *const xmlChar, SystemID: *const xmlChar) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlIOParseDTD(
+  pub fn xmlIOParseDTD(
     sax: xmlSAXHandlerPtr,
     input: xmlParserInputBufferPtr,
     enc: xmlCharEncoding,
   ) -> xmlDtdPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseBalancedChunkMemory(
+  pub fn xmlParseBalancedChunkMemory(
     doc: xmlDocPtr,
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
@@ -15583,7 +15541,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseInNodeContext(
+  pub fn xmlParseInNodeContext(
     node: xmlNodePtr,
     data: *const ::std::os::raw::c_char,
     datalen: ::std::os::raw::c_int,
@@ -15592,7 +15550,7 @@ extern "C" {
   ) -> xmlParserErrors;
 }
 extern "C" {
-  pub(crate) fn xmlParseBalancedChunkMemoryRecover(
+  pub fn xmlParseBalancedChunkMemoryRecover(
     doc: xmlDocPtr,
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
@@ -15603,7 +15561,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseExternalEntity(
+  pub fn xmlParseExternalEntity(
     doc: xmlDocPtr,
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
@@ -15614,7 +15572,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseCtxtExternalEntity(
+  pub fn xmlParseCtxtExternalEntity(
     ctx: xmlParserCtxtPtr,
     URL: *const xmlChar,
     ID: *const xmlChar,
@@ -15622,49 +15580,49 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNewParserCtxt() -> xmlParserCtxtPtr;
+  pub fn xmlNewParserCtxt() -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlInitParserCtxt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlInitParserCtxt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlClearParserCtxt(ctxt: xmlParserCtxtPtr);
+  pub fn xmlClearParserCtxt(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreeParserCtxt(ctxt: xmlParserCtxtPtr);
+  pub fn xmlFreeParserCtxt(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSetupParserForBuffer(
+  pub fn xmlSetupParserForBuffer(
     ctxt: xmlParserCtxtPtr,
     buffer: *const xmlChar,
     filename: *const ::std::os::raw::c_char,
   );
 }
 extern "C" {
-  pub(crate) fn xmlCreateDocParserCtxt(cur: *const xmlChar) -> xmlParserCtxtPtr;
+  pub fn xmlCreateDocParserCtxt(cur: *const xmlChar) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlGetFeaturesList(
+  pub fn xmlGetFeaturesList(
     len: *mut ::std::os::raw::c_int,
     result: *mut *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlGetFeature(
+  pub fn xmlGetFeature(
     ctxt: xmlParserCtxtPtr,
     name: *const ::std::os::raw::c_char,
     result: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSetFeature(
+  pub fn xmlSetFeature(
     ctxt: xmlParserCtxtPtr,
     name: *const ::std::os::raw::c_char,
     value: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCreatePushParserCtxt(
+  pub fn xmlCreatePushParserCtxt(
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
     chunk: *const ::std::os::raw::c_char,
@@ -15673,7 +15631,7 @@ extern "C" {
   ) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseChunk(
+  pub fn xmlParseChunk(
     ctxt: xmlParserCtxtPtr,
     chunk: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -15681,7 +15639,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCreateIOParserCtxt(
+  pub fn xmlCreateIOParserCtxt(
     sax: xmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
     ioread: xmlInputReadCallback,
@@ -15691,48 +15649,48 @@ extern "C" {
   ) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewIOInputStream(
+  pub fn xmlNewIOInputStream(
     ctxt: xmlParserCtxtPtr,
     input: xmlParserInputBufferPtr,
     enc: xmlCharEncoding,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParserFindNodeInfo(
+  pub fn xmlParserFindNodeInfo(
     ctxt: xmlParserCtxtPtr,
     node: xmlNodePtr,
   ) -> *const xmlParserNodeInfo;
 }
 extern "C" {
-  pub(crate) fn xmlInitNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
+  pub fn xmlInitNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
 }
 extern "C" {
-  pub(crate) fn xmlClearNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
+  pub fn xmlClearNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParserFindNodeInfoIndex(
+  pub fn xmlParserFindNodeInfoIndex(
     seq: xmlParserNodeInfoSeqPtr,
     node: xmlNodePtr,
   ) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
-  pub(crate) fn xmlParserAddNodeInfo(ctxt: xmlParserCtxtPtr, info: xmlParserNodeInfoPtr);
+  pub fn xmlParserAddNodeInfo(ctxt: xmlParserCtxtPtr, info: xmlParserNodeInfoPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSetExternalEntityLoader(f: xmlExternalEntityLoader);
+  pub fn xmlSetExternalEntityLoader(f: xmlExternalEntityLoader);
 }
 extern "C" {
-  pub(crate) fn xmlGetExternalEntityLoader() -> xmlExternalEntityLoader;
+  pub fn xmlGetExternalEntityLoader() -> xmlExternalEntityLoader;
 }
 extern "C" {
-  pub(crate) fn xmlLoadExternalEntity(
+  pub fn xmlLoadExternalEntity(
     URL: *const ::std::os::raw::c_char,
     ID: *const ::std::os::raw::c_char,
     ctxt: xmlParserCtxtPtr,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlByteConsumed(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_long;
+  pub fn xmlByteConsumed(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_long;
 }
 pub const xmlParserOption_XML_PARSE_RECOVER: xmlParserOption = 1;
 pub const xmlParserOption_XML_PARSE_NOENT: xmlParserOption = 2;
@@ -15763,10 +15721,10 @@ pub const xmlParserOption_XML_PARSE_BIG_LINES: xmlParserOption = 4194304;
 /// to the xmlReadDoc() and similar calls.
 pub type xmlParserOption = u32;
 extern "C" {
-  pub(crate) fn xmlCtxtReset(ctxt: xmlParserCtxtPtr);
+  pub fn xmlCtxtReset(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCtxtResetPush(
+  pub fn xmlCtxtResetPush(
     ctxt: xmlParserCtxtPtr,
     chunk: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -15775,13 +15733,13 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtUseOptions(
+  pub fn xmlCtxtUseOptions(
     ctxt: xmlParserCtxtPtr,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlReadDoc(
+  pub fn xmlReadDoc(
     cur: *const xmlChar,
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -15789,14 +15747,14 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReadFile(
+  pub fn xmlReadFile(
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReadMemory(
+  pub fn xmlReadMemory(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
@@ -15805,7 +15763,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReadFd(
+  pub fn xmlReadFd(
     fd: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -15813,7 +15771,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReadIO(
+  pub fn xmlReadIO(
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
     ioctx: *mut ::std::os::raw::c_void,
@@ -15823,7 +15781,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtReadDoc(
+  pub fn xmlCtxtReadDoc(
     ctxt: xmlParserCtxtPtr,
     cur: *const xmlChar,
     URL: *const ::std::os::raw::c_char,
@@ -15832,7 +15790,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtReadFile(
+  pub fn xmlCtxtReadFile(
     ctxt: xmlParserCtxtPtr,
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -15840,7 +15798,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtReadMemory(
+  pub fn xmlCtxtReadMemory(
     ctxt: xmlParserCtxtPtr,
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -15850,7 +15808,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtReadFd(
+  pub fn xmlCtxtReadFd(
     ctxt: xmlParserCtxtPtr,
     fd: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
@@ -15859,7 +15817,7 @@ extern "C" {
   ) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCtxtReadIO(
+  pub fn xmlCtxtReadIO(
     ctxt: xmlParserCtxtPtr,
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
@@ -15910,7 +15868,7 @@ pub const xmlFeature_XML_WITH_NONE: xmlFeature = 99999;
 /// They used to be called XML_FEATURE_xxx but this clashed with Expat
 pub type xmlFeature = u32;
 extern "C" {
-  pub(crate) fn xmlHasFeature(feature: xmlFeature) -> ::std::os::raw::c_int;
+  pub fn xmlHasFeature(feature: xmlFeature) -> ::std::os::raw::c_int;
 }
 pub type htmlParserCtxt = xmlParserCtxt;
 pub type htmlParserCtxtPtr = xmlParserCtxtPtr;
@@ -16147,50 +16105,50 @@ fn bindgen_test_layout__htmlEntityDesc() {
   );
 }
 extern "C" {
-  pub(crate) fn htmlTagLookup(tag: *const xmlChar) -> *const htmlElemDesc;
+  pub fn htmlTagLookup(tag: *const xmlChar) -> *const htmlElemDesc;
 }
 extern "C" {
-  pub(crate) fn htmlEntityLookup(name: *const xmlChar) -> *const htmlEntityDesc;
+  pub fn htmlEntityLookup(name: *const xmlChar) -> *const htmlEntityDesc;
 }
 extern "C" {
-  pub(crate) fn htmlEntityValueLookup(value: ::std::os::raw::c_uint) -> *const htmlEntityDesc;
+  pub fn htmlEntityValueLookup(value: ::std::os::raw::c_uint) -> *const htmlEntityDesc;
 }
 extern "C" {
-  pub(crate) fn htmlIsAutoClosed(doc: htmlDocPtr, elem: htmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn htmlIsAutoClosed(doc: htmlDocPtr, elem: htmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlAutoCloseTag(
+  pub fn htmlAutoCloseTag(
     doc: htmlDocPtr,
     name: *const xmlChar,
     elem: htmlNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlParseEntityRef(
+  pub fn htmlParseEntityRef(
     ctxt: htmlParserCtxtPtr,
     str: *mut *const xmlChar,
   ) -> *const htmlEntityDesc;
 }
 extern "C" {
-  pub(crate) fn htmlParseCharRef(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn htmlParseCharRef(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlParseElement(ctxt: htmlParserCtxtPtr);
+  pub fn htmlParseElement(ctxt: htmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn htmlNewParserCtxt() -> htmlParserCtxtPtr;
+  pub fn htmlNewParserCtxt() -> htmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn htmlCreateMemoryParserCtxt(
+  pub fn htmlCreateMemoryParserCtxt(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> htmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn htmlParseDocument(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn htmlParseDocument(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlSAXParseDoc(
+  pub fn htmlSAXParseDoc(
     cur: *mut xmlChar,
     encoding: *const ::std::os::raw::c_char,
     sax: htmlSAXHandlerPtr,
@@ -16198,13 +16156,10 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlParseDoc(
-    cur: *mut xmlChar,
-    encoding: *const ::std::os::raw::c_char,
-  ) -> htmlDocPtr;
+  pub fn htmlParseDoc(cur: *mut xmlChar, encoding: *const ::std::os::raw::c_char) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlSAXParseFile(
+  pub fn htmlSAXParseFile(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
     sax: htmlSAXHandlerPtr,
@@ -16212,13 +16167,13 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlParseFile(
+  pub fn htmlParseFile(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn UTF8ToHtml(
+  pub fn UTF8ToHtml(
     out: *mut ::std::os::raw::c_uchar,
     outlen: *mut ::std::os::raw::c_int,
     in_: *const ::std::os::raw::c_uchar,
@@ -16226,7 +16181,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlEncodeEntities(
+  pub fn htmlEncodeEntities(
     out: *mut ::std::os::raw::c_uchar,
     outlen: *mut ::std::os::raw::c_int,
     in_: *const ::std::os::raw::c_uchar,
@@ -16235,14 +16190,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlIsScriptAttribute(name: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn htmlIsScriptAttribute(name: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlHandleOmittedElem(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn htmlHandleOmittedElem(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// Interfaces for the Push mode.
-  pub(crate) fn htmlCreatePushParserCtxt(
+  pub fn htmlCreatePushParserCtxt(
     sax: htmlSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
     chunk: *const ::std::os::raw::c_char,
@@ -16252,7 +16207,7 @@ extern "C" {
   ) -> htmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn htmlParseChunk(
+  pub fn htmlParseChunk(
     ctxt: htmlParserCtxtPtr,
     chunk: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -16260,7 +16215,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlFreeParserCtxt(ctxt: htmlParserCtxtPtr);
+  pub fn htmlFreeParserCtxt(ctxt: htmlParserCtxtPtr);
 }
 pub const htmlParserOption_HTML_PARSE_RECOVER: htmlParserOption = 1;
 pub const htmlParserOption_HTML_PARSE_NODEFDTD: htmlParserOption = 4;
@@ -16278,16 +16233,16 @@ pub const htmlParserOption_HTML_PARSE_IGNORE_ENC: htmlParserOption = 2097152;
 /// to the xmlReadDoc() and similar calls.
 pub type htmlParserOption = u32;
 extern "C" {
-  pub(crate) fn htmlCtxtReset(ctxt: htmlParserCtxtPtr);
+  pub fn htmlCtxtReset(ctxt: htmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn htmlCtxtUseOptions(
+  pub fn htmlCtxtUseOptions(
     ctxt: htmlParserCtxtPtr,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlReadDoc(
+  pub fn htmlReadDoc(
     cur: *const xmlChar,
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -16295,14 +16250,14 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlReadFile(
+  pub fn htmlReadFile(
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlReadMemory(
+  pub fn htmlReadMemory(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
@@ -16311,7 +16266,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlReadFd(
+  pub fn htmlReadFd(
     fd: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -16319,7 +16274,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlReadIO(
+  pub fn htmlReadIO(
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
     ioctx: *mut ::std::os::raw::c_void,
@@ -16329,7 +16284,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlCtxtReadDoc(
+  pub fn htmlCtxtReadDoc(
     ctxt: xmlParserCtxtPtr,
     cur: *const xmlChar,
     URL: *const ::std::os::raw::c_char,
@@ -16338,7 +16293,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlCtxtReadFile(
+  pub fn htmlCtxtReadFile(
     ctxt: xmlParserCtxtPtr,
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -16346,7 +16301,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlCtxtReadMemory(
+  pub fn htmlCtxtReadMemory(
     ctxt: xmlParserCtxtPtr,
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -16356,7 +16311,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlCtxtReadFd(
+  pub fn htmlCtxtReadFd(
     ctxt: xmlParserCtxtPtr,
     fd: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
@@ -16365,7 +16320,7 @@ extern "C" {
   ) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlCtxtReadIO(
+  pub fn htmlCtxtReadIO(
     ctxt: xmlParserCtxtPtr,
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
@@ -16382,26 +16337,23 @@ pub const htmlStatus_HTML_VALID: htmlStatus = 4;
 pub const htmlStatus_HTML_REQUIRED: htmlStatus = 12;
 pub type htmlStatus = u32;
 extern "C" {
-  pub(crate) fn htmlAttrAllowed(
+  pub fn htmlAttrAllowed(
     arg1: *const htmlElemDesc,
     arg2: *const xmlChar,
     arg3: ::std::os::raw::c_int,
   ) -> htmlStatus;
 }
 extern "C" {
-  pub(crate) fn htmlElementAllowedHere(
+  pub fn htmlElementAllowedHere(
     arg1: *const htmlElemDesc,
     arg2: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlElementStatusHere(
-    arg1: *const htmlElemDesc,
-    arg2: *const htmlElemDesc,
-  ) -> htmlStatus;
+  pub fn htmlElementStatusHere(arg1: *const htmlElemDesc, arg2: *const htmlElemDesc) -> htmlStatus;
 }
 extern "C" {
-  pub(crate) fn htmlNodeStatus(arg1: htmlNodePtr, arg2: ::std::os::raw::c_int) -> htmlStatus;
+  pub fn htmlNodeStatus(arg1: htmlNodePtr, arg2: ::std::os::raw::c_int) -> htmlStatus;
 }
 pub type xmlChSRange = _xmlChSRange;
 pub type xmlChSRangePtr = *mut xmlChSRange;
@@ -16508,7 +16460,9 @@ fn bindgen_test_layout__xmlChRangeGroup() {
     concat!("Alignment of ", stringify!(_xmlChRangeGroup))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlChRangeGroup>())).nbShortRange as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlChRangeGroup>())).nbShortRange as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -16550,7 +16504,7 @@ fn bindgen_test_layout__xmlChRangeGroup() {
 }
 extern "C" {
   /// Range checking routine
-  pub(crate) fn xmlCharInRange(
+  pub fn xmlCharInRange(
     val: ::std::os::raw::c_uint,
     group: *const xmlChRangeGroup,
   ) -> ::std::os::raw::c_int;
@@ -16584,28 +16538,28 @@ extern "C" {
   pub static mut xmlIsPubidChar_tab: [::std::os::raw::c_uchar; 256usize];
 }
 extern "C" {
-  pub(crate) fn xmlIsBaseChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsBaseChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsBlank(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsBlank(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsCombining(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsCombining(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsDigit(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsDigit(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsExtender(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsExtender(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsIdeographic(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsIdeographic(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlIsPubidChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+  pub fn xmlIsPubidChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
 }
 extern "C" {
   #[link_name = "\u{1}xmlParserMaxDepth"]
@@ -16624,47 +16578,42 @@ extern "C" {
   pub static mut xmlStringComment: [xmlChar; 0usize];
 }
 extern "C" {
-  pub(crate) fn xmlIsLetter(c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlIsLetter(c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// Parser context.
-  pub(crate) fn xmlCreateFileParserCtxt(
-    filename: *const ::std::os::raw::c_char,
-  ) -> xmlParserCtxtPtr;
+  pub fn xmlCreateFileParserCtxt(filename: *const ::std::os::raw::c_char) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCreateURLParserCtxt(
+  pub fn xmlCreateURLParserCtxt(
     filename: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCreateMemoryParserCtxt(
+  pub fn xmlCreateMemoryParserCtxt(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCreateEntityParserCtxt(
+  pub fn xmlCreateEntityParserCtxt(
     URL: *const xmlChar,
     ID: *const xmlChar,
     base: *const xmlChar,
   ) -> xmlParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSwitchEncoding(
-    ctxt: xmlParserCtxtPtr,
-    enc: xmlCharEncoding,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlSwitchEncoding(ctxt: xmlParserCtxtPtr, enc: xmlCharEncoding) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSwitchToEncoding(
+  pub fn xmlSwitchToEncoding(
     ctxt: xmlParserCtxtPtr,
     handler: xmlCharEncodingHandlerPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSwitchInputEncoding(
+  pub fn xmlSwitchInputEncoding(
     ctxt: xmlParserCtxtPtr,
     input: xmlParserInputPtr,
     handler: xmlCharEncodingHandlerPtr,
@@ -16672,41 +16621,36 @@ extern "C" {
 }
 extern "C" {
   /// Input Streams.
-  pub(crate) fn xmlNewStringInputStream(
+  pub fn xmlNewStringInputStream(
     ctxt: xmlParserCtxtPtr,
     buffer: *const xmlChar,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewEntityInputStream(
-    ctxt: xmlParserCtxtPtr,
-    entity: xmlEntityPtr,
-  ) -> xmlParserInputPtr;
+  pub fn xmlNewEntityInputStream(ctxt: xmlParserCtxtPtr, entity: xmlEntityPtr)
+    -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlPushInput(
-    ctxt: xmlParserCtxtPtr,
-    input: xmlParserInputPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlPushInput(ctxt: xmlParserCtxtPtr, input: xmlParserInputPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlPopInput(ctxt: xmlParserCtxtPtr) -> xmlChar;
+  pub fn xmlPopInput(ctxt: xmlParserCtxtPtr) -> xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlFreeInputStream(input: xmlParserInputPtr);
+  pub fn xmlFreeInputStream(input: xmlParserInputPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNewInputFromFile(
+  pub fn xmlNewInputFromFile(
     ctxt: xmlParserCtxtPtr,
     filename: *const ::std::os::raw::c_char,
   ) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewInputStream(ctxt: xmlParserCtxtPtr) -> xmlParserInputPtr;
+  pub fn xmlNewInputStream(ctxt: xmlParserCtxtPtr) -> xmlParserInputPtr;
 }
 extern "C" {
   /// Namespaces.
-  pub(crate) fn xmlSplitQName(
+  pub fn xmlSplitQName(
     ctxt: xmlParserCtxtPtr,
     name: *const xmlChar,
     prefix: *mut *mut xmlChar,
@@ -16714,172 +16658,166 @@ extern "C" {
 }
 extern "C" {
   /// Generic production rules.
-  pub(crate) fn xmlParseName(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+  pub fn xmlParseName(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseNmtoken(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseNmtoken(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseEntityValue(
-    ctxt: xmlParserCtxtPtr,
-    orig: *mut *mut xmlChar,
-  ) -> *mut xmlChar;
+  pub fn xmlParseEntityValue(ctxt: xmlParserCtxtPtr, orig: *mut *mut xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseAttValue(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseAttValue(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseSystemLiteral(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseSystemLiteral(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParsePubidLiteral(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParsePubidLiteral(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseCharData(ctxt: xmlParserCtxtPtr, cdata: ::std::os::raw::c_int);
+  pub fn xmlParseCharData(ctxt: xmlParserCtxtPtr, cdata: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlParseExternalID(
+  pub fn xmlParseExternalID(
     ctxt: xmlParserCtxtPtr,
     publicID: *mut *mut xmlChar,
     strict: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseComment(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseComment(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParsePITarget(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+  pub fn xmlParsePITarget(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParsePI(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParsePI(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseNotationDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseNotationDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseEntityDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseEntityDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseDefaultDecl(
+  pub fn xmlParseDefaultDecl(
     ctxt: xmlParserCtxtPtr,
     value: *mut *mut xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseNotationType(ctxt: xmlParserCtxtPtr) -> xmlEnumerationPtr;
+  pub fn xmlParseNotationType(ctxt: xmlParserCtxtPtr) -> xmlEnumerationPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseEnumerationType(ctxt: xmlParserCtxtPtr) -> xmlEnumerationPtr;
+  pub fn xmlParseEnumerationType(ctxt: xmlParserCtxtPtr) -> xmlEnumerationPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseEnumeratedType(
+  pub fn xmlParseEnumeratedType(
     ctxt: xmlParserCtxtPtr,
     tree: *mut xmlEnumerationPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseAttributeType(
+  pub fn xmlParseAttributeType(
     ctxt: xmlParserCtxtPtr,
     tree: *mut xmlEnumerationPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseAttributeListDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseAttributeListDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseElementMixedContentDecl(
+  pub fn xmlParseElementMixedContentDecl(
     ctxt: xmlParserCtxtPtr,
     inputchk: ::std::os::raw::c_int,
   ) -> xmlElementContentPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseElementChildrenContentDecl(
+  pub fn xmlParseElementChildrenContentDecl(
     ctxt: xmlParserCtxtPtr,
     inputchk: ::std::os::raw::c_int,
   ) -> xmlElementContentPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseElementContentDecl(
+  pub fn xmlParseElementContentDecl(
     ctxt: xmlParserCtxtPtr,
     name: *const xmlChar,
     result: *mut xmlElementContentPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseElementDecl(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlParseElementDecl(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseMarkupDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseMarkupDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseCharRef(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlParseCharRef(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseEntityRef(ctxt: xmlParserCtxtPtr) -> xmlEntityPtr;
+  pub fn xmlParseEntityRef(ctxt: xmlParserCtxtPtr) -> xmlEntityPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseReference(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseReference(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParsePEReference(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParsePEReference(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseDocTypeDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseDocTypeDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseAttribute(
-    ctxt: xmlParserCtxtPtr,
-    value: *mut *mut xmlChar,
-  ) -> *const xmlChar;
+  pub fn xmlParseAttribute(ctxt: xmlParserCtxtPtr, value: *mut *mut xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseStartTag(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+  pub fn xmlParseStartTag(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseEndTag(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseEndTag(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseCDSect(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseCDSect(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseContent(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseContent(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseElement(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseElement(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseVersionNum(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseVersionNum(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseVersionInfo(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseVersionInfo(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseEncName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseEncName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseEncodingDecl(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+  pub fn xmlParseEncodingDecl(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseSDDecl(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlParseSDDecl(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseXMLDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseXMLDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseTextDecl(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseTextDecl(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseMisc(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseMisc(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParseExternalSubset(
+  pub fn xmlParseExternalSubset(
     ctxt: xmlParserCtxtPtr,
     ExternalID: *const xmlChar,
     SystemID: *const xmlChar,
   );
 }
 extern "C" {
-  pub(crate) fn xmlStringDecodeEntities(
+  pub fn xmlStringDecodeEntities(
     ctxt: xmlParserCtxtPtr,
     str: *const xmlChar,
     what: ::std::os::raw::c_int,
@@ -16889,7 +16827,7 @@ extern "C" {
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlStringLenDecodeEntities(
+  pub fn xmlStringLenDecodeEntities(
     ctxt: xmlParserCtxtPtr,
     str: *const xmlChar,
     len: ::std::os::raw::c_int,
@@ -16900,72 +16838,69 @@ extern "C" {
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn nodePush(ctxt: xmlParserCtxtPtr, value: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn nodePush(ctxt: xmlParserCtxtPtr, value: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn nodePop(ctxt: xmlParserCtxtPtr) -> xmlNodePtr;
+  pub fn nodePop(ctxt: xmlParserCtxtPtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn inputPush(
-    ctxt: xmlParserCtxtPtr,
-    value: xmlParserInputPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn inputPush(ctxt: xmlParserCtxtPtr, value: xmlParserInputPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn inputPop(ctxt: xmlParserCtxtPtr) -> xmlParserInputPtr;
+  pub fn inputPop(ctxt: xmlParserCtxtPtr) -> xmlParserInputPtr;
 }
 extern "C" {
-  pub(crate) fn namePop(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+  pub fn namePop(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn namePush(ctxt: xmlParserCtxtPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn namePush(ctxt: xmlParserCtxtPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSkipBlankChars(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSkipBlankChars(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStringCurrentChar(
+  pub fn xmlStringCurrentChar(
     ctxt: xmlParserCtxtPtr,
     cur: *const xmlChar,
     len: *mut ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParserHandlePEReference(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParserHandlePEReference(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCheckLanguageID(lang: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlCheckLanguageID(lang: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCurrentChar(
+  pub fn xmlCurrentChar(
     ctxt: xmlParserCtxtPtr,
     len: *mut ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCopyCharMultiByte(
+  pub fn xmlCopyCharMultiByte(
     out: *mut xmlChar,
     val: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCopyChar(
+  pub fn xmlCopyChar(
     len: ::std::os::raw::c_int,
     out: *mut xmlChar,
     val: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNextChar(ctxt: xmlParserCtxtPtr);
+  pub fn xmlNextChar(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlParserInputShrink(in_: xmlParserInputPtr);
+  pub fn xmlParserInputShrink(in_: xmlParserInputPtr);
 }
 extern "C" {
-  pub(crate) fn htmlInitAutoClose();
+  pub fn htmlInitAutoClose();
 }
 extern "C" {
-  pub(crate) fn htmlCreateFileParserCtxt(
+  pub fn htmlCreateFileParserCtxt(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
   ) -> htmlParserCtxtPtr;
@@ -16981,35 +16916,32 @@ pub type xmlEntityReferenceFunc = ::std::option::Option<
   unsafe extern "C" fn(ent: xmlEntityPtr, firstNode: xmlNodePtr, lastNode: xmlNodePtr),
 >;
 extern "C" {
-  pub(crate) fn xmlSetEntityReferenceFunc(func: xmlEntityReferenceFunc);
+  pub fn xmlSetEntityReferenceFunc(func: xmlEntityReferenceFunc);
 }
 extern "C" {
-  pub(crate) fn xmlParseQuotedString(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlParseQuotedString(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseNamespace(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParseNamespace(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNamespaceParseNSDef(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlNamespaceParseNSDef(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlScanName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlScanName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlNamespaceParseNCName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+  pub fn xmlNamespaceParseNCName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParserHandleReference(ctxt: xmlParserCtxtPtr);
+  pub fn xmlParserHandleReference(ctxt: xmlParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlNamespaceParseQName(
-    ctxt: xmlParserCtxtPtr,
-    prefix: *mut *mut xmlChar,
-  ) -> *mut xmlChar;
+  pub fn xmlNamespaceParseQName(ctxt: xmlParserCtxtPtr, prefix: *mut *mut xmlChar) -> *mut xmlChar;
 }
 extern "C" {
   /// Entities
-  pub(crate) fn xmlDecodeEntities(
+  pub fn xmlDecodeEntities(
     ctxt: xmlParserCtxtPtr,
     len: ::std::os::raw::c_int,
     what: ::std::os::raw::c_int,
@@ -17019,7 +16951,7 @@ extern "C" {
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlHandleEntity(ctxt: xmlParserCtxtPtr, entity: xmlEntityPtr);
+  pub fn xmlHandleEntity(ctxt: xmlParserCtxtPtr, entity: xmlEntityPtr);
 }
 pub type docbParserCtxt = xmlParserCtxt;
 pub type docbParserCtxtPtr = xmlParserCtxtPtr;
@@ -17029,7 +16961,7 @@ pub type docbParserInput = xmlParserInput;
 pub type docbParserInputPtr = xmlParserInputPtr;
 pub type docbDocPtr = xmlDocPtr;
 extern "C" {
-  pub(crate) fn docbEncodeEntities(
+  pub fn docbEncodeEntities(
     out: *mut ::std::os::raw::c_uchar,
     outlen: *mut ::std::os::raw::c_int,
     in_: *const ::std::os::raw::c_uchar,
@@ -17038,7 +16970,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn docbSAXParseDoc(
+  pub fn docbSAXParseDoc(
     cur: *mut xmlChar,
     encoding: *const ::std::os::raw::c_char,
     sax: docbSAXHandlerPtr,
@@ -17046,13 +16978,10 @@ extern "C" {
   ) -> docbDocPtr;
 }
 extern "C" {
-  pub(crate) fn docbParseDoc(
-    cur: *mut xmlChar,
-    encoding: *const ::std::os::raw::c_char,
-  ) -> docbDocPtr;
+  pub fn docbParseDoc(cur: *mut xmlChar, encoding: *const ::std::os::raw::c_char) -> docbDocPtr;
 }
 extern "C" {
-  pub(crate) fn docbSAXParseFile(
+  pub fn docbSAXParseFile(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
     sax: docbSAXHandlerPtr,
@@ -17060,17 +16989,17 @@ extern "C" {
   ) -> docbDocPtr;
 }
 extern "C" {
-  pub(crate) fn docbParseFile(
+  pub fn docbParseFile(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
   ) -> docbDocPtr;
 }
 extern "C" {
   /// Interfaces for the Push mode.
-  pub(crate) fn docbFreeParserCtxt(ctxt: docbParserCtxtPtr);
+  pub fn docbFreeParserCtxt(ctxt: docbParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn docbCreatePushParserCtxt(
+  pub fn docbCreatePushParserCtxt(
     sax: docbSAXHandlerPtr,
     user_data: *mut ::std::os::raw::c_void,
     chunk: *const ::std::os::raw::c_char,
@@ -17080,7 +17009,7 @@ extern "C" {
   ) -> docbParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn docbParseChunk(
+  pub fn docbParseChunk(
     ctxt: docbParserCtxtPtr,
     chunk: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -17088,38 +17017,35 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn docbCreateFileParserCtxt(
+  pub fn docbCreateFileParserCtxt(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
   ) -> docbParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn docbParseDocument(ctxt: docbParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn docbParseDocument(ctxt: docbParserCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlNewDoc(URI: *const xmlChar, ExternalID: *const xmlChar) -> htmlDocPtr;
+  pub fn htmlNewDoc(URI: *const xmlChar, ExternalID: *const xmlChar) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlNewDocNoDtD(URI: *const xmlChar, ExternalID: *const xmlChar) -> htmlDocPtr;
+  pub fn htmlNewDocNoDtD(URI: *const xmlChar, ExternalID: *const xmlChar) -> htmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn htmlGetMetaEncoding(doc: htmlDocPtr) -> *const xmlChar;
+  pub fn htmlGetMetaEncoding(doc: htmlDocPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn htmlSetMetaEncoding(
-    doc: htmlDocPtr,
-    encoding: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
+  pub fn htmlSetMetaEncoding(doc: htmlDocPtr, encoding: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlDocDumpMemory(
+  pub fn htmlDocDumpMemory(
     cur: xmlDocPtr,
     mem: *mut *mut xmlChar,
     size: *mut ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn htmlDocDumpMemoryFormat(
+  pub fn htmlDocDumpMemoryFormat(
     cur: xmlDocPtr,
     mem: *mut *mut xmlChar,
     size: *mut ::std::os::raw::c_int,
@@ -17127,26 +17053,22 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn htmlDocDump(f: *mut FILE, cur: xmlDocPtr) -> ::std::os::raw::c_int;
+  pub fn htmlDocDump(f: *mut FILE, cur: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlSaveFile(
+  pub fn htmlSaveFile(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlNodeDump(
-    buf: xmlBufferPtr,
-    doc: xmlDocPtr,
-    cur: xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn htmlNodeDump(buf: xmlBufferPtr, doc: xmlDocPtr, cur: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlNodeDumpFile(out: *mut FILE, doc: xmlDocPtr, cur: xmlNodePtr);
+  pub fn htmlNodeDumpFile(out: *mut FILE, doc: xmlDocPtr, cur: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn htmlNodeDumpFileFormat(
+  pub fn htmlNodeDumpFileFormat(
     out: *mut FILE,
     doc: xmlDocPtr,
     cur: xmlNodePtr,
@@ -17155,14 +17077,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlSaveFileEnc(
+  pub fn htmlSaveFileEnc(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlSaveFileFormat(
+  pub fn htmlSaveFileFormat(
     filename: *const ::std::os::raw::c_char,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
@@ -17170,7 +17092,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn htmlNodeDumpFormatOutput(
+  pub fn htmlNodeDumpFormatOutput(
     buf: xmlOutputBufferPtr,
     doc: xmlDocPtr,
     cur: xmlNodePtr,
@@ -17179,14 +17101,14 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn htmlDocContentDumpOutput(
+  pub fn htmlDocContentDumpOutput(
     buf: xmlOutputBufferPtr,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
   );
 }
 extern "C" {
-  pub(crate) fn htmlDocContentDumpFormatOutput(
+  pub fn htmlDocContentDumpFormatOutput(
     buf: xmlOutputBufferPtr,
     cur: xmlDocPtr,
     encoding: *const ::std::os::raw::c_char,
@@ -17194,7 +17116,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn htmlNodeDumpOutput(
+  pub fn htmlNodeDumpOutput(
     buf: xmlOutputBufferPtr,
     doc: xmlDocPtr,
     cur: xmlNodePtr,
@@ -17202,7 +17124,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn htmlIsBooleanAttr(name: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn htmlIsBooleanAttr(name: *const xmlChar) -> ::std::os::raw::c_int;
 }
 pub type xmlXPathContext = _xmlXPathContext;
 pub type xmlXPathContextPtr = *mut xmlXPathContext;
@@ -17808,7 +17730,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).nb_funcs_unused as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).nb_funcs_unused as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -17818,7 +17742,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).max_funcs_unused as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).max_funcs_unused as *const _ as usize
+    },
     52usize,
     concat!(
       "Offset of field: ",
@@ -17908,7 +17834,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).proximityPosition as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).proximityPosition as *const _ as usize
+    },
     108usize,
     concat!(
       "Offset of field: ",
@@ -17958,7 +17886,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).varLookupFunc as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).varLookupFunc as *const _ as usize
+    },
     144usize,
     concat!(
       "Offset of field: ",
@@ -17968,7 +17898,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).varLookupData as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).varLookupData as *const _ as usize
+    },
     152usize,
     concat!(
       "Offset of field: ",
@@ -18008,7 +17940,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).funcLookupFunc as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).funcLookupFunc as *const _ as usize
+    },
     184usize,
     concat!(
       "Offset of field: ",
@@ -18018,7 +17952,9 @@ fn bindgen_test_layout__xmlXPathContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathContext>())).funcLookupData as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathContext>())).funcLookupData as *const _ as usize
+    },
     192usize,
     concat!(
       "Offset of field: ",
@@ -18188,7 +18124,9 @@ fn bindgen_test_layout__xmlXPathParserContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathParserContext>())).context as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathParserContext>())).context as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -18208,7 +18146,9 @@ fn bindgen_test_layout__xmlXPathParserContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueNr as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueNr as *const _ as usize
+    },
     40usize,
     concat!(
       "Offset of field: ",
@@ -18218,7 +18158,9 @@ fn bindgen_test_layout__xmlXPathParserContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueMax as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueMax as *const _ as usize
+    },
     44usize,
     concat!(
       "Offset of field: ",
@@ -18228,7 +18170,9 @@ fn bindgen_test_layout__xmlXPathParserContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueTab as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueTab as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -18258,7 +18202,9 @@ fn bindgen_test_layout__xmlXPathParserContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathParserContext>())).ancestor as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathParserContext>())).ancestor as *const _ as usize
+    },
     72usize,
     concat!(
       "Offset of field: ",
@@ -18268,7 +18214,9 @@ fn bindgen_test_layout__xmlXPathParserContext() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueFrame as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlXPathParserContext>())).valueFrame as *const _ as usize
+    },
     80usize,
     concat!(
       "Offset of field: ",
@@ -18291,84 +18239,84 @@ extern "C" {
   pub static mut xmlXPathNINF: f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFreeObject(obj: xmlXPathObjectPtr);
+  pub fn xmlXPathFreeObject(obj: xmlXPathObjectPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetCreate(val: xmlNodePtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathNodeSetCreate(val: xmlNodePtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFreeNodeSetList(obj: xmlXPathObjectPtr);
+  pub fn xmlXPathFreeNodeSetList(obj: xmlXPathObjectPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathFreeNodeSet(obj: xmlNodeSetPtr);
+  pub fn xmlXPathFreeNodeSet(obj: xmlNodeSetPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathObjectCopy(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathObjectCopy(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCmpNodes(node1: xmlNodePtr, node2: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathCmpNodes(node1: xmlNodePtr, node2: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// Conversion functions to basic types.
-  pub(crate) fn xmlXPathCastNumberToBoolean(val: f64) -> ::std::os::raw::c_int;
+  pub fn xmlXPathCastNumberToBoolean(val: f64) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastStringToBoolean(val: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlXPathCastStringToBoolean(val: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastNodeSetToBoolean(ns: xmlNodeSetPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathCastNodeSetToBoolean(ns: xmlNodeSetPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastToBoolean(val: xmlXPathObjectPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathCastToBoolean(val: xmlXPathObjectPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastBooleanToNumber(val: ::std::os::raw::c_int) -> f64;
+  pub fn xmlXPathCastBooleanToNumber(val: ::std::os::raw::c_int) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastStringToNumber(val: *const xmlChar) -> f64;
+  pub fn xmlXPathCastStringToNumber(val: *const xmlChar) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastNodeToNumber(node: xmlNodePtr) -> f64;
+  pub fn xmlXPathCastNodeToNumber(node: xmlNodePtr) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastNodeSetToNumber(ns: xmlNodeSetPtr) -> f64;
+  pub fn xmlXPathCastNodeSetToNumber(ns: xmlNodeSetPtr) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastToNumber(val: xmlXPathObjectPtr) -> f64;
+  pub fn xmlXPathCastToNumber(val: xmlXPathObjectPtr) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastBooleanToString(val: ::std::os::raw::c_int) -> *mut xmlChar;
+  pub fn xmlXPathCastBooleanToString(val: ::std::os::raw::c_int) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastNumberToString(val: f64) -> *mut xmlChar;
+  pub fn xmlXPathCastNumberToString(val: f64) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastNodeToString(node: xmlNodePtr) -> *mut xmlChar;
+  pub fn xmlXPathCastNodeToString(node: xmlNodePtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastNodeSetToString(ns: xmlNodeSetPtr) -> *mut xmlChar;
+  pub fn xmlXPathCastNodeSetToString(ns: xmlNodeSetPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCastToString(val: xmlXPathObjectPtr) -> *mut xmlChar;
+  pub fn xmlXPathCastToString(val: xmlXPathObjectPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathConvertBoolean(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathConvertBoolean(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathConvertNumber(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathConvertNumber(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathConvertString(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathConvertString(val: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
   /// Context handling.
-  pub(crate) fn xmlXPathNewContext(doc: xmlDocPtr) -> xmlXPathContextPtr;
+  pub fn xmlXPathNewContext(doc: xmlDocPtr) -> xmlXPathContextPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFreeContext(ctxt: xmlXPathContextPtr);
+  pub fn xmlXPathFreeContext(ctxt: xmlXPathContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathContextSetCache(
+  pub fn xmlXPathContextSetCache(
     ctxt: xmlXPathContextPtr,
     active: ::std::os::raw::c_int,
     value: ::std::os::raw::c_int,
@@ -18377,76 +18325,69 @@ extern "C" {
 }
 extern "C" {
   /// Evaluation functions.
-  pub(crate) fn xmlXPathOrderDocElems(doc: xmlDocPtr) -> ::std::os::raw::c_long;
+  pub fn xmlXPathOrderDocElems(doc: xmlDocPtr) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn xmlXPathSetContextNode(
-    node: xmlNodePtr,
-    ctx: xmlXPathContextPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlXPathSetContextNode(node: xmlNodePtr, ctx: xmlXPathContextPtr)
+    -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeEval(
+  pub fn xmlXPathNodeEval(
     node: xmlNodePtr,
     str: *const xmlChar,
     ctx: xmlXPathContextPtr,
   ) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathEval(str: *const xmlChar, ctx: xmlXPathContextPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathEval(str: *const xmlChar, ctx: xmlXPathContextPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathEvalExpression(
-    str: *const xmlChar,
-    ctxt: xmlXPathContextPtr,
-  ) -> xmlXPathObjectPtr;
+  pub fn xmlXPathEvalExpression(str: *const xmlChar, ctxt: xmlXPathContextPtr)
+    -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathEvalPredicate(
+  pub fn xmlXPathEvalPredicate(
     ctxt: xmlXPathContextPtr,
     res: xmlXPathObjectPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// Separate compilation/evaluation entry points.
-  pub(crate) fn xmlXPathCompile(str: *const xmlChar) -> xmlXPathCompExprPtr;
+  pub fn xmlXPathCompile(str: *const xmlChar) -> xmlXPathCompExprPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCtxtCompile(
-    ctxt: xmlXPathContextPtr,
-    str: *const xmlChar,
-  ) -> xmlXPathCompExprPtr;
+  pub fn xmlXPathCtxtCompile(ctxt: xmlXPathContextPtr, str: *const xmlChar) -> xmlXPathCompExprPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCompiledEval(
+  pub fn xmlXPathCompiledEval(
     comp: xmlXPathCompExprPtr,
     ctx: xmlXPathContextPtr,
   ) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCompiledEvalToBoolean(
+  pub fn xmlXPathCompiledEvalToBoolean(
     comp: xmlXPathCompExprPtr,
     ctxt: xmlXPathContextPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFreeCompExpr(comp: xmlXPathCompExprPtr);
+  pub fn xmlXPathFreeCompExpr(comp: xmlXPathCompExprPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathInit();
+  pub fn xmlXPathInit();
 }
 extern "C" {
-  pub(crate) fn xmlXPathIsNaN(val: f64) -> ::std::os::raw::c_int;
+  pub fn xmlXPathIsNaN(val: f64) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathIsInf(val: f64) -> ::std::os::raw::c_int;
+  pub fn xmlXPathIsInf(val: f64) -> ::std::os::raw::c_int;
 }
 pub const xmlC14NMode_XML_C14N_1_0: xmlC14NMode = 0;
 pub const xmlC14NMode_XML_C14N_EXCLUSIVE_1_0: xmlC14NMode = 1;
 pub const xmlC14NMode_XML_C14N_1_1: xmlC14NMode = 2;
 pub type xmlC14NMode = u32;
 extern "C" {
-  pub(crate) fn xmlC14NDocSaveTo(
+  pub fn xmlC14NDocSaveTo(
     doc: xmlDocPtr,
     nodes: xmlNodeSetPtr,
     mode: ::std::os::raw::c_int,
@@ -18456,7 +18397,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlC14NDocDumpMemory(
+  pub fn xmlC14NDocDumpMemory(
     doc: xmlDocPtr,
     nodes: xmlNodeSetPtr,
     mode: ::std::os::raw::c_int,
@@ -18466,7 +18407,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlC14NDocSave(
+  pub fn xmlC14NDocSave(
     doc: xmlDocPtr,
     nodes: xmlNodeSetPtr,
     mode: ::std::os::raw::c_int,
@@ -18495,7 +18436,7 @@ pub type xmlC14NIsVisibleCallback = ::std::option::Option<
   ) -> ::std::os::raw::c_int,
 >;
 extern "C" {
-  pub(crate) fn xmlC14NExecute(
+  pub fn xmlC14NExecute(
     doc: xmlDocPtr,
     is_visible_callback: xmlC14NIsVisibleCallback,
     user_data: *mut ::std::os::raw::c_void,
@@ -18522,19 +18463,19 @@ pub struct _xmlCatalog {
 pub type xmlCatalog = _xmlCatalog;
 pub type xmlCatalogPtr = *mut xmlCatalog;
 extern "C" {
-  pub(crate) fn xmlNewCatalog(sgml: ::std::os::raw::c_int) -> xmlCatalogPtr;
+  pub fn xmlNewCatalog(sgml: ::std::os::raw::c_int) -> xmlCatalogPtr;
 }
 extern "C" {
-  pub(crate) fn xmlLoadACatalog(filename: *const ::std::os::raw::c_char) -> xmlCatalogPtr;
+  pub fn xmlLoadACatalog(filename: *const ::std::os::raw::c_char) -> xmlCatalogPtr;
 }
 extern "C" {
-  pub(crate) fn xmlLoadSGMLSuperCatalog(filename: *const ::std::os::raw::c_char) -> xmlCatalogPtr;
+  pub fn xmlLoadSGMLSuperCatalog(filename: *const ::std::os::raw::c_char) -> xmlCatalogPtr;
 }
 extern "C" {
-  pub(crate) fn xmlConvertSGMLCatalog(catal: xmlCatalogPtr) -> ::std::os::raw::c_int;
+  pub fn xmlConvertSGMLCatalog(catal: xmlCatalogPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogAdd(
+  pub fn xmlACatalogAdd(
     catal: xmlCatalogPtr,
     type_: *const xmlChar,
     orig: *const xmlChar,
@@ -18542,184 +18483,163 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogRemove(
-    catal: xmlCatalogPtr,
-    value: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlACatalogRemove(catal: xmlCatalogPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogResolve(
+  pub fn xmlACatalogResolve(
     catal: xmlCatalogPtr,
     pubID: *const xmlChar,
     sysID: *const xmlChar,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogResolveSystem(
-    catal: xmlCatalogPtr,
-    sysID: *const xmlChar,
-  ) -> *mut xmlChar;
+  pub fn xmlACatalogResolveSystem(catal: xmlCatalogPtr, sysID: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogResolvePublic(
-    catal: xmlCatalogPtr,
-    pubID: *const xmlChar,
-  ) -> *mut xmlChar;
+  pub fn xmlACatalogResolvePublic(catal: xmlCatalogPtr, pubID: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogResolveURI(catal: xmlCatalogPtr, URI: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlACatalogResolveURI(catal: xmlCatalogPtr, URI: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlACatalogDump(catal: xmlCatalogPtr, out: *mut FILE);
+  pub fn xmlACatalogDump(catal: xmlCatalogPtr, out: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn xmlFreeCatalog(catal: xmlCatalogPtr);
+  pub fn xmlFreeCatalog(catal: xmlCatalogPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCatalogIsEmpty(catal: xmlCatalogPtr) -> ::std::os::raw::c_int;
+  pub fn xmlCatalogIsEmpty(catal: xmlCatalogPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlInitializeCatalog();
+  pub fn xmlInitializeCatalog();
 }
 extern "C" {
-  pub(crate) fn xmlLoadCatalog(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlLoadCatalog(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlLoadCatalogs(paths: *const ::std::os::raw::c_char);
+  pub fn xmlLoadCatalogs(paths: *const ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn xmlCatalogCleanup();
+  pub fn xmlCatalogCleanup();
 }
 extern "C" {
-  pub(crate) fn xmlCatalogDump(out: *mut FILE);
+  pub fn xmlCatalogDump(out: *mut FILE);
 }
 extern "C" {
-  pub(crate) fn xmlCatalogResolve(pubID: *const xmlChar, sysID: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlCatalogResolve(pubID: *const xmlChar, sysID: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogResolveSystem(sysID: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlCatalogResolveSystem(sysID: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogResolvePublic(pubID: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlCatalogResolvePublic(pubID: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogResolveURI(URI: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlCatalogResolveURI(URI: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogAdd(
+  pub fn xmlCatalogAdd(
     type_: *const xmlChar,
     orig: *const xmlChar,
     replace: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogRemove(value: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlCatalogRemove(value: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlParseCatalogFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+  pub fn xmlParseCatalogFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogConvert() -> ::std::os::raw::c_int;
+  pub fn xmlCatalogConvert() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogFreeLocal(catalogs: *mut ::std::os::raw::c_void);
+  pub fn xmlCatalogFreeLocal(catalogs: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlCatalogAddLocal(
+  pub fn xmlCatalogAddLocal(
     catalogs: *mut ::std::os::raw::c_void,
     URL: *const xmlChar,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogLocalResolve(
+  pub fn xmlCatalogLocalResolve(
     catalogs: *mut ::std::os::raw::c_void,
     pubID: *const xmlChar,
     sysID: *const xmlChar,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogLocalResolveURI(
+  pub fn xmlCatalogLocalResolveURI(
     catalogs: *mut ::std::os::raw::c_void,
     URI: *const xmlChar,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogSetDebug(level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlCatalogSetDebug(level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogSetDefaultPrefer(prefer: xmlCatalogPrefer) -> xmlCatalogPrefer;
+  pub fn xmlCatalogSetDefaultPrefer(prefer: xmlCatalogPrefer) -> xmlCatalogPrefer;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogSetDefaults(allow: xmlCatalogAllow);
+  pub fn xmlCatalogSetDefaults(allow: xmlCatalogAllow);
 }
 extern "C" {
-  pub(crate) fn xmlCatalogGetDefaults() -> xmlCatalogAllow;
+  pub fn xmlCatalogGetDefaults() -> xmlCatalogAllow;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogGetSystem(sysID: *const xmlChar) -> *const xmlChar;
+  pub fn xmlCatalogGetSystem(sysID: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlCatalogGetPublic(pubID: *const xmlChar) -> *const xmlChar;
+  pub fn xmlCatalogGetPublic(pubID: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpString(output: *mut FILE, str: *const xmlChar);
+  pub fn xmlDebugDumpString(output: *mut FILE, str: *const xmlChar);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpAttr(output: *mut FILE, attr: xmlAttrPtr, depth: ::std::os::raw::c_int);
+  pub fn xmlDebugDumpAttr(output: *mut FILE, attr: xmlAttrPtr, depth: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpAttrList(
-    output: *mut FILE,
-    attr: xmlAttrPtr,
-    depth: ::std::os::raw::c_int,
-  );
+  pub fn xmlDebugDumpAttrList(output: *mut FILE, attr: xmlAttrPtr, depth: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpOneNode(
-    output: *mut FILE,
-    node: xmlNodePtr,
-    depth: ::std::os::raw::c_int,
-  );
+  pub fn xmlDebugDumpOneNode(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpNode(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
+  pub fn xmlDebugDumpNode(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpNodeList(
-    output: *mut FILE,
-    node: xmlNodePtr,
-    depth: ::std::os::raw::c_int,
-  );
+  pub fn xmlDebugDumpNodeList(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpDocumentHead(output: *mut FILE, doc: xmlDocPtr);
+  pub fn xmlDebugDumpDocumentHead(output: *mut FILE, doc: xmlDocPtr);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpDocument(output: *mut FILE, doc: xmlDocPtr);
+  pub fn xmlDebugDumpDocument(output: *mut FILE, doc: xmlDocPtr);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpDTD(output: *mut FILE, dtd: xmlDtdPtr);
+  pub fn xmlDebugDumpDTD(output: *mut FILE, dtd: xmlDtdPtr);
 }
 extern "C" {
-  pub(crate) fn xmlDebugDumpEntities(output: *mut FILE, doc: xmlDocPtr);
+  pub fn xmlDebugDumpEntities(output: *mut FILE, doc: xmlDocPtr);
 }
 extern "C" {
   /// *
   /// Checking routines			*
   /// *
-  pub(crate) fn xmlDebugCheckDocument(output: *mut FILE, doc: xmlDocPtr) -> ::std::os::raw::c_int;
+  pub fn xmlDebugCheckDocument(output: *mut FILE, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// *
   /// XML shell helpers			*
   /// *
-  pub(crate) fn xmlLsOneNode(output: *mut FILE, node: xmlNodePtr);
+  pub fn xmlLsOneNode(output: *mut FILE, node: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlLsCountNode(node: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlLsCountNode(node: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlBoolToText(boolval: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
+  pub fn xmlBoolToText(boolval: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
 }
 /// xmlShellReadlineFunc:
 /// @prompt:  a string prompt
@@ -18848,16 +18768,16 @@ pub type xmlShellCmd = ::std::option::Option<
   ) -> ::std::os::raw::c_int,
 >;
 extern "C" {
-  pub(crate) fn xmlShellPrintXPathError(
+  pub fn xmlShellPrintXPathError(
     errorType: ::std::os::raw::c_int,
     arg: *const ::std::os::raw::c_char,
   );
 }
 extern "C" {
-  pub(crate) fn xmlShellPrintXPathResult(list: xmlXPathObjectPtr);
+  pub fn xmlShellPrintXPathResult(list: xmlXPathObjectPtr);
 }
 extern "C" {
-  pub(crate) fn xmlShellList(
+  pub fn xmlShellList(
     ctxt: xmlShellCtxtPtr,
     arg: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18865,7 +18785,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellBase(
+  pub fn xmlShellBase(
     ctxt: xmlShellCtxtPtr,
     arg: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18873,7 +18793,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellDir(
+  pub fn xmlShellDir(
     ctxt: xmlShellCtxtPtr,
     arg: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18881,7 +18801,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellLoad(
+  pub fn xmlShellLoad(
     ctxt: xmlShellCtxtPtr,
     filename: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18889,10 +18809,10 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellPrintNode(node: xmlNodePtr);
+  pub fn xmlShellPrintNode(node: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlShellCat(
+  pub fn xmlShellCat(
     ctxt: xmlShellCtxtPtr,
     arg: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18900,7 +18820,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellWrite(
+  pub fn xmlShellWrite(
     ctxt: xmlShellCtxtPtr,
     filename: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18908,7 +18828,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellSave(
+  pub fn xmlShellSave(
     ctxt: xmlShellCtxtPtr,
     filename: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18916,7 +18836,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellValidate(
+  pub fn xmlShellValidate(
     ctxt: xmlShellCtxtPtr,
     dtd: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18924,7 +18844,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellDu(
+  pub fn xmlShellDu(
     ctxt: xmlShellCtxtPtr,
     arg: *mut ::std::os::raw::c_char,
     tree: xmlNodePtr,
@@ -18932,7 +18852,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShellPwd(
+  pub fn xmlShellPwd(
     ctxt: xmlShellCtxtPtr,
     buffer: *mut ::std::os::raw::c_char,
     node: xmlNodePtr,
@@ -18940,7 +18860,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlShell(
+  pub fn xmlShell(
     doc: xmlDocPtr,
     filename: *mut ::std::os::raw::c_char,
     input: xmlShellReadlineFunc,
@@ -18993,42 +18913,40 @@ pub type ftpDataCallback = ::std::option::Option<
   ),
 >;
 extern "C" {
-  pub(crate) fn xmlNanoFTPInit();
+  pub fn xmlNanoFTPInit();
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPCleanup();
+  pub fn xmlNanoFTPCleanup();
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPNewCtxt(
-    URL: *const ::std::os::raw::c_char,
-  ) -> *mut ::std::os::raw::c_void;
+  pub fn xmlNanoFTPNewCtxt(URL: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPFreeCtxt(ctx: *mut ::std::os::raw::c_void);
+  pub fn xmlNanoFTPFreeCtxt(ctx: *mut ::std::os::raw::c_void);
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPConnectTo(
+  pub fn xmlNanoFTPConnectTo(
     server: *const ::std::os::raw::c_char,
     port: ::std::os::raw::c_int,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPOpen(URL: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
+  pub fn xmlNanoFTPOpen(URL: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPConnect(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPConnect(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPClose(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPClose(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPQuit(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPQuit(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPScanProxy(URL: *const ::std::os::raw::c_char);
+  pub fn xmlNanoFTPScanProxy(URL: *const ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPProxy(
+  pub fn xmlNanoFTPProxy(
     host: *const ::std::os::raw::c_char,
     port: ::std::os::raw::c_int,
     user: *const ::std::os::raw::c_char,
@@ -19037,39 +18955,37 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPUpdateURL(
+  pub fn xmlNanoFTPUpdateURL(
     ctx: *mut ::std::os::raw::c_void,
     URL: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPGetResponse(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPGetResponse(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPCheckResponse(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPCheckResponse(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPCwd(
+  pub fn xmlNanoFTPCwd(
     ctx: *mut ::std::os::raw::c_void,
     directory: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPDele(
+  pub fn xmlNanoFTPDele(
     ctx: *mut ::std::os::raw::c_void,
     file: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPGetConnection(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPGetConnection(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPCloseConnection(
-    ctx: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlNanoFTPCloseConnection(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPList(
+  pub fn xmlNanoFTPList(
     ctx: *mut ::std::os::raw::c_void,
     callback: ftpListCallback,
     userData: *mut ::std::os::raw::c_void,
@@ -19077,13 +18993,13 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPGetSocket(
+  pub fn xmlNanoFTPGetSocket(
     ctx: *mut ::std::os::raw::c_void,
     filename: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPGet(
+  pub fn xmlNanoFTPGet(
     ctx: *mut ::std::os::raw::c_void,
     callback: ftpDataCallback,
     userData: *mut ::std::os::raw::c_void,
@@ -19091,30 +19007,30 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoFTPRead(
+  pub fn xmlNanoFTPRead(
     ctx: *mut ::std::os::raw::c_void,
     dest: *mut ::std::os::raw::c_void,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPInit();
+  pub fn xmlNanoHTTPInit();
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPCleanup();
+  pub fn xmlNanoHTTPCleanup();
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPScanProxy(URL: *const ::std::os::raw::c_char);
+  pub fn xmlNanoHTTPScanProxy(URL: *const ::std::os::raw::c_char);
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPFetch(
+  pub fn xmlNanoHTTPFetch(
     URL: *const ::std::os::raw::c_char,
     filename: *const ::std::os::raw::c_char,
     contentType: *mut *mut ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPMethod(
+  pub fn xmlNanoHTTPMethod(
     URL: *const ::std::os::raw::c_char,
     method: *const ::std::os::raw::c_char,
     input: *const ::std::os::raw::c_char,
@@ -19124,7 +19040,7 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPMethodRedir(
+  pub fn xmlNanoHTTPMethodRedir(
     URL: *const ::std::os::raw::c_char,
     method: *const ::std::os::raw::c_char,
     input: *const ::std::os::raw::c_char,
@@ -19135,59 +19051,51 @@ extern "C" {
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPOpen(
+  pub fn xmlNanoHTTPOpen(
     URL: *const ::std::os::raw::c_char,
     contentType: *mut *mut ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPOpenRedir(
+  pub fn xmlNanoHTTPOpenRedir(
     URL: *const ::std::os::raw::c_char,
     contentType: *mut *mut ::std::os::raw::c_char,
     redir: *mut *mut ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPReturnCode(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+  pub fn xmlNanoHTTPReturnCode(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPAuthHeader(
-    ctx: *mut ::std::os::raw::c_void,
-  ) -> *const ::std::os::raw::c_char;
+  pub fn xmlNanoHTTPAuthHeader(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPRedir(ctx: *mut ::std::os::raw::c_void)
-    -> *const ::std::os::raw::c_char;
+  pub fn xmlNanoHTTPRedir(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPContentLength(ctx: *mut ::std::os::raw::c_void)
-    -> ::std::os::raw::c_int;
+  pub fn xmlNanoHTTPContentLength(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPEncoding(
-    ctx: *mut ::std::os::raw::c_void,
-  ) -> *const ::std::os::raw::c_char;
+  pub fn xmlNanoHTTPEncoding(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPMimeType(
-    ctx: *mut ::std::os::raw::c_void,
-  ) -> *const ::std::os::raw::c_char;
+  pub fn xmlNanoHTTPMimeType(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPRead(
+  pub fn xmlNanoHTTPRead(
     ctx: *mut ::std::os::raw::c_void,
     dest: *mut ::std::os::raw::c_void,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPSave(
+  pub fn xmlNanoHTTPSave(
     ctxt: *mut ::std::os::raw::c_void,
     filename: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlNanoHTTPClose(ctx: *mut ::std::os::raw::c_void);
+  pub fn xmlNanoHTTPClose(ctx: *mut ::std::os::raw::c_void);
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -19210,13 +19118,13 @@ pub const xmlPatternFlags_XML_PATTERN_XSFIELD: xmlPatternFlags = 4;
 ///
 pub type xmlPatternFlags = u32;
 extern "C" {
-  pub(crate) fn xmlFreePattern(comp: xmlPatternPtr);
+  pub fn xmlFreePattern(comp: xmlPatternPtr);
 }
 extern "C" {
-  pub(crate) fn xmlFreePatternList(comp: xmlPatternPtr);
+  pub fn xmlFreePatternList(comp: xmlPatternPtr);
 }
 extern "C" {
-  pub(crate) fn xmlPatterncompile(
+  pub fn xmlPatterncompile(
     pattern: *const xmlChar,
     dict: *mut xmlDict,
     flags: ::std::os::raw::c_int,
@@ -19224,7 +19132,7 @@ extern "C" {
   ) -> xmlPatternPtr;
 }
 extern "C" {
-  pub(crate) fn xmlPatternMatch(comp: xmlPatternPtr, node: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlPatternMatch(comp: xmlPatternPtr, node: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -19234,25 +19142,25 @@ pub struct _xmlStreamCtxt {
 pub type xmlStreamCtxt = _xmlStreamCtxt;
 pub type xmlStreamCtxtPtr = *mut xmlStreamCtxt;
 extern "C" {
-  pub(crate) fn xmlPatternStreamable(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+  pub fn xmlPatternStreamable(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlPatternMaxDepth(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+  pub fn xmlPatternMaxDepth(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlPatternMinDepth(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+  pub fn xmlPatternMinDepth(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlPatternFromRoot(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+  pub fn xmlPatternFromRoot(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlPatternGetStreamCtxt(comp: xmlPatternPtr) -> xmlStreamCtxtPtr;
+  pub fn xmlPatternGetStreamCtxt(comp: xmlPatternPtr) -> xmlStreamCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeStreamCtxt(stream: xmlStreamCtxtPtr);
+  pub fn xmlFreeStreamCtxt(stream: xmlStreamCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlStreamPushNode(
+  pub fn xmlStreamPushNode(
     stream: xmlStreamCtxtPtr,
     name: *const xmlChar,
     ns: *const xmlChar,
@@ -19260,24 +19168,24 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStreamPush(
+  pub fn xmlStreamPush(
     stream: xmlStreamCtxtPtr,
     name: *const xmlChar,
     ns: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStreamPushAttr(
+  pub fn xmlStreamPushAttr(
     stream: xmlStreamCtxtPtr,
     name: *const xmlChar,
     ns: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStreamPop(stream: xmlStreamCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlStreamPop(stream: xmlStreamCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlStreamWantsAnyNode(stream: xmlStreamCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlStreamWantsAnyNode(stream: xmlStreamCtxtPtr) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -19365,36 +19273,34 @@ pub const xmlRelaxNGParserFlag_XML_RELAXNGP_FREE_DOC: xmlRelaxNGParserFlag = 1;
 pub const xmlRelaxNGParserFlag_XML_RELAXNGP_CRNG: xmlRelaxNGParserFlag = 2;
 pub type xmlRelaxNGParserFlag = u32;
 extern "C" {
-  pub(crate) fn xmlRelaxNGInitTypes() -> ::std::os::raw::c_int;
+  pub fn xmlRelaxNGInitTypes() -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGCleanupTypes();
+  pub fn xmlRelaxNGCleanupTypes();
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGNewParserCtxt(
-    URL: *const ::std::os::raw::c_char,
-  ) -> xmlRelaxNGParserCtxtPtr;
+  pub fn xmlRelaxNGNewParserCtxt(URL: *const ::std::os::raw::c_char) -> xmlRelaxNGParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGNewMemParserCtxt(
+  pub fn xmlRelaxNGNewMemParserCtxt(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> xmlRelaxNGParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGNewDocParserCtxt(doc: xmlDocPtr) -> xmlRelaxNGParserCtxtPtr;
+  pub fn xmlRelaxNGNewDocParserCtxt(doc: xmlDocPtr) -> xmlRelaxNGParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxParserSetFlag(
+  pub fn xmlRelaxParserSetFlag(
     ctxt: xmlRelaxNGParserCtxtPtr,
     flag: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGFreeParserCtxt(ctxt: xmlRelaxNGParserCtxtPtr);
+  pub fn xmlRelaxNGFreeParserCtxt(ctxt: xmlRelaxNGParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGSetParserErrors(
+  pub fn xmlRelaxNGSetParserErrors(
     ctxt: xmlRelaxNGParserCtxtPtr,
     err: xmlRelaxNGValidityErrorFunc,
     warn: xmlRelaxNGValidityWarningFunc,
@@ -19402,7 +19308,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGGetParserErrors(
+  pub fn xmlRelaxNGGetParserErrors(
     ctxt: xmlRelaxNGParserCtxtPtr,
     err: *mut xmlRelaxNGValidityErrorFunc,
     warn: *mut xmlRelaxNGValidityWarningFunc,
@@ -19410,26 +19316,26 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGSetParserStructuredErrors(
+  pub fn xmlRelaxNGSetParserStructuredErrors(
     ctxt: xmlRelaxNGParserCtxtPtr,
     serror: xmlStructuredErrorFunc,
     ctx: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGParse(ctxt: xmlRelaxNGParserCtxtPtr) -> xmlRelaxNGPtr;
+  pub fn xmlRelaxNGParse(ctxt: xmlRelaxNGParserCtxtPtr) -> xmlRelaxNGPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGFree(schema: xmlRelaxNGPtr);
+  pub fn xmlRelaxNGFree(schema: xmlRelaxNGPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGDump(output: *mut FILE, schema: xmlRelaxNGPtr);
+  pub fn xmlRelaxNGDump(output: *mut FILE, schema: xmlRelaxNGPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGDumpTree(output: *mut FILE, schema: xmlRelaxNGPtr);
+  pub fn xmlRelaxNGDumpTree(output: *mut FILE, schema: xmlRelaxNGPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGSetValidErrors(
+  pub fn xmlRelaxNGSetValidErrors(
     ctxt: xmlRelaxNGValidCtxtPtr,
     err: xmlRelaxNGValidityErrorFunc,
     warn: xmlRelaxNGValidityWarningFunc,
@@ -19437,7 +19343,7 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGGetValidErrors(
+  pub fn xmlRelaxNGGetValidErrors(
     ctxt: xmlRelaxNGValidCtxtPtr,
     err: *mut xmlRelaxNGValidityErrorFunc,
     warn: *mut xmlRelaxNGValidityWarningFunc,
@@ -19445,47 +19351,47 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGSetValidStructuredErrors(
+  pub fn xmlRelaxNGSetValidStructuredErrors(
     ctxt: xmlRelaxNGValidCtxtPtr,
     serror: xmlStructuredErrorFunc,
     ctx: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGNewValidCtxt(schema: xmlRelaxNGPtr) -> xmlRelaxNGValidCtxtPtr;
+  pub fn xmlRelaxNGNewValidCtxt(schema: xmlRelaxNGPtr) -> xmlRelaxNGValidCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGFreeValidCtxt(ctxt: xmlRelaxNGValidCtxtPtr);
+  pub fn xmlRelaxNGFreeValidCtxt(ctxt: xmlRelaxNGValidCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGValidateDoc(
+  pub fn xmlRelaxNGValidateDoc(
     ctxt: xmlRelaxNGValidCtxtPtr,
     doc: xmlDocPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGValidatePushElement(
+  pub fn xmlRelaxNGValidatePushElement(
     ctxt: xmlRelaxNGValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGValidatePushCData(
+  pub fn xmlRelaxNGValidatePushCData(
     ctxt: xmlRelaxNGValidCtxtPtr,
     data: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGValidatePopElement(
+  pub fn xmlRelaxNGValidatePopElement(
     ctxt: xmlRelaxNGValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlRelaxNGValidateFullElement(
+  pub fn xmlRelaxNGValidateFullElement(
     ctxt: xmlRelaxNGValidCtxtPtr,
     doc: xmlDocPtr,
     elem: xmlNodePtr,
@@ -19822,7 +19728,9 @@ fn bindgen_test_layout__xmlSchemaAttribute() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttribute>())).targetNamespace as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttribute>())).targetNamespace as *const _ as usize
+    },
     112usize,
     concat!(
       "Offset of field: ",
@@ -19842,7 +19750,9 @@ fn bindgen_test_layout__xmlSchemaAttribute() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttribute>())).refPrefix as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttribute>())).refPrefix as *const _ as usize
+    },
     128usize,
     concat!(
       "Offset of field: ",
@@ -20051,7 +19961,9 @@ fn bindgen_test_layout__xmlSchemaWildcard() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaWildcard>())).processContents as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaWildcard>())).processContents as *const _ as usize
+    },
     40usize,
     concat!(
       "Offset of field: ",
@@ -20139,7 +20051,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     concat!("Alignment of ", stringify!(_xmlSchemaAttributeGroup))
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).type_ as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).type_ as *const _ as usize
+    },
     0usize,
     concat!(
       "Offset of field: ",
@@ -20149,7 +20063,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).next as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).next as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
@@ -20159,7 +20075,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).name as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).name as *const _ as usize
+    },
     16usize,
     concat!(
       "Offset of field: ",
@@ -20179,7 +20097,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).ref_ as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).ref_ as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -20189,7 +20109,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).refNs as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).refNs as *const _ as usize
+    },
     40usize,
     concat!(
       "Offset of field: ",
@@ -20199,7 +20121,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).annot as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).annot as *const _ as usize
+    },
     48usize,
     concat!(
       "Offset of field: ",
@@ -20209,7 +20133,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).attributes as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).attributes as *const _ as usize
+    },
     56usize,
     concat!(
       "Offset of field: ",
@@ -20219,7 +20145,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).node as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).node as *const _ as usize
+    },
     64usize,
     concat!(
       "Offset of field: ",
@@ -20229,7 +20157,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).flags as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).flags as *const _ as usize
+    },
     72usize,
     concat!(
       "Offset of field: ",
@@ -20251,7 +20181,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).refPrefix as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).refPrefix as *const _ as usize
+    },
     88usize,
     concat!(
       "Offset of field: ",
@@ -20261,7 +20193,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).refItem as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).refItem as *const _ as usize
+    },
     96usize,
     concat!(
       "Offset of field: ",
@@ -20283,7 +20217,9 @@ fn bindgen_test_layout__xmlSchemaAttributeGroup() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).attrUses as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaAttributeGroup>())).attrUses as *const _ as usize
+    },
     112usize,
     concat!(
       "Offset of field: ",
@@ -20640,7 +20576,9 @@ fn bindgen_test_layout__xmlSchemaType() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaType>())).attributeWildcard as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaType>())).attributeWildcard as *const _ as usize
+    },
     152usize,
     concat!(
       "Offset of field: ",
@@ -20690,7 +20628,9 @@ fn bindgen_test_layout__xmlSchemaType() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaType>())).contentTypeDef as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaType>())).contentTypeDef as *const _ as usize
+    },
     192usize,
     concat!(
       "Offset of field: ",
@@ -20710,7 +20650,9 @@ fn bindgen_test_layout__xmlSchemaType() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaType>())).targetNamespace as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaType>())).targetNamespace as *const _ as usize
+    },
     208usize,
     concat!(
       "Offset of field: ",
@@ -20905,7 +20847,9 @@ fn bindgen_test_layout__xmlSchemaElement() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaElement>())).targetNamespace as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaElement>())).targetNamespace as *const _ as usize
+    },
     96usize,
     concat!(
       "Offset of field: ",
@@ -20925,7 +20869,9 @@ fn bindgen_test_layout__xmlSchemaElement() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaElement>())).namedTypeNs as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaElement>())).namedTypeNs as *const _ as usize
+    },
     112usize,
     concat!(
       "Offset of field: ",
@@ -20945,7 +20891,9 @@ fn bindgen_test_layout__xmlSchemaElement() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaElement>())).substGroupNs as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaElement>())).substGroupNs as *const _ as usize
+    },
     128usize,
     concat!(
       "Offset of field: ",
@@ -20995,7 +20943,9 @@ fn bindgen_test_layout__xmlSchemaElement() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaElement>())).contentType as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaElement>())).contentType as *const _ as usize
+    },
     168usize,
     concat!(
       "Offset of field: ",
@@ -21218,7 +21168,9 @@ fn bindgen_test_layout__xmlSchemaNotation() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaNotation>())).identifier as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaNotation>())).identifier as *const _ as usize
+    },
     24usize,
     concat!(
       "Offset of field: ",
@@ -21228,7 +21180,9 @@ fn bindgen_test_layout__xmlSchemaNotation() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<_xmlSchemaNotation>())).targetNamespace as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<_xmlSchemaNotation>())).targetNamespace as *const _ as usize
+    },
     32usize,
     concat!(
       "Offset of field: ",
@@ -21490,10 +21444,10 @@ fn bindgen_test_layout__xmlSchema() {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFreeType(type_: xmlSchemaTypePtr);
+  pub fn xmlSchemaFreeType(type_: xmlSchemaTypePtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFreeWildcard(wildcard: xmlSchemaWildcardPtr);
+  pub fn xmlSchemaFreeWildcard(wildcard: xmlSchemaWildcardPtr);
 }
 pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_QUIET: xmlSchematronValidOptions = 1;
 pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_TEXT: xmlSchematronValidOptions = 2;
@@ -21545,21 +21499,21 @@ pub struct _xmlSchematronValidCtxt {
 pub type xmlSchematronValidCtxt = _xmlSchematronValidCtxt;
 pub type xmlSchematronValidCtxtPtr = *mut xmlSchematronValidCtxt;
 extern "C" {
-  pub(crate) fn xmlSchematronNewParserCtxt(
+  pub fn xmlSchematronNewParserCtxt(
     URL: *const ::std::os::raw::c_char,
   ) -> xmlSchematronParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchematronNewMemParserCtxt(
+  pub fn xmlSchematronNewMemParserCtxt(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> xmlSchematronParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchematronNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchematronParserCtxtPtr;
+  pub fn xmlSchematronNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchematronParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchematronFreeParserCtxt(ctxt: xmlSchematronParserCtxtPtr);
+  pub fn xmlSchematronFreeParserCtxt(ctxt: xmlSchematronParserCtxtPtr);
 }
 extern "C" {
   /// XMLPUBFUN void XMLCALL
@@ -21574,13 +21528,13 @@ extern "C" {
   /// void **ctx);
   /// XMLPUBFUN int XMLCALL
   /// xmlSchematronIsValid	(xmlSchematronValidCtxtPtr ctxt);
-  pub(crate) fn xmlSchematronParse(ctxt: xmlSchematronParserCtxtPtr) -> xmlSchematronPtr;
+  pub fn xmlSchematronParse(ctxt: xmlSchematronParserCtxtPtr) -> xmlSchematronPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchematronFree(schema: xmlSchematronPtr);
+  pub fn xmlSchematronFree(schema: xmlSchematronPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchematronSetValidStructuredErrors(
+  pub fn xmlSchematronSetValidStructuredErrors(
     ctxt: xmlSchematronValidCtxtPtr,
     serror: xmlStructuredErrorFunc,
     ctx: *mut ::std::os::raw::c_void,
@@ -21605,16 +21559,16 @@ extern "C" {
   /// XMLPUBFUN int XMLCALL
   /// xmlSchematronValidateOneElement (xmlSchematronValidCtxtPtr ctxt,
   /// xmlNodePtr elem);
-  pub(crate) fn xmlSchematronNewValidCtxt(
+  pub fn xmlSchematronNewValidCtxt(
     schema: xmlSchematronPtr,
     options: ::std::os::raw::c_int,
   ) -> xmlSchematronValidCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchematronFreeValidCtxt(ctxt: xmlSchematronValidCtxtPtr);
+  pub fn xmlSchematronFreeValidCtxt(ctxt: xmlSchematronValidCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchematronValidateDoc(
+  pub fn xmlSchematronValidateDoc(
     ctxt: xmlSchematronValidCtxtPtr,
     instance: xmlDocPtr,
   ) -> ::std::os::raw::c_int;
@@ -21768,59 +21722,59 @@ fn bindgen_test_layout__xmlURI() {
   );
 }
 extern "C" {
-  pub(crate) fn xmlCreateURI() -> xmlURIPtr;
+  pub fn xmlCreateURI() -> xmlURIPtr;
 }
 extern "C" {
-  pub(crate) fn xmlBuildURI(URI: *const xmlChar, base: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlBuildURI(URI: *const xmlChar, base: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlBuildRelativeURI(URI: *const xmlChar, base: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlBuildRelativeURI(URI: *const xmlChar, base: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlParseURI(str: *const ::std::os::raw::c_char) -> xmlURIPtr;
+  pub fn xmlParseURI(str: *const ::std::os::raw::c_char) -> xmlURIPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseURIRaw(
+  pub fn xmlParseURIRaw(
     str: *const ::std::os::raw::c_char,
     raw: ::std::os::raw::c_int,
   ) -> xmlURIPtr;
 }
 extern "C" {
-  pub(crate) fn xmlParseURIReference(
+  pub fn xmlParseURIReference(
     uri: xmlURIPtr,
     str: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveUri(uri: xmlURIPtr) -> *mut xmlChar;
+  pub fn xmlSaveUri(uri: xmlURIPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlPrintURI(stream: *mut FILE, uri: xmlURIPtr);
+  pub fn xmlPrintURI(stream: *mut FILE, uri: xmlURIPtr);
 }
 extern "C" {
-  pub(crate) fn xmlURIEscapeStr(str: *const xmlChar, list: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlURIEscapeStr(str: *const xmlChar, list: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlURIUnescapeString(
+  pub fn xmlURIUnescapeString(
     str: *const ::std::os::raw::c_char,
     len: ::std::os::raw::c_int,
     target: *mut ::std::os::raw::c_char,
   ) -> *mut ::std::os::raw::c_char;
 }
 extern "C" {
-  pub(crate) fn xmlNormalizeURIPath(path: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+  pub fn xmlNormalizeURIPath(path: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlURIEscape(str: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlURIEscape(str: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlFreeURI(uri: xmlURIPtr);
+  pub fn xmlFreeURI(uri: xmlURIPtr);
 }
 extern "C" {
-  pub(crate) fn xmlCanonicPath(path: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlCanonicPath(path: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlPathToURI(path: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlPathToURI(path: *const xmlChar) -> *mut xmlChar;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -21830,51 +21784,51 @@ pub struct _xmlXIncludeCtxt {
 pub type xmlXIncludeCtxt = _xmlXIncludeCtxt;
 pub type xmlXIncludeCtxtPtr = *mut xmlXIncludeCtxt;
 extern "C" {
-  pub(crate) fn xmlXIncludeProcess(doc: xmlDocPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXIncludeProcess(doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeProcessFlags(
+  pub fn xmlXIncludeProcessFlags(
     doc: xmlDocPtr,
     flags: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeProcessFlagsData(
+  pub fn xmlXIncludeProcessFlagsData(
     doc: xmlDocPtr,
     flags: ::std::os::raw::c_int,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeProcessTreeFlagsData(
+  pub fn xmlXIncludeProcessTreeFlagsData(
     tree: xmlNodePtr,
     flags: ::std::os::raw::c_int,
     data: *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeProcessTree(tree: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlXIncludeProcessTree(tree: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeProcessTreeFlags(
+  pub fn xmlXIncludeProcessTreeFlags(
     tree: xmlNodePtr,
     flags: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeNewContext(doc: xmlDocPtr) -> xmlXIncludeCtxtPtr;
+  pub fn xmlXIncludeNewContext(doc: xmlDocPtr) -> xmlXIncludeCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeSetFlags(
+  pub fn xmlXIncludeSetFlags(
     ctxt: xmlXIncludeCtxtPtr,
     flags: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeFreeContext(ctxt: xmlXIncludeCtxtPtr);
+  pub fn xmlXIncludeFreeContext(ctxt: xmlXIncludeCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXIncludeProcessNode(
+  pub fn xmlXIncludeProcessNode(
     ctxt: xmlXIncludeCtxtPtr,
     tree: xmlNodePtr,
   ) -> ::std::os::raw::c_int;
@@ -21896,23 +21850,23 @@ pub const xmlModuleOption_XML_MODULE_LOCAL: xmlModuleOption = 2;
 /// enumeration of options that can be passed down to xmlModuleOpen()
 pub type xmlModuleOption = u32;
 extern "C" {
-  pub(crate) fn xmlModuleOpen(
+  pub fn xmlModuleOpen(
     filename: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlModulePtr;
 }
 extern "C" {
-  pub(crate) fn xmlModuleSymbol(
+  pub fn xmlModuleSymbol(
     module: xmlModulePtr,
     name: *const ::std::os::raw::c_char,
     result: *mut *mut ::std::os::raw::c_void,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlModuleClose(module: xmlModulePtr) -> ::std::os::raw::c_int;
+  pub fn xmlModuleClose(module: xmlModulePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlModuleFree(module: xmlModulePtr) -> ::std::os::raw::c_int;
+  pub fn xmlModuleFree(module: xmlModulePtr) -> ::std::os::raw::c_int;
 }
 pub const xmlSchemaValidError_XML_SCHEMAS_ERR_OK: xmlSchemaValidError = 0;
 pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOROOT: xmlSchemaValidError = 1;
@@ -22001,24 +21955,22 @@ pub type xmlSchemaValidityLocatorFunc = ::std::option::Option<
   ) -> ::std::os::raw::c_int,
 >;
 extern "C" {
-  pub(crate) fn xmlSchemaNewParserCtxt(
-    URL: *const ::std::os::raw::c_char,
-  ) -> xmlSchemaParserCtxtPtr;
+  pub fn xmlSchemaNewParserCtxt(URL: *const ::std::os::raw::c_char) -> xmlSchemaParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewMemParserCtxt(
+  pub fn xmlSchemaNewMemParserCtxt(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
   ) -> xmlSchemaParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchemaParserCtxtPtr;
+  pub fn xmlSchemaNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchemaParserCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFreeParserCtxt(ctxt: xmlSchemaParserCtxtPtr);
+  pub fn xmlSchemaFreeParserCtxt(ctxt: xmlSchemaParserCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaSetParserErrors(
+  pub fn xmlSchemaSetParserErrors(
     ctxt: xmlSchemaParserCtxtPtr,
     err: xmlSchemaValidityErrorFunc,
     warn: xmlSchemaValidityWarningFunc,
@@ -22026,14 +21978,14 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSchemaSetParserStructuredErrors(
+  pub fn xmlSchemaSetParserStructuredErrors(
     ctxt: xmlSchemaParserCtxtPtr,
     serror: xmlStructuredErrorFunc,
     ctx: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetParserErrors(
+  pub fn xmlSchemaGetParserErrors(
     ctxt: xmlSchemaParserCtxtPtr,
     err: *mut xmlSchemaValidityErrorFunc,
     warn: *mut xmlSchemaValidityWarningFunc,
@@ -22041,19 +21993,19 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaIsValid(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSchemaIsValid(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaParse(ctxt: xmlSchemaParserCtxtPtr) -> xmlSchemaPtr;
+  pub fn xmlSchemaParse(ctxt: xmlSchemaParserCtxtPtr) -> xmlSchemaPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFree(schema: xmlSchemaPtr);
+  pub fn xmlSchemaFree(schema: xmlSchemaPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaDump(output: *mut FILE, schema: xmlSchemaPtr);
+  pub fn xmlSchemaDump(output: *mut FILE, schema: xmlSchemaPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaSetValidErrors(
+  pub fn xmlSchemaSetValidErrors(
     ctxt: xmlSchemaValidCtxtPtr,
     err: xmlSchemaValidityErrorFunc,
     warn: xmlSchemaValidityWarningFunc,
@@ -22061,14 +22013,14 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlSchemaSetValidStructuredErrors(
+  pub fn xmlSchemaSetValidStructuredErrors(
     ctxt: xmlSchemaValidCtxtPtr,
     serror: xmlStructuredErrorFunc,
     ctx: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetValidErrors(
+  pub fn xmlSchemaGetValidErrors(
     ctxt: xmlSchemaValidCtxtPtr,
     err: *mut xmlSchemaValidityErrorFunc,
     warn: *mut xmlSchemaValidityWarningFunc,
@@ -22076,40 +22028,40 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaSetValidOptions(
+  pub fn xmlSchemaSetValidOptions(
     ctxt: xmlSchemaValidCtxtPtr,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateSetFilename(
+  pub fn xmlSchemaValidateSetFilename(
     vctxt: xmlSchemaValidCtxtPtr,
     filename: *const ::std::os::raw::c_char,
   );
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidCtxtGetOptions(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSchemaValidCtxtGetOptions(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewValidCtxt(schema: xmlSchemaPtr) -> xmlSchemaValidCtxtPtr;
+  pub fn xmlSchemaNewValidCtxt(schema: xmlSchemaPtr) -> xmlSchemaValidCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFreeValidCtxt(ctxt: xmlSchemaValidCtxtPtr);
+  pub fn xmlSchemaFreeValidCtxt(ctxt: xmlSchemaValidCtxtPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateDoc(
+  pub fn xmlSchemaValidateDoc(
     ctxt: xmlSchemaValidCtxtPtr,
     instance: xmlDocPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateOneElement(
+  pub fn xmlSchemaValidateOneElement(
     ctxt: xmlSchemaValidCtxtPtr,
     elem: xmlNodePtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateStream(
+  pub fn xmlSchemaValidateStream(
     ctxt: xmlSchemaValidCtxtPtr,
     input: xmlParserInputBufferPtr,
     enc: xmlCharEncoding,
@@ -22118,14 +22070,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateFile(
+  pub fn xmlSchemaValidateFile(
     ctxt: xmlSchemaValidCtxtPtr,
     filename: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidCtxtGetParserCtxt(ctxt: xmlSchemaValidCtxtPtr) -> xmlParserCtxtPtr;
+  pub fn xmlSchemaValidCtxtGetParserCtxt(ctxt: xmlSchemaValidCtxtPtr) -> xmlParserCtxtPtr;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -22135,17 +22087,17 @@ pub struct _xmlSchemaSAXPlug {
 pub type xmlSchemaSAXPlugStruct = _xmlSchemaSAXPlug;
 pub type xmlSchemaSAXPlugPtr = *mut xmlSchemaSAXPlugStruct;
 extern "C" {
-  pub(crate) fn xmlSchemaSAXPlug(
+  pub fn xmlSchemaSAXPlug(
     ctxt: xmlSchemaValidCtxtPtr,
     sax: *mut xmlSAXHandlerPtr,
     user_data: *mut *mut ::std::os::raw::c_void,
   ) -> xmlSchemaSAXPlugPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaSAXUnplug(plug: xmlSchemaSAXPlugPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSchemaSAXUnplug(plug: xmlSchemaSAXPlugPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateSetLocator(
+  pub fn xmlSchemaValidateSetLocator(
     vctxt: xmlSchemaValidCtxtPtr,
     f: xmlSchemaValidityLocatorFunc,
     ctxt: *mut ::std::os::raw::c_void,
@@ -22216,19 +22168,19 @@ pub type xmlTextReader = _xmlTextReader;
 /// Pointer to an xmlReader context.
 pub type xmlTextReaderPtr = *mut xmlTextReader;
 extern "C" {
-  pub(crate) fn xmlNewTextReader(
+  pub fn xmlNewTextReader(
     input: xmlParserInputBufferPtr,
     URI: *const ::std::os::raw::c_char,
   ) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextReaderFilename(URI: *const ::std::os::raw::c_char) -> xmlTextReaderPtr;
+  pub fn xmlNewTextReaderFilename(URI: *const ::std::os::raw::c_char) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeTextReader(reader: xmlTextReaderPtr);
+  pub fn xmlFreeTextReader(reader: xmlTextReaderPtr);
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSetup(
+  pub fn xmlTextReaderSetup(
     reader: xmlTextReaderPtr,
     input: xmlParserInputBufferPtr,
     URL: *const ::std::os::raw::c_char,
@@ -22237,268 +22189,256 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderRead(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderRead(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderReadInnerXml(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderReadInnerXml(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderReadOuterXml(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderReadOuterXml(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderReadString(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderReadString(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderReadAttributeValue(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderReadAttributeValue(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderAttributeCount(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderAttributeCount(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderDepth(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderDepth(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderHasAttributes(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderHasAttributes(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderHasValue(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderHasValue(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderIsDefault(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderIsDefault(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderIsEmptyElement(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderIsEmptyElement(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderNodeType(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderNodeType(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderQuoteChar(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderQuoteChar(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderReadState(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderReadState(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderIsNamespaceDecl(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderIsNamespaceDecl(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstBaseUri(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstBaseUri(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstLocalName(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstLocalName(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstName(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstName(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstNamespaceUri(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstNamespaceUri(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstPrefix(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstPrefix(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstXmlLang(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstXmlLang(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstString(
-    reader: xmlTextReaderPtr,
-    str: *const xmlChar,
-  ) -> *const xmlChar;
+  pub fn xmlTextReaderConstString(reader: xmlTextReaderPtr, str: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstValue(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstValue(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderBaseUri(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderBaseUri(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderLocalName(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderLocalName(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderName(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderName(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderNamespaceUri(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderNamespaceUri(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderPrefix(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderPrefix(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderXmlLang(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderXmlLang(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderValue(reader: xmlTextReaderPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderValue(reader: xmlTextReaderPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderClose(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderClose(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetAttributeNo(
+  pub fn xmlTextReaderGetAttributeNo(
     reader: xmlTextReaderPtr,
     no: ::std::os::raw::c_int,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetAttribute(
-    reader: xmlTextReaderPtr,
-    name: *const xmlChar,
-  ) -> *mut xmlChar;
+  pub fn xmlTextReaderGetAttribute(reader: xmlTextReaderPtr, name: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetAttributeNs(
+  pub fn xmlTextReaderGetAttributeNs(
     reader: xmlTextReaderPtr,
     localName: *const xmlChar,
     namespaceURI: *const xmlChar,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetRemainder(reader: xmlTextReaderPtr) -> xmlParserInputBufferPtr;
+  pub fn xmlTextReaderGetRemainder(reader: xmlTextReaderPtr) -> xmlParserInputBufferPtr;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderLookupNamespace(
+  pub fn xmlTextReaderLookupNamespace(
     reader: xmlTextReaderPtr,
     prefix: *const xmlChar,
   ) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderMoveToAttributeNo(
+  pub fn xmlTextReaderMoveToAttributeNo(
     reader: xmlTextReaderPtr,
     no: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderMoveToAttribute(
+  pub fn xmlTextReaderMoveToAttribute(
     reader: xmlTextReaderPtr,
     name: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderMoveToAttributeNs(
+  pub fn xmlTextReaderMoveToAttributeNs(
     reader: xmlTextReaderPtr,
     localName: *const xmlChar,
     namespaceURI: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderMoveToFirstAttribute(
-    reader: xmlTextReaderPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderMoveToFirstAttribute(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderMoveToNextAttribute(reader: xmlTextReaderPtr)
-    -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderMoveToNextAttribute(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderMoveToElement(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderMoveToElement(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderNormalization(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderNormalization(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstEncoding(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstEncoding(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSetParserProp(
+  pub fn xmlTextReaderSetParserProp(
     reader: xmlTextReaderPtr,
     prop: ::std::os::raw::c_int,
     value: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetParserProp(
+  pub fn xmlTextReaderGetParserProp(
     reader: xmlTextReaderPtr,
     prop: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderCurrentNode(reader: xmlTextReaderPtr) -> xmlNodePtr;
+  pub fn xmlTextReaderCurrentNode(reader: xmlTextReaderPtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetParserLineNumber(reader: xmlTextReaderPtr)
-    -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderGetParserLineNumber(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetParserColumnNumber(
-    reader: xmlTextReaderPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderGetParserColumnNumber(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderPreserve(reader: xmlTextReaderPtr) -> xmlNodePtr;
+  pub fn xmlTextReaderPreserve(reader: xmlTextReaderPtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderPreservePattern(
+  pub fn xmlTextReaderPreservePattern(
     reader: xmlTextReaderPtr,
     pattern: *const xmlChar,
     namespaces: *mut *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderCurrentDoc(reader: xmlTextReaderPtr) -> xmlDocPtr;
+  pub fn xmlTextReaderCurrentDoc(reader: xmlTextReaderPtr) -> xmlDocPtr;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderExpand(reader: xmlTextReaderPtr) -> xmlNodePtr;
+  pub fn xmlTextReaderExpand(reader: xmlTextReaderPtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderNext(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderNext(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderNextSibling(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderNextSibling(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderIsValid(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderIsValid(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderRelaxNGValidate(
+  pub fn xmlTextReaderRelaxNGValidate(
     reader: xmlTextReaderPtr,
     rng: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderRelaxNGValidateCtxt(
+  pub fn xmlTextReaderRelaxNGValidateCtxt(
     reader: xmlTextReaderPtr,
     ctxt: xmlRelaxNGValidCtxtPtr,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderRelaxNGSetSchema(
+  pub fn xmlTextReaderRelaxNGSetSchema(
     reader: xmlTextReaderPtr,
     schema: xmlRelaxNGPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSchemaValidate(
+  pub fn xmlTextReaderSchemaValidate(
     reader: xmlTextReaderPtr,
     xsd: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSchemaValidateCtxt(
+  pub fn xmlTextReaderSchemaValidateCtxt(
     reader: xmlTextReaderPtr,
     ctxt: xmlSchemaValidCtxtPtr,
     options: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSetSchema(
+  pub fn xmlTextReaderSetSchema(
     reader: xmlTextReaderPtr,
     schema: xmlSchemaPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderConstXmlVersion(reader: xmlTextReaderPtr) -> *const xmlChar;
+  pub fn xmlTextReaderConstXmlVersion(reader: xmlTextReaderPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderStandalone(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderStandalone(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderByteConsumed(reader: xmlTextReaderPtr) -> ::std::os::raw::c_long;
+  pub fn xmlTextReaderByteConsumed(reader: xmlTextReaderPtr) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn xmlReaderWalker(doc: xmlDocPtr) -> xmlTextReaderPtr;
+  pub fn xmlReaderWalker(doc: xmlDocPtr) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReaderForDoc(
+  pub fn xmlReaderForDoc(
     cur: *const xmlChar,
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -22506,14 +22446,14 @@ extern "C" {
   ) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReaderForFile(
+  pub fn xmlReaderForFile(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReaderForMemory(
+  pub fn xmlReaderForMemory(
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
@@ -22522,7 +22462,7 @@ extern "C" {
   ) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReaderForFd(
+  pub fn xmlReaderForFd(
     fd: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -22530,7 +22470,7 @@ extern "C" {
   ) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReaderForIO(
+  pub fn xmlReaderForIO(
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
     ioctx: *mut ::std::os::raw::c_void,
@@ -22540,13 +22480,10 @@ extern "C" {
   ) -> xmlTextReaderPtr;
 }
 extern "C" {
-  pub(crate) fn xmlReaderNewWalker(
-    reader: xmlTextReaderPtr,
-    doc: xmlDocPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlReaderNewWalker(reader: xmlTextReaderPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlReaderNewDoc(
+  pub fn xmlReaderNewDoc(
     reader: xmlTextReaderPtr,
     cur: *const xmlChar,
     URL: *const ::std::os::raw::c_char,
@@ -22555,7 +22492,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlReaderNewFile(
+  pub fn xmlReaderNewFile(
     reader: xmlTextReaderPtr,
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -22563,7 +22500,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlReaderNewMemory(
+  pub fn xmlReaderNewMemory(
     reader: xmlTextReaderPtr,
     buffer: *const ::std::os::raw::c_char,
     size: ::std::os::raw::c_int,
@@ -22573,7 +22510,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlReaderNewFd(
+  pub fn xmlReaderNewFd(
     reader: xmlTextReaderPtr,
     fd: ::std::os::raw::c_int,
     URL: *const ::std::os::raw::c_char,
@@ -22582,7 +22519,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlReaderNewIO(
+  pub fn xmlReaderNewIO(
     reader: xmlTextReaderPtr,
     ioread: xmlInputReadCallback,
     ioclose: xmlInputCloseCallback,
@@ -22609,29 +22546,27 @@ pub type xmlTextReaderErrorFunc = ::std::option::Option<
   ),
 >;
 extern "C" {
-  pub(crate) fn xmlTextReaderLocatorLineNumber(
-    locator: xmlTextReaderLocatorPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlTextReaderLocatorLineNumber(locator: xmlTextReaderLocatorPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderLocatorBaseURI(locator: xmlTextReaderLocatorPtr) -> *mut xmlChar;
+  pub fn xmlTextReaderLocatorBaseURI(locator: xmlTextReaderLocatorPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSetErrorHandler(
+  pub fn xmlTextReaderSetErrorHandler(
     reader: xmlTextReaderPtr,
     f: xmlTextReaderErrorFunc,
     arg: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderSetStructuredErrorHandler(
+  pub fn xmlTextReaderSetStructuredErrorHandler(
     reader: xmlTextReaderPtr,
     f: xmlStructuredErrorFunc,
     arg: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlTextReaderGetErrorHandler(
+  pub fn xmlTextReaderGetErrorHandler(
     reader: xmlTextReaderPtr,
     f: *mut xmlTextReaderErrorFunc,
     arg: *mut *mut ::std::os::raw::c_void,
@@ -22658,28 +22593,28 @@ pub struct _xmlSaveCtxt {
 pub type xmlSaveCtxt = _xmlSaveCtxt;
 pub type xmlSaveCtxtPtr = *mut xmlSaveCtxt;
 extern "C" {
-  pub(crate) fn xmlSaveToFd(
+  pub fn xmlSaveToFd(
     fd: ::std::os::raw::c_int,
     encoding: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlSaveCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSaveToFilename(
+  pub fn xmlSaveToFilename(
     filename: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlSaveCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSaveToBuffer(
+  pub fn xmlSaveToBuffer(
     buffer: xmlBufferPtr,
     encoding: *const ::std::os::raw::c_char,
     options: ::std::os::raw::c_int,
   ) -> xmlSaveCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSaveToIO(
+  pub fn xmlSaveToIO(
     iowrite: xmlOutputWriteCallback,
     ioclose: xmlOutputCloseCallback,
     ioctx: *mut ::std::os::raw::c_void,
@@ -22688,25 +22623,25 @@ extern "C" {
   ) -> xmlSaveCtxtPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSaveDoc(ctxt: xmlSaveCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_long;
+  pub fn xmlSaveDoc(ctxt: xmlSaveCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn xmlSaveTree(ctxt: xmlSaveCtxtPtr, node: xmlNodePtr) -> ::std::os::raw::c_long;
+  pub fn xmlSaveTree(ctxt: xmlSaveCtxtPtr, node: xmlNodePtr) -> ::std::os::raw::c_long;
 }
 extern "C" {
-  pub(crate) fn xmlSaveFlush(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSaveFlush(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveClose(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSaveClose(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveSetEscape(
+  pub fn xmlSaveSetEscape(
     ctxt: xmlSaveCtxtPtr,
     escape: xmlCharEncodingOutputFunc,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSaveSetAttrEscape(
+  pub fn xmlSaveSetAttrEscape(
     ctxt: xmlSaveCtxtPtr,
     escape: xmlCharEncodingOutputFunc,
   ) -> ::std::os::raw::c_int;
@@ -22721,26 +22656,23 @@ pub const xmlSchemaWhitespaceValueType_XML_SCHEMA_WHITESPACE_COLLAPSE:
   xmlSchemaWhitespaceValueType = 3;
 pub type xmlSchemaWhitespaceValueType = u32;
 extern "C" {
-  pub(crate) fn xmlSchemaInitTypes();
+  pub fn xmlSchemaInitTypes();
 }
 extern "C" {
-  pub(crate) fn xmlSchemaCleanupTypes();
+  pub fn xmlSchemaCleanupTypes();
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetPredefinedType(
-    name: *const xmlChar,
-    ns: *const xmlChar,
-  ) -> xmlSchemaTypePtr;
+  pub fn xmlSchemaGetPredefinedType(name: *const xmlChar, ns: *const xmlChar) -> xmlSchemaTypePtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidatePredefinedType(
+  pub fn xmlSchemaValidatePredefinedType(
     type_: xmlSchemaTypePtr,
     value: *const xmlChar,
     val: *mut xmlSchemaValPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValPredefTypeNode(
+  pub fn xmlSchemaValPredefTypeNode(
     type_: xmlSchemaTypePtr,
     value: *const xmlChar,
     val: *mut xmlSchemaValPtr,
@@ -22748,7 +22680,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateFacet(
+  pub fn xmlSchemaValidateFacet(
     base: xmlSchemaTypePtr,
     facet: xmlSchemaFacetPtr,
     value: *const xmlChar,
@@ -22756,7 +22688,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateFacetWhtsp(
+  pub fn xmlSchemaValidateFacetWhtsp(
     facet: xmlSchemaFacetPtr,
     fws: xmlSchemaWhitespaceValueType,
     valType: xmlSchemaValType,
@@ -22766,13 +22698,13 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFreeValue(val: xmlSchemaValPtr);
+  pub fn xmlSchemaFreeValue(val: xmlSchemaValPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewFacet() -> xmlSchemaFacetPtr;
+  pub fn xmlSchemaNewFacet() -> xmlSchemaFacetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaCheckFacet(
+  pub fn xmlSchemaCheckFacet(
     facet: xmlSchemaFacetPtr,
     typeDecl: xmlSchemaTypePtr,
     ctxt: xmlSchemaParserCtxtPtr,
@@ -22780,21 +22712,16 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaFreeFacet(facet: xmlSchemaFacetPtr);
+  pub fn xmlSchemaFreeFacet(facet: xmlSchemaFacetPtr);
 }
 extern "C" {
-  pub(crate) fn xmlSchemaCompareValues(
-    x: xmlSchemaValPtr,
-    y: xmlSchemaValPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlSchemaCompareValues(x: xmlSchemaValPtr, y: xmlSchemaValPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetBuiltInListSimpleTypeItemType(
-    type_: xmlSchemaTypePtr,
-  ) -> xmlSchemaTypePtr;
+  pub fn xmlSchemaGetBuiltInListSimpleTypeItemType(type_: xmlSchemaTypePtr) -> xmlSchemaTypePtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateListSimpleTypeFacet(
+  pub fn xmlSchemaValidateListSimpleTypeFacet(
     facet: xmlSchemaFacetPtr,
     value: *const xmlChar,
     actualLen: ::std::os::raw::c_ulong,
@@ -22802,25 +22729,25 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetBuiltInType(type_: xmlSchemaValType) -> xmlSchemaTypePtr;
+  pub fn xmlSchemaGetBuiltInType(type_: xmlSchemaValType) -> xmlSchemaTypePtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaIsBuiltInTypeFacet(
+  pub fn xmlSchemaIsBuiltInTypeFacet(
     type_: xmlSchemaTypePtr,
     facetType: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaCollapseString(value: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlSchemaCollapseString(value: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaWhiteSpaceReplace(value: *const xmlChar) -> *mut xmlChar;
+  pub fn xmlSchemaWhiteSpaceReplace(value: *const xmlChar) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetFacetValueAsULong(facet: xmlSchemaFacetPtr) -> ::std::os::raw::c_ulong;
+  pub fn xmlSchemaGetFacetValueAsULong(facet: xmlSchemaFacetPtr) -> ::std::os::raw::c_ulong;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateLengthFacet(
+  pub fn xmlSchemaValidateLengthFacet(
     type_: xmlSchemaTypePtr,
     facet: xmlSchemaFacetPtr,
     value: *const xmlChar,
@@ -22829,7 +22756,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValidateLengthFacetWhtsp(
+  pub fn xmlSchemaValidateLengthFacetWhtsp(
     facet: xmlSchemaFacetPtr,
     valType: xmlSchemaValType,
     value: *const xmlChar,
@@ -22839,7 +22766,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValPredefTypeNodeNoNorm(
+  pub fn xmlSchemaValPredefTypeNodeNoNorm(
     type_: xmlSchemaTypePtr,
     value: *const xmlChar,
     val: *mut xmlSchemaValPtr,
@@ -22847,53 +22774,46 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetCanonValue(
+  pub fn xmlSchemaGetCanonValue(
     val: xmlSchemaValPtr,
     retValue: *mut *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetCanonValueWhtsp(
+  pub fn xmlSchemaGetCanonValueWhtsp(
     val: xmlSchemaValPtr,
     retValue: *mut *const xmlChar,
     ws: xmlSchemaWhitespaceValueType,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValueAppend(
-    prev: xmlSchemaValPtr,
-    cur: xmlSchemaValPtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlSchemaValueAppend(prev: xmlSchemaValPtr, cur: xmlSchemaValPtr)
+    -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValueGetNext(cur: xmlSchemaValPtr) -> xmlSchemaValPtr;
+  pub fn xmlSchemaValueGetNext(cur: xmlSchemaValPtr) -> xmlSchemaValPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValueGetAsString(val: xmlSchemaValPtr) -> *const xmlChar;
+  pub fn xmlSchemaValueGetAsString(val: xmlSchemaValPtr) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaValueGetAsBoolean(val: xmlSchemaValPtr) -> ::std::os::raw::c_int;
+  pub fn xmlSchemaValueGetAsBoolean(val: xmlSchemaValPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewStringValue(
-    type_: xmlSchemaValType,
-    value: *const xmlChar,
-  ) -> xmlSchemaValPtr;
+  pub fn xmlSchemaNewStringValue(type_: xmlSchemaValType, value: *const xmlChar)
+    -> xmlSchemaValPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewNOTATIONValue(
-    name: *const xmlChar,
-    ns: *const xmlChar,
-  ) -> xmlSchemaValPtr;
+  pub fn xmlSchemaNewNOTATIONValue(name: *const xmlChar, ns: *const xmlChar) -> xmlSchemaValPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaNewQNameValue(
+  pub fn xmlSchemaNewQNameValue(
     namespaceName: *const xmlChar,
     localName: *const xmlChar,
   ) -> xmlSchemaValPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaCompareValuesWhtsp(
+  pub fn xmlSchemaCompareValuesWhtsp(
     x: xmlSchemaValPtr,
     xws: xmlSchemaWhitespaceValueType,
     y: xmlSchemaValPtr,
@@ -22901,580 +22821,536 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaCopyValue(val: xmlSchemaValPtr) -> xmlSchemaValPtr;
+  pub fn xmlSchemaCopyValue(val: xmlSchemaValPtr) -> xmlSchemaValPtr;
 }
 extern "C" {
-  pub(crate) fn xmlSchemaGetValType(val: xmlSchemaValPtr) -> xmlSchemaValType;
+  pub fn xmlSchemaGetValType(val: xmlSchemaValPtr) -> xmlSchemaValType;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsAegeanNumbers(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsAegeanNumbers(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsAlphabeticPresentationForms(
+  pub fn xmlUCSIsAlphabeticPresentationForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsArabic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsArabicPresentationFormsA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsArabicPresentationFormsB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsArmenian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsArrows(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBasicLatin(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBengali(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBlockElements(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBopomofo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBopomofoExtended(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBoxDrawing(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBraillePatterns(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsBuhid(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsByzantineMusicalSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCJKCompatibility(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCJKCompatibilityForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCJKCompatibilityIdeographs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCJKCompatibilityIdeographsSupplement(
     code: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsArabic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCJKRadicalsSupplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsArabicPresentationFormsA(
+  pub fn xmlUCSIsCJKSymbolsandPunctuation(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCJKUnifiedIdeographs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCJKUnifiedIdeographsExtensionA(
     code: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsArabicPresentationFormsB(
+  pub fn xmlUCSIsCJKUnifiedIdeographsExtensionB(
     code: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsArmenian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCherokee(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsArrows(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCombiningDiacriticalMarks(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsBasicLatin(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBengali(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBlockElements(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBopomofo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBopomofoExtended(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBoxDrawing(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBraillePatterns(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBuhid(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsByzantineMusicalSymbols(
+  pub fn xmlUCSIsCombiningDiacriticalMarksforSymbols(
     code: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCJKCompatibility(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCombiningHalfMarks(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCJKCompatibilityForms(code: ::std::os::raw::c_int)
+  pub fn xmlUCSIsCombiningMarksforSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsControlPictures(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCurrencySymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCypriotSyllabary(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCyrillic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsCyrillicSupplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsDeseret(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsDevanagari(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsDingbats(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsEnclosedAlphanumerics(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsEnclosedCJKLettersandMonths(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsEthiopic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGeneralPunctuation(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGeometricShapes(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGeorgian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGothic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGreek(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGreekExtended(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGreekandCoptic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGujarati(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsGurmukhi(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHalfwidthandFullwidthForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHangulCompatibilityJamo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHangulJamo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHangulSyllables(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHanunoo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHebrew(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHighPrivateUseSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHighSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsHiragana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsIPAExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsIdeographicDescriptionCharacters(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKanbun(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKangxiRadicals(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKannada(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKatakana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKatakanaPhoneticExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKhmer(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsKhmerSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLao(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLatin1Supplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLatinExtendedA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLatinExtendedB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLatinExtendedAdditional(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLetterlikeSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLimbu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLinearBIdeograms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLinearBSyllabary(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsLowSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMalayalam(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMathematicalAlphanumericSymbols(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMathematicalOperators(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMiscellaneousMathematicalSymbolsA(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMiscellaneousMathematicalSymbolsB(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMiscellaneousSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMiscellaneousSymbolsandArrows(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMiscellaneousTechnical(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMongolian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMusicalSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsMyanmar(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsNumberForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsOgham(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsOldItalic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsOpticalCharacterRecognition(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsOriya(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsOsmanya(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsPhoneticExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsPrivateUse(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsPrivateUseArea(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsRunic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsShavian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSinhala(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSmallFormVariants(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSpacingModifierLetters(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSpecials(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSuperscriptsandSubscripts(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSupplementalArrowsA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSupplementalArrowsB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSupplementalMathematicalOperators(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsSupplementaryPrivateUseAreaA(code: ::std::os::raw::c_int)
     -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCJKCompatibilityIdeographs(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCJKCompatibilityIdeographsSupplement(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCJKRadicalsSupplement(code: ::std::os::raw::c_int)
+  pub fn xmlUCSIsSupplementaryPrivateUseAreaB(code: ::std::os::raw::c_int)
     -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCJKSymbolsandPunctuation(
+  pub fn xmlUCSIsSyriac(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTagalog(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTagbanwa(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTags(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTaiLe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTaiXuanJingSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTamil(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTelugu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsThaana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsThai(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsTibetan(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsUgaritic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlUCSIsUnifiedCanadianAboriginalSyllabics(
     code: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCJKUnifiedIdeographs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsVariationSelectors(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCJKUnifiedIdeographsExtensionA(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCJKUnifiedIdeographsExtensionB(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCherokee(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCombiningDiacriticalMarks(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCombiningDiacriticalMarksforSymbols(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCombiningHalfMarks(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCombiningMarksforSymbols(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsControlPictures(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCurrencySymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCypriotSyllabary(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCyrillic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsCyrillicSupplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsDeseret(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsDevanagari(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsDingbats(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsEnclosedAlphanumerics(code: ::std::os::raw::c_int)
+  pub fn xmlUCSIsVariationSelectorsSupplement(code: ::std::os::raw::c_int)
     -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsEnclosedCJKLettersandMonths(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsYiRadicals(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsEthiopic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsYiSyllables(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsGeneralPunctuation(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsYijingHexagramSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsGeometricShapes(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGeorgian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGothic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGreek(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGreekExtended(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGreekandCoptic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGujarati(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsGurmukhi(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHalfwidthandFullwidthForms(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHangulCompatibilityJamo(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHangulJamo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHangulSyllables(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHanunoo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHebrew(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHighPrivateUseSurrogates(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHighSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsHiragana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsIPAExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsIdeographicDescriptionCharacters(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKanbun(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKangxiRadicals(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKannada(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKatakana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKatakanaPhoneticExtensions(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKhmer(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsKhmerSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLao(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLatin1Supplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLatinExtendedA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLatinExtendedB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLatinExtendedAdditional(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLetterlikeSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLimbu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLinearBIdeograms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLinearBSyllabary(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsLowSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMalayalam(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMathematicalAlphanumericSymbols(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMathematicalOperators(code: ::std::os::raw::c_int)
-    -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMiscellaneousMathematicalSymbolsA(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMiscellaneousMathematicalSymbolsB(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMiscellaneousSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMiscellaneousSymbolsandArrows(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMiscellaneousTechnical(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMongolian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMusicalSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsMyanmar(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsNumberForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsOgham(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsOldItalic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsOpticalCharacterRecognition(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsOriya(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsOsmanya(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsPhoneticExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsPrivateUse(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsPrivateUseArea(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsRunic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsShavian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSinhala(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSmallFormVariants(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSpacingModifierLetters(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSpecials(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSuperscriptsandSubscripts(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSupplementalArrowsA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSupplementalArrowsB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSupplementalMathematicalOperators(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSupplementaryPrivateUseAreaA(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSupplementaryPrivateUseAreaB(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsSyriac(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTagalog(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTagbanwa(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTags(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTaiLe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTaiXuanJingSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTamil(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTelugu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsThaana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsThai(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsTibetan(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsUgaritic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsUnifiedCanadianAboriginalSyllabics(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsVariationSelectors(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsVariationSelectorsSupplement(
-    code: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsYiRadicals(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsYiSyllables(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsYijingHexagramSymbols(code: ::std::os::raw::c_int)
-    -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlUCSIsBlock(
+  pub fn xmlUCSIsBlock(
     code: ::std::os::raw::c_int,
     block: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatC(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatC(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatCc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatCc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatCf(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatCf(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatCo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatCo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatCs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatCs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatL(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatL(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatLl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatLl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatLm(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatLm(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatLo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatLo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatLt(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatLt(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatLu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatLu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatM(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatM(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatMc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatMc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatMe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatMe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatMn(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatMn(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatN(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatN(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatNd(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatNd(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatNl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatNl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatNo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatNo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatP(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatP(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPd(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPd(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPf(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPf(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPi(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPi(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatPs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatPs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatS(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatS(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatSc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatSc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatSk(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatSk(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatSm(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatSm(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatSo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatSo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatZ(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatZ(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatZl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatZl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatZp(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatZp(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCatZs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlUCSIsCatZs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlUCSIsCat(
+  pub fn xmlUCSIsCat(
     code: ::std::os::raw::c_int,
     cat: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
@@ -23487,44 +23363,44 @@ pub struct _xmlTextWriter {
 pub type xmlTextWriter = _xmlTextWriter;
 pub type xmlTextWriterPtr = *mut xmlTextWriter;
 extern "C" {
-  pub(crate) fn xmlNewTextWriter(out: xmlOutputBufferPtr) -> xmlTextWriterPtr;
+  pub fn xmlNewTextWriter(out: xmlOutputBufferPtr) -> xmlTextWriterPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextWriterFilename(
+  pub fn xmlNewTextWriterFilename(
     uri: *const ::std::os::raw::c_char,
     compression: ::std::os::raw::c_int,
   ) -> xmlTextWriterPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextWriterMemory(
+  pub fn xmlNewTextWriterMemory(
     buf: xmlBufferPtr,
     compression: ::std::os::raw::c_int,
   ) -> xmlTextWriterPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextWriterPushParser(
+  pub fn xmlNewTextWriterPushParser(
     ctxt: xmlParserCtxtPtr,
     compression: ::std::os::raw::c_int,
   ) -> xmlTextWriterPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextWriterDoc(
+  pub fn xmlNewTextWriterDoc(
     doc: *mut xmlDocPtr,
     compression: ::std::os::raw::c_int,
   ) -> xmlTextWriterPtr;
 }
 extern "C" {
-  pub(crate) fn xmlNewTextWriterTree(
+  pub fn xmlNewTextWriterTree(
     doc: xmlDocPtr,
     node: xmlNodePtr,
     compression: ::std::os::raw::c_int,
   ) -> xmlTextWriterPtr;
 }
 extern "C" {
-  pub(crate) fn xmlFreeTextWriter(writer: xmlTextWriterPtr);
+  pub fn xmlFreeTextWriter(writer: xmlTextWriterPtr);
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartDocument(
+  pub fn xmlTextWriterStartDocument(
     writer: xmlTextWriterPtr,
     version: *const ::std::os::raw::c_char,
     encoding: *const ::std::os::raw::c_char,
@@ -23532,42 +23408,42 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndDocument(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndDocument(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartComment(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterStartComment(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndComment(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndComment(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatComment(
+  pub fn xmlTextWriterWriteFormatComment(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatComment(
+  pub fn xmlTextWriterWriteVFormatComment(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     argptr: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteComment(
+  pub fn xmlTextWriterWriteComment(
     writer: xmlTextWriterPtr,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartElement(
+  pub fn xmlTextWriterStartElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartElementNS(
+  pub fn xmlTextWriterStartElementNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23575,13 +23451,13 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterFullEndElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterFullEndElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatElement(
+  pub fn xmlTextWriterWriteFormatElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23589,7 +23465,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatElement(
+  pub fn xmlTextWriterWriteVFormatElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23597,14 +23473,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteElement(
+  pub fn xmlTextWriterWriteElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatElementNS(
+  pub fn xmlTextWriterWriteFormatElementNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23614,7 +23490,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatElementNS(
+  pub fn xmlTextWriterWriteVFormatElementNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23624,7 +23500,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteElementNS(
+  pub fn xmlTextWriterWriteElementNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23633,54 +23509,54 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatRaw(
+  pub fn xmlTextWriterWriteFormatRaw(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatRaw(
+  pub fn xmlTextWriterWriteVFormatRaw(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     argptr: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteRawLen(
+  pub fn xmlTextWriterWriteRawLen(
     writer: xmlTextWriterPtr,
     content: *const xmlChar,
     len: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteRaw(
+  pub fn xmlTextWriterWriteRaw(
     writer: xmlTextWriterPtr,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatString(
+  pub fn xmlTextWriterWriteFormatString(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatString(
+  pub fn xmlTextWriterWriteVFormatString(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     argptr: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteString(
+  pub fn xmlTextWriterWriteString(
     writer: xmlTextWriterPtr,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteBase64(
+  pub fn xmlTextWriterWriteBase64(
     writer: xmlTextWriterPtr,
     data: *const ::std::os::raw::c_char,
     start: ::std::os::raw::c_int,
@@ -23688,7 +23564,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteBinHex(
+  pub fn xmlTextWriterWriteBinHex(
     writer: xmlTextWriterPtr,
     data: *const ::std::os::raw::c_char,
     start: ::std::os::raw::c_int,
@@ -23696,13 +23572,13 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartAttribute(
+  pub fn xmlTextWriterStartAttribute(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartAttributeNS(
+  pub fn xmlTextWriterStartAttributeNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23710,10 +23586,10 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndAttribute(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndAttribute(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatAttribute(
+  pub fn xmlTextWriterWriteFormatAttribute(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23721,7 +23597,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatAttribute(
+  pub fn xmlTextWriterWriteVFormatAttribute(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23729,14 +23605,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteAttribute(
+  pub fn xmlTextWriterWriteAttribute(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatAttributeNS(
+  pub fn xmlTextWriterWriteFormatAttributeNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23746,7 +23622,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatAttributeNS(
+  pub fn xmlTextWriterWriteVFormatAttributeNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23756,7 +23632,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteAttributeNS(
+  pub fn xmlTextWriterWriteAttributeNS(
     writer: xmlTextWriterPtr,
     prefix: *const xmlChar,
     name: *const xmlChar,
@@ -23765,16 +23641,16 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartPI(
+  pub fn xmlTextWriterStartPI(
     writer: xmlTextWriterPtr,
     target: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndPI(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndPI(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatPI(
+  pub fn xmlTextWriterWriteFormatPI(
     writer: xmlTextWriterPtr,
     target: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23782,7 +23658,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatPI(
+  pub fn xmlTextWriterWriteVFormatPI(
     writer: xmlTextWriterPtr,
     target: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23790,40 +23666,40 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWritePI(
+  pub fn xmlTextWriterWritePI(
     writer: xmlTextWriterPtr,
     target: *const xmlChar,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartCDATA(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterStartCDATA(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndCDATA(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndCDATA(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatCDATA(
+  pub fn xmlTextWriterWriteFormatCDATA(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     ...
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatCDATA(
+  pub fn xmlTextWriterWriteVFormatCDATA(
     writer: xmlTextWriterPtr,
     format: *const ::std::os::raw::c_char,
     argptr: *mut __va_list_tag,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteCDATA(
+  pub fn xmlTextWriterWriteCDATA(
     writer: xmlTextWriterPtr,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartDTD(
+  pub fn xmlTextWriterStartDTD(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     pubid: *const xmlChar,
@@ -23831,10 +23707,10 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndDTD(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndDTD(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatDTD(
+  pub fn xmlTextWriterWriteFormatDTD(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     pubid: *const xmlChar,
@@ -23844,7 +23720,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatDTD(
+  pub fn xmlTextWriterWriteVFormatDTD(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     pubid: *const xmlChar,
@@ -23854,7 +23730,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTD(
+  pub fn xmlTextWriterWriteDTD(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     pubid: *const xmlChar,
@@ -23863,48 +23739,16 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartDTDElement(
+  pub fn xmlTextWriterStartDTDElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndDTDElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndDTDElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatDTDElement(
-    writer: xmlTextWriterPtr,
-    name: *const xmlChar,
-    format: *const ::std::os::raw::c_char,
-    ...
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatDTDElement(
-    writer: xmlTextWriterPtr,
-    name: *const xmlChar,
-    format: *const ::std::os::raw::c_char,
-    argptr: *mut __va_list_tag,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDElement(
-    writer: xmlTextWriterPtr,
-    name: *const xmlChar,
-    content: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlTextWriterStartDTDAttlist(
-    writer: xmlTextWriterPtr,
-    name: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlTextWriterEndDTDAttlist(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
-}
-extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatDTDAttlist(
+  pub fn xmlTextWriterWriteFormatDTDElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23912,7 +23756,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatDTDAttlist(
+  pub fn xmlTextWriterWriteVFormatDTDElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     format: *const ::std::os::raw::c_char,
@@ -23920,24 +23764,56 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDAttlist(
+  pub fn xmlTextWriterWriteDTDElement(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     content: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterStartDTDEntity(
+  pub fn xmlTextWriterStartDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlTextWriterEndDTDAttlist(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlTextWriterWriteFormatDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlTextWriterWriteVFormatDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlTextWriterWriteDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+  pub fn xmlTextWriterStartDTDEntity(
     writer: xmlTextWriterPtr,
     pe: ::std::os::raw::c_int,
     name: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterEndDTDEntity(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterEndDTDEntity(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteFormatDTDInternalEntity(
+  pub fn xmlTextWriterWriteFormatDTDInternalEntity(
     writer: xmlTextWriterPtr,
     pe: ::std::os::raw::c_int,
     name: *const xmlChar,
@@ -23946,7 +23822,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteVFormatDTDInternalEntity(
+  pub fn xmlTextWriterWriteVFormatDTDInternalEntity(
     writer: xmlTextWriterPtr,
     pe: ::std::os::raw::c_int,
     name: *const xmlChar,
@@ -23955,7 +23831,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDInternalEntity(
+  pub fn xmlTextWriterWriteDTDInternalEntity(
     writer: xmlTextWriterPtr,
     pe: ::std::os::raw::c_int,
     name: *const xmlChar,
@@ -23963,7 +23839,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDExternalEntity(
+  pub fn xmlTextWriterWriteDTDExternalEntity(
     writer: xmlTextWriterPtr,
     pe: ::std::os::raw::c_int,
     name: *const xmlChar,
@@ -23973,7 +23849,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDExternalEntityContents(
+  pub fn xmlTextWriterWriteDTDExternalEntityContents(
     writer: xmlTextWriterPtr,
     pubid: *const xmlChar,
     sysid: *const xmlChar,
@@ -23981,7 +23857,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDEntity(
+  pub fn xmlTextWriterWriteDTDEntity(
     writer: xmlTextWriterPtr,
     pe: ::std::os::raw::c_int,
     name: *const xmlChar,
@@ -23992,7 +23868,7 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterWriteDTDNotation(
+  pub fn xmlTextWriterWriteDTDNotation(
     writer: xmlTextWriterPtr,
     name: *const xmlChar,
     pubid: *const xmlChar,
@@ -24000,57 +23876,57 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterSetIndent(
+  pub fn xmlTextWriterSetIndent(
     writer: xmlTextWriterPtr,
     indent: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterSetIndentString(
+  pub fn xmlTextWriterSetIndentString(
     writer: xmlTextWriterPtr,
     str: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterSetQuoteChar(
+  pub fn xmlTextWriterSetQuoteChar(
     writer: xmlTextWriterPtr,
     quotechar: xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlTextWriterFlush(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+  pub fn xmlTextWriterFlush(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathPopBoolean(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathPopBoolean(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathPopNumber(ctxt: xmlXPathParserContextPtr) -> f64;
+  pub fn xmlXPathPopNumber(ctxt: xmlXPathParserContextPtr) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathPopString(ctxt: xmlXPathParserContextPtr) -> *mut xmlChar;
+  pub fn xmlXPathPopString(ctxt: xmlXPathParserContextPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathPopNodeSet(ctxt: xmlXPathParserContextPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathPopNodeSet(ctxt: xmlXPathParserContextPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathPopExternal(ctxt: xmlXPathParserContextPtr) -> *mut ::std::os::raw::c_void;
+  pub fn xmlXPathPopExternal(ctxt: xmlXPathParserContextPtr) -> *mut ::std::os::raw::c_void;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterVariableLookup(
+  pub fn xmlXPathRegisterVariableLookup(
     ctxt: xmlXPathContextPtr,
     f: xmlXPathVariableLookupFunc,
     data: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterFuncLookup(
+  pub fn xmlXPathRegisterFuncLookup(
     ctxt: xmlXPathContextPtr,
     f: xmlXPathFuncLookupFunc,
     funcCtxt: *mut ::std::os::raw::c_void,
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPatherror(
+  pub fn xmlXPatherror(
     ctxt: xmlXPathParserContextPtr,
     file: *const ::std::os::raw::c_char,
     line: ::std::os::raw::c_int,
@@ -24058,17 +23934,17 @@ extern "C" {
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPathErr(ctxt: xmlXPathParserContextPtr, error: ::std::os::raw::c_int);
+  pub fn xmlXPathErr(ctxt: xmlXPathParserContextPtr, error: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathDebugDumpObject(
+  pub fn xmlXPathDebugDumpObject(
     output: *mut FILE,
     cur: xmlXPathObjectPtr,
     depth: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPathDebugDumpCompExpr(
+  pub fn xmlXPathDebugDumpCompExpr(
     output: *mut FILE,
     comp: xmlXPathCompExprPtr,
     depth: ::std::os::raw::c_int,
@@ -24076,87 +23952,73 @@ extern "C" {
 }
 extern "C" {
   /// NodeSet handling.
-  pub(crate) fn xmlXPathNodeSetContains(
-    cur: xmlNodeSetPtr,
-    val: xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlXPathNodeSetContains(cur: xmlNodeSetPtr, val: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathDifference(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathDifference(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathIntersection(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr)
-    -> xmlNodeSetPtr;
+  pub fn xmlXPathIntersection(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathDistinctSorted(nodes: xmlNodeSetPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathDistinctSorted(nodes: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathDistinct(nodes: xmlNodeSetPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathDistinct(nodes: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathHasSameNodes(
+  pub fn xmlXPathHasSameNodes(
     nodes1: xmlNodeSetPtr,
     nodes2: xmlNodeSetPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeLeadingSorted(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathNodeLeadingSorted(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathLeadingSorted(
-    nodes1: xmlNodeSetPtr,
-    nodes2: xmlNodeSetPtr,
-  ) -> xmlNodeSetPtr;
+  pub fn xmlXPathLeadingSorted(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeLeading(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathNodeLeading(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathLeading(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathLeading(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeTrailingSorted(nodes: xmlNodeSetPtr, node: xmlNodePtr)
-    -> xmlNodeSetPtr;
+  pub fn xmlXPathNodeTrailingSorted(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathTrailingSorted(
-    nodes1: xmlNodeSetPtr,
-    nodes2: xmlNodeSetPtr,
-  ) -> xmlNodeSetPtr;
+  pub fn xmlXPathTrailingSorted(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeTrailing(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathNodeTrailing(nodes: xmlNodeSetPtr, node: xmlNodePtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathTrailing(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathTrailing(nodes1: xmlNodeSetPtr, nodes2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
   /// Extending a context.
-  pub(crate) fn xmlXPathRegisterNs(
+  pub fn xmlXPathRegisterNs(
     ctxt: xmlXPathContextPtr,
     prefix: *const xmlChar,
     ns_uri: *const xmlChar,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNsLookup(
-    ctxt: xmlXPathContextPtr,
-    prefix: *const xmlChar,
-  ) -> *const xmlChar;
+  pub fn xmlXPathNsLookup(ctxt: xmlXPathContextPtr, prefix: *const xmlChar) -> *const xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisteredNsCleanup(ctxt: xmlXPathContextPtr);
+  pub fn xmlXPathRegisteredNsCleanup(ctxt: xmlXPathContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterFunc(
+  pub fn xmlXPathRegisterFunc(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
     f: xmlXPathFunction,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterFuncNS(
+  pub fn xmlXPathRegisterFuncNS(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
     ns_uri: *const xmlChar,
@@ -24164,14 +24026,14 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterVariable(
+  pub fn xmlXPathRegisterVariable(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
     value: xmlXPathObjectPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterVariableNS(
+  pub fn xmlXPathRegisterVariableNS(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
     ns_uri: *const xmlChar,
@@ -24179,371 +24041,305 @@ extern "C" {
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFunctionLookup(
-    ctxt: xmlXPathContextPtr,
-    name: *const xmlChar,
-  ) -> xmlXPathFunction;
+  pub fn xmlXPathFunctionLookup(ctxt: xmlXPathContextPtr, name: *const xmlChar)
+    -> xmlXPathFunction;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFunctionLookupNS(
+  pub fn xmlXPathFunctionLookupNS(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
     ns_uri: *const xmlChar,
   ) -> xmlXPathFunction;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisteredFuncsCleanup(ctxt: xmlXPathContextPtr);
+  pub fn xmlXPathRegisteredFuncsCleanup(ctxt: xmlXPathContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathVariableLookup(
+  pub fn xmlXPathVariableLookup(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
   ) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathVariableLookupNS(
+  pub fn xmlXPathVariableLookupNS(
     ctxt: xmlXPathContextPtr,
     name: *const xmlChar,
     ns_uri: *const xmlChar,
   ) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisteredVariablesCleanup(ctxt: xmlXPathContextPtr);
+  pub fn xmlXPathRegisteredVariablesCleanup(ctxt: xmlXPathContextPtr);
 }
 extern "C" {
   /// Utilities to extend XPath.
-  pub(crate) fn xmlXPathNewParserContext(
+  pub fn xmlXPathNewParserContext(
     str: *const xmlChar,
     ctxt: xmlXPathContextPtr,
   ) -> xmlXPathParserContextPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathFreeParserContext(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathFreeParserContext(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn valuePop(ctxt: xmlXPathParserContextPtr) -> xmlXPathObjectPtr;
+  pub fn valuePop(ctxt: xmlXPathParserContextPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn valuePush(
+  pub fn valuePush(
     ctxt: xmlXPathParserContextPtr,
     value: xmlXPathObjectPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewString(val: *const xmlChar) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewString(val: *const xmlChar) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewCString(val: *const ::std::os::raw::c_char) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewCString(val: *const ::std::os::raw::c_char) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathWrapString(val: *mut xmlChar) -> xmlXPathObjectPtr;
+  pub fn xmlXPathWrapString(val: *mut xmlChar) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathWrapCString(val: *mut ::std::os::raw::c_char) -> xmlXPathObjectPtr;
+  pub fn xmlXPathWrapCString(val: *mut ::std::os::raw::c_char) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewFloat(val: f64) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewFloat(val: f64) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewBoolean(val: ::std::os::raw::c_int) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewBoolean(val: ::std::os::raw::c_int) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewNodeSet(val: xmlNodePtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewNodeSet(val: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewValueTree(val: xmlNodePtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewValueTree(val: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetAdd(cur: xmlNodeSetPtr, val: xmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathNodeSetAdd(cur: xmlNodeSetPtr, val: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetAddUnique(
-    cur: xmlNodeSetPtr,
-    val: xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlXPathNodeSetAddUnique(cur: xmlNodeSetPtr, val: xmlNodePtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetAddNs(
+  pub fn xmlXPathNodeSetAddNs(
     cur: xmlNodeSetPtr,
     node: xmlNodePtr,
     ns: xmlNsPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetSort(set: xmlNodeSetPtr);
+  pub fn xmlXPathNodeSetSort(set: xmlNodeSetPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathRoot(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathRoot(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathEvalExpr(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathEvalExpr(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathParseName(ctxt: xmlXPathParserContextPtr) -> *mut xmlChar;
+  pub fn xmlXPathParseName(ctxt: xmlXPathParserContextPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathParseNCName(ctxt: xmlXPathParserContextPtr) -> *mut xmlChar;
+  pub fn xmlXPathParseNCName(ctxt: xmlXPathParserContextPtr) -> *mut xmlChar;
 }
 extern "C" {
-  pub(crate) fn xmlXPathStringEvalNumber(str: *const xmlChar) -> f64;
+  pub fn xmlXPathStringEvalNumber(str: *const xmlChar) -> f64;
 }
 extern "C" {
-  pub(crate) fn xmlXPathEvaluatePredicateResult(
+  pub fn xmlXPathEvaluatePredicateResult(
     ctxt: xmlXPathParserContextPtr,
     res: xmlXPathObjectPtr,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathRegisterAllFunctions(ctxt: xmlXPathContextPtr);
+  pub fn xmlXPathRegisterAllFunctions(ctxt: xmlXPathContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetMerge(val1: xmlNodeSetPtr, val2: xmlNodeSetPtr) -> xmlNodeSetPtr;
+  pub fn xmlXPathNodeSetMerge(val1: xmlNodeSetPtr, val2: xmlNodeSetPtr) -> xmlNodeSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetDel(cur: xmlNodeSetPtr, val: xmlNodePtr);
+  pub fn xmlXPathNodeSetDel(cur: xmlNodeSetPtr, val: xmlNodePtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNodeSetRemove(cur: xmlNodeSetPtr, val: ::std::os::raw::c_int);
+  pub fn xmlXPathNodeSetRemove(cur: xmlNodeSetPtr, val: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNewNodeSetList(val: xmlNodeSetPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathNewNodeSetList(val: xmlNodeSetPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathWrapNodeSet(val: xmlNodeSetPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPathWrapNodeSet(val: xmlNodeSetPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathWrapExternal(val: *mut ::std::os::raw::c_void) -> xmlXPathObjectPtr;
+  pub fn xmlXPathWrapExternal(val: *mut ::std::os::raw::c_void) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathEqualValues(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathEqualValues(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNotEqualValues(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPathNotEqualValues(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathCompareValues(
+  pub fn xmlXPathCompareValues(
     ctxt: xmlXPathParserContextPtr,
     inf: ::std::os::raw::c_int,
     strict: ::std::os::raw::c_int,
   ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathValueFlipSign(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathValueFlipSign(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathAddValues(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathAddValues(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathSubValues(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathSubValues(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathMultValues(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathMultValues(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathDivValues(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathDivValues(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathModValues(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPathModValues(ctxt: xmlXPathParserContextPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPathIsNodeType(name: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlXPathIsNodeType(name: *const xmlChar) -> ::std::os::raw::c_int;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextSelf(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlXPathNextSelf(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextChild(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlXPathNextChild(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextDescendant(
+  pub fn xmlXPathNextDescendant(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextDescendantOrSelf(
     ctxt: xmlXPathParserContextPtr,
     cur: xmlNodePtr,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextDescendantOrSelf(
+  pub fn xmlXPathNextParent(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextAncestorOrSelf(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextFollowingSibling(
     ctxt: xmlXPathParserContextPtr,
     cur: xmlNodePtr,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextParent(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+  pub fn xmlXPathNextFollowing(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextAncestorOrSelf(
+  pub fn xmlXPathNextNamespace(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextAttribute(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextPreceding(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextAncestor(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr) -> xmlNodePtr;
+}
+extern "C" {
+  pub fn xmlXPathNextPrecedingSibling(
     ctxt: xmlXPathParserContextPtr,
     cur: xmlNodePtr,
   ) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextFollowingSibling(
-    ctxt: xmlXPathParserContextPtr,
-    cur: xmlNodePtr,
-  ) -> xmlNodePtr;
+  pub fn xmlXPathLastFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextFollowing(
-    ctxt: xmlXPathParserContextPtr,
-    cur: xmlNodePtr,
-  ) -> xmlNodePtr;
+  pub fn xmlXPathPositionFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextNamespace(
-    ctxt: xmlXPathParserContextPtr,
-    cur: xmlNodePtr,
-  ) -> xmlNodePtr;
+  pub fn xmlXPathCountFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextAttribute(
-    ctxt: xmlXPathParserContextPtr,
-    cur: xmlNodePtr,
-  ) -> xmlNodePtr;
+  pub fn xmlXPathIdFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextPreceding(
-    ctxt: xmlXPathParserContextPtr,
-    cur: xmlNodePtr,
-  ) -> xmlNodePtr;
+  pub fn xmlXPathLocalNameFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextAncestor(ctxt: xmlXPathParserContextPtr, cur: xmlNodePtr)
-    -> xmlNodePtr;
+  pub fn xmlXPathNamespaceURIFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNextPrecedingSibling(
-    ctxt: xmlXPathParserContextPtr,
-    cur: xmlNodePtr,
-  ) -> xmlNodePtr;
+  pub fn xmlXPathStringFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathLastFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
+  pub fn xmlXPathStringLengthFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathPositionFunction(
+  pub fn xmlXPathConcatFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
+}
+extern "C" {
+  pub fn xmlXPathContainsFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
+}
+extern "C" {
+  pub fn xmlXPathStartsWithFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
+}
+extern "C" {
+  pub fn xmlXPathSubstringFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
+}
+extern "C" {
+  pub fn xmlXPathSubstringBeforeFunction(
     ctxt: xmlXPathParserContextPtr,
     nargs: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPathCountFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathIdFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathLocalNameFunction(
+  pub fn xmlXPathSubstringAfterFunction(
     ctxt: xmlXPathParserContextPtr,
     nargs: ::std::os::raw::c_int,
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPathNamespaceURIFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathNormalizeFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathStringFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathTranslateFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathStringLengthFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathNotFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathConcatFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathTrueFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathContainsFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathFalseFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathStartsWithFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathLangFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathSubstringFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathNumberFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathSubstringBeforeFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathSumFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathSubstringAfterFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathFloorFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNormalizeFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathCeilingFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathTranslateFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathRoundFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPathNotFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathTrueFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathFalseFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathLangFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathNumberFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
-}
-extern "C" {
-  pub(crate) fn xmlXPathSumFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathFloorFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathCeilingFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
-}
-extern "C" {
-  pub(crate) fn xmlXPathRoundFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
-}
-extern "C" {
-  pub(crate) fn xmlXPathBooleanFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPathBooleanFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
   /// Really internal functions
-  pub(crate) fn xmlXPathNodeSetFreeNs(ns: xmlNsPtr);
+  pub fn xmlXPathNodeSetFreeNs(ns: xmlNsPtr);
 }
 pub type xmlLocationSet = _xmlLocationSet;
 pub type xmlLocationSetPtr = *mut xmlLocationSet;
@@ -24598,19 +24394,19 @@ fn bindgen_test_layout__xmlLocationSet() {
   );
 }
 extern "C" {
-  pub(crate) fn xmlXPtrLocationSetCreate(val: xmlXPathObjectPtr) -> xmlLocationSetPtr;
+  pub fn xmlXPtrLocationSetCreate(val: xmlXPathObjectPtr) -> xmlLocationSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrFreeLocationSet(obj: xmlLocationSetPtr);
+  pub fn xmlXPtrFreeLocationSet(obj: xmlLocationSetPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPtrLocationSetMerge(
+  pub fn xmlXPtrLocationSetMerge(
     val1: xmlLocationSetPtr,
     val2: xmlLocationSetPtr,
   ) -> xmlLocationSetPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewRange(
+  pub fn xmlXPtrNewRange(
     start: xmlNodePtr,
     startindex: ::std::os::raw::c_int,
     end: xmlNodePtr,
@@ -24618,75 +24414,62 @@ extern "C" {
   ) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewRangePoints(
+  pub fn xmlXPtrNewRangePoints(
     start: xmlXPathObjectPtr,
     end: xmlXPathObjectPtr,
   ) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewRangeNodePoint(
-    start: xmlNodePtr,
-    end: xmlXPathObjectPtr,
-  ) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewRangeNodePoint(start: xmlNodePtr, end: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewRangePointNode(
-    start: xmlXPathObjectPtr,
-    end: xmlNodePtr,
-  ) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewRangePointNode(start: xmlXPathObjectPtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewRangeNodes(start: xmlNodePtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewRangeNodes(start: xmlNodePtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewLocationSetNodes(start: xmlNodePtr, end: xmlNodePtr)
-    -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewLocationSetNodes(start: xmlNodePtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewLocationSetNodeSet(set: xmlNodeSetPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewLocationSetNodeSet(set: xmlNodeSetPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewRangeNodeObject(
-    start: xmlNodePtr,
-    end: xmlXPathObjectPtr,
-  ) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewRangeNodeObject(start: xmlNodePtr, end: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewCollapsedRange(start: xmlNodePtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrNewCollapsedRange(start: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrLocationSetAdd(cur: xmlLocationSetPtr, val: xmlXPathObjectPtr);
+  pub fn xmlXPtrLocationSetAdd(cur: xmlLocationSetPtr, val: xmlXPathObjectPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPtrWrapLocationSet(val: xmlLocationSetPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrWrapLocationSet(val: xmlLocationSetPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrLocationSetDel(cur: xmlLocationSetPtr, val: xmlXPathObjectPtr);
+  pub fn xmlXPtrLocationSetDel(cur: xmlLocationSetPtr, val: xmlXPathObjectPtr);
 }
 extern "C" {
-  pub(crate) fn xmlXPtrLocationSetRemove(cur: xmlLocationSetPtr, val: ::std::os::raw::c_int);
+  pub fn xmlXPtrLocationSetRemove(cur: xmlLocationSetPtr, val: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPtrNewContext(
+  pub fn xmlXPtrNewContext(
     doc: xmlDocPtr,
     here: xmlNodePtr,
     origin: xmlNodePtr,
   ) -> xmlXPathContextPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrEval(str: *const xmlChar, ctx: xmlXPathContextPtr) -> xmlXPathObjectPtr;
+  pub fn xmlXPtrEval(str: *const xmlChar, ctx: xmlXPathContextPtr) -> xmlXPathObjectPtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrRangeToFunction(
-    ctxt: xmlXPathParserContextPtr,
-    nargs: ::std::os::raw::c_int,
-  );
+  pub fn xmlXPtrRangeToFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 extern "C" {
-  pub(crate) fn xmlXPtrBuildNodeList(obj: xmlXPathObjectPtr) -> xmlNodePtr;
+  pub fn xmlXPtrBuildNodeList(obj: xmlXPathObjectPtr) -> xmlNodePtr;
 }
 extern "C" {
-  pub(crate) fn xmlXPtrEvalRangePredicate(ctxt: xmlXPathParserContextPtr);
+  pub fn xmlXPtrEvalRangePredicate(ctxt: xmlXPathParserContextPtr);
 }
 pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
@@ -24730,7 +24513,9 @@ fn bindgen_test_layout___va_list_tag() {
     )
   );
   assert_eq!(
-    unsafe { &(*(::std::ptr::null::<__va_list_tag>())).overflow_arg_area as *const _ as usize },
+    unsafe {
+      &(*(::std::ptr::null::<__va_list_tag>())).overflow_arg_area as *const _ as usize
+    },
     8usize,
     concat!(
       "Offset of field: ",
