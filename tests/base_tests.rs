@@ -99,17 +99,17 @@ fn can_load_html_file() {
   }
 }
 
-fn create_document() -> Document {
+fn create_test_document(file: Option<&str>) -> Document {
   let parser = Parser::default();
-  let doc_result = parser.parse_file("tests/resources/file01.xml");
+  let doc_result = parser.parse_file(file.unwrap_or("tests/resources/file01.xml"));
   assert!(doc_result.is_ok());
   doc_result.unwrap()
 }
 
 #[test]
 fn document_can_import_node() {
-  let doc1 = create_document();
-  let mut doc2 = create_document();
+  let doc1 = create_test_document(None);
+  let mut doc2 = create_test_document(None);
 
   assert_eq!(
     doc2.get_root_element().unwrap().get_child_elements().len(),
@@ -132,6 +132,18 @@ fn document_can_import_node() {
     doc2.get_root_element().unwrap().get_child_elements().len(),
     3
   );
+}
+
+#[test]
+fn document_formatted_serialization() {
+  let doc = create_test_document(Some("tests/resources/unformatted.xml"));
+  let doc_str = doc.to_string(false);
+  // don't insist too hard on the length, cross-platform differences may have a minor influence
+  assert!(doc_str.len() > 370);
+  let doc_str_formatted = doc.to_string(true);
+  assert!(doc_str_formatted.len() > 460);
+  // basic assertion - a formatted document is longer than an unformatted one
+  assert!(doc_str_formatted.len() > doc_str.len());
 }
 
 #[test]

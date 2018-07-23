@@ -140,15 +140,16 @@ impl Document {
       let mut receiver = ptr::null_mut();
       let mut size: c_int = 0;
       let c_utf8 = CString::new("UTF-8").unwrap();
+      let c_format = if format { 1 } else { 0 };
 
-      if !format {
-        xmlDocDumpMemoryEnc(self.doc_ptr(), &mut receiver, &mut size, c_utf8.as_ptr());
-      } else {
-        let current_indent = getIndentTreeOutput();
-        setIndentTreeOutput(1);
-        xmlDocDumpFormatMemoryEnc(self.doc_ptr(), &mut receiver, &mut size, c_utf8.as_ptr(), 1);
-        setIndentTreeOutput(current_indent);
-      }
+      setIndentTreeOutput(c_format);
+      xmlDocDumpFormatMemoryEnc(
+        self.doc_ptr(),
+        &mut receiver,
+        &mut size,
+        c_utf8.as_ptr(),
+        c_format,
+      );
 
       let c_string = CStr::from_ptr(receiver as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
