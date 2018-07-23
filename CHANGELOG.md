@@ -1,7 +1,10 @@
 # Change Log
 
 
-## [0.2.1 (in active dev)]
+## [0.2.2 (in active dev)]
+
+
+## [0.2.1] 2018-23-07
 
 ### Added
 
