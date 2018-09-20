@@ -98,6 +98,26 @@ impl Context {
     }
   }
 
+  ///evaluate an xpath on a context Node
+  pub fn node_evaluate(&self, xpath: &str, node: &Node) -> Result<Object, ()> {
+    let c_xpath = CString::new(xpath).unwrap();
+    let ptr = unsafe {
+      xmlXPathNodeEval(
+        node.node_ptr(),
+        c_xpath.as_bytes().as_ptr(),
+        self.context_ptr,
+      )
+    };
+    if ptr.is_null() {
+      Err(())
+    } else {
+      Ok(Object {
+        ptr,
+        document: self.document.clone(),
+      })
+    }
+  }
+
   /// localize xpath context to a specific Node
   pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
     unsafe {
@@ -111,19 +131,23 @@ impl Context {
 
   /// find nodes via xpath, at a specified node or the document root
   pub fn findnodes(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<Vec<Node>, ()> {
+    let evaluated;
     if let Some(node) = node_opt {
-      self.set_context_node(node)?;
+      evaluated = self.node_evaluate(xpath, node)?;
+    } else {
+      evaluated = self.evaluate(xpath)?;
     }
-    let evaluated = self.evaluate(xpath)?;
     Ok(evaluated.get_nodes_as_vec())
   }
 
   /// find a literal value via xpath, at a specified node or the document root
   pub fn findvalue(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<String, ()> {
+    let evaluated;
     if let Some(node) = node_opt {
-      self.set_context_node(node)?;
+      evaluated = self.node_evaluate(xpath, node)?;
+    } else {
+      evaluated = self.evaluate(xpath)?;
     }
-    let evaluated = self.evaluate(xpath)?;
     Ok(evaluated.to_string())
   }
 }
