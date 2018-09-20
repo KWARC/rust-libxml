@@ -736,10 +736,7 @@ impl Node {
   /// find nodes via xpath, at a specified node or the document root
   pub fn findnodes(&self, xpath: &str) -> Result<Vec<Node>, ()> {
     let docref = self.0.borrow().document.clone();
-    let mut context = Context::new_ptr(docref).unwrap();
-
-    try!(context.set_context_node(&self));
-    let evaluated = try!(context.evaluate(xpath));
-    Ok(evaluated.get_nodes_as_vec())
+    let mut context = Context::new_ptr(docref)?;
+    context.findnodes(xpath, Some(self))
   }
 }
