@@ -10,14 +10,14 @@ use tree::{Document, DocumentRef, Node};
 
 ///The xpath context
 #[derive(Clone)]
-pub struct Context<'a> {
+pub struct Context {
   ///libxml's `ContextPtr`
   pub context_ptr: xmlXPathContextPtr,
   ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
-  pub document: &'a Document,
+  document: DocumentRef,
 }
 
-impl<'a> Drop for Context<'a> {
+impl Drop for Context {
   ///free xpath context when it goes out of scope
   fn drop(&mut self) {
     unsafe {
@@ -34,7 +34,7 @@ pub struct Object {
   document: DocumentRef,
 }
 
-impl<'a> Context<'a> {
+impl Context {
   ///create the xpath context for a document
   pub fn new(doc: &Document) -> Result<Context, ()> {
     let ctxtptr = unsafe { xmlXPathNewContext(doc.doc_ptr()) };
@@ -43,7 +43,18 @@ impl<'a> Context<'a> {
     } else {
       Ok(Context {
         context_ptr: ctxtptr,
-        document: doc,
+        document: doc.0.clone(),
+      })
+    }
+  }
+  pub(crate) fn new_ptr(docref: DocumentRef) -> Result<Context, ()> {
+    let ctxtptr = unsafe { xmlXPathNewContext(docref.borrow().doc_ptr) };
+    if ctxtptr.is_null() {
+      Err(())
+    } else {
+      Ok(Context {
+        context_ptr: ctxtptr,
+        document: docref.clone(),
       })
     }
   }
@@ -69,14 +80,13 @@ impl<'a> Context<'a> {
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let ptr =
-      unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.context_ptr) };
+    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.context_ptr) };
     if ptr.is_null() {
       Err(())
     } else {
       Ok(Object {
         ptr,
-        document: self.document.0.clone(),
+        document: self.document.clone(),
       })
     }
   }

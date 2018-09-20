@@ -125,3 +125,27 @@ fn xpath_string_function() {
   let content = p.to_string();
   assert_eq!(content, "value");
 }
+
+#[test]
+/// Test that the dual findnodes interfaces are operational
+fn findnodes_interfaces() {
+  let parser = Parser::default_html();
+  let doc_result = parser.parse_file("tests/resources/file02.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+
+  // Xpath interface
+  let mut context = Context::new(&doc).unwrap();
+  let body = context.evaluate("/html/body").unwrap().get_nodes_as_vec();
+  let p_result = context.findnodes("p", body.first());
+  assert!(p_result.is_ok());
+  let p = p_result.unwrap();
+  assert_eq!(p.len(), 1);
+
+  // Node interface
+  let body_node = body.first().unwrap();
+  let p2_result = body_node.findnodes("p");
+  assert!(p2_result.is_ok());
+  let p2 = p2_result.unwrap();
+  assert_eq!(p2.len(), 1);
+}
