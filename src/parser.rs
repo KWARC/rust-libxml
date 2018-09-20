@@ -82,7 +82,8 @@ impl Parser {
   pub fn parse_file(&self, filename: &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap();
     let c_utf8 = CString::new("utf-8").unwrap();
-    let options: i32 = XmlParserOption::Recover as i32 + XmlParserOption::Noerror as i32
+    let options: i32 = XmlParserOption::Recover as i32
+      + XmlParserOption::Noerror as i32
       + XmlParserOption::Nowarning as i32;
     match self.format {
       ParseFormat::XML => unsafe {
@@ -97,7 +98,8 @@ impl Parser {
       ParseFormat::HTML => {
         // TODO: Allow user-specified options later on
         unsafe {
-          let options: i32 = HtmlParserOption::Recover as i32 + HtmlParserOption::Noerror as i32
+          let options: i32 = HtmlParserOption::Recover as i32
+            + HtmlParserOption::Noerror as i32
             + HtmlParserOption::Nowarning as i32;
           xmlKeepBlanksDefault(1);
           let docptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
@@ -118,7 +120,8 @@ impl Parser {
     let c_url = CString::new("").unwrap();
     match self.format {
       ParseFormat::XML => unsafe {
-        let options: i32 = XmlParserOption::Recover as i32 + XmlParserOption::Noerror as i32
+        let options: i32 = XmlParserOption::Recover as i32
+          + XmlParserOption::Noerror as i32
           + XmlParserOption::Nowarning as i32;
         let docptr = xmlReadDoc(
           c_string.as_bytes().as_ptr(),
@@ -133,7 +136,8 @@ impl Parser {
         }
       },
       ParseFormat::HTML => unsafe {
-        let options: i32 = HtmlParserOption::Recover as i32 + HtmlParserOption::Noerror as i32
+        let options: i32 = HtmlParserOption::Recover as i32
+          + HtmlParserOption::Noerror as i32
           + HtmlParserOption::Nowarning as i32;
         let docptr = htmlReadDoc(
           c_string.as_bytes().as_ptr(),
