@@ -172,6 +172,10 @@ impl Node {
     unsafe { mem::transmute::<xmlNodePtr, usize>(self.node_ptr()) }
   }
 
+  pub(crate) fn get_docref(&self) -> DocumentRef {
+    self.0.borrow().document.clone()
+  }
+
   /// Returns the next sibling if it exists
   pub fn get_next_sibling(&self) -> Option<Node> {
     let ptr = xmlNextSibling(self.node_ptr());
@@ -640,7 +644,7 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         ptr::null(),
       );
-      Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
+      Ok(Node::wrap(new_ptr, self.get_docref()))
     }
   }
 
@@ -664,7 +668,7 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         c_content.as_bytes().as_ptr(),
       );
-      Ok(Node::wrap(new_ptr, self.0.borrow().document.clone()))
+      Ok(Node::wrap(new_ptr, self.get_docref()))
     }
   }
 
@@ -718,7 +722,7 @@ impl Node {
     if node_ptr.is_null() {
       None
     } else {
-      let new_node = Node::wrap(node_ptr, self.0.borrow().document.clone());
+      let new_node = Node::wrap(node_ptr, self.get_docref());
       Some(new_node)
     }
   }
@@ -735,8 +739,7 @@ impl Node {
 
   /// find nodes via xpath, at a specified node or the document root
   pub fn findnodes(&self, xpath: &str) -> Result<Vec<Node>, ()> {
-    let docref = self.0.borrow().document.clone();
-    let mut context = Context::new_ptr(docref)?;
+    let mut context = Context::from_node(&self)?;
     context.findnodes(xpath, Some(self))
   }
 }

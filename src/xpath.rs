@@ -59,6 +59,13 @@ impl Context {
     }
   }
 
+  /// Instantiate a new Context for the Document of a given Node.
+  /// Note: the Context is root-level for that document, use `.set_context_node` to limit scope to this node
+  pub fn from_node(node: &Node) -> Result<Context, ()> {
+    let docref = node.get_docref().clone();
+    Context::new_ptr(docref)
+  }
+
   /// Register a namespace prefix-href pair on the xpath context
   pub fn register_namespace(&self, prefix: &str, href: &str) -> Result<(), ()> {
     let c_prefix = CString::new(prefix).unwrap();
