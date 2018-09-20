@@ -20,7 +20,7 @@ pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 #[derive(Debug)]
 pub(crate) struct _Document {
   /// pointer to a libxml document
-  doc_ptr: xmlDocPtr,
+  pub(crate) doc_ptr: xmlDocPtr,
   /// hashed pointer-to-Node bookkeeping table
   nodes: HashMap<xmlNodePtr, Node>,
 }

@@ -15,6 +15,7 @@ use std::str;
 use tree::document::{Document, DocumentRef};
 use tree::namespace::Namespace;
 use tree::nodetype::NodeType;
+use xpath::Context;
 
 use bindings::*;
 use c_helpers::*;
@@ -730,5 +731,15 @@ impl Node {
   /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
   fn set_unlinked(&mut self) {
     self.0.borrow_mut().unlinked = true;
+  }
+
+  /// find nodes via xpath, at a specified node or the document root
+  pub fn findnodes(&self, xpath: &str) -> Result<Vec<Node>, ()> {
+    let docref = self.0.borrow().document.clone();
+    let mut context = Context::new_ptr(docref).unwrap();
+
+    try!(context.set_context_node(&self));
+    let evaluated = try!(context.evaluate(xpath));
+    Ok(evaluated.get_nodes_as_vec())
   }
 }
