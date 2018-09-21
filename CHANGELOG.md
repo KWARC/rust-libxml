@@ -5,6 +5,9 @@
 ### Added
  * `Context::from_node` method for convenient XPath context initialization via a Node object. Possible as nodes keep a reference to their owner `Document` object.
 
+ ### Changed
+  * Ensured memory safety of cloning xpath `Context` objects
+
 ## [0.2.3] 2018-19-2018
 
 ### Added

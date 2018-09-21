@@ -4,30 +4,37 @@ use bindings::*;
 use c_helpers::*;
 use libc;
 use libc::{c_char, c_void, size_t};
+use std::cell::RefCell;
 use std::ffi::{CStr, CString};
+use std::rc::Rc;
 use std::str;
 use tree::{Document, DocumentRef, Node};
 
-///The xpath context
-#[derive(Clone)]
-pub struct Context {
-  ///libxml's `ContextPtr`
-  pub context_ptr: xmlXPathContextPtr,
-  ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
-  document: DocumentRef,
-}
+///Thinly wrapped libxml2 xpath context
+pub(crate) type ContextRef = Rc<RefCell<_Context>>;
 
-impl Drop for Context {
+#[derive(Debug)]
+pub(crate) struct _Context(pub(crate) xmlXPathContextPtr);
+
+impl Drop for _Context {
   ///free xpath context when it goes out of scope
   fn drop(&mut self) {
     unsafe {
-      xmlXPathFreeContext(self.context_ptr);
+      xmlXPathFreeContext(self.0);
     }
   }
 }
 
-///Essentially, the result of the evaluation of some xpath expression
+/// An XPath context
 #[derive(Clone)]
+pub struct Context {
+  /// Safe reference to the libxml2 context pointer
+  pub(crate) context_ptr: ContextRef,
+  ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
+  pub(crate) document: DocumentRef,
+}
+
+///Essentially, the result of the evaluation of some xpath expression
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: xmlXPathObjectPtr,
@@ -42,7 +49,7 @@ impl Context {
       Err(())
     } else {
       Ok(Context {
-        context_ptr: ctxtptr,
+        context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
         document: doc.0.clone(),
       })
     }
@@ -53,10 +60,15 @@ impl Context {
       Err(())
     } else {
       Ok(Context {
-        context_ptr: ctxtptr,
+        context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
         document: docref.clone(),
       })
     }
+  }
+
+  /// Returns the raw libxml2 context pointer behind the struct
+  pub fn as_ptr(&self) -> xmlXPathContextPtr {
+    self.context_ptr.borrow().0
   }
 
   /// Instantiate a new Context for the Document of a given Node.
@@ -72,7 +84,7 @@ impl Context {
     let c_href = CString::new(href).unwrap();
     unsafe {
       let result = xmlXPathRegisterNs(
-        self.context_ptr,
+        self.as_ptr(),
         c_prefix.as_bytes().as_ptr(),
         c_href.as_bytes().as_ptr(),
       );
@@ -87,7 +99,7 @@ impl Context {
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.context_ptr) };
+    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
     if ptr.is_null() {
       Err(())
     } else {
@@ -101,13 +113,8 @@ impl Context {
   ///evaluate an xpath on a context Node
   pub fn node_evaluate(&self, xpath: &str, node: &Node) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
-    let ptr = unsafe {
-      xmlXPathNodeEval(
-        node.node_ptr(),
-        c_xpath.as_bytes().as_ptr(),
-        self.context_ptr,
-      )
-    };
+    let ptr =
+      unsafe { xmlXPathNodeEval(node.node_ptr(), c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
     if ptr.is_null() {
       Err(())
     } else {
@@ -121,7 +128,7 @@ impl Context {
   /// localize xpath context to a specific Node
   pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
     unsafe {
-      let result = xmlXPathSetContextNode(node.node_ptr(), self.context_ptr);
+      let result = xmlXPathSetContextNode(node.node_ptr(), self.as_ptr());
       if result != 0 {
         return Err(());
       }

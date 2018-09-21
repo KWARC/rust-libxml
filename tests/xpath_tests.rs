@@ -149,3 +149,20 @@ fn findnodes_interfaces() {
   let p2 = p2_result.unwrap();
   assert_eq!(p2.len(), 1);
 }
+
+#[test]
+/// Clone is safe on Context objects
+fn safe_context_clone() {
+  let parser = Parser::default_html();
+  let doc_result = parser.parse_file("tests/resources/file02.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+
+  // Xpath interface
+  let context = Context::new(&doc).unwrap();
+  let body = context.evaluate("/html/body").unwrap().get_nodes_as_vec();
+  assert_eq!(body.len(), 1);
+  let context2 = context.clone();
+  let body2 = context2.evaluate("/html/body").unwrap().get_nodes_as_vec();
+  assert_eq!(body2.len(), 1);
+}
