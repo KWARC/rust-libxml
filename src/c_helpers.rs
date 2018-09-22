@@ -24,7 +24,8 @@ pub fn xmlNodeRecursivelyRemoveNs(node: xmlNodePtr) {
 
     if (((*node).type_ == xmlElementType_XML_ELEMENT_NODE)
       || ((*node).type_ == xmlElementType_XML_XINCLUDE_START)
-      || ((*node).type_ == xmlElementType_XML_XINCLUDE_END)) && !(*node).nsDef.is_null()
+      || ((*node).type_ == xmlElementType_XML_XINCLUDE_END))
+      && !(*node).nsDef.is_null()
     {
       xmlFreeNsList((*node).nsDef);
       (*node).nsDef = ptr::null_mut();
@@ -133,7 +134,7 @@ pub fn xmlXPathObjectNumberOfNodes(val: xmlXPathObjectPtr) -> c_int {
     }
   }
 }
-pub fn xmlXPathObjectGetNode(val: xmlXPathObjectPtr, index: size_t) -> xmlNodePtr {
-  let slice = unsafe { slice::from_raw_parts((*(*val).nodesetval).nodeTab, index + 1) };
-  slice[index]
+
+pub fn xmlXPathObjectGetNodes(val: xmlXPathObjectPtr, size: size_t) -> Vec<xmlNodePtr> {
+  unsafe { slice::from_raw_parts((*(*val).nodesetval).nodeTab, size).to_vec() }
 }

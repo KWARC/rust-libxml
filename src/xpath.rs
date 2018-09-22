@@ -189,12 +189,15 @@ impl Object {
   pub fn get_nodes_as_vec(&self) -> Vec<Node> {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<Node> = Vec::with_capacity(n);
-    for i in 0..n {
-      let ptr = xmlXPathObjectGetNode(self.ptr, i as size_t);
+    let slice = if n > 0 {
+      xmlXPathObjectGetNodes(self.ptr, n as size_t)
+    } else {
+      Vec::new()
+    };
+    for ptr in slice.into_iter() {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-
       let node = Node::wrap(ptr, self.document.clone());
       vec.push(node);
     }
