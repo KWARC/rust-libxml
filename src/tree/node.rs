@@ -12,7 +12,7 @@ use std::ptr;
 use std::rc::Rc;
 use std::str;
 
-use tree::document::{Document, DocumentRef};
+use tree::document::{Document, DocumentRef, DocumentWeak};
 use tree::namespace::Namespace;
 use tree::nodetype::NodeType;
 use xpath::Context;
@@ -38,7 +38,7 @@ struct _Node {
   /// libxml's xmlNodePtr
   node_ptr: xmlNodePtr,
   /// Reference to parent `Document`
-  document: DocumentRef,
+  document: DocumentWeak,
   /// Bookkeep removal from a parent
   unlinked: bool,
 }
@@ -139,7 +139,7 @@ impl Node {
     // If newly encountered pointer, wrap
     let node = _Node {
       node_ptr,
-      document: document.clone(),
+      document: Rc::downgrade(&document),
       unlinked: false,
     };
     let wrapped_node = Node(Rc::new(RefCell::new(node)));
@@ -172,7 +172,7 @@ impl Node {
     unsafe { mem::transmute::<xmlNodePtr, usize>(self.node_ptr()) }
   }
 
-  pub(crate) fn get_docref(&self) -> DocumentRef {
+  pub(crate) fn get_docref(&self) -> DocumentWeak {
     self.0.borrow().document.clone()
   }
 
@@ -644,7 +644,7 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         ptr::null(),
       );
-      Ok(Node::wrap(new_ptr, self.get_docref()))
+      Ok(Node::wrap(new_ptr, self.get_docref().upgrade().unwrap()))
     }
   }
 
@@ -668,7 +668,7 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         c_content.as_bytes().as_ptr(),
       );
-      Ok(Node::wrap(new_ptr, self.get_docref()))
+      Ok(Node::wrap(new_ptr, self.get_docref().upgrade().unwrap()))
     }
   }
 
@@ -722,7 +722,7 @@ impl Node {
     if node_ptr.is_null() {
       None
     } else {
-      let new_node = Node::wrap(node_ptr, self.get_docref());
+      let new_node = Node::wrap(node_ptr, self.get_docref().upgrade().unwrap());
       Some(new_node)
     }
   }
