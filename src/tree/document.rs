@@ -7,7 +7,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::ptr;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 use std::str;
 
 use bindings::*;
@@ -16,6 +16,7 @@ use c_helpers::*;
 use tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
+pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
 
 #[derive(Debug)]
 pub(crate) struct _Document {

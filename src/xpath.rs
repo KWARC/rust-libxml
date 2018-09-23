@@ -8,7 +8,7 @@ use std::cell::RefCell;
 use std::ffi::{CStr, CString};
 use std::rc::Rc;
 use std::str;
-use tree::{Document, DocumentRef, Node};
+use tree::{Document, DocumentRef, DocumentWeak, Node};
 
 ///Thinly wrapped libxml2 xpath context
 pub(crate) type ContextRef = Rc<RefCell<_Context>>;
@@ -31,14 +31,14 @@ pub struct Context {
   /// Safe reference to the libxml2 context pointer
   pub(crate) context_ptr: ContextRef,
   ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
-  pub(crate) document: DocumentRef,
+  pub(crate) document: DocumentWeak,
 }
 
 ///Essentially, the result of the evaluation of some xpath expression
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: xmlXPathObjectPtr,
-  document: DocumentRef,
+  document: DocumentWeak,
 }
 
 impl Context {
@@ -50,7 +50,7 @@ impl Context {
     } else {
       Ok(Context {
         context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: doc.0.clone(),
+        document: Rc::downgrade(&doc.0),
       })
     }
   }
@@ -61,7 +61,7 @@ impl Context {
     } else {
       Ok(Context {
         context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: docref.clone(),
+        document: Rc::downgrade(&docref),
       })
     }
   }
@@ -74,7 +74,7 @@ impl Context {
   /// Instantiate a new Context for the Document of a given Node.
   /// Note: the Context is root-level for that document, use `.set_context_node` to limit scope to this node
   pub fn from_node(node: &Node) -> Result<Context, ()> {
-    let docref = node.get_docref().clone();
+    let docref = node.get_docref().upgrade().unwrap();
     Context::new_ptr(docref)
   }
 
@@ -198,7 +198,7 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      let node = Node::wrap(ptr, self.document.clone());
+      let node = Node::wrap(ptr, self.document.upgrade().unwrap());
       vec.push(node);
     }
     vec
