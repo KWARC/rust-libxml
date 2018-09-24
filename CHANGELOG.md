@@ -1,14 +1,18 @@
 # Change Log
 
-## [0.2.4] (in active development)
+## [0.2.5] (in active development)
+
+## [0.2.4] 2018-24-09
 
 ### Added
  * `Context::from_node` method for convenient XPath context initialization via a Node object. Possible as nodes keep a reference to their owner `Document` object.
 
  ### Changed
   * Ensured memory safety of cloning xpath `Context` objects
-
-## [0.2.3] 2018-19-2018
+  * Switched to using `Weak` references to the owner document, in `Node`, `Context` and `Object`, to prevent memory leaks in mutli-document pipelines.
+  * Speedup to XPath node retrieval
+  
+## [0.2.3] 2018-19-09
 
 ### Added
  * `Node::findnodes` method for direct XPath search, without first explicitly instantiating a `Context`. Reusing a `Context` remains more efficient.
