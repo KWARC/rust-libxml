@@ -81,6 +81,14 @@ impl Document {
     };
     Document(Rc::new(RefCell::new(doc)))
   }
+
+  pub(crate) fn null_ref() -> DocumentRef {
+    Rc::new(RefCell::new(_Document {
+      doc_ptr: ptr::null_mut(),
+      nodes: HashMap::new(),
+    }))
+  }
+
   /// Write document to `filename`
   pub fn save_file(&self, filename: &str) -> Result<c_int, ()> {
     let c_filename = CString::new(filename).unwrap();
@@ -94,7 +102,7 @@ impl Document {
   }
 
   pub(crate) fn register_node(&self, node_ptr: xmlNodePtr) -> Node {
-    Node::wrap(node_ptr, self.0.clone())
+    Node::wrap(node_ptr, &self.0)
   }
 
   /// Get the root element of the document
