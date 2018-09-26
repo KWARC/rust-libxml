@@ -54,7 +54,7 @@ impl Context {
       })
     }
   }
-  pub(crate) fn new_ptr(docref: DocumentRef) -> Result<Context, ()> {
+  pub(crate) fn new_ptr(docref: &DocumentRef) -> Result<Context, ()> {
     let ctxtptr = unsafe { xmlXPathNewContext(docref.borrow().doc_ptr) };
     if ctxtptr.is_null() {
       Err(())
@@ -75,7 +75,7 @@ impl Context {
   /// Note: the Context is root-level for that document, use `.set_context_node` to limit scope to this node
   pub fn from_node(node: &Node) -> Result<Context, ()> {
     let docref = node.get_docref().upgrade().unwrap();
-    Context::new_ptr(docref)
+    Context::new_ptr(&docref)
   }
 
   /// Register a namespace prefix-href pair on the xpath context
@@ -194,11 +194,11 @@ impl Object {
     } else {
       Vec::new()
     };
-    for ptr in slice.into_iter() {
+    for ptr in slice {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
-      let node = Node::wrap(ptr, self.document.upgrade().unwrap());
+      let node = Node::wrap(ptr, &self.document.upgrade().unwrap());
       vec.push(node);
     }
     vec

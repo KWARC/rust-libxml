@@ -215,6 +215,16 @@ fn can_hash_mock_node() {
 }
 
 #[test]
+/// Can make null nodes and documents, to avoid memory allocations
+fn can_null_node() {
+  let null_node = Node::null();
+  let second_null_node = Node::null();
+  assert!(null_node.is_null());
+  assert!(second_null_node.is_null());
+  assert_eq!(null_node, second_null_node);
+}
+
+#[test]
 /// Can set and get attributes
 fn can_manage_attributes() {
   let mut doc = Document::new().unwrap();

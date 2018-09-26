@@ -97,7 +97,7 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node::wrap(node, doc.0.clone()))
+        Ok(Node::wrap(node, &doc.0))
       }
     }
   }
@@ -131,7 +131,7 @@ impl Node {
   }
 
   /// Wrap a libxml node ptr with a Node
-  pub(crate) fn wrap(node_ptr: xmlNodePtr, document: DocumentRef) -> Node {
+  pub(crate) fn wrap(node_ptr: xmlNodePtr, document: &DocumentRef) -> Node {
     // If already seen, return saved Node
     if let Some(node) = document.borrow().get_node(node_ptr) {
       return node.clone();
@@ -158,13 +158,22 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node::wrap(node, doc.0.clone()))
+        Ok(Node::wrap(node, &doc.0))
       }
     }
   }
   /// Create a mock node, used for a placeholder argument
   pub fn mock(doc: &Document) -> Self {
     Node::new("mock", None, &doc).unwrap()
+  }
+
+  /// Create a mock node, used for a placeholder argument
+  pub fn null() -> Self {
+    Node(Rc::new(RefCell::new(_Node {
+      node_ptr: ptr::null_mut(),
+      document: Rc::downgrade(&Document::null_ref()),
+      unlinked: true,
+    })))
   }
 
   /// `libc::c_void` isn't hashable and cannot be made hashable
@@ -286,6 +295,11 @@ impl Node {
   /// Checks if the given node is an Element
   pub fn is_element_node(&self) -> bool {
     self.get_type() == Some(NodeType::ElementNode)
+  }
+
+  /// Checks if the underlying libxml2 pointer is `NULL`
+  pub fn is_null(&self) -> bool {
+    self.node_ptr().is_null()
   }
 
   /// Returns the name of the node (empty string if name pointer is `NULL`)
@@ -644,7 +658,7 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         ptr::null(),
       );
-      Ok(Node::wrap(new_ptr, self.get_docref().upgrade().unwrap()))
+      Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
     }
   }
 
@@ -668,7 +682,7 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         c_content.as_bytes().as_ptr(),
       );
-      Ok(Node::wrap(new_ptr, self.get_docref().upgrade().unwrap()))
+      Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
     }
   }
 
@@ -690,13 +704,14 @@ impl Node {
   ///   from the context it is and inserted into a (hidden) document-fragment.
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
-    if node_type != Some(NodeType::DocumentNode) && node_type != Some(NodeType::DocumentFragNode) {
-      if !self.is_unlinked() {
-        // only unlink nodes that are currently marked as linked
-        self.set_unlinked();
-        unsafe {
-          xmlUnlinkNode(self.node_ptr());
-        }
+    if node_type != Some(NodeType::DocumentNode)
+      && node_type != Some(NodeType::DocumentFragNode)
+      && !self.is_unlinked()
+    {
+      // only unlink nodes that are currently marked as linked
+      self.set_unlinked();
+      unsafe {
+        xmlUnlinkNode(self.node_ptr());
       }
     }
   }
@@ -722,7 +737,7 @@ impl Node {
     if node_ptr.is_null() {
       None
     } else {
-      let new_node = Node::wrap(node_ptr, self.get_docref().upgrade().unwrap());
+      let new_node = Node::wrap(node_ptr, &self.get_docref().upgrade().unwrap());
       Some(new_node)
     }
   }
