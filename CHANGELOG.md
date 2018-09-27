@@ -1,6 +1,11 @@
 # Change Log
 
-## [0.2.5] (in active development)
+## [0.2.6] (in active development)
+
+## [0.2.5] 2018-26-09
+
+### Added
+ * `Node::null` placeholder that avoids the tricky memory management of `Node::mock` that can lead to memory leaks. Really a poor substitute for the better `Option<Node>` type with a `None` value, which is **recommended** instead.
 
 ## [0.2.4] 2018-24-09
 
