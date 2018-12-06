@@ -1,6 +1,5 @@
 //! Tree module tests
 //!
-extern crate libxml;
 
 use libxml::parser::Parser;
 use libxml::tree::{Document, Namespace, Node, NodeType};

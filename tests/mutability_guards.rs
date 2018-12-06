@@ -1,7 +1,5 @@
 //! Enforce Rust ownership pragmatics for the underlying libxml2 objects
 
-extern crate libxml;
-
 use libxml::parser::Parser;
 use libxml::tree::set_node_rc_guard;
 
