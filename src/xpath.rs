@@ -1,14 +1,14 @@
 //! The `XPath` functionality
 
-use bindings::*;
-use c_helpers::*;
+use crate::bindings::*;
+use crate::c_helpers::*;
+use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
 use libc;
 use libc::{c_char, c_void, size_t};
 use std::cell::RefCell;
 use std::ffi::{CStr, CString};
 use std::rc::Rc;
 use std::str;
-use tree::{Document, DocumentRef, DocumentWeak, Node};
 
 ///Thinly wrapped libxml2 xpath context
 pub(crate) type ContextRef = Rc<RefCell<_Context>>;
