@@ -1,8 +1,8 @@
 //! The parser functionality
 
-use bindings::*;
-use c_helpers::*;
-use tree::*;
+use crate::bindings::*;
+use crate::c_helpers::*;
+use crate::tree::*;
 
 use std::ffi::{CStr, CString};
 use std::fmt;

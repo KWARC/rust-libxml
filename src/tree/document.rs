@@ -10,10 +10,9 @@ use std::ptr;
 use std::rc::{Rc, Weak};
 use std::str;
 
-use bindings::*;
-use c_helpers::*;
-
-use tree::node::Node;
+use crate::bindings::*;
+use crate::c_helpers::*;
+use crate::tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;

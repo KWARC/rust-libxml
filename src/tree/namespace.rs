@@ -1,15 +1,13 @@
 //! Namespace feature set
 //!
-
-use bindings::*;
-use c_helpers::*;
-
 use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::ptr;
 use std::str;
 
-use tree::node::Node;
+use crate::bindings::*;
+use crate::c_helpers::*;
+use crate::tree::node::Node;
 
 ///An xml namespace
 #[derive(Clone)]

@@ -1,7 +1,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
-use bindings::*;
+use crate::bindings::*;
 use libc::{c_char, c_int, size_t};
 use std::os::raw::c_void;
 use std::ptr;

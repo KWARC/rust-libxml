@@ -1,6 +1,5 @@
 //! Node, and related, feature set
 //!
-use libc;
 use libc::{c_char, c_void};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -12,13 +11,12 @@ use std::ptr;
 use std::rc::Rc;
 use std::str;
 
-use tree::document::{Document, DocumentRef, DocumentWeak};
-use tree::namespace::Namespace;
-use tree::nodetype::NodeType;
-use xpath::Context;
-
-use bindings::*;
-use c_helpers::*;
+use crate::bindings::*;
+use crate::c_helpers::*;
+use crate::tree::namespace::Namespace;
+use crate::tree::nodetype::NodeType;
+use crate::tree::{Document, DocumentRef, DocumentWeak};
+use crate::xpath::Context;
 
 /// Guard treshold for enforcing runtime mutability checks for Nodes
 pub static mut NODE_RC_MAX_GUARD: usize = 2;
