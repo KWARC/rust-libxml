@@ -1,5 +1,3 @@
-extern crate libxml;
-
 use libxml::parser::Parser;
 use libxml::tree::*;
 

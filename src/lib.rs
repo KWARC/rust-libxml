@@ -3,7 +3,6 @@
 //! The idea is to extend it whenever more functionality is needed.
 //! Providing a more or less complete wrapper would be too much work.
 #![deny(missing_docs)]
-extern crate libc;
 
 /// Bindings to the C interface
 pub mod bindings;

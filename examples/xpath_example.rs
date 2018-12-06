@@ -1,8 +1,5 @@
-extern crate libxml;
-
-use libxml::parser::{Parser};
+use libxml::parser::Parser;
 use libxml::xpath::Context;
-
 
 fn main() {
   let parser = Parser::default();
@@ -11,6 +8,6 @@ fn main() {
   let result = context.evaluate("//child/text()").unwrap();
 
   for node in &result.get_nodes_as_vec() {
-      println!("Found: {}", node.get_content());
+    println!("Found: {}", node.get_content());
   }
 }

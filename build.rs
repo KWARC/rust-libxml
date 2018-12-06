@@ -1,5 +1,3 @@
-extern crate pkg_config;
-
 use pkg_config::find_library;
 
 fn main() {

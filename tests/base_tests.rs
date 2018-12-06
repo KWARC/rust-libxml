@@ -1,7 +1,5 @@
 //! Base API tests, to be split into distinct sub-suites later on
 //!
-extern crate libxml;
-
 use std::fs::File;
 use std::io::Read;
 
@@ -120,13 +118,11 @@ fn document_can_import_node() {
   let mut node = elements.pop().unwrap();
   node.unlink();
   let mut imported = doc2.import_node(&mut node).unwrap();
-  assert!(
-    doc2
-      .get_root_element()
-      .unwrap()
-      .add_child(&mut imported)
-      .is_ok()
-  );
+  assert!(doc2
+    .get_root_element()
+    .unwrap()
+    .add_child(&mut imported)
+    .is_ok());
 
   assert_eq!(
     doc2.get_root_element().unwrap().get_child_elements().len(),
