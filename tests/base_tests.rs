@@ -53,8 +53,9 @@ fn create_pi() {
   assert!(doc_result.is_ok());
   let mut doc = doc_result.unwrap();
   // Add a PI
-  let node_ok = doc.create_processing_instruction("piname", "picontent");
+  let node_ok: Result<Node, ()> = doc.create_processing_instruction("piname", "picontent");
   assert!(node_ok.is_ok());
+  assert_eq!(node_ok.unwrap().get_content(), "picontent");
   let doc_string = doc.to_string(false);
   assert!(doc_string.len() > 1);
 }

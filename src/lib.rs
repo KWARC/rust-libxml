@@ -3,6 +3,8 @@
 //! The idea is to extend it whenever more functionality is needed.
 //! Providing a more or less complete wrapper would be too much work.
 #![deny(missing_docs)]
+// Our new methods return Result<Self, _> types
+#![allow(clippy::new_ret_no_self)]
 
 /// Bindings to the C interface
 pub mod bindings;
