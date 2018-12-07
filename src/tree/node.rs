@@ -536,7 +536,9 @@ impl Node {
           DG: I could not improve on this state without creating memory leaks after ~1 hour, so I am
           marking it as future work.
         */
-        xmlFreeNs(list_ptr_raw as xmlNsPtr);
+        /* TODO: How do we properly deallocate here? The approach bellow reliably segfaults tree_tests on 1 thread */
+        // println!("\n-- xmlfreens on : {:?}", list_ptr_raw);
+        // xmlFreeNs(list_ptr_raw as xmlNsPtr);
       }
       namespaces
     }

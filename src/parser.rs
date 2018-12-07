@@ -82,31 +82,34 @@ impl Parser {
   pub fn parse_file(&self, filename: &str) -> Result<Document, XmlParseError> {
     let c_filename = CString::new(filename).unwrap();
     let c_utf8 = CString::new("utf-8").unwrap();
-    let options: i32 = XmlParserOption::Recover as i32
-      + XmlParserOption::Noerror as i32
-      + XmlParserOption::Nowarning as i32;
+    unsafe {
+      xmlKeepBlanksDefault(1);
+    }
     match self.format {
-      ParseFormat::XML => unsafe {
-        xmlKeepBlanksDefault(1);
-        let docptr = xmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
-        if docptr.is_null() {
-          Err(XmlParseError::GotNullPointer)
-        } else {
-          Ok(Document::new_ptr(docptr))
-        }
-      },
-      ParseFormat::HTML => {
-        // TODO: Allow user-specified options later on
+      ParseFormat::XML => {
+        let options: i32 = XmlParserOption::Recover as i32
+          + XmlParserOption::Noerror as i32
+          + XmlParserOption::Nowarning as i32;
         unsafe {
-          let options: i32 = HtmlParserOption::Recover as i32
-            + HtmlParserOption::Noerror as i32
-            + HtmlParserOption::Nowarning as i32;
-          xmlKeepBlanksDefault(1);
-          let docptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
-          if docptr.is_null() {
+          let doc_ptr = xmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
+          if doc_ptr.is_null() {
             Err(XmlParseError::GotNullPointer)
           } else {
-            Ok(Document::new_ptr(docptr))
+            Ok(Document::new_ptr(doc_ptr))
+          }
+        }
+      }
+      ParseFormat::HTML => {
+        // TODO: Allow user-specified options later on
+        let options: i32 = HtmlParserOption::Recover as i32
+          + HtmlParserOption::Noerror as i32
+          + HtmlParserOption::Nowarning as i32;
+        unsafe {
+          let doc_ptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
+          if doc_ptr.is_null() {
+            Err(XmlParseError::GotNullPointer)
+          } else {
+            Ok(Document::new_ptr(doc_ptr))
           }
         }
       }

@@ -40,11 +40,13 @@ impl _Document {
 #[derive(Clone)]
 pub struct Document(pub(crate) DocumentRef);
 
-impl Drop for Document {
+impl Drop for _Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
     unsafe {
-      xmlFreeDoc(self.doc_ptr());
+      if !self.doc_ptr.is_null() {
+        xmlFreeDoc(self.doc_ptr);
+      }
     }
   }
 }
@@ -197,7 +199,7 @@ impl Document {
       let c_name = CString::new(name).unwrap();
       let c_content = CString::new(content).unwrap();
 
-      let node_ptr = xmlNewDocPI(
+      let node_ptr: xmlNodePtr = xmlNewDocPI(
         self.doc_ptr(),
         c_name.as_bytes().as_ptr(),
         c_content.as_bytes().as_ptr(),
