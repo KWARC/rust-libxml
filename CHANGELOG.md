@@ -1,6 +1,11 @@
 # Change Log
 
-## [0.2.6] (in active development)
+## [0.2.7] (in active development)
+
+## [0.2.6] 2018-07-12
+
+ * Internal update to Rust 2018 Edition
+ * fix deallocation bugs with `.import_node()` and `.get_namespaces()`
 
 ## [0.2.5] 2018-26-09
 
