@@ -63,6 +63,7 @@ impl Eq for Node {}
 
 impl Drop for _Node {
   /// Free node if it isn't bound in some document
+  /// Warning: xmlFreeNode is RECURSIVE into the node's children, so this may lead to segfaults if used carelessly
   fn drop(&mut self) {
     if self.unlinked {
       let node_ptr = self.node_ptr;
@@ -232,8 +233,8 @@ impl Node {
   /// Returns all child nodes of the given node as a vector
   pub fn get_child_nodes(&self) -> Vec<Node> {
     let mut children = Vec::new();
-    if let Some(current_node) = self.get_first_child() {
-      children.push(current_node);
+    if let Some(first_child) = self.get_first_child() {
+      children.push(first_child);
       while let Some(sibling) = children.last().unwrap().get_next_sibling() {
         children.push(sibling)
       }
@@ -637,9 +638,10 @@ impl Node {
     child.set_linked();
     unsafe {
       let new_child_ptr = xmlAddChild(self.node_ptr_mut()?, child.node_ptr_mut()?);
-      match self.ptr_as_option(new_child_ptr) {
-        Some(_) => Ok(()), // no point to return the node any longer, as child is mutably borrowed and can be reused
-        None => Err("add_child encountered NULL pointer".to_string()),
+      if new_child_ptr.is_null() {
+        Err("add_child encountered NULL pointer".to_string())
+      } else {
+        Ok(())
       }
     }
   }
@@ -737,7 +739,8 @@ impl Node {
     if node_ptr.is_null() {
       None
     } else {
-      let new_node = Node::wrap(node_ptr, &self.get_docref().upgrade().unwrap());
+      let doc_ref = self.get_docref().upgrade().unwrap();
+      let new_node = Node::wrap(node_ptr, &doc_ref);
       Some(new_node)
     }
   }

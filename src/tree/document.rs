@@ -34,6 +34,10 @@ impl _Document {
   pub(crate) fn get_node(&self, node_ptr: xmlNodePtr) -> Option<&Node> {
     self.nodes.get(&node_ptr)
   }
+  /// Internal bookkeeping function
+  pub(crate) fn forget_node(&mut self, node_ptr: xmlNodePtr) {
+    self.nodes.remove(&node_ptr);
+  }
 }
 
 /// A libxml2 Document
@@ -139,6 +143,13 @@ impl Document {
     if !node.is_unlinked() {
       return Err(());
     }
+    // Also remove this node from the prior document hash
+    node
+      .get_docref()
+      .upgrade()
+      .unwrap()
+      .borrow_mut()
+      .forget_node(node.node_ptr());
 
     let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), self.doc_ptr(), 1) };
     self.ptr_as_result(node_ptr)
