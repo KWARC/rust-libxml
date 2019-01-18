@@ -31,21 +31,15 @@ fn xpath_with_namespaces() {
 
   let doc = doc_result.unwrap();
   let context = Context::new(&doc).unwrap();
-  assert!(
-    context
-      .register_namespace("h", "http://example.com/ns/hello")
-      .is_ok()
-  );
-  assert!(
-    context
-      .register_namespace("f", "http://example.com/ns/farewell")
-      .is_ok()
-  );
-  assert!(
-    context
-      .register_namespace("r", "http://example.com/ns/root")
-      .is_ok()
-  );
+  assert!(context
+    .register_namespace("h", "http://example.com/ns/hello")
+    .is_ok());
+  assert!(context
+    .register_namespace("f", "http://example.com/ns/farewell")
+    .is_ok());
+  assert!(context
+    .register_namespace("r", "http://example.com/ns/root")
+    .is_ok());
   let result_h_td = context.evaluate("//h:td").unwrap();
   assert_eq!(result_h_td.get_number_of_nodes(), 3);
   assert_eq!(result_h_td.get_nodes_as_vec().len(), 3);
