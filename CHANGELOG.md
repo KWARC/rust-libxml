@@ -1,6 +1,12 @@
 # Change Log
 
-## [0.2.7] (in active development)
+## [0.2.8] (in active development)
+
+## [0.2.7] 2019-09-03
+
+### Added
+
+ * implement and test `replace_child_node` for element nodes
 
 ## [0.2.6] 2018-07-12
 
