@@ -328,3 +328,66 @@ fn can_cast_doc_to_node() {
   let root_node = root_node_opt.unwrap();
   assert_eq!(root_node.get_name(), "root");
 }
+
+#[test]
+fn can_replace_child() {
+  let mut doc = Document::new().unwrap();
+  let mut root_node = Node::new("root", None, &doc).unwrap();
+  doc.set_root_element(&root_node);
+  let mut a = Node::new("a", None, &doc).unwrap();
+  let mut b = Node::new("b", None, &doc).unwrap();
+  let mut c = Node::new("c", None, &doc).unwrap();
+  let mut d = Node::new("d", None, &doc).unwrap();
+  let mut e = Node::new("e", None, &doc).unwrap();
+
+  assert!(root_node.add_child(&mut a).is_ok());
+  assert!(root_node.add_child(&mut b).is_ok());
+  assert!(root_node.add_child(&mut c).is_ok());
+  assert!(root_node.add_child(&mut d).is_ok());
+  assert!(root_node.add_child(&mut e).is_ok());
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><a/><b/><c/><d/><e/></root>\n",
+    "document initialized correctly.");
+
+  // replace first child with new F
+  let f = Node::new("F", None, &doc).unwrap();
+  let a_result = root_node.replace_child_node(f, a);
+  assert!(a_result.is_ok());
+  
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><c/><d/><e/></root>\n",
+    "document initialized correctly.");
+
+  // replace last child with new G
+  let g = Node::new("G", None, &doc).unwrap();
+  assert!(root_node.replace_child_node(g, e).is_ok());
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><c/><d/><G/></root>\n",
+    "document initialized correctly.");
+
+  // replace middle child with new H
+  let h = Node::new("H", None, &doc).unwrap();
+  assert!(root_node.replace_child_node(h, c).is_ok());
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><H/><d/><G/></root>\n",
+    "document initialized correctly.");
+
+  // fail to replace a, as it is already removed.
+  let none = Node::new("none", None, &doc).unwrap();
+  assert!(root_node.replace_child_node(none, a_result.unwrap()).is_err());
+  // no change.
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><H/><d/><G/></root>\n",
+    "document initialized correctly.");
+
+  // replacing with self succeeds without change.
+  assert!(root_node.replace_child_node(b.clone(),b).is_ok());
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><H/><d/><G/></root>\n",
+    "document initialized correctly.");
+  // replacing with parent succeeds without change.
+  assert!(root_node.replace_child_node(root_node.clone(),d).is_ok());
+  assert_eq!(doc.to_string(false),
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><H/><d/><G/></root>\n",
+    "document initialized correctly.");
+}

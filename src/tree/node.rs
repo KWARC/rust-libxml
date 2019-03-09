@@ -760,4 +760,35 @@ impl Node {
     let mut context = Context::from_node(&self)?;
     context.findnodes(xpath, Some(self))
   }
+
+  /// replace a `self`'s `old` child node with a `new` node in the same position
+  /// borrowed from Perl's XML::LibXML
+  pub fn replace_child_node(&mut self, mut new: Node, mut old: Node) -> Result<Node, Box<Error>> {
+    // if newNode == oldNode or self == newNode then do nothing, just return nNode.
+    if new == old || self == &new {
+      // nothing to do here, already in place
+      Ok(old)
+    } else if self.get_type() == Some(NodeType::ElementNode) {
+      if let Some(old_parent) = old.get_parent() {
+        if &old_parent == self {
+          // unlink new to be available for insertion
+          new.unlink();
+          // mid-child case
+          old.add_next_sibling(&mut new)?;
+          old.unlink();
+          Ok(old)
+        } else {
+          Err(From::from(
+            format!("Old node was not a child of {:?} parent. Registered parent is {:?} instead.", self.get_name(), old_parent.get_name())
+          ))
+        }
+      } else {
+        Err(From::from(
+          format!("Old node was not a child of {:?} parent. No registered parent exists.", self.get_name())
+        ))
+      }
+    } else {
+      Err(From::from("Can only call replace_child_node an a NodeType::Element type parent."))
+    }
+  }
 }
