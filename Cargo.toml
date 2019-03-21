@@ -16,6 +16,7 @@ exclude = [
 
 [dependencies]
 libc = "0.2"
+rayon = "1.0.0"
 
 [build-dependencies]
 pkg-config = "0.3.2"

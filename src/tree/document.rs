@@ -7,15 +7,15 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::ptr;
-use std::sync::{Arc, Weak};
+use std::sync::{Arc, Weak, Mutex};
 use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::tree::node::Node;
 
-pub(crate) type DocumentRef = Arc<RefCell<_Document>>;
-pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
+pub(crate) type DocumentRef = Arc<Mutex<RefCell<_Document>>>;
+pub(crate) type DocumentWeak = Weak<Mutex<RefCell<_Document>>>;
 
 #[derive(Debug)]
 pub(crate) struct _Document {
@@ -68,14 +68,14 @@ impl Document {
           doc_ptr,
           nodes: HashMap::new(),
         };
-        Ok(Document(Arc::new(RefCell::new(doc))))
+        Ok(Document(Arc::new(Mutex::new(RefCell::new(doc)))))
       }
     }
   }
 
   /// Obtain the underlying libxml2 `xmlDocPtr` for this Document
   pub fn doc_ptr(&self) -> xmlDocPtr {
-    self.0.borrow().doc_ptr
+    self.0.lock().unwrap().borrow().doc_ptr
   }
 
   /// Creates a new `Document` from an existing libxml2 pointer
@@ -84,14 +84,14 @@ impl Document {
       doc_ptr,
       nodes: HashMap::new(),
     };
-    Document(Arc::new(RefCell::new(doc)))
+    Document(Arc::new(Mutex::new(RefCell::new(doc))))
   }
 
   pub(crate) fn null_ref() -> DocumentRef {
-    Arc::new(RefCell::new(_Document {
+    Arc::new(Mutex::new(RefCell::new(_Document {
       doc_ptr: ptr::null_mut(),
       nodes: HashMap::new(),
-    }))
+    })))
   }
 
   /// Write document to `filename`
@@ -147,6 +147,8 @@ impl Document {
     node
       .get_docref()
       .upgrade()
+      .unwrap()
+      .lock()
       .unwrap()
       .borrow_mut()
       .forget_node(node.node_ptr());
@@ -243,7 +245,7 @@ impl Document {
         doc_ptr,
         nodes: HashMap::new(),
       };
-      Ok(Document(Arc::new(RefCell::new(doc))))
+      Ok(Document(Arc::new(Mutex::new(RefCell::new(doc)))))
     }
   }
 
@@ -257,7 +259,7 @@ impl Document {
     if doc_ptr.is_null() {
       return Err(());
     }
-    self.0.borrow_mut().doc_ptr = doc_ptr;
+    self.0.lock().unwrap().borrow_mut().doc_ptr = doc_ptr;
     Ok(())
   }
 }
