@@ -8,7 +8,7 @@ use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
 use std::mem;
 use std::ptr;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::str;
 
 use crate::bindings::*;
@@ -29,7 +29,7 @@ pub fn set_node_rc_guard(value: usize) {
   }
 }
 
-type NodeRef = Rc<RefCell<_Node>>;
+type NodeRef = Arc<RefCell<_Node>>;
 
 #[derive(Debug)]
 struct _Node {
@@ -109,8 +109,8 @@ impl Node {
   /// Mutably borrows the underlying libxml2 `xmlNodePtr` pointer
   /// Also protects against mutability conflicts at runtime.
   pub fn node_ptr_mut(&mut self) -> Result<xmlNodePtr, String> {
-    let weak_count = Rc::weak_count(&self.0);
-    let strong_count = Rc::strong_count(&self.0);
+    let weak_count = Arc::weak_count(&self.0);
+    let strong_count = Arc::strong_count(&self.0);
 
     // The basic idea would be to use `Rc::get_mut` to guard against multiple borrows.
     // However, our approach to bookkeeping nodes implies there is *always* a second Rc reference
@@ -138,10 +138,10 @@ impl Node {
     // If newly encountered pointer, wrap
     let node = _Node {
       node_ptr,
-      document: Rc::downgrade(&document),
+      document: Arc::downgrade(&document),
       unlinked: false,
     };
-    let wrapped_node = Node(Rc::new(RefCell::new(node)));
+    let wrapped_node = Node(Arc::new(RefCell::new(node)));
     document
       .borrow_mut()
       .insert_node(node_ptr, wrapped_node.clone());
@@ -168,9 +168,9 @@ impl Node {
 
   /// Create a mock node, used for a placeholder argument
   pub fn null() -> Self {
-    Node(Rc::new(RefCell::new(_Node {
+    Node(Arc::new(RefCell::new(_Node {
       node_ptr: ptr::null_mut(),
-      document: Rc::downgrade(&Document::null_ref()),
+      document: Arc::downgrade(&Document::null_ref()),
       unlinked: true,
     })))
   }

@@ -7,11 +7,11 @@ use libc;
 use libc::{c_char, c_void, size_t};
 use std::cell::RefCell;
 use std::ffi::{CStr, CString};
-use std::rc::Rc;
+use std::sync::Arc;
 use std::str;
 
 ///Thinly wrapped libxml2 xpath context
-pub(crate) type ContextRef = Rc<RefCell<_Context>>;
+pub(crate) type ContextRef = Arc<RefCell<_Context>>;
 
 #[derive(Debug)]
 pub(crate) struct _Context(pub(crate) xmlXPathContextPtr);
@@ -49,8 +49,8 @@ impl Context {
       Err(())
     } else {
       Ok(Context {
-        context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(&doc.0),
+        context_ptr: Arc::new(RefCell::new(_Context(ctxtptr))),
+        document: Arc::downgrade(&doc.0),
       })
     }
   }
@@ -60,8 +60,8 @@ impl Context {
       Err(())
     } else {
       Ok(Context {
-        context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(&docref),
+        context_ptr: Arc::new(RefCell::new(_Context(ctxtptr))),
+        document: Arc::downgrade(&docref),
       })
     }
   }

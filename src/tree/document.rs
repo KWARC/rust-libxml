@@ -7,14 +7,14 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::ptr;
-use std::rc::{Rc, Weak};
+use std::sync::{Arc, Weak};
 use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::tree::node::Node;
 
-pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
+pub(crate) type DocumentRef = Arc<RefCell<_Document>>;
 pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
 
 #[derive(Debug)]
@@ -68,7 +68,7 @@ impl Document {
           doc_ptr,
           nodes: HashMap::new(),
         };
-        Ok(Document(Rc::new(RefCell::new(doc))))
+        Ok(Document(Arc::new(RefCell::new(doc))))
       }
     }
   }
@@ -84,11 +84,11 @@ impl Document {
       doc_ptr,
       nodes: HashMap::new(),
     };
-    Document(Rc::new(RefCell::new(doc)))
+    Document(Arc::new(RefCell::new(doc)))
   }
 
   pub(crate) fn null_ref() -> DocumentRef {
-    Rc::new(RefCell::new(_Document {
+    Arc::new(RefCell::new(_Document {
       doc_ptr: ptr::null_mut(),
       nodes: HashMap::new(),
     }))
@@ -243,7 +243,7 @@ impl Document {
         doc_ptr,
         nodes: HashMap::new(),
       };
-      Ok(Document(Rc::new(RefCell::new(doc))))
+      Ok(Document(Arc::new(RefCell::new(doc))))
     }
   }
 
