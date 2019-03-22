@@ -11,15 +11,22 @@ license = "MIT"
 keywords = ["xml", "libxml","xpath", "parser", "parsing", "html"]
 build = "build.rs"
 exclude = [
-  "scripts/*"
+  "scripts/*","benches/*"
 ]
+
+[lib]
+name = "libxml"
 
 [dependencies]
 libc = "0.2"
-rayon = "1.0.0"
 
 [build-dependencies]
 pkg-config = "0.3.2"
 
-[lib]
-name = "libxml"
+[dev-dependencies]
+rayon = "1.0.0"
+criterion = "0.2.10"
+
+[[bench]]
+name = "parsing_benchmarks"
+harness = false
