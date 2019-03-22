@@ -5,13 +5,12 @@ use crate::c_helpers::*;
 use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
 use libc;
 use libc::{c_char, c_void, size_t};
-use std::cell::RefCell;
 use std::ffi::{CStr, CString};
-use std::sync::{Mutex, Arc};
 use std::str;
+use std::sync::{Arc, Mutex};
 
 ///Thinly wrapped libxml2 xpath context
-pub(crate) type ContextRef = Arc<Mutex<RefCell<_Context>>>;
+pub(crate) type ContextRef = Arc<Mutex<_Context>>;
 
 #[derive(Debug)]
 pub(crate) struct _Context(pub(crate) xmlXPathContextPtr);
@@ -49,18 +48,18 @@ impl Context {
       Err(())
     } else {
       Ok(Context {
-        context_ptr: Arc::new(Mutex::new(RefCell::new(_Context(ctxtptr)))),
+        context_ptr: Arc::new(Mutex::new(_Context(ctxtptr))),
         document: Arc::downgrade(&doc.0),
       })
     }
   }
   pub(crate) fn new_ptr(docref: &DocumentRef) -> Result<Context, ()> {
-    let ctxtptr = unsafe { xmlXPathNewContext(docref.lock().unwrap().borrow().doc_ptr) };
+    let ctxtptr = unsafe { xmlXPathNewContext(docref.lock().unwrap().doc_ptr) };
     if ctxtptr.is_null() {
       Err(())
     } else {
       Ok(Context {
-        context_ptr: Arc::new(Mutex::new(RefCell::new(_Context(ctxtptr)))),
+        context_ptr: Arc::new(Mutex::new(_Context(ctxtptr))),
         document: Arc::downgrade(docref),
       })
     }
@@ -68,7 +67,7 @@ impl Context {
 
   /// Returns the raw libxml2 context pointer behind the struct
   pub fn as_ptr(&self) -> xmlXPathContextPtr {
-    self.context_ptr.lock().unwrap().borrow().0
+    self.context_ptr.lock().unwrap().0
   }
 
   /// Instantiate a new Context for the Document of a given Node.

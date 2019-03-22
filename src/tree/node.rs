@@ -1,15 +1,14 @@
 //! Node, and related, feature set
 //!
 use libc::{c_char, c_void};
-use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
 use std::mem;
 use std::ptr;
-use std::sync::{Arc, Mutex};
 use std::str;
+use std::sync::{Arc, Mutex};
 
 use crate::bindings::*;
 use crate::c_helpers::*;
@@ -29,7 +28,7 @@ pub fn set_node_rc_guard(value: usize) {
   }
 }
 
-type NodeRef = Arc<Mutex<RefCell<_Node>>>;
+type NodeRef = Arc<Mutex<_Node>>;
 
 #[derive(Debug)]
 struct _Node {
@@ -106,7 +105,7 @@ impl Node {
 
   /// Immutably borrows the underlying libxml2 `xmlNodePtr` pointer
   pub fn node_ptr(&self) -> xmlNodePtr {
-    self.0.lock().unwrap().borrow().node_ptr
+    self.0.lock().unwrap().node_ptr
   }
 
   /// Mutably borrows the underlying libxml2 `xmlNodePtr` pointer
@@ -121,7 +120,7 @@ impl Node {
     // correct check would be to have a weak count of 0 and a strong count <=2 (one for self, one for .nodes)
     let guard_ok = unsafe { weak_count == 0 && strong_count <= NODE_RC_MAX_GUARD };
     if guard_ok {
-      Ok(self.0.lock().unwrap().borrow_mut().node_ptr)
+      Ok(self.0.lock().unwrap().node_ptr)
     } else {
       Err(format!(
         "Can not mutably reference a shared Node {:?}! Rc: weak count: {:?}; strong count: {:?}",
@@ -135,7 +134,7 @@ impl Node {
   /// Wrap a libxml node ptr with a Node
   pub(crate) fn wrap(node_ptr: xmlNodePtr, document: &DocumentRef) -> Node {
     // If already seen, return saved Node
-    if let Some(node) = document.lock().unwrap().borrow().get_node(node_ptr) {
+    if let Some(node) = document.lock().unwrap().get_node(node_ptr) {
       return node.clone();
     }
     // If newly encountered pointer, wrap
@@ -144,10 +143,10 @@ impl Node {
       document: Arc::downgrade(&document),
       unlinked: false,
     };
-    let wrapped_node = Node(Arc::new(Mutex::new(RefCell::new(node))));
+    let wrapped_node = Node(Arc::new(Mutex::new(node)));
     document
-      .lock().unwrap()
-      .borrow_mut()
+      .lock()
+      .unwrap()
       .insert_node(node_ptr, wrapped_node.clone());
     wrapped_node
   }
@@ -172,11 +171,11 @@ impl Node {
 
   /// Create a mock node, used for a placeholder argument
   pub fn null() -> Self {
-    Node(Arc::new(Mutex::new(RefCell::new(_Node {
+    Node(Arc::new(Mutex::new(_Node {
       node_ptr: ptr::null_mut(),
       document: Arc::downgrade(&Document::null_ref()),
       unlinked: true,
-    }))))
+    })))
   }
 
   /// `libc::c_void` isn't hashable and cannot be made hashable
@@ -185,7 +184,7 @@ impl Node {
   }
 
   pub(crate) fn get_docref(&self) -> DocumentWeak {
-    self.0.lock().unwrap().borrow().document.clone()
+    self.0.lock().unwrap().document.clone()
   }
 
   /// Returns the next sibling if it exists
@@ -736,7 +735,7 @@ impl Node {
 
   /// Checks if node is marked as unlinked
   pub fn is_unlinked(&self) -> bool {
-    self.0.lock().unwrap().borrow().unlinked
+    self.0.lock().unwrap().unlinked
   }
 
   fn ptr_as_option(&self, node_ptr: xmlNodePtr) -> Option<Node> {
@@ -751,12 +750,12 @@ impl Node {
 
   /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree
   fn set_linked(&mut self) {
-    self.0.lock().unwrap().borrow_mut().unlinked = false;
+    self.0.lock().unwrap().unlinked = false;
   }
 
   /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
   fn set_unlinked(&mut self) {
-    self.0.lock().unwrap().borrow_mut().unlinked = true;
+    self.0.lock().unwrap().unlinked = true;
   }
 
   /// find nodes via xpath, at a specified node or the document root
@@ -782,17 +781,22 @@ impl Node {
           old.unlink();
           Ok(old)
         } else {
-          Err(From::from(
-            format!("Old node was not a child of {:?} parent. Registered parent is {:?} instead.", self.get_name(), old_parent.get_name())
-          ))
+          Err(From::from(format!(
+            "Old node was not a child of {:?} parent. Registered parent is {:?} instead.",
+            self.get_name(),
+            old_parent.get_name()
+          )))
         }
       } else {
-        Err(From::from(
-          format!("Old node was not a child of {:?} parent. No registered parent exists.", self.get_name())
-        ))
+        Err(From::from(format!(
+          "Old node was not a child of {:?} parent. No registered parent exists.",
+          self.get_name()
+        )))
       }
     } else {
-      Err(From::from("Can only call replace_child_node an a NodeType::Element type parent."))
+      Err(From::from(
+        "Can only call replace_child_node an a NodeType::Element type parent.",
+      ))
     }
   }
 }
