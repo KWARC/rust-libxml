@@ -13,7 +13,7 @@ fn ownership_guards() {
   let root = doc.get_root_element().unwrap();
 
   let mut first_a = root.get_first_element_child().unwrap();
-  let first_b = root.get_first_element_child().unwrap();
+  let mut first_b = root.get_first_element_child().unwrap();
 
   assert_eq!(
     first_a.get_attribute("attribute"),
@@ -27,15 +27,16 @@ fn ownership_guards() {
   // Setting an attribute will fail and return an error, as there are too many Rc references
   // to the same node (Rc strong count of 3)
   // see `Node::node_ptr_mut` for details
-  // assert!(first_a.set_attribute("attribute", "newa").is_err());
+  assert!(first_a.set_attribute("attribute", "newa").is_ok());
+  assert!(first_b.set_attribute("attribute", "newb").is_err());
 
   assert_eq!(
     first_a.get_attribute("attribute"),
-    Some(String::from("value"))
+    Some(String::from("newa"))
   );
   assert_eq!(
     first_b.get_attribute("attribute"),
-    Some(String::from("value"))
+    Some(String::from("newa"))
   );
 
   // Try again with guard boosted, which allows the change
