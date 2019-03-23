@@ -13,24 +13,24 @@ use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::tree::node::Node;
 
-pub(crate) type DocumentRef = Arc<Mutex<_Document>>;
-pub(crate) type DocumentWeak = Weak<Mutex<_Document>>;
+pub(crate) type DocumentRef = Arc<Mutex<DocumentData>>;
+pub(crate) type DocumentWeak = Weak<Mutex<DocumentData>>;
 
 #[derive(Debug)]
-pub(crate) struct _Document {
+pub(crate) struct DocumentData {
   /// pointer to a libxml document
   pub(crate) doc_ptr: xmlDocPtr,
   /// hashed pointer-to-Node bookkeeping table
-  nodes: HashMap<xmlNodePtr, Node>,
+  pub(crate) nodes: HashMap<xmlNodePtr, Arc<Node>>,
 }
 
-impl _Document {
+impl DocumentData {
   /// Internal bookkeeping function, so far only used by `Node::wrap`
   pub(crate) fn insert_node(&mut self, node_ptr: xmlNodePtr, node: Node) {
-    self.nodes.insert(node_ptr, node);
+    self.nodes.insert(node_ptr, Arc::new(node));
   }
   /// Internal bookkeeping function, so far only used by `Node::wrap`
-  pub(crate) fn get_node(&self, node_ptr: xmlNodePtr) -> Option<&Node> {
+  pub(crate) fn get_node(&self, node_ptr: xmlNodePtr) -> Option<&Arc<Node>> {
     self.nodes.get(&node_ptr)
   }
   /// Internal bookkeeping function
@@ -43,7 +43,7 @@ impl _Document {
 #[derive(Clone)]
 pub struct Document(pub(crate) DocumentRef);
 
-impl Drop for _Document {
+impl Drop for DocumentData {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
     unsafe {
@@ -63,7 +63,7 @@ impl Document {
       if doc_ptr.is_null() {
         Err(())
       } else {
-        let doc = _Document {
+        let doc = DocumentData {
           doc_ptr,
           nodes: HashMap::new(),
         };
@@ -79,7 +79,7 @@ impl Document {
 
   /// Creates a new `Document` from an existing libxml2 pointer
   pub fn new_ptr(doc_ptr: xmlDocPtr) -> Self {
-    let doc = _Document {
+    let doc = DocumentData {
       doc_ptr,
       nodes: HashMap::new(),
     };
@@ -87,7 +87,7 @@ impl Document {
   }
 
   pub(crate) fn null_ref() -> DocumentRef {
-    Arc::new(Mutex::new(_Document {
+    Arc::new(Mutex::new(DocumentData {
       doc_ptr: ptr::null_mut(),
       nodes: HashMap::new(),
     }))
@@ -239,7 +239,7 @@ impl Document {
     if doc_ptr.is_null() {
       Err(())
     } else {
-      let doc = _Document {
+      let doc = DocumentData {
         doc_ptr,
         nodes: HashMap::new(),
       };

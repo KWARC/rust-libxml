@@ -27,17 +27,17 @@ impl Namespace {
       c_prefix.as_ptr()
     };
 
-    unsafe {
-      let ns = xmlNewNs(
-        node.node_ptr_mut()?,
-        c_href.as_bytes().as_ptr(),
-        c_prefix_ptr as *const u8,
-      );
-      if ns.is_null() {
-        Err(From::from("xmlNewNs returned NULL"))
-      } else {
-        Ok(Namespace { ns_ptr: ns })
-      }
+    let ns = node.node_ptr_mut(|ptr_mut| unsafe {
+        Ok(xmlNewNs(
+          ptr_mut,
+          c_href.as_bytes().as_ptr(),
+          c_prefix_ptr as *const u8,
+        ))
+      })?;
+    if ns.is_null() {
+      Err(From::from("xmlNewNs returned NULL"))
+    } else {
+      Ok(Namespace { ns_ptr: ns })
     }
   }
 

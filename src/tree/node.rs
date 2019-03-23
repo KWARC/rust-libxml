@@ -8,7 +8,7 @@ use std::hash::{Hash, Hasher};
 use std::mem;
 use std::ptr;
 use std::str;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
@@ -28,22 +28,23 @@ pub fn set_node_rc_guard(value: usize) {
   }
 }
 
-type NodeRef = Arc<Mutex<_Node>>;
-
-#[derive(Debug)]
-struct _Node {
+#[derive(Clone, Debug)]
+struct NodeData {
   /// libxml's xmlNodePtr
   node_ptr: xmlNodePtr,
   /// Reference to parent `Document`
   document: DocumentWeak,
   /// Bookkeep removal from a parent
   unlinked: bool,
+  /// Have we ensured memory safety via `Document` bookkeeping?
+  safeguard: bool,
 }
 
 /// An xml node
 #[derive(Clone, Debug)]
-pub struct Node(NodeRef);
+pub struct Node(NodeData);
 
+// we claim Sync and Send, as we ensure mutability and thread safety by using a Mutex over the owner Document
 unsafe impl Sync for Node {}
 unsafe impl Send for Node {}
 
@@ -63,15 +64,36 @@ impl PartialEq for Node {
 
 impl Eq for Node {}
 
-impl Drop for _Node {
+impl Drop for NodeData {
   /// Free node if it isn't bound in some document
   /// Warning: xmlFreeNode is RECURSIVE into the node's children, so this may lead to segfaults if used carelessly
   fn drop(&mut self) {
     if self.unlinked {
       let node_ptr = self.node_ptr;
-      if !node_ptr.is_null() {
-        unsafe {
-          xmlFreeNode(node_ptr);
+      if !self.safeguard {
+        // We never checked with `Document` if there are other instances of this node, if there are, we should not drop it here.
+        let document_ref = self.document.upgrade().unwrap();
+        let mut document_lock = document_ref.lock().unwrap();
+        if document_lock.get_node(node_ptr).is_some() {
+          // we have seen this node before, don't drop it here, wait for the main Document drop
+        } else {
+          // we have never seen this node before, don't drop it here, record it in the document, and wait for the main Document drop
+          document_lock.insert_node(
+            node_ptr,
+            Node(NodeData {
+              node_ptr,
+              document: Arc::downgrade(&document_ref),
+              unlinked: true,
+              safeguard: true,
+            }),
+          );
+        }
+      } else {
+        // already safeguarded, this is likely the main Document drop, so drop the node from memory
+        if !node_ptr.is_null() {
+          unsafe {
+            xmlFreeNode(node_ptr);
+          }
         }
       }
     }
@@ -103,52 +125,71 @@ impl Node {
     }
   }
 
+  /// Guard executes a given closure while holding a lock over the `Document` owner of `self`
+  /// Passing in the `
+  fn guard<R, FnR>(&self, guarded_closure: FnR) -> Result<R, Box<Error>>
+  where
+    FnR: FnOnce(Arc<Node>) -> Result<R, Box<Error>>,
+  {
+    let doc_ref = self.0.document.upgrade().unwrap();
+    let mut doc_lock = doc_ref.lock().unwrap();
+    let safe_node = doc_lock.nodes.entry(self.0.node_ptr).or_insert_with(|| {
+      Arc::new(Node(NodeData {
+        node_ptr: self.0.node_ptr,
+        document: Arc::downgrade(&doc_ref),
+        unlinked: self.0.unlinked,
+        safeguard: true,
+      }))
+    });
+    guarded_closure(Arc::clone(safe_node))
+  }
+
   /// Immutably borrows the underlying libxml2 `xmlNodePtr` pointer
   pub fn node_ptr(&self) -> xmlNodePtr {
-    self.0.lock().unwrap().node_ptr
+    self.0.node_ptr
   }
 
   /// Mutably borrows the underlying libxml2 `xmlNodePtr` pointer
   /// Also protects against mutability conflicts at runtime.
-  pub fn node_ptr_mut(&mut self) -> Result<xmlNodePtr, String> {
-    let weak_count = Arc::weak_count(&self.0);
-    let strong_count = Arc::strong_count(&self.0);
+  /// and ensures thread-safety by locking the underlying Document,
+  /// ensuring none of the co-owned nodes will be mutated while the current `change_closure` executes
+  pub fn node_ptr_mut<R, FnR>(&mut self, change_closure: FnR) -> Result<R, Box<Error>>
+  where
+    FnR: FnOnce(xmlNodePtr) -> Result<R, Box<Error>>,
+  {
+    self.guard(|node| {
+      let weak_count = Arc::weak_count(&node);
+      let strong_count = Arc::strong_count(&node);
 
-    // The basic idea would be to use `Rc::get_mut` to guard against multiple borrows.
-    // However, our approach to bookkeeping nodes implies there is *always* a second Rc reference
-    // in the document.nodes Hash. So rather than use `get_mut` directly, the
-    // correct check would be to have a weak count of 0 and a strong count <=2 (one for self, one for .nodes)
-    let guard_ok = unsafe { weak_count == 0 && strong_count <= NODE_RC_MAX_GUARD };
-    if guard_ok {
-      Ok(self.0.lock().unwrap().node_ptr)
-    } else {
-      Err(format!(
-        "Can not mutably reference a shared Node {:?}! Rc: weak count: {:?}; strong count: {:?}",
-        self.get_name(),
-        weak_count,
-        strong_count,
-      ))
-    }
+      // The basic idea would be to use `Rc::get_mut` to guard against multiple borrows.
+      // However, our approach to bookkeeping nodes implies there is *always* a second Rc reference
+      // in the document.nodes Hash. So rather than use `get_mut` directly, the
+      // correct check would be to have a weak count of 0 and a strong count <=2 (one for self, one for .nodes)
+      let guard_ok = unsafe { weak_count == 0 && strong_count <= NODE_RC_MAX_GUARD };
+      if guard_ok {
+        // TODO: lock document here
+        change_closure(node.0.node_ptr)
+      } else {
+        Err(From::from(format!(
+          "Can not mutably reference a shared Node {:?}! Rc: weak count: {:?}; strong count: {:?}",
+          self.get_name(),
+          weak_count,
+          strong_count,
+        )))
+      }
+    })
   }
 
   /// Wrap a libxml node ptr with a Node
   pub(crate) fn wrap(node_ptr: xmlNodePtr, document: &DocumentRef) -> Node {
-    // If already seen, return saved Node
-    if let Some(node) = document.lock().unwrap().get_node(node_ptr) {
-      return node.clone();
-    }
     // If newly encountered pointer, wrap
-    let node = _Node {
+    let node = NodeData {
       node_ptr,
       document: Arc::downgrade(&document),
       unlinked: false,
+      safeguard: false,
     };
-    let wrapped_node = Node(Arc::new(Mutex::new(node)));
-    document
-      .lock()
-      .unwrap()
-      .insert_node(node_ptr, wrapped_node.clone());
-    wrapped_node
+    Node(node)
   }
 
   /// Create a new text node, bound to a given document
@@ -171,11 +212,12 @@ impl Node {
 
   /// Create a mock node, used for a placeholder argument
   pub fn null() -> Self {
-    Node(Arc::new(Mutex::new(_Node {
+    Node(NodeData {
       node_ptr: ptr::null_mut(),
       document: Arc::downgrade(&Document::null_ref()),
       unlinked: true,
-    })))
+      safeguard: true,
+    })
   }
 
   /// `libc::c_void` isn't hashable and cannot be made hashable
@@ -184,7 +226,7 @@ impl Node {
   }
 
   pub(crate) fn get_docref(&self) -> DocumentWeak {
-    self.0.lock().unwrap().document.clone()
+    self.0.document.clone()
   }
 
   /// Returns the next sibling if it exists
@@ -269,24 +311,29 @@ impl Node {
   pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<Error>> {
     new_sibling.set_linked();
     unsafe {
-      if xmlAddPrevSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
-        Err(From::from("add_prev_sibling returned NULL"))
-      } else {
-        Ok(())
-      }
+      self.node_ptr_mut(|ptr_mut| {
+        if xmlAddPrevSibling(ptr_mut, new_sibling.0.node_ptr).is_null() {
+          Err(From::from("add_prev_sibling returned NULL"))
+        } else {
+          Ok(())
+        }
+      })
     }
   }
 
   /// Add a next sibling
   pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<Error>> {
     new_sibling.set_linked();
-    unsafe {
-      if xmlAddNextSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
+    self.node_ptr_mut(|ptr_mut| unsafe {
+      // Note: You CAN NOT nest `.node_ptr_mut` calls, or you will deadlock the program,
+      // as each call will attempt a .lock() on the same document, in the same thread.
+      // new_sibling.node_ptr_mut(|sibling_ptr_mut| unsafe {
+      if xmlAddNextSibling(ptr_mut, new_sibling.0.node_ptr).is_null() {
         Err(From::from("add_next_sibling returned NULL"))
       } else {
         Ok(())
       }
-    }
+    })
   }
 
   /// Returns true iff it is a text node
@@ -317,8 +364,10 @@ impl Node {
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
-    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
-    Ok(())
+    self.node_ptr_mut(|ptr_mut| unsafe {
+      xmlNodeSetName(ptr_mut, c_name.as_bytes().as_ptr());
+      Ok(())
+    })
   }
 
   /// Returns the content of the node
@@ -340,8 +389,10 @@ impl Node {
   /// Sets the text content of this `Node`
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<Error>> {
     let c_content = CString::new(content).unwrap();
-    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_bytes().as_ptr()) }
-    Ok(())
+    self.node_ptr_mut(|ptr_mut| unsafe {
+      xmlNodeSetContent(ptr_mut, c_content.as_bytes().as_ptr());
+      Ok(())
+    })
   }
 
   /// Returns the value of property `name`
@@ -395,14 +446,14 @@ impl Node {
   pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
-    unsafe {
+    self.node_ptr_mut(|ptr_mut| unsafe {
       xmlSetProp(
-        self.node_ptr_mut()?,
+        ptr_mut,
         c_name.as_bytes().as_ptr(),
         c_value.as_bytes().as_ptr(),
-      )
-    };
-    Ok(())
+      );
+      Ok(())
+    })
   }
   /// Sets a namespaced attribute
   pub fn set_property_ns(
@@ -413,22 +464,22 @@ impl Node {
   ) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
-    unsafe {
+    self.node_ptr_mut(|ptr_mut| unsafe {
       xmlSetNsProp(
-        self.node_ptr_mut()?,
+        ptr_mut,
         ns.ns_ptr(),
         c_name.as_bytes().as_ptr(),
         c_value.as_bytes().as_ptr(),
-      )
-    };
-    Ok(())
+      );
+      Ok(())
+    })
   }
 
   /// Removes the property of given `name`
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<Error>> {
     let c_name = CString::new(name).unwrap();
-    unsafe {
-      let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_bytes().as_ptr());
+    self.node_ptr_mut(|ptr_mut| unsafe {
+      let attr_node = xmlHasProp(ptr_mut, c_name.as_bytes().as_ptr());
       if !attr_node.is_null() {
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -444,7 +495,7 @@ impl Node {
         // silently no-op if asked to remove a property which is not present
         Ok(())
       }
-    }
+    })
   }
 
   /// Alias for get_property
@@ -567,10 +618,10 @@ impl Node {
 
   /// Sets a `Namespace` for the node
   pub fn set_namespace(&mut self, namespace: &Namespace) -> Result<(), Box<Error>> {
-    unsafe {
-      xmlSetNs(self.node_ptr_mut()?, namespace.ns_ptr());
-    }
-    Ok(())
+    self.node_ptr_mut(|ptr_mut| unsafe {
+      xmlSetNs(ptr_mut, namespace.ns_ptr());
+      Ok(())
+    })
   }
 
   /// Looks up the prefix of a namespace from its URI, basedo around a given `Node`
@@ -621,8 +672,10 @@ impl Node {
   // TODO: Clear a future Document namespaces vec
   /// Removes the namespaces of this `Node` and it's children!
   pub fn recursively_remove_namespaces(&mut self) -> Result<(), Box<Error>> {
-    xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()?);
-    Ok(())
+    self.node_ptr_mut(|ptr_mut| {
+      xmlNodeRecursivelyRemoveNs(ptr_mut);
+      Ok(())
+    })
   }
 
   /// Get a set of class names from this node's attributes
@@ -637,16 +690,18 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
-  pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
+  pub fn add_child(&mut self, child: &mut Node) -> Result<(), Box<Error>> {
     child.set_linked();
-    unsafe {
-      let new_child_ptr = xmlAddChild(self.node_ptr_mut()?, child.node_ptr_mut()?);
+    self.node_ptr_mut(|ptr_mut| {
+      // Note: You CAN NOT nest `.node_ptr_mut` calls, or you will deadlock the program,
+      // as each call will attempt a .lock() on the same document, in the same thread.
+      let new_child_ptr = unsafe { xmlAddChild(ptr_mut, child.0.node_ptr) };
       if new_child_ptr.is_null() {
-        Err("add_child encountered NULL pointer".to_string())
+        Err(From::from("add_child encountered NULL pointer".to_string()))
       } else {
         Ok(())
       }
-    }
+    })
   }
 
   /// Creates a new `Node` as child to the self `Node`
@@ -657,12 +712,14 @@ impl Node {
       Some(mut ns) => ns.ns_ptr_mut(),
     };
     unsafe {
-      let new_ptr = xmlNewChild(
-        self.node_ptr_mut()?,
-        ns_ptr,
-        c_name.as_bytes().as_ptr(),
-        ptr::null(),
-      );
+      let new_ptr = self.node_ptr_mut(|ptr_mut| {
+        Ok(xmlNewChild(
+          ptr_mut,
+          ns_ptr,
+          c_name.as_bytes().as_ptr(),
+          ptr::null(),
+        ))
+      })?;
       Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
     }
   }
@@ -680,15 +737,16 @@ impl Node {
       None => ptr::null_mut(),
       Some(mut ns) => ns.ns_ptr_mut(),
     };
-    unsafe {
-      let new_ptr = xmlNewTextChild(
-        self.node_ptr_mut()?,
+    let new_ptr = self.node_ptr_mut(|ptr_mut| unsafe {
+      Ok(xmlNewTextChild(
+        ptr_mut,
         ns_ptr,
         c_name.as_bytes().as_ptr(),
         c_content.as_bytes().as_ptr(),
-      );
-      Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
-    }
+      ))
+    })?;
+
+    Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
   }
 
   /// Append text to this `Node`
@@ -696,11 +754,13 @@ impl Node {
     let c_len = content.len() as i32;
     if c_len > 0 {
       let c_content = CString::new(content).unwrap();
-      unsafe {
-        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_bytes().as_ptr(), c_len);
-      }
+      self.node_ptr_mut(|ptr_mut| unsafe {
+        xmlNodeAddContentLen(ptr_mut, c_content.as_bytes().as_ptr(), c_len);
+        Ok(())
+      })
+    } else {
+      Ok(())
     }
-    Ok(())
   }
 
   /// Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
@@ -735,7 +795,7 @@ impl Node {
 
   /// Checks if node is marked as unlinked
   pub fn is_unlinked(&self) -> bool {
-    self.0.lock().unwrap().unlinked
+    self.0.unlinked
   }
 
   fn ptr_as_option(&self, node_ptr: xmlNodePtr) -> Option<Node> {
@@ -750,12 +810,12 @@ impl Node {
 
   /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree
   fn set_linked(&mut self) {
-    self.0.lock().unwrap().unlinked = false;
+    self.0.unlinked = false;
   }
 
   /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
   fn set_unlinked(&mut self) {
-    self.0.lock().unwrap().unlinked = true;
+    self.0.unlinked = true;
   }
 
   /// find nodes via xpath, at a specified node or the document root
