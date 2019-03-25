@@ -95,7 +95,8 @@ pub fn xmlNodeGetName(cur: xmlNodePtr) -> *const c_char {
 
 pub fn setIndentTreeOutput(indent: c_int) {
   unsafe {
-    xmlIndentTreeOutput = indent;
+    let xml_indent_tree_output_ptr = __xmlIndentTreeOutput();
+    (*xml_indent_tree_output_ptr) = indent;
   }
 }
 
