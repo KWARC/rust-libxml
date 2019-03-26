@@ -8,7 +8,7 @@ repository = "https://github.com/KWARC/rust-libxml"
 documentation = "http://kwarc.github.io/rust-libxml/libxml/index.html"
 readme = "README.md"
 license = "MIT"
-keywords = ["xml", "libxml","xpath", "parser", "parsing", "html"]
+keywords = ["xml", "libxml","xpath", "parser", "html"]
 build = "build.rs"
 exclude = [
   "scripts/*"
