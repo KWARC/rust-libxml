@@ -1,6 +1,12 @@
 # Change Log
 
-## [0.2.8] (in active development)
+## [0.2.9] (in active development)
+
+## [0.2.8] 2019-25-03
+
+### Changed
+
+Minor internal changes to make the crate compile more reliably under MacOS, and other platforms which enable the `LIBXML_THREAD_ENABLED` compile-time flag. Thank you @caldwell !
 
 ## [0.2.7] 2019-09-03
 
@@ -27,7 +33,7 @@
   * Ensured memory safety of cloning xpath `Context` objects
   * Switched to using `Weak` references to the owner document, in `Node`, `Context` and `Object`, to prevent memory leaks in mutli-document pipelines.
   * Speedup to XPath node retrieval
-  
+
 ## [0.2.3] 2018-19-09
 
 ### Added
@@ -46,7 +52,7 @@
  * (crate internal) full set of libxml2 bindings as produced via `bindgen` (see #39)
  * (crate internal) using libxml2's type language in the wrapper Rust modules
  * (crate internal) setup bindings for reuse in higher-level crates, such as libxslt
- 
+
 
 ### Changed
 
@@ -74,9 +80,9 @@ This release adds fundamental breaking changes to the API. The API continues to 
    * `Document::get_root_element` now has an option type, and returns `None` for an empty Document
    * `Node::mock` now takes owner `Document` as argument
    * proofed tests with `valgrind` and removed all obvious memory leaks
- * All node operations that modify a `Node` now both require a `&mut Node` argument and return a `Result` type. 
-   * Full list of changed signatures in Node: `remove_attribute`, `remove_property`, `set_name`, `set_content`, `set_property`, `set_property_ns`, `set_attribute`, `set_attribute_ns`, `remove_attribute`, `set_namespace`, `recursively_remove_namespaces`, `append_text` 
- * Tree transforming operations that use operate on `&mut self`, and no longer return a Node if the return value is identical to the argument. 
+ * All node operations that modify a `Node` now both require a `&mut Node` argument and return a `Result` type.
+   * Full list of changed signatures in Node: `remove_attribute`, `remove_property`, `set_name`, `set_content`, `set_property`, `set_property_ns`, `set_attribute`, `set_attribute_ns`, `remove_attribute`, `set_namespace`, `recursively_remove_namespaces`, `append_text`
+ * Tree transforming operations that use operate on `&mut self`, and no longer return a Node if the return value is identical to the argument.
    * Changed signatures: `add_child`, `add_prev_sibling`, `add_next_sibling`
  * `Result` types should always be checked for errors, as mutability conflicts are reported during runtime.
 
@@ -90,7 +96,7 @@ This release adds fundamental breaking changes to the API. The API continues to 
 * We welcome Andreas (@triptec) to the core developer team!
 
 ### Added
- 
+
 * Workaround `.free` method for freeing nodes, until the `Rc<RefCell<_Node>>` free-on-drop solution by Andreas is introduced in 0.2
 
 
@@ -112,7 +118,7 @@ Pushing up release to a 0.1, as contributor interest is starting to pick up, and
 
 ### Added
 
-* Node methods: `unbind_node`,  `recursively_remove_namespaces`, `set_name`,  
+* Node methods: `unbind_node`,  `recursively_remove_namespaces`, `set_name`,
 * Document methods: `import_node`
 
 ### Changed
