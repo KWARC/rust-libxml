@@ -159,3 +159,36 @@ fn safe_context_clone() {
   let body2 = context2.evaluate("/html/body").unwrap().get_nodes_as_vec();
   assert_eq!(body2.len(), 1);
 }
+
+#[test]
+fn cleanup_safely_unlinked_xpath_nodes() {
+  let p = Parser::default();
+  let doc_result = p.parse_string(r##"<?xml version="1.0" standalone="no"?> <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd" > <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+<defs >
+<font horiz-adv-x="874" ><font-face
+    font-family="Luxi Serif"
+    units-per-em="2048"
+    panose-1="2 2 7 3 7 0 0 0 0 4"
+    ascent="2073"
+    descent="-432"
+    alphabetic="0" />
+<missing-glyph horiz-adv-x="512" d="M51 0V1480H461V0H51ZM410 51V1429H102V51H410Z" />
+<glyph unicode=" " glyph-name="space" horiz-adv-x="512" />
+<c g1="one" g2="X" k="32" />
+</font>
+</defs>
+</svg>
+"##);
+  assert!(doc_result.is_ok(), "successfully parsed SVG snippet");
+  let doc = doc_result.unwrap();
+  let mut xpath = libxml::xpath::Context::new(&doc).unwrap();
+  xpath
+    .register_namespace("svg", "http://www.w3.org/2000/svg")
+    .unwrap();
+  for mut k in xpath.findnodes("//svg:c", None).unwrap() {
+    k.unlink_node();
+  }
+  drop(xpath);
+  drop(doc);
+  assert!(true, "Drops went OK.");
+}
