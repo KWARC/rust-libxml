@@ -87,7 +87,7 @@ impl Node {
       Some(ns) => ns.ns_ptr(),
     };
     unsafe {
-      let node = xmlNewDocNode(
+      let node = xmlNewDocRawNode(
         doc.doc_ptr(),
         ns_ptr,
         c_name.as_bytes().as_ptr(),
@@ -96,7 +96,7 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node::wrap(node, &doc.0))
+        Ok(Node::wrap_new(node, &doc.0))
       }
     }
   }
@@ -130,7 +130,7 @@ impl Node {
   }
 
   /// Wrap a libxml node ptr with a Node
-  pub(crate) fn wrap(node_ptr: xmlNodePtr, document: &DocumentRef) -> Node {
+  fn _wrap(node_ptr: xmlNodePtr, unlinked: bool, document: &DocumentRef) -> Node {
     // If already seen, return saved Node
     if let Some(node) = document.borrow().get_node(node_ptr) {
       return node.clone();
@@ -139,13 +139,21 @@ impl Node {
     let node = _Node {
       node_ptr,
       document: Rc::downgrade(&document),
-      unlinked: false,
+      unlinked,
     };
     let wrapped_node = Node(Rc::new(RefCell::new(node)));
     document
       .borrow_mut()
       .insert_node(node_ptr, wrapped_node.clone());
     wrapped_node
+  }
+  /// Wrap a node already linked to a `document` tree
+  pub(crate) fn wrap(node_ptr: xmlNodePtr, document: &DocumentRef) -> Node {
+    Node::_wrap(node_ptr, false, document)
+  }
+  /// Wrap, a node owned by, but not yet linked to, a `document`
+  pub(crate) fn wrap_new(node_ptr: xmlNodePtr, document: &DocumentRef) -> Node {
+    Node::_wrap(node_ptr, true, document)
   }
 
   /// Create a new text node, bound to a given document
@@ -157,7 +165,7 @@ impl Node {
       if node.is_null() {
         Err(())
       } else {
-        Ok(Node::wrap(node, &doc.0))
+        Ok(Node::wrap_new(node, &doc.0))
       }
     }
   }
@@ -746,12 +754,12 @@ impl Node {
   }
 
   /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree
-  fn set_linked(&mut self) {
+  pub(crate) fn set_linked(&self) {
     self.0.borrow_mut().unlinked = false;
   }
 
   /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
-  fn set_unlinked(&mut self) {
+  pub(crate) fn set_unlinked(&self) {
     self.0.borrow_mut().unlinked = true;
     self
       .get_docref()
