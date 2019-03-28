@@ -1,6 +1,11 @@
 # Change Log
 
-## [0.2.9] (in active development)
+## [0.2.10] (in active development)
+
+## [0.2.9] 2019-28-03
+
+  * Squash memory leak in creating new `Node`s from the Rust API
+  * Safely unlink `Node`s obtained via XPath searches
 
 ## [0.2.8] 2019-25-03
 
