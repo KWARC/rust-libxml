@@ -127,6 +127,7 @@ impl Document {
     unsafe {
       xmlDocSetRootElement(self.doc_ptr(), root.node_ptr());
     }
+    root.set_linked();
   }
 
   fn ptr_as_result(&mut self, node_ptr: xmlNodePtr) -> Result<Node, ()> {
@@ -152,6 +153,7 @@ impl Document {
       .forget_node(node.node_ptr());
 
     let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), self.doc_ptr(), 1) };
+    node.set_linked();
     self.ptr_as_result(node_ptr)
   }
 
