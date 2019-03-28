@@ -753,6 +753,12 @@ impl Node {
   /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
   fn set_unlinked(&mut self) {
     self.0.borrow_mut().unlinked = true;
+    self
+      .get_docref()
+      .upgrade()
+      .unwrap()
+      .borrow_mut()
+      .forget_node(self.node_ptr());
   }
 
   /// find nodes via xpath, at a specified node or the document root
@@ -778,17 +784,22 @@ impl Node {
           old.unlink();
           Ok(old)
         } else {
-          Err(From::from(
-            format!("Old node was not a child of {:?} parent. Registered parent is {:?} instead.", self.get_name(), old_parent.get_name())
-          ))
+          Err(From::from(format!(
+            "Old node was not a child of {:?} parent. Registered parent is {:?} instead.",
+            self.get_name(),
+            old_parent.get_name()
+          )))
         }
       } else {
-        Err(From::from(
-          format!("Old node was not a child of {:?} parent. No registered parent exists.", self.get_name())
-        ))
+        Err(From::from(format!(
+          "Old node was not a child of {:?} parent. No registered parent exists.",
+          self.get_name()
+        )))
       }
     } else {
-      Err(From::from("Can only call replace_child_node an a NodeType::Element type parent."))
+      Err(From::from(
+        "Can only call replace_child_node an a NodeType::Element type parent.",
+      ))
     }
   }
 }
