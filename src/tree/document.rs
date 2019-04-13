@@ -12,6 +12,7 @@ use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::readonly::RoNode;
 use crate::tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
@@ -118,6 +119,18 @@ impl Document {
         None
       } else {
         Some(self.register_node(node_ptr))
+      }
+    }
+  }
+
+  /// Get the root element of the document (read-only)
+  pub fn get_root_readonly(&self) -> Option<RoNode> {
+    unsafe {
+      let node_ptr = xmlDocGetRootElement(self.doc_ptr());
+      if node_ptr.is_null() {
+        None
+      } else {
+        Some(RoNode(node_ptr))
       }
     }
   }
