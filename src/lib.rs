@@ -16,3 +16,6 @@ pub mod parser;
 pub mod tree;
 /// `XPath` module for global lookup in the DOM
 pub mod xpath;
+
+/// Read-only parallel primitives
+pub mod readonly;

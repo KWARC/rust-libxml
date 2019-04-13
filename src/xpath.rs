@@ -2,6 +2,7 @@
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::readonly::RoNode;
 use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
 use libc;
 use libc::{c_char, c_void, size_t};
@@ -125,6 +126,20 @@ impl Context {
     }
   }
 
+  ///evaluate an xpath on a context RoNode
+  pub fn node_evaluate_ro(&self, xpath: &str, node: &RoNode) -> Result<Object, ()> {
+    let c_xpath = CString::new(xpath).unwrap();
+    let ptr = unsafe { xmlXPathNodeEval(node.0, c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
+    if ptr.is_null() {
+      Err(())
+    } else {
+      Ok(Object {
+        ptr,
+        document: self.document.clone(),
+      })
+    }
+  }
+
   /// localize xpath context to a specific Node
   pub fn set_context_node(&mut self, node: &Node) -> Result<(), ()> {
     unsafe {
@@ -200,6 +215,24 @@ impl Object {
       }
       let node = Node::wrap(ptr, &self.document.upgrade().unwrap());
       vec.push(node);
+    }
+    vec
+  }
+
+  /// returns the result set as a vector of node references
+  pub fn get_readonly_nodes_as_vec(&self) -> Vec<RoNode> {
+    let n = self.get_number_of_nodes();
+    let mut vec: Vec<RoNode> = Vec::with_capacity(n);
+    let slice = if n > 0 {
+      xmlXPathObjectGetNodes(self.ptr, n as size_t)
+    } else {
+      Vec::new()
+    };
+    for ptr in slice {
+      if ptr.is_null() {
+        panic!("rust-libxml: xpath: found null pointer result set");
+      }
+      vec.push(RoNode(ptr));
     }
     vec
   }
