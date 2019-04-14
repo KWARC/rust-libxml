@@ -341,7 +341,7 @@ impl RoNode {
   /// find read-only nodes via xpath, at the specified node and a given document
   pub fn findnodes(&self, xpath: &str, owner: &Document) -> Result<Vec<RoNode>, ()> {
     let context = Context::new(owner)?;
-    let evaluated = context.node_evaluate_ro(xpath, self)?;
+    let evaluated = context.node_evaluate_readonly(xpath, self)?;
     Ok(evaluated.get_readonly_nodes_as_vec())
   }
 
