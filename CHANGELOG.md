@@ -1,6 +1,19 @@
 # Change Log
 
-## [0.2.10] (in active development)
+## [0.2.11] (in active development)
+
+## [0.2.10] 2019-14-04
+
+### Added
+
+ * `RoNode` primitive for simple and efficient **read-only** parallel processing
+ * Benchmarking a 120 MB XML document shows a twenty five fold speedup, when comparing `Node` to parallel rayon processing over `RoNode` with a 32 logical core desktop
+ * While `RoNode` is added as an experiment for high performance read-only scans, any mutability requires using `Node` and incurring a bookkeeping cost of safety at runtime.
+ * Introduced benchmarking via `criterion`, only installed during development.
+ * `benches/parsing_benchmarks` contains examples of parallel scanning via `rayon` iterators.
+ * added `Document::get_root_readonly` method for obtaining a `RoNode` root.
+ * added `Context::node_evaluate_readonly` method for searching over a `RoNode`
+ * added `Context::get_readonly_nodes_as_vec` method for collecting xpath results as `RoNode`
 
 ## [0.2.9] 2019-28-03
 
