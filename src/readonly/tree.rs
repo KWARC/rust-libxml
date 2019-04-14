@@ -28,25 +28,25 @@ impl Eq for RoNode {}
 
 impl RoNode {
   /// Returns the next sibling if it exists
-  pub fn get_next_sibling(&self) -> Option<RoNode> {
+  pub fn get_next_sibling(self) -> Option<RoNode> {
     let ptr = xmlNextSibling(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Returns the previous sibling if it exists
-  pub fn get_prev_sibling(&self) -> Option<RoNode> {
+  pub fn get_prev_sibling(self) -> Option<RoNode> {
     let ptr = xmlPrevSibling(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Returns the first child if it exists
-  pub fn get_first_child(&self) -> Option<RoNode> {
+  pub fn get_first_child(self) -> Option<RoNode> {
     let ptr = xmlGetFirstChild(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Returns the first element child if it exists
-  pub fn get_first_element_child(&self) -> Option<RoNode> {
+  pub fn get_first_element_child(self) -> Option<RoNode> {
     match self.get_first_child() {
       None => None,
       Some(child) => {
@@ -68,13 +68,13 @@ impl RoNode {
   }
 
   /// Returns the last child if it exists
-  pub fn get_last_child(&self) -> Option<RoNode> {
+  pub fn get_last_child(self) -> Option<RoNode> {
     let ptr = unsafe { xmlGetLastChild(self.0) };
     self.ptr_as_option(ptr)
   }
 
   /// Returns all child nodes of the given node as a vector
-  pub fn get_child_nodes(&self) -> Vec<RoNode> {
+  pub fn get_child_nodes(self) -> Vec<RoNode> {
     let mut children = Vec::new();
     if let Some(first_child) = self.get_first_child() {
       children.push(first_child);
@@ -86,7 +86,7 @@ impl RoNode {
   }
 
   /// Returns all child elements of the given node as a vector
-  pub fn get_child_elements(&self) -> Vec<RoNode> {
+  pub fn get_child_elements(self) -> Vec<RoNode> {
     self
       .get_child_nodes()
       .into_iter()
@@ -95,33 +95,33 @@ impl RoNode {
   }
 
   /// Returns the parent if it exists
-  pub fn get_parent(&self) -> Option<RoNode> {
+  pub fn get_parent(self) -> Option<RoNode> {
     let ptr = xmlGetParent(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Get the node type
-  pub fn get_type(&self) -> Option<NodeType> {
+  pub fn get_type(self) -> Option<NodeType> {
     NodeType::from_int(xmlGetNodeType(self.0))
   }
 
   /// Returns true iff it is a text node
-  pub fn is_text_node(&self) -> bool {
+  pub fn is_text_node(self) -> bool {
     self.get_type() == Some(NodeType::TextNode)
   }
 
   /// Checks if the given node is an Element
-  pub fn is_element_node(&self) -> bool {
+  pub fn is_element_node(self) -> bool {
     self.get_type() == Some(NodeType::ElementNode)
   }
 
   /// Checks if the underlying libxml2 pointer is `NULL`
-  pub fn is_null(&self) -> bool {
+  pub fn is_null(self) -> bool {
     self.0.is_null()
   }
 
   /// Returns the name of the node (empty string if name pointer is `NULL`)
-  pub fn get_name(&self) -> String {
+  pub fn get_name(self) -> String {
     let name_ptr = xmlNodeGetName(self.0);
     if name_ptr.is_null() {
       return String::new();
@@ -132,7 +132,7 @@ impl RoNode {
 
   /// Returns the content of the node
   /// (assumes UTF-8 XML document)
-  pub fn get_content(&self) -> String {
+  pub fn get_content(self) -> String {
     let content_ptr = unsafe { xmlNodeGetContent(self.0) };
     if content_ptr.is_null() {
       //empty string when none
@@ -147,7 +147,7 @@ impl RoNode {
   }
 
   /// Returns the value of property `name`
-  pub fn get_property(&self, name: &str) -> Option<String> {
+  pub fn get_property(self, name: &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
     let value_ptr = unsafe { xmlGetProp(self.0, c_name.as_bytes().as_ptr()) };
     if value_ptr.is_null() {
@@ -163,7 +163,7 @@ impl RoNode {
   }
 
   /// Returns the value of property `name` in namespace `ns`
-  pub fn get_property_ns(&self, name: &str, ns: &str) -> Option<String> {
+  pub fn get_property_ns(self, name: &str, ns: &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
     let c_ns = CString::new(ns).unwrap();
     let value_ptr =
@@ -180,7 +180,7 @@ impl RoNode {
   }
 
   /// Return an attribute as a `Node` struct of type AttributeNode
-  pub fn get_property_node(&self, name: &str) -> Option<RoNode> {
+  pub fn get_property_node(self, name: &str) -> Option<RoNode> {
     let c_name = CString::new(name).unwrap();
     unsafe {
       let attr_node = xmlHasProp(self.0, c_name.as_bytes().as_ptr());
@@ -189,21 +189,21 @@ impl RoNode {
   }
 
   /// Alias for get_property
-  pub fn get_attribute(&self, name: &str) -> Option<String> {
+  pub fn get_attribute(self, name: &str) -> Option<String> {
     self.get_property(name)
   }
   /// Alias for get_property_ns
-  pub fn get_attribute_ns(&self, name: &str, ns: &str) -> Option<String> {
+  pub fn get_attribute_ns(self, name: &str, ns: &str) -> Option<String> {
     self.get_property_ns(name, ns)
   }
 
   /// Alias for get_property_node
-  pub fn get_attribute_node(&self, name: &str) -> Option<RoNode> {
+  pub fn get_attribute_node(self, name: &str) -> Option<RoNode> {
     self.get_property_node(name)
   }
 
   /// Get a copy of the attributes of this node
-  pub fn get_properties(&self) -> HashMap<String, String> {
+  pub fn get_properties(self) -> HashMap<String, String> {
     let mut attributes = HashMap::new();
     let mut attr_names = Vec::new();
     unsafe {
@@ -226,12 +226,12 @@ impl RoNode {
   }
 
   /// Alias for `get_properties`
-  pub fn get_attributes(&self) -> HashMap<String, String> {
+  pub fn get_attributes(self) -> HashMap<String, String> {
     self.get_properties()
   }
 
   /// Gets the active namespace associated of this node
-  pub fn get_namespace(&self) -> Option<Namespace> {
+  pub fn get_namespace(self) -> Option<Namespace> {
     let ns_ptr = xmlNodeNs(self.0);
     if ns_ptr.is_null() {
       None
@@ -241,7 +241,7 @@ impl RoNode {
   }
 
   /// Gets a list of namespaces associated with this node
-  pub fn get_namespaces(&self, doc: &Document) -> Vec<Namespace> {
+  pub fn get_namespaces(self, doc: &Document) -> Vec<Namespace> {
     let list_ptr_raw = unsafe { xmlGetNsList(doc.doc_ptr(), self.0) };
     if list_ptr_raw.is_null() {
       Vec::new()
@@ -270,7 +270,7 @@ impl RoNode {
   }
 
   /// Get a list of namespaces declared with this node
-  pub fn get_namespace_declarations(&self) -> Vec<Namespace> {
+  pub fn get_namespace_declarations(self) -> Vec<Namespace> {
     if self.get_type() != Some(NodeType::ElementNode) {
       // only element nodes can have declarations
       return Vec::new();
@@ -287,7 +287,7 @@ impl RoNode {
   }
 
   /// Looks up the prefix of a namespace from its URI, basedo around a given `Node`
-  pub fn lookup_namespace_prefix(&self, href: &str) -> Option<String> {
+  pub fn lookup_namespace_prefix(self, href: &str) -> Option<String> {
     if href.is_empty() {
       return None;
     }
@@ -306,7 +306,7 @@ impl RoNode {
   }
 
   /// Looks up the uri of a namespace from its prefix, basedo around a given `Node`
-  pub fn lookup_namespace_uri(&self, prefix: &str) -> Option<String> {
+  pub fn lookup_namespace_uri(self, prefix: &str) -> Option<String> {
     if prefix.is_empty() {
       return None;
     }
@@ -328,7 +328,7 @@ impl RoNode {
   }
 
   /// Get a set of class names from this node's attributes
-  pub fn get_class_names(&self) -> HashSet<String> {
+  pub fn get_class_names(self) -> HashSet<String> {
     let mut set = HashSet::new();
     if let Some(value) = self.get_property("class") {
       for n in value.split(' ') {
@@ -339,18 +339,18 @@ impl RoNode {
   }
 
   /// find read-only nodes via xpath, at the specified node and a given document
-  pub fn findnodes(&self, xpath: &str, owner: &Document) -> Result<Vec<RoNode>, ()> {
+  pub fn findnodes(self, xpath: &str, owner: &Document) -> Result<Vec<RoNode>, ()> {
     let context = Context::new(owner)?;
     let evaluated = context.node_evaluate_readonly(xpath, self)?;
     Ok(evaluated.get_readonly_nodes_as_vec())
   }
 
   /// Read-only nodes are always linked
-  pub fn is_unlinked(&self) -> bool {
+  pub fn is_unlinked(self) -> bool {
     false
   }
   /// Read-only nodes only need a null check
-  fn ptr_as_option(&self, node_ptr: xmlNodePtr) -> Option<RoNode> {
+  fn ptr_as_option(self, node_ptr: xmlNodePtr) -> Option<RoNode> {
     if node_ptr.is_null() {
       None
     } else {

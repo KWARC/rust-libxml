@@ -127,7 +127,7 @@ impl Context {
   }
 
   ///evaluate an xpath on a context RoNode
-  pub fn node_evaluate_readonly(&self, xpath: &str, node: &RoNode) -> Result<Object, ()> {
+  pub fn node_evaluate_readonly(&self, xpath: &str, node: RoNode) -> Result<Object, ()> {
     let c_xpath = CString::new(xpath).unwrap();
     let ptr = unsafe { xmlXPathNodeEval(node.0, c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
     if ptr.is_null() {
