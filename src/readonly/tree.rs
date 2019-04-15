@@ -1,7 +1,9 @@
 use libc::{c_char, c_void};
 use std::collections::{HashMap, HashSet};
 use std::ffi::{CStr, CString};
+use std::mem;
 use std::str;
+use std::ptr;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
@@ -357,4 +359,14 @@ impl RoNode {
       Some(RoNode(node_ptr))
     }
   }
+
+  /// `libc::c_void` isn't hashable and cannot be made hashable
+  pub fn to_hashable(self) -> usize {
+    unsafe { mem::transmute::<xmlNodePtr, usize>(self.0) }
+  }
+  /// Create a mock node, used for a placeholder argument
+  pub fn null() -> Self {
+    RoNode(ptr::null_mut())
+  }
+
 }

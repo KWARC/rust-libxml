@@ -1,6 +1,11 @@
 # Change Log
 
-## [0.2.11] (in active development)
+## [0.2.12] (in active development)
+
+## [0.2.11] 2019-15-04
+
+### Added
+  * `RoNode::to_hashable` and `RoNode::null` for parity with existing `Node`-leveraging applications
 
 ## [0.2.10] 2019-14-04
 
