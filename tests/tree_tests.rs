@@ -353,7 +353,7 @@ fn can_replace_child() {
   let f = Node::new("F", None, &doc).unwrap();
   let a_result = root_node.replace_child_node(f, a);
   assert!(a_result.is_ok());
-  
+
   assert_eq!(doc.to_string(false),
     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><F/><b/><c/><d/><e/></root>\n",
     "document initialized correctly.");

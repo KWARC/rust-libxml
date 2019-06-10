@@ -4,6 +4,7 @@ use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::tree::*;
 
+use std::convert::AsRef;
 use std::ffi::{CStr, CString};
 use std::fmt;
 use std::ptr;
@@ -39,12 +40,37 @@ enum HtmlParserOption {
 pub enum XmlParseError {
   ///Parsing returned a null pointer as document pointer
   GotNullPointer,
+  ///Document too large for libxml2.
+  DocumentTooLarge,
 }
 
 impl fmt::Debug for XmlParseError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match *self {
       XmlParseError::GotNullPointer => write!(f, "Got a Null pointer"),
+      XmlParseError::DocumentTooLarge => write!(f, "Document too large for i32."),
+    }
+  }
+}
+
+/// Default encoding when not provided.
+const DEFAULT_ENCODING: *const ::std::os::raw::c_char = ptr::null();
+
+/// Default URL when not provided.
+const DEFAULT_URL: *const ::std::os::raw::c_char = ptr::null();
+
+///Convert usize to i32 safely.
+fn usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
+  if cfg!(target_pointer_width = "16") {
+    // Cannot safely use our value comparison, but the conversion if always safe.
+      Ok(value as i32)
+  } else {
+    if value < i32::max_value() as usize {
+      // If the value can be safely represented as a 32-bit signed integer.
+      Ok(value as i32)
+    } else {
+      // Document too large, cannot parse using libxml2.
+      Err(XmlParseError::DocumentTooLarge)
     }
   }
 }
@@ -78,10 +104,28 @@ impl Parser {
     }
   }
 
-  ///Parses the XML/HTML file `filename` to generate a new `Document`
+  /// Parses the XML/HTML file `filename` to generate a new `Document`
   pub fn parse_file(&self, filename: &str) -> Result<Document, XmlParseError> {
-    let c_filename = CString::new(filename).unwrap();
-    let c_utf8 = CString::new("utf-8").unwrap();
+    self.parse_file_with_encoding(filename, None)
+  }
+
+  /// Parses the XML/HTML file `filename` with a manually-specified encoding
+  /// to generate a new `Document`
+  pub fn parse_file_with_encoding(&self, filename: &str, encoding: Option<&str>)
+    -> Result<Document, XmlParseError>
+  {
+    // Process filename.
+    let filename_cstring = CString::new(filename).unwrap();
+    let filename_ptr = filename_cstring.as_ptr();
+
+    // Process encoding.
+    let encoding_cstring: Option<CString> = encoding.
+      map(|v| CString::new(v).unwrap());
+    let encoding_ptr = match encoding_cstring {
+      Some(v) => v.as_ptr(),
+      None => DEFAULT_ENCODING,
+    };
+
     unsafe {
       xmlKeepBlanksDefault(1);
     }
@@ -91,7 +135,7 @@ impl Parser {
           + XmlParserOption::Noerror as i32
           + XmlParserOption::Nowarning as i32;
         unsafe {
-          let doc_ptr = xmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
+          let doc_ptr = xmlReadFile(filename_ptr, encoding_ptr, options);
           if doc_ptr.is_null() {
             Err(XmlParseError::GotNullPointer)
           } else {
@@ -105,7 +149,7 @@ impl Parser {
           + HtmlParserOption::Noerror as i32
           + HtmlParserOption::Nowarning as i32;
         unsafe {
-          let doc_ptr = htmlReadFile(c_filename.as_ptr(), c_utf8.as_ptr(), options);
+          let doc_ptr = htmlReadFile(filename_ptr, encoding_ptr, options);
           if doc_ptr.is_null() {
             Err(XmlParseError::GotNullPointer)
           } else {
@@ -116,20 +160,41 @@ impl Parser {
     }
   }
 
-  ///Parses the XML/HTML string `input_string` to generate a new `Document`
-  pub fn parse_string(&self, input_string: &str) -> Result<Document, XmlParseError> {
-    let c_string = CString::new(input_string).unwrap();
-    let c_utf8 = CString::new("utf-8").unwrap();
-    let c_url = CString::new("").unwrap();
+  ///Parses the XML/HTML bytes `input` to generate a new `Document`
+  pub fn parse_string<Bytes: AsRef<[u8]>>(&self, input: Bytes) -> Result<Document, XmlParseError> {
+    self.parse_string_with_encoding(input, None)
+  }
+
+  ///Parses the XML/HTML bytes `input` with a manually-specified
+  ///encoding to generate a new `Document`
+  pub fn parse_string_with_encoding<Bytes: AsRef<[u8]>>(&self, input: Bytes, encoding: Option<&str>)
+    -> Result<Document, XmlParseError>
+  {
+    // Process input bytes.
+    let input_bytes = input.as_ref();
+    let input_ptr = input_bytes.as_ptr() as *const ::std::os::raw::c_char;
+    let input_len = usize_to_i32(input_bytes.len())?;
+
+    // Process encoding.
+    let encoding_cstring: Option<CString> = encoding.
+      map(|v| CString::new(v).unwrap());
+    let encoding_ptr = match encoding_cstring {
+      Some(v) => v.as_ptr(),
+      None => DEFAULT_ENCODING,
+    };
+
+    // Process url.
+    let url_ptr = DEFAULT_URL;
     match self.format {
       ParseFormat::XML => unsafe {
         let options: i32 = XmlParserOption::Recover as i32
           + XmlParserOption::Noerror as i32
           + XmlParserOption::Nowarning as i32;
-        let docptr = xmlReadDoc(
-          c_string.as_bytes().as_ptr(),
-          c_url.as_ptr(),
-          c_utf8.as_ptr(),
+        let docptr = xmlReadMemory(
+          input_ptr,
+          input_len,
+          url_ptr,
+          encoding_ptr,
           options,
         );
         if docptr.is_null() {
@@ -142,10 +207,11 @@ impl Parser {
         let options: i32 = HtmlParserOption::Recover as i32
           + HtmlParserOption::Noerror as i32
           + HtmlParserOption::Nowarning as i32;
-        let docptr = htmlReadDoc(
-          c_string.as_bytes().as_ptr(),
-          c_url.as_ptr(),
-          c_utf8.as_ptr(),
+        let docptr = htmlReadMemory(
+          input_ptr,
+          input_len,
+          url_ptr,
+          encoding_ptr,
           options,
         );
         if docptr.is_null() {
@@ -157,28 +223,52 @@ impl Parser {
     }
   }
 
-  /// Checks a string for well-formedness
+  /// Checks a string for well-formedness.
+  pub fn is_well_formed_html<Bytes: AsRef<[u8]>>(&self, input: Bytes) -> bool {
+    self.is_well_formed_html_with_encoding(input, None)
+  }
+
+  /// Checks a string for well-formedness with manually-specified encoding.
   /// IMPORTANT: This function is currently implemented in a HACKY way, to ignore invalid errors for HTML5 elements (such as <math>)
   ///            this means you should NEVER USE IT WHILE THREADING, it is CERTAIN TO BREAK
   ///
   /// Help is welcome in implementing it correctly.
-  pub fn is_well_formed_html(&self, input_string: &str) -> bool {
-    if input_string.is_empty() {
+  pub fn is_well_formed_html_with_encoding<Bytes: AsRef<[u8]>>(&self, input: Bytes, encoding: Option<&str>)
+    -> bool
+  {
+    // Process input string.
+    let input_bytes = input.as_ref();
+    if input_bytes.is_empty() {
       return false;
     }
-    let c_string = CString::new(input_string).unwrap();
-    let c_utf8 = CString::new("utf-8").unwrap();
+    let input_ptr = input_bytes.as_ptr() as *const ::std::os::raw::c_char;
+    let input_len = match usize_to_i32(input_bytes.len()) {
+      Ok(v) => v,
+      Err(_) => return false,
+    };
+
+    // Process encoding.
+    let encoding_cstring: Option<CString> = encoding.
+      map(|v| CString::new(v).unwrap());
+    let encoding_ptr = match encoding_cstring {
+      Some(v) => v.as_ptr(),
+      None => DEFAULT_ENCODING,
+    };
+
+    // Process url.
+    let url_ptr = DEFAULT_URL;
     // disable generic error lines from libxml2
     match self.format {
       ParseFormat::XML => false, // TODO: Add support for XML at some point
       ParseFormat::HTML => unsafe {
         let ctxt = htmlNewParserCtxt();
         setWellFormednessHandler(ctxt);
-        let docptr = htmlCtxtReadDoc(
+        let docptr = htmlCtxtReadMemory (
           ctxt,
-          c_string.as_bytes().as_ptr(),
-          ptr::null_mut(),
-          c_utf8.as_ptr(),
+          input_ptr,
+          input_len,
+          url_ptr,
+          encoding_ptr,
           10_596,
         ); // htmlParserOption = 4+32+64+256+2048+8192
         let well_formed_final = if htmlWellFormed(ctxt) {
