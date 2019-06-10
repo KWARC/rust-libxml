@@ -5,9 +5,12 @@ use crate::c_helpers::*;
 use crate::tree::*;
 
 use std::convert::AsRef;
+use std::io;
 use std::ffi::{CStr, CString};
 use std::fmt;
+use std::fs;
 use std::ptr;
+use std::slice;
 use std::str;
 
 enum XmlParserOption {
@@ -40,6 +43,8 @@ enum HtmlParserOption {
 pub enum XmlParseError {
   ///Parsing returned a null pointer as document pointer
   GotNullPointer,
+  ///Could not open file error.
+  FileOpenError,
   ///Document too large for libxml2.
   DocumentTooLarge,
 }
@@ -48,6 +53,7 @@ impl fmt::Debug for XmlParseError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     match *self {
       XmlParseError::GotNullPointer => write!(f, "Got a Null pointer"),
+      XmlParseError::FileOpenError => write!(f, "Unable to open path to file."),
       XmlParseError::DocumentTooLarge => write!(f, "Document too large for i32."),
     }
   }
@@ -58,6 +64,50 @@ const DEFAULT_ENCODING: *const ::std::os::raw::c_char = ptr::null();
 
 /// Default URL when not provided.
 const DEFAULT_URL: *const ::std::os::raw::c_char = ptr::null();
+
+/// Open file function.
+fn xml_open(filename: &str) -> io::Result<*mut ::std::os::raw::c_void> {
+  let ptr = Box::into_raw(Box::new(fs::File::open(filename)?));
+  Ok(ptr as *mut ::std::os::raw::c_void)
+}
+
+/// Read callback for an FS file.
+unsafe extern "C" fn xml_read(
+    context: *mut ::std::os::raw::c_void,
+    buffer: *mut ::std::os::raw::c_char,
+    len: ::std::os::raw::c_int,
+) -> ::std::os::raw::c_int
+{
+  // Len is always positive, typically 40-4000 bytes.
+  let file = context as *mut fs::File;
+  let buf = slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
+  match io::Read::read(&mut *file, buf) {
+    Ok(v) => v as ::std::os::raw::c_int,
+    Err(_) => -1,
+  }
+}
+
+type XmlReadCallback = unsafe extern "C" fn(
+  *mut ::std::ffi::c_void,
+  *mut ::std::os::raw::c_char,
+  ::std::os::raw::c_int
+) -> ::std::os::raw::c_int;
+
+/// Close callback for an FS file.
+unsafe extern "C" fn xml_close(
+    context: *mut ::std::os::raw::c_void,
+) -> ::std::os::raw::c_int
+{
+  // Take rust ownership of the context and then drop it.
+  let file = context as *mut fs::File;
+  let _ = Box::from_raw(file);
+  0
+}
+
+type XmlCloseCallback = unsafe extern "C" fn(
+  *mut ::std::ffi::c_void,
+) -> ::std::os::raw::c_int;
+
 
 ///Convert usize to i32 safely.
 fn usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
@@ -114,9 +164,14 @@ impl Parser {
   pub fn parse_file_with_encoding(&self, filename: &str, encoding: Option<&str>)
     -> Result<Document, XmlParseError>
   {
-    // Process filename.
-    let filename_cstring = CString::new(filename).unwrap();
-    let filename_ptr = filename_cstring.as_ptr();
+    // Create extern C callbacks for to read and close a Rust file through
+    // a void pointer.
+    let ioread: Option<XmlReadCallback> = Some(xml_read);
+    let ioclose: Option<XmlCloseCallback> = Some(xml_close);
+    let ioctx = match xml_open(filename) {
+      Ok(v) => v,
+      Err(_) => return Err(XmlParseError::FileOpenError),
+    };
 
     // Process encoding.
     let encoding_cstring: Option<CString> = encoding.
@@ -125,6 +180,9 @@ impl Parser {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
     };
+
+    // Process url.
+    let url_ptr = DEFAULT_URL;
 
     unsafe {
       xmlKeepBlanksDefault(1);
@@ -135,7 +193,7 @@ impl Parser {
           + XmlParserOption::Noerror as i32
           + XmlParserOption::Nowarning as i32;
         unsafe {
-          let doc_ptr = xmlReadFile(filename_ptr, encoding_ptr, options);
+          let doc_ptr = xmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
           if doc_ptr.is_null() {
             Err(XmlParseError::GotNullPointer)
           } else {
@@ -149,7 +207,7 @@ impl Parser {
           + HtmlParserOption::Noerror as i32
           + HtmlParserOption::Nowarning as i32;
         unsafe {
-          let doc_ptr = htmlReadFile(filename_ptr, encoding_ptr, options);
+          let doc_ptr = htmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
           if doc_ptr.is_null() {
             Err(XmlParseError::GotNullPointer)
           } else {
