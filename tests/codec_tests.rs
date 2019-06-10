@@ -79,3 +79,10 @@ fn utf16le_bom_test() {
 fn utf16be_bom_test() {
   run_test("tests/resources/file01_utf16be_bom.xml");
 }
+
+// UNICODE PATHS
+
+#[test]
+fn nonbmp_path_test() {
+  run_test("tests/resources/file01_🔥🔥🔥.xml");
+}
