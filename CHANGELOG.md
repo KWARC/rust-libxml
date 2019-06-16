@@ -1,6 +1,19 @@
 # Change Log
 
-## [0.2.12] (in active development)
+## [0.2.13] (in active development)
+
+## [0.2.12] 2019-16-06
+
+Thanks to @Alexhuszagh for contributing all enhancements for the `0.2.12` release! 
+
+### Added
+
+  * BOM-aware Unicode support
+  * New `Parser` methods allowing to specify an explicit encoding: `parse_file_with_encoding`, `parse_string_with_encoding`, `is_well_formed_html_with_encoding`
+
+### Changed
+
+  * Default encodings in `Parser` are now left for libxml to guess internally, rather than defaulted to `utf-8`.
 
 ## [0.2.11] 2019-15-04
 
