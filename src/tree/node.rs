@@ -271,7 +271,7 @@ impl Node {
   }
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<Error>> {
+  pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<dyn Error>> {
     new_sibling.set_linked();
     unsafe {
       if xmlAddPrevSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
@@ -283,7 +283,7 @@ impl Node {
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<Error>> {
+  pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<dyn Error>> {
     new_sibling.set_linked();
     unsafe {
       if xmlAddNextSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
@@ -320,7 +320,7 @@ impl Node {
   }
 
   /// Sets the name of this `Node`
-  pub fn set_name(&mut self, name: &str) -> Result<(), Box<Error>> {
+  pub fn set_name(&mut self, name: &str) -> Result<(), Box<dyn Error>> {
     let c_name = CString::new(name).unwrap();
     unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
     Ok(())
@@ -343,7 +343,7 @@ impl Node {
   }
 
   /// Sets the text content of this `Node`
-  pub fn set_content(&mut self, content: &str) -> Result<(), Box<Error>> {
+  pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error>> {
     let c_content = CString::new(content).unwrap();
     unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_bytes().as_ptr()) }
     Ok(())
@@ -397,7 +397,7 @@ impl Node {
   }
 
   /// Sets the value of property `name` to `value`
-  pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<Error>> {
+  pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<dyn Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe {
@@ -415,7 +415,7 @@ impl Node {
     name: &str,
     value: &str,
     ns: &Namespace,
-  ) -> Result<(), Box<Error>> {
+  ) -> Result<(), Box<dyn Error>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe {
@@ -430,7 +430,7 @@ impl Node {
   }
 
   /// Removes the property of given `name`
-  pub fn remove_property(&mut self, name: &str) -> Result<(), Box<Error>> {
+  pub fn remove_property(&mut self, name: &str) -> Result<(), Box<dyn Error>> {
     let c_name = CString::new(name).unwrap();
     unsafe {
       let attr_node = xmlHasProp(self.node_ptr_mut()?, c_name.as_bytes().as_ptr());
@@ -467,7 +467,7 @@ impl Node {
   }
 
   /// Alias for set_property
-  pub fn set_attribute(&mut self, name: &str, value: &str) -> Result<(), Box<Error>> {
+  pub fn set_attribute(&mut self, name: &str, value: &str) -> Result<(), Box<dyn Error>> {
     self.set_property(name, value)
   }
   /// Alias for set_property_ns
@@ -476,12 +476,12 @@ impl Node {
     name: &str,
     value: &str,
     ns: &Namespace,
-  ) -> Result<(), Box<Error>> {
+  ) -> Result<(), Box<dyn Error>> {
     self.set_property_ns(name, value, ns)
   }
 
   /// Alias for remove_property
-  pub fn remove_attribute(&mut self, name: &str) -> Result<(), Box<Error>> {
+  pub fn remove_attribute(&mut self, name: &str) -> Result<(), Box<dyn Error>> {
     self.remove_property(name)
   }
 
@@ -571,7 +571,7 @@ impl Node {
   }
 
   /// Sets a `Namespace` for the node
-  pub fn set_namespace(&mut self, namespace: &Namespace) -> Result<(), Box<Error>> {
+  pub fn set_namespace(&mut self, namespace: &Namespace) -> Result<(), Box<dyn Error>> {
     unsafe {
       xmlSetNs(self.node_ptr_mut()?, namespace.ns_ptr());
     }
@@ -625,7 +625,7 @@ impl Node {
 
   // TODO: Clear a future Document namespaces vec
   /// Removes the namespaces of this `Node` and it's children!
-  pub fn recursively_remove_namespaces(&mut self) -> Result<(), Box<Error>> {
+  pub fn recursively_remove_namespaces(&mut self) -> Result<(), Box<dyn Error>> {
     xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()?);
     Ok(())
   }
@@ -655,7 +655,7 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
-  pub fn new_child(&mut self, ns: Option<Namespace>, name: &str) -> Result<Node, Box<Error>> {
+  pub fn new_child(&mut self, ns: Option<Namespace>, name: &str) -> Result<Node, Box<dyn Error>> {
     let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),
@@ -678,7 +678,7 @@ impl Node {
     ns: Option<Namespace>,
     name: &str,
     content: &str,
-  ) -> Result<Node, Box<Error>> {
+  ) -> Result<Node, Box<dyn Error>> {
     let c_name = CString::new(name).unwrap();
     let c_content = CString::new(content).unwrap();
     let ns_ptr = match ns {
@@ -697,7 +697,7 @@ impl Node {
   }
 
   /// Append text to this `Node`
-  pub fn append_text(&mut self, content: &str) -> Result<(), Box<Error>> {
+  pub fn append_text(&mut self, content: &str) -> Result<(), Box<dyn Error>> {
     let c_len = content.len() as i32;
     if c_len > 0 {
       let c_content = CString::new(content).unwrap();
@@ -777,7 +777,11 @@ impl Node {
 
   /// replace a `self`'s `old` child node with a `new` node in the same position
   /// borrowed from Perl's XML::LibXML
-  pub fn replace_child_node(&mut self, mut new: Node, mut old: Node) -> Result<Node, Box<Error>> {
+  pub fn replace_child_node(
+    &mut self,
+    mut new: Node,
+    mut old: Node,
+  ) -> Result<Node, Box<dyn Error>> {
     // if newNode == oldNode or self == newNode then do nothing, just return nNode.
     if new == old || self == &new {
       // nothing to do here, already in place
