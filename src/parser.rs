@@ -5,10 +5,12 @@ use crate::c_helpers::*;
 use crate::tree::*;
 
 use std::convert::AsRef;
-use std::io;
+use std::ffi::c_void;
 use std::ffi::{CStr, CString};
 use std::fmt;
 use std::fs;
+use std::io;
+use std::os::raw::{c_char, c_int};
 use std::ptr;
 use std::slice;
 use std::str;
@@ -60,60 +62,45 @@ impl fmt::Debug for XmlParseError {
 }
 
 /// Default encoding when not provided.
-const DEFAULT_ENCODING: *const ::std::os::raw::c_char = ptr::null();
+const DEFAULT_ENCODING: *const c_char = ptr::null();
 
 /// Default URL when not provided.
-const DEFAULT_URL: *const ::std::os::raw::c_char = ptr::null();
+const DEFAULT_URL: *const c_char = ptr::null();
 
 /// Open file function.
-fn xml_open(filename: &str) -> io::Result<*mut ::std::os::raw::c_void> {
+fn xml_open(filename: &str) -> io::Result<*mut c_void> {
   let ptr = Box::into_raw(Box::new(fs::File::open(filename)?));
-  Ok(ptr as *mut ::std::os::raw::c_void)
+  Ok(ptr as *mut c_void)
 }
 
 /// Read callback for an FS file.
-unsafe extern "C" fn xml_read(
-    context: *mut ::std::os::raw::c_void,
-    buffer: *mut ::std::os::raw::c_char,
-    len: ::std::os::raw::c_int,
-) -> ::std::os::raw::c_int
-{
+unsafe extern "C" fn xml_read(context: *mut c_void, buffer: *mut c_char, len: c_int) -> c_int {
   // Len is always positive, typically 40-4000 bytes.
   let file = context as *mut fs::File;
   let buf = slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
   match io::Read::read(&mut *file, buf) {
-    Ok(v) => v as ::std::os::raw::c_int,
+    Ok(v) => v as c_int,
     Err(_) => -1,
   }
 }
 
-type XmlReadCallback = unsafe extern "C" fn(
-  *mut ::std::ffi::c_void,
-  *mut ::std::os::raw::c_char,
-  ::std::os::raw::c_int
-) -> ::std::os::raw::c_int;
+type XmlReadCallback = unsafe extern "C" fn(*mut c_void, *mut c_char, c_int) -> c_int;
 
 /// Close callback for an FS file.
-unsafe extern "C" fn xml_close(
-    context: *mut ::std::os::raw::c_void,
-) -> ::std::os::raw::c_int
-{
+unsafe extern "C" fn xml_close(context: *mut c_void) -> c_int {
   // Take rust ownership of the context and then drop it.
   let file = context as *mut fs::File;
   let _ = Box::from_raw(file);
   0
 }
 
-type XmlCloseCallback = unsafe extern "C" fn(
-  *mut ::std::ffi::c_void,
-) -> ::std::os::raw::c_int;
-
+type XmlCloseCallback = unsafe extern "C" fn(*mut c_void) -> c_int;
 
 ///Convert usize to i32 safely.
-fn usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
+fn try_usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
   if cfg!(target_pointer_width = "16") {
     // Cannot safely use our value comparison, but the conversion if always safe.
-      Ok(value as i32)
+    Ok(value as i32)
   } else {
     if value < i32::max_value() as usize {
       // If the value can be safely represented as a 32-bit signed integer.
@@ -161,9 +148,11 @@ impl Parser {
 
   /// Parses the XML/HTML file `filename` with a manually-specified encoding
   /// to generate a new `Document`
-  pub fn parse_file_with_encoding(&self, filename: &str, encoding: Option<&str>)
-    -> Result<Document, XmlParseError>
-  {
+  pub fn parse_file_with_encoding(
+    &self,
+    filename: &str,
+    encoding: Option<&str>,
+  ) -> Result<Document, XmlParseError> {
     // Create extern C callbacks for to read and close a Rust file through
     // a void pointer.
     let ioread: Option<XmlReadCallback> = Some(xml_read);
@@ -174,8 +163,7 @@ impl Parser {
     };
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = encoding.
-      map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
@@ -225,17 +213,18 @@ impl Parser {
 
   ///Parses the XML/HTML bytes `input` with a manually-specified
   ///encoding to generate a new `Document`
-  pub fn parse_string_with_encoding<Bytes: AsRef<[u8]>>(&self, input: Bytes, encoding: Option<&str>)
-    -> Result<Document, XmlParseError>
-  {
+  pub fn parse_string_with_encoding<Bytes: AsRef<[u8]>>(
+    &self,
+    input: Bytes,
+    encoding: Option<&str>,
+  ) -> Result<Document, XmlParseError> {
     // Process input bytes.
     let input_bytes = input.as_ref();
-    let input_ptr = input_bytes.as_ptr() as *const ::std::os::raw::c_char;
-    let input_len = usize_to_i32(input_bytes.len())?;
+    let input_ptr = input_bytes.as_ptr() as *const c_char;
+    let input_len = try_usize_to_i32(input_bytes.len())?;
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = encoding.
-      map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
@@ -248,13 +237,7 @@ impl Parser {
         let options: i32 = XmlParserOption::Recover as i32
           + XmlParserOption::Noerror as i32
           + XmlParserOption::Nowarning as i32;
-        let docptr = xmlReadMemory(
-          input_ptr,
-          input_len,
-          url_ptr,
-          encoding_ptr,
-          options,
-        );
+        let docptr = xmlReadMemory(input_ptr, input_len, url_ptr, encoding_ptr, options);
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
@@ -265,13 +248,7 @@ impl Parser {
         let options: i32 = HtmlParserOption::Recover as i32
           + HtmlParserOption::Noerror as i32
           + HtmlParserOption::Nowarning as i32;
-        let docptr = htmlReadMemory(
-          input_ptr,
-          input_len,
-          url_ptr,
-          encoding_ptr,
-          options,
-        );
+        let docptr = htmlReadMemory(input_ptr, input_len, url_ptr, encoding_ptr, options);
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
@@ -291,23 +268,24 @@ impl Parser {
   ///            this means you should NEVER USE IT WHILE THREADING, it is CERTAIN TO BREAK
   ///
   /// Help is welcome in implementing it correctly.
-  pub fn is_well_formed_html_with_encoding<Bytes: AsRef<[u8]>>(&self, input: Bytes, encoding: Option<&str>)
-    -> bool
-  {
+  pub fn is_well_formed_html_with_encoding<Bytes: AsRef<[u8]>>(
+    &self,
+    input: Bytes,
+    encoding: Option<&str>,
+  ) -> bool {
     // Process input string.
     let input_bytes = input.as_ref();
     if input_bytes.is_empty() {
       return false;
     }
-    let input_ptr = input_bytes.as_ptr() as *const ::std::os::raw::c_char;
-    let input_len = match usize_to_i32(input_bytes.len()) {
+    let input_ptr = input_bytes.as_ptr() as *const c_char;
+    let input_len = match try_usize_to_i32(input_bytes.len()) {
       Ok(v) => v,
       Err(_) => return false,
     };
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = encoding.
-      map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
@@ -321,14 +299,7 @@ impl Parser {
       ParseFormat::HTML => unsafe {
         let ctxt = htmlNewParserCtxt();
         setWellFormednessHandler(ctxt);
-        let docptr = htmlCtxtReadMemory (
-          ctxt,
-          input_ptr,
-          input_len,
-          url_ptr,
-          encoding_ptr,
-          10_596,
-        ); // htmlParserOption = 4+32+64+256+2048+8192
+        let docptr = htmlCtxtReadMemory(ctxt, input_ptr, input_len, url_ptr, encoding_ptr, 10_596); // htmlParserOption = 4+32+64+256+2048+8192
         let well_formed_final = if htmlWellFormed(ctxt) {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
           if !docptr.is_null() {
