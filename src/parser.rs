@@ -98,17 +98,13 @@ type XmlCloseCallback = unsafe extern "C" fn(*mut c_void) -> c_int;
 
 ///Convert usize to i32 safely.
 fn try_usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
-  if cfg!(target_pointer_width = "16") {
+  if cfg!(target_pointer_width = "16") || (value < i32::max_value() as usize) {
     // Cannot safely use our value comparison, but the conversion if always safe.
+    // Or, if the value can be safely represented as a 32-bit signed integer.
     Ok(value as i32)
   } else {
-    if value < i32::max_value() as usize {
-      // If the value can be safely represented as a 32-bit signed integer.
-      Ok(value as i32)
-    } else {
-      // Document too large, cannot parse using libxml2.
-      Err(XmlParseError::DocumentTooLarge)
-    }
+    // Document too large, cannot parse using libxml2.
+    Err(XmlParseError::DocumentTooLarge)
   }
 }
 
