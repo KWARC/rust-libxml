@@ -10,6 +10,7 @@ use std::cell::RefCell;
 use std::ffi::{CStr, CString};
 use std::rc::Rc;
 use std::str;
+use std::fmt;
 
 ///Thinly wrapped libxml2 xpath context
 pub(crate) type ContextRef = Rc<RefCell<_Context>>;
@@ -36,6 +37,7 @@ pub struct Context {
 }
 
 ///Essentially, the result of the evaluation of some xpath expression
+#[derive(Debug)]
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: xmlXPathObjectPtr,
@@ -236,15 +238,17 @@ impl Object {
     }
     vec
   }
+}
 
+impl fmt::Display for Object {
   /// use if the XPath used was meant to return a string, such as string(//foo/@attr)
-  pub fn to_string(&self) -> String {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     unsafe {
       let receiver = xmlXPathCastToString(self.ptr);
       let c_string = CStr::from_ptr(receiver as *const c_char);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       libc::free(receiver as *mut c_void);
-      rust_string
+      write!(f, "{}", rust_string)
     }
   }
 }
