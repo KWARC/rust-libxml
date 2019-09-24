@@ -8,9 +8,9 @@ use libc;
 use libc::{c_char, c_void, size_t};
 use std::cell::RefCell;
 use std::ffi::{CStr, CString};
+use std::fmt;
 use std::rc::Rc;
 use std::str;
-use std::fmt;
 
 ///Thinly wrapped libxml2 xpath context
 pub(crate) type ContextRef = Rc<RefCell<_Context>>;

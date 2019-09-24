@@ -1,10 +1,10 @@
 //! BOM parsing tests
 //!
-use std::io::prelude::*;
-use std::io;
-use std::fs;
 use libxml::parser::{Parser, XmlParseError};
 use libxml::tree::Document;
+use std::fs;
+use std::io;
+use std::io::prelude::*;
 
 // HELPERS
 

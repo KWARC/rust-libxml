@@ -2,8 +2,8 @@ use libc::{c_char, c_void};
 use std::collections::{HashMap, HashSet};
 use std::ffi::{CStr, CString};
 use std::mem;
-use std::str;
 use std::ptr;
+use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
@@ -368,5 +368,4 @@ impl RoNode {
   pub fn null() -> Self {
     RoNode(ptr::null_mut())
   }
-
 }

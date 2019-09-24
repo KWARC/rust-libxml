@@ -6,7 +6,7 @@ pub mod namespace;
 pub mod node;
 pub mod nodetype;
 
-pub use self::document::Document;
+pub use self::document::{Document, SaveOptions};
 pub(crate) use self::document::{DocumentRef, DocumentWeak};
 pub use self::namespace::Namespace;
 pub use self::node::set_node_rc_guard;
