@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::Read;
 
 use libxml::parser::Parser;
-use libxml::tree::{Document, Node};
+use libxml::tree::{Document, Node, SaveOptions};
 
 #[test]
 /// Build a hello world XML doc
@@ -42,7 +42,7 @@ fn hello_builder() {
   assert!(hello_element.set_name("world").is_ok());
   assert_eq!(hello_element.get_name(), "world");
 
-  let doc_string = doc.to_string(false);
+  let doc_string = doc.to_string();
   assert!(doc_string.len() > 1);
   assert!(doc.save_file("tests/results/helloworld.xml").is_ok());
 }
@@ -56,7 +56,7 @@ fn create_pi() {
   let node_ok: Result<Node, ()> = doc.create_processing_instruction("piname", "picontent");
   assert!(node_ok.is_ok());
   assert_eq!(node_ok.unwrap().get_content(), "picontent");
-  let doc_string = doc.to_string(false);
+  let doc_string = doc.to_string();
   assert!(doc_string.len() > 1);
 }
 
@@ -134,10 +134,20 @@ fn document_can_import_node() {
 #[test]
 fn document_formatted_serialization() {
   let doc = create_test_document(Some("tests/resources/unformatted.xml"));
-  let doc_str = doc.to_string(false);
+  let doc_str = doc.to_string();
   // don't insist too hard on the length, cross-platform differences may have a minor influence
   assert!(doc_str.len() > 370);
-  let doc_str_formatted = doc.to_string(true);
+  let options = SaveOptions {
+    format: true,
+    no_declaration: false,
+    no_empty_tags: false,
+    no_xhtml: false,
+    xhtml: false,
+    as_xml: false,
+    as_html: false,
+    non_significant_whitespace: false,
+  };
+  let doc_str_formatted = doc.to_string_with_options(options);
   assert!(doc_str_formatted.len() > 460);
   // basic assertion - a formatted document is longer than an unformatted one
   assert!(doc_str_formatted.len() > doc_str.len());
@@ -161,4 +171,109 @@ fn well_formed_html() {
 
   let should_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head><title>Test</title></head><body>\n<h1>Tiny</h1><math><mn>2</mn></math></body></html>");
   assert!(should_well_formed);
+}
+
+fn serialization_roundtrip(file_name: &str) {
+  let file_result = std::fs::read_to_string(file_name);
+  assert!(file_result.is_ok());
+  let xml_file = file_result.unwrap();
+
+  let parser = Parser::default();
+  let parse_result = parser.parse_string(xml_file.as_bytes());
+  assert!(parse_result.is_ok());
+  let doc = parse_result.unwrap();
+
+  let doc_str = doc.to_string();
+  
+  assert_eq!(
+    strip_whitespace(&xml_file),
+    strip_whitespace(&doc_str)
+  );
+}
+
+fn strip_whitespace(string: &str) -> String {
+  string.replace("\n", "").replace(" ", "")
+}
+
+#[test]
+fn simple_serialization_test01() {
+  serialization_roundtrip("tests/resources/file01.xml");
+}
+
+#[test]
+fn simple_serialization_unformatted() {
+  serialization_roundtrip("tests/resources/unformatted.xml");
+}
+
+#[test]
+fn simple_serialization_namespaces() {
+  serialization_roundtrip("tests/resources/simple_namespaces.xml");
+}
+
+#[test]
+fn serialization_no_empty() {
+  let source_result = std::fs::read_to_string("tests/resources/empty_tags.xml");
+  assert!(source_result.is_ok());
+  let source_file = source_result.unwrap();
+
+  let result = std::fs::read_to_string("tests/resources/empty_tags_result.xml");
+  assert!(result.is_ok());
+  let result_file = result.unwrap();
+
+  let options = SaveOptions {
+    format: false,
+    no_declaration: false,
+    no_empty_tags: true,
+    no_xhtml: false,
+    xhtml: false,
+    as_xml: false,
+    as_html: false,
+    non_significant_whitespace: false,
+  };
+
+  let parser = Parser::default();
+  let parse_result = parser.parse_string(source_file.as_bytes());
+  assert!(parse_result.is_ok());
+  let doc = parse_result.unwrap();
+
+  let doc_str = doc.to_string_with_options(options);
+  
+  assert_eq!(
+    strip_whitespace(&result_file),
+    strip_whitespace(&doc_str)
+  );
+}
+
+#[test]
+fn serialization_as_html() {
+  let source_result = std::fs::read_to_string("tests/resources/as_html.xml");
+  assert!(source_result.is_ok());
+  let source_file = source_result.unwrap();
+
+  let result = std::fs::read_to_string("tests/resources/as_html_result.xml");
+  assert!(result.is_ok());
+  let result_file = result.unwrap();
+
+  let options = SaveOptions {
+    format: false,
+    no_declaration: false,
+    no_empty_tags: false,
+    no_xhtml: false,
+    xhtml: false,
+    as_xml: false,
+    as_html: true,
+    non_significant_whitespace: false,
+  };
+
+  let parser = Parser::default();
+  let parse_result = parser.parse_string(source_file.as_bytes());
+  assert!(parse_result.is_ok());
+  let doc = parse_result.unwrap();
+
+  let doc_str = doc.to_string_with_options(options);
+  
+  assert_eq!(
+    strip_whitespace(&result_file),
+    strip_whitespace(&doc_str)
+  );
 }

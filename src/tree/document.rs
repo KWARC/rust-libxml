@@ -2,21 +2,57 @@
 //!
 
 use libc;
-use libc::{c_char, c_int, c_void};
+use libc::{c_char, c_int};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
+use std::fmt;
 use std::ptr;
 use std::rc::{Rc, Weak};
 use std::str;
 
 use crate::bindings::*;
-use crate::c_helpers::*;
 use crate::readonly::RoNode;
 use crate::tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
+
+#[derive(Debug, Copy, Clone)]
+/// Save Options for Document
+pub struct SaveOptions {
+  /// format save output
+  pub format: bool,
+  /// drop the xml declaration
+  pub no_declaration: bool,
+  /// no empty tags
+  pub no_empty_tags: bool,
+  /// disable XHTML1 specific rules
+  pub no_xhtml: bool,
+  /// force XHTML1 specific rules
+  pub xhtml: bool,
+  /// force XML serialization on HTML doc
+  pub as_xml: bool,
+  /// force HTML serialization on XML doc
+  pub as_html: bool,
+  /// format with non-significant whitespace
+  pub non_significant_whitespace: bool,
+}
+
+impl Default for SaveOptions {
+  fn default() -> Self {
+    SaveOptions {
+      format: false,
+      no_declaration: false,
+      no_empty_tags: false,
+      no_xhtml: false,
+      xhtml: false,
+      as_xml: false,
+      as_html: false,
+      non_significant_whitespace: false,
+    }
+  }
+}
 
 #[derive(Debug)]
 pub(crate) struct _Document {
@@ -53,6 +89,12 @@ impl Drop for _Document {
         xmlFreeDoc(self.doc_ptr);
       }
     }
+  }
+}
+
+impl fmt::Display for Document {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "{}", self.to_string_with_options(SaveOptions::default()))
   }
 }
 
@@ -170,27 +212,47 @@ impl Document {
     self.ptr_as_result(node_ptr)
   }
 
-  /// Serializes the `Document`
-  pub fn to_string(&self, format: bool) -> String {
+  /// Serializes the `Document` with options
+  pub fn to_string_with_options(&self, options: SaveOptions) -> String {
     unsafe {
       // allocate a buffer to dump into
-      let mut receiver = ptr::null_mut();
-      let mut size: c_int = 0;
+      let buf = xmlBufferCreate();
       let c_utf8 = CString::new("UTF-8").unwrap();
-      let c_format = if format { 1 } else { 0 };
+      let mut xml_options = 0;
 
-      setIndentTreeOutput(c_format);
-      xmlDocDumpFormatMemoryEnc(
-        self.doc_ptr(),
-        &mut receiver,
-        &mut size,
-        c_utf8.as_ptr(),
-        c_format,
-      );
+      if options.format {
+        xml_options += xmlSaveOption_XML_SAVE_FORMAT;
+      }
+      if options.no_declaration {
+        xml_options += xmlSaveOption_XML_SAVE_NO_DECL;
+      }
+      if options.no_empty_tags {
+        xml_options += xmlSaveOption_XML_SAVE_NO_EMPTY;
+      }
+      if options.no_xhtml {
+        xml_options += xmlSaveOption_XML_SAVE_NO_XHTML;
+      }
+      if options.xhtml {
+        xml_options += xmlSaveOption_XML_SAVE_XHTML;
+      }
+      if options.as_xml {
+        xml_options += xmlSaveOption_XML_SAVE_AS_XML;
+      }
+      if options.as_html {
+        xml_options += xmlSaveOption_XML_SAVE_AS_HTML;
+      }
+      if options.non_significant_whitespace {
+        xml_options += xmlSaveOption_XML_SAVE_WSNONSIG;
+      }
 
-      let c_string = CStr::from_ptr(receiver as *const c_char);
+      let save_ctx = xmlSaveToBuffer(buf, c_utf8.as_ptr(), xml_options as i32);
+      let _size = xmlSaveDoc(save_ctx, self.doc_ptr());
+      let _size = xmlSaveFlush(save_ctx);
+
+      let result = xmlBufferContent(buf);
+      let c_string = CStr::from_ptr(result as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
-      libc::free(receiver as *mut c_void);
+      xmlBufferFree(buf);
 
       node_string
     }

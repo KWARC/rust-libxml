@@ -1,8 +1,8 @@
 //! Tree module tests
 //!
 use libxml::parser::Parser;
-use libxml::tree::NodeType;
 use libxml::readonly::RoNode;
+use libxml::tree::NodeType;
 
 fn dfs_node(node: RoNode) -> i32 {
   1 + node
@@ -20,7 +20,6 @@ fn dfs_element(node: RoNode) -> i32 {
     .sum::<i32>()
 }
 
-
 #[test]
 fn readonly_scan_test() {
   let parser = Parser::default_html();
@@ -28,7 +27,7 @@ fn readonly_scan_test() {
   assert!(doc_result.is_ok());
   let doc = doc_result.unwrap();
 
-  let root : RoNode = doc.get_root_readonly().unwrap();
+  let root: RoNode = doc.get_root_readonly().unwrap();
   assert_eq!(root.get_name(), "html");
   // "get_child_nodes" exhaustivity test,
   // 33 nodes, including text, comments, etc
@@ -40,10 +39,14 @@ fn readonly_scan_test() {
   let text: RoNode = root.get_first_child().expect("first child is a text node");
   assert_eq!(text.get_name(), "text");
 
-  let head : RoNode = root.get_first_element_child().expect("head is first child of html");
+  let head: RoNode = root
+    .get_first_element_child()
+    .expect("head is first child of html");
   assert_eq!(head.get_name(), "head");
 
-  let mut sibling : RoNode = head.get_next_sibling().expect("head should be followed by text");
+  let mut sibling: RoNode = head
+    .get_next_sibling()
+    .expect("head should be followed by text");
   assert_eq!(sibling.get_name(), "text");
   while let Some(next) = sibling.get_next_sibling() {
     sibling = next;
