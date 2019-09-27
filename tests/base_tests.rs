@@ -137,17 +137,10 @@ fn document_formatted_serialization() {
   let doc_str = doc.to_string();
   // don't insist too hard on the length, cross-platform differences may have a minor influence
   assert!(doc_str.len() > 370);
-  let options = SaveOptions {
+  let doc_str_formatted = doc.to_string_with_options(SaveOptions {
     format: true,
-    no_declaration: false,
-    no_empty_tags: false,
-    no_xhtml: false,
-    xhtml: false,
-    as_xml: false,
-    as_html: false,
-    non_significant_whitespace: false,
-  };
-  let doc_str_formatted = doc.to_string_with_options(options);
+    ..SaveOptions::default()
+  });
   assert!(doc_str_formatted.len() > 460);
   // basic assertion - a formatted document is longer than an unformatted one
   assert!(doc_str_formatted.len() > doc_str.len());
@@ -184,11 +177,8 @@ fn serialization_roundtrip(file_name: &str) {
   let doc = parse_result.unwrap();
 
   let doc_str = doc.to_string();
-  
-  assert_eq!(
-    strip_whitespace(&xml_file),
-    strip_whitespace(&doc_str)
-  );
+
+  assert_eq!(strip_whitespace(&xml_file), strip_whitespace(&doc_str));
 }
 
 fn strip_whitespace(string: &str) -> String {
@@ -221,14 +211,8 @@ fn serialization_no_empty() {
   let result_file = result.unwrap();
 
   let options = SaveOptions {
-    format: false,
-    no_declaration: false,
     no_empty_tags: true,
-    no_xhtml: false,
-    xhtml: false,
-    as_xml: false,
-    as_html: false,
-    non_significant_whitespace: false,
+    ..SaveOptions::default()
   };
 
   let parser = Parser::default();
@@ -237,11 +221,8 @@ fn serialization_no_empty() {
   let doc = parse_result.unwrap();
 
   let doc_str = doc.to_string_with_options(options);
-  
-  assert_eq!(
-    strip_whitespace(&result_file),
-    strip_whitespace(&doc_str)
-  );
+
+  assert_eq!(strip_whitespace(&result_file), strip_whitespace(&doc_str));
 }
 
 #[test]
@@ -255,14 +236,8 @@ fn serialization_as_html() {
   let result_file = result.unwrap();
 
   let options = SaveOptions {
-    format: false,
-    no_declaration: false,
-    no_empty_tags: false,
-    no_xhtml: false,
-    xhtml: false,
-    as_xml: false,
     as_html: true,
-    non_significant_whitespace: false,
+    ..SaveOptions::default()
   };
 
   let parser = Parser::default();
@@ -271,9 +246,6 @@ fn serialization_as_html() {
   let doc = parse_result.unwrap();
 
   let doc_str = doc.to_string_with_options(options);
-  
-  assert_eq!(
-    strip_whitespace(&result_file),
-    strip_whitespace(&doc_str)
-  );
+
+  assert_eq!(strip_whitespace(&result_file), strip_whitespace(&doc_str));
 }

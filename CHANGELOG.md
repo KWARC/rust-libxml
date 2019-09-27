@@ -2,9 +2,21 @@
 
 ## [0.2.13] (in active development)
 
+Thanks to @jangernert for the upgrades to `Document` serialization!
+
+### Added
+ * `Document::to_string_with_options` allowing to customize document serialization
+ * `Document::SaveOptions` containing the currently supported serialization options, as provided internally by libxml
+
+### Changed
+ * the `Document::to_string()` serialization method is now implemented through `fmt::Display` and no longer takes an optional boolean flag. The default behavior is now unformatted serialization - previously `to_string(false)`, while `to_string(true)` can be realized via
+ ```
+   .to_string_with_options(SaveOptions { format: true, ..SaveOptions::default()})`
+  ```
+
 ## [0.2.12] 2019-16-06
 
-Thanks to @Alexhuszagh for contributing all enhancements for the `0.2.12` release! 
+Thanks to @Alexhuszagh for contributing all enhancements for the `0.2.12` release!
 
 ### Added
 
