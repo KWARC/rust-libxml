@@ -7,6 +7,9 @@ Thanks to @jangernert for the upgrades to `Document` serialization!
 ### Added
  * `Document::to_string_with_options` allowing to customize document serialization
  * `Document::SaveOptions` containing the currently supported serialization options, as provided internally by libxml
+ * `Schema` holding and managing `xmlSchemaPtr` as created while parsing by `SchemaParserContext`
+ * `SchemaParserContext` holding source of XSD and parsing into a `Schema` while gathering and –in case returning– errors that arise from the XSD parser across the FFI to libxml
+ * `SchemaValidationContext` holding the `Schema` from resulting `SchemaParserContext` parse and offering validation methods for `Document`, `Node` or file path to XML, while gathering and –in case returning– validation errors from the XML validator across the FFI to libxml
 
 ### Changed
  * the `Document::to_string()` serialization method is now implemented through `fmt::Display` and no longer takes an optional boolean flag. The default behavior is now unformatted serialization - previously `to_string(false)`, while `to_string(true)` can be realized via
