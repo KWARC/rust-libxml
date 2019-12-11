@@ -12,10 +12,18 @@ mod c_helpers;
 
 /// XML and HTML parsing
 pub mod parser;
+
 /// Manipulations on the DOM representation
 pub mod tree;
+
+/// XML Global Error Structures and Handling
+pub mod error;
+
 /// `XPath` module for global lookup in the DOM
 pub mod xpath;
+
+/// Schema Validation
+pub mod schemas;
 
 /// Read-only parallel primitives
 pub mod readonly;
