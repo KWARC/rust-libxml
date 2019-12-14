@@ -18451,13 +18451,13 @@ extern "C" {
 }
 extern "C" {
   /// *
-  /// Checking routines			*
+  /// Checking routines    *
   /// *
   pub fn xmlDebugCheckDocument(output: *mut FILE, doc: xmlDocPtr) -> ::std::os::raw::c_int;
 }
 extern "C" {
   /// *
-  /// XML shell helpers			*
+  /// XML shell helpers    *
   /// *
   pub fn xmlLsOneNode(output: *mut FILE, node: xmlNodePtr);
 }
@@ -21305,7 +21305,7 @@ extern "C" {
   /// xmlSchematronValidityWarningFunc * warn,
   /// void **ctx);
   /// XMLPUBFUN int XMLCALL
-  /// xmlSchematronIsValid	(xmlSchematronValidCtxtPtr ctxt);
+  /// xmlSchematronIsValid (xmlSchematronValidCtxtPtr ctxt);
   pub fn xmlSchematronParse(ctxt: xmlSchematronParserCtxtPtr) -> xmlSchematronPtr;
 }
 extern "C" {
@@ -21320,12 +21320,12 @@ extern "C" {
 }
 extern "C" {
   /// XMLPUBFUN void XMLCALL
-  /// xmlSchematronSetValidErrors	(xmlSchematronValidCtxtPtr ctxt,
+  /// xmlSchematronSetValidErrors    (xmlSchematronValidCtxtPtr ctxt,
   /// xmlSchematronValidityErrorFunc err,
   /// xmlSchematronValidityWarningFunc warn,
   /// void *ctx);
   /// XMLPUBFUN int XMLCALL
-  /// xmlSchematronGetValidErrors	(xmlSchematronValidCtxtPtr ctxt,
+  /// xmlSchematronGetValidErrors    (xmlSchematronValidCtxtPtr ctxt,
   /// xmlSchematronValidityErrorFunc *err,
   /// xmlSchematronValidityWarningFunc *warn,
   /// void **ctx);
