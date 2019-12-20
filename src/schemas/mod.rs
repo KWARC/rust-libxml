@@ -12,7 +12,7 @@ mod parser;
 mod schema;
 mod validation;
 
-use schema::Schema;  // internally handled by SchemaValidationContext
+use schema::Schema; // internally handled by SchemaValidationContext
 
 pub use parser::SchemaParserContext;
 pub use validation::SchemaValidationContext;

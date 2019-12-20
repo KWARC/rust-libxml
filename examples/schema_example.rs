@@ -6,33 +6,29 @@ use libxml::schemas::SchemaValidationContext;
 
 use libxml::parser::Parser;
 
+fn main() {
+  let xml = Parser::default()
+    .parse_file("tests/resources/schema.xml")
+    .expect("Expected to be able to parse XML Document from file");
 
-fn main()
-{
-    let xml = Parser::default()
-        .parse_file("tests/resources/schema.xml")
-        .expect("Expected to be able to parse XML Document from file");
+  let mut xsdparser = SchemaParserContext::from_file("tests/resources/schema.xsd");
+  let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
-    let mut xsdparser = SchemaParserContext::from_file("tests/resources/schema.xsd");
-    let     xsd       = SchemaValidationContext::from_parser(&mut xsdparser);
-
-    if let Err(errors) = xsd
-    {
-        for err in &errors {
-            println!("{}", err.message());
-        }
-
-        panic!("Failed to parse schema");
+  if let Err(errors) = xsd {
+    for err in &errors {
+      println!("{}", err.message());
     }
 
-    let mut xsd = xsd.unwrap();
+    panic!("Failed to parse schema");
+  }
 
-    if let Err(errors) = xsd.validate_document(&xml)
-    {
-        for err in &errors {
-            println!("{}", err.message());
-        }
+  let mut xsd = xsd.unwrap();
 
-        panic!("Invalid XML accoding to XSD schema");
+  if let Err(errors) = xsd.validate_document(&xml) {
+    for err in &errors {
+      println!("{}", err.message());
     }
+
+    panic!("Invalid XML accoding to XSD schema");
+  }
 }
