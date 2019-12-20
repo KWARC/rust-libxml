@@ -8,10 +8,10 @@ use std::ffi::CStr;
 
 /// Wrapper around xmlErrorPtr
 #[derive(Debug)]
-pub struct XmlStructuredError(*mut bindings::_xmlError);
+pub struct StructuredError(*mut bindings::_xmlError);
 
 
-impl XmlStructuredError
+impl StructuredError
 {
     /// Wrap around and own a raw xmllib2 error structure
     pub fn from_raw(error: *mut bindings::_xmlError) -> Self
@@ -35,7 +35,7 @@ impl XmlStructuredError
 }
 
 
-impl Drop for XmlStructuredError
+impl Drop for StructuredError
 {
     fn drop(&mut self)
     {

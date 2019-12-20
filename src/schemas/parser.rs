@@ -5,7 +5,7 @@ use super::common;
 
 use crate::bindings;
 use crate::tree::document::Document;
-use crate::error::XmlStructuredError;
+use crate::error::StructuredError;
 
 use std::os::raw::c_char;
 use std::rc::Rc;
@@ -17,7 +17,7 @@ use std::cell::RefCell;
 pub struct SchemaParserContext
 {
     inner:  *mut bindings::_xmlSchemaParserCtxt,
-    errlog: Rc<RefCell<Vec<XmlStructuredError>>>,
+    errlog: Rc<RefCell<Vec<StructuredError>>>,
 }
 
 
@@ -67,7 +67,7 @@ impl SchemaParserContext
     }
 
     /// Drains error log from errors that might have accumulated while parsing schema
-    pub fn drain_errors(&mut self) -> Vec<XmlStructuredError>
+    pub fn drain_errors(&mut self) -> Vec<StructuredError>
     {
         self.errlog.borrow_mut()
             .drain(0..)

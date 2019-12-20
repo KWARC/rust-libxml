@@ -3,7 +3,7 @@
 //!
 use crate::bindings;
 
-use crate::error::XmlStructuredError;
+use crate::error::StructuredError;
 
 use std::rc::Weak;
 use std::ffi::c_void;
@@ -15,10 +15,10 @@ use std::cell::RefCell;
 pub fn structured_error_handler(ctx: *mut c_void, error: bindings::xmlErrorPtr)
 {
     let errlog = unsafe {
-        Box::from_raw(ctx as *mut Weak<RefCell<Vec<XmlStructuredError>>>)
+        Box::from_raw(ctx as *mut Weak<RefCell<Vec<StructuredError>>>)
     };
 
-    let error = XmlStructuredError::from_raw(error);
+    let error = StructuredError::from_raw(error);
 
     if let Some(errors) = errlog.upgrade()
     {

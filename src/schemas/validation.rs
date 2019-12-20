@@ -11,7 +11,7 @@ use crate::bindings;
 use crate::tree::node::Node;
 use crate::tree::document::Document;
 
-use crate::error::XmlStructuredError;
+use crate::error::StructuredError;
 
 use std::rc::Rc;
 use std::ffi::CString;
@@ -22,7 +22,7 @@ use std::cell::RefCell;
 pub struct SchemaValidationContext
 {
     ctxt:   *mut bindings::_xmlSchemaValidCtxt,
-    errlog: Rc<RefCell<Vec<XmlStructuredError>>>,
+    errlog: Rc<RefCell<Vec<StructuredError>>>,
 
     _schema: Schema,
 }
@@ -31,7 +31,7 @@ pub struct SchemaValidationContext
 impl SchemaValidationContext
 {
     /// Create a schema validation context from a parser object
-    pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<XmlStructuredError>>
+    pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<StructuredError>>
     {
         let schema = Schema::from_parser(parser);
 
@@ -52,7 +52,7 @@ impl SchemaValidationContext
     }
 
     /// Validates a given Document, that is to be tested to comply with the loaded XSD schema definition
-    pub fn validate_document(&mut self, doc: &Document) -> Result<(), Vec<XmlStructuredError>>
+    pub fn validate_document(&mut self, doc: &Document) -> Result<(), Vec<StructuredError>>
     {
         let rc = unsafe { bindings::xmlSchemaValidateDoc(self.ctxt, doc.doc_ptr()) };
 
@@ -65,7 +65,7 @@ impl SchemaValidationContext
     }
 
     /// Validates a given file from path for its compliance with the loaded XSD schema definition
-    pub fn validate_file(&mut self, path: &str) -> Result<(), Vec<XmlStructuredError>>
+    pub fn validate_file(&mut self, path: &str) -> Result<(), Vec<StructuredError>>
     {
         let path     = CString::new(path).unwrap();  // TODO error handling for \0 containing strings
         let path_ptr = path.as_bytes_with_nul().as_ptr() as *const i8;
@@ -81,7 +81,7 @@ impl SchemaValidationContext
     }
 
     /// Validates a branch or leaf of a document given as a Node against the loaded XSD schema definition
-    pub fn validate_node(&mut self, node: &Node) -> Result<(), Vec<XmlStructuredError>>
+    pub fn validate_node(&mut self, node: &Node) -> Result<(), Vec<StructuredError>>
     {
         let rc = unsafe { bindings::xmlSchemaValidateOneElement(self.ctxt, node.node_ptr()) };
 
@@ -94,7 +94,7 @@ impl SchemaValidationContext
     }
 
     /// Drains error log from errors that might have accumulated while validating something
-    pub fn drain_errors(&mut self) -> Vec<XmlStructuredError>
+    pub fn drain_errors(&mut self) -> Vec<StructuredError>
     {
         self.errlog.borrow_mut()
             .drain(0..)

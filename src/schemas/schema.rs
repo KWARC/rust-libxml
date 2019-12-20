@@ -5,7 +5,7 @@ use super::SchemaParserContext;
 
 use crate::bindings;
 
-use crate::error::XmlStructuredError;
+use crate::error::StructuredError;
 
 
 /// Wrapper on xmlSchema
@@ -15,7 +15,7 @@ pub struct Schema(*mut bindings::_xmlSchema);
 impl Schema
 {
     /// Create schema by having a SchemaParserContext do the actual parsing of the schema it was provided
-    pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<XmlStructuredError>>
+    pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<StructuredError>>
     {
         let raw = unsafe { bindings::xmlSchemaParse(parser.as_ptr()) };
 
