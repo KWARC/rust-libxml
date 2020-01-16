@@ -1,8 +1,11 @@
 # Change Log
 
-## [0.2.13] (in active development)
+## [0.2.14] (in active development)
 
-Thanks to @jangernert for the upgrades to `Document` serialization!
+## [0.2.13] 2020-16-01
+
+Thanks to @jangernert for the upgrades to `Document` serialization.
+Thanks to @lweberk for contributing the `Schema` featureset and to @cbarber for refining the FFI interop.
 
 ### Added
  * `Document::to_string_with_options` allowing to customize document serialization
