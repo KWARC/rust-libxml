@@ -13,15 +13,12 @@ use crate::tree::node::Node;
 
 use crate::error::StructuredError;
 
-use std::cell::RefCell;
 use std::ffi::CString;
-use std::rc::Rc;
 
 /// Wrapper on xmlSchemaValidCtxt
 pub struct SchemaValidationContext {
   ctxt: *mut bindings::_xmlSchemaValidCtxt,
-  errlog: Rc<RefCell<Vec<StructuredError>>>,
-
+  errlog: *mut Vec<StructuredError>,
   _schema: Schema,
 }
 
@@ -83,7 +80,9 @@ impl SchemaValidationContext {
 
   /// Drains error log from errors that might have accumulated while validating something
   pub fn drain_errors(&mut self) -> Vec<StructuredError> {
-    self.errlog.borrow_mut().drain(0..).collect()
+    assert!(!self.errlog.is_null());
+    let errors = unsafe { &mut *self.errlog };
+    errors.drain(0..).collect()
   }
 
   /// Return a raw pointer to the underlying xmlSchemaValidCtxt structure
@@ -95,26 +94,33 @@ impl SchemaValidationContext {
 /// Private Interface
 impl SchemaValidationContext {
   fn from_raw(ctx: *mut bindings::_xmlSchemaValidCtxt, schema: Schema) -> Self {
-    let errors = Rc::new(RefCell::new(Vec::new()));
+    let errors: Box<Vec<StructuredError>> = Box::new(Vec::new());
 
     unsafe {
+      let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
       bindings::xmlSchemaSetValidStructuredErrors(
         ctx,
         Some(common::structured_error_handler),
-        Box::into_raw(Box::new(Rc::downgrade(&errors))) as *mut _,
+        reference as *mut _,
+        // Box::into_raw(Box::new(Rc::downgrade(&errors))) as *mut _,
       );
-    }
-
-    Self {
-      ctxt: ctx,
-      errlog: errors,
-      _schema: schema,
+      Self {
+        ctxt: ctx,
+        errlog: reference,
+        _schema: schema,
+      }
     }
   }
 }
 
 impl Drop for SchemaValidationContext {
   fn drop(&mut self) {
-    unsafe { bindings::xmlSchemaFreeValidCtxt(self.ctxt) }
+    unsafe {
+      bindings::xmlSchemaFreeValidCtxt(self.ctxt);
+      if !self.errlog.is_null() {
+        let errors: Box<Vec<StructuredError>> = std::mem::transmute(self.errlog);
+        drop(errors)
+      }
+    }
   }
 }
