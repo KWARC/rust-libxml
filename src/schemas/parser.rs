@@ -7,15 +7,13 @@ use crate::bindings;
 use crate::error::StructuredError;
 use crate::tree::document::Document;
 
-use std::cell::RefCell;
 use std::ffi::CString;
 use std::os::raw::c_char;
-use std::rc::Rc;
 
 /// Wrapper on xmlSchemaParserCtxt
 pub struct SchemaParserContext {
   inner: *mut bindings::_xmlSchemaParserCtxt,
-  errlog: Rc<RefCell<Vec<StructuredError>>>,
+  errlog: *mut Vec<StructuredError>,
 }
 
 impl SchemaParserContext {
@@ -61,7 +59,9 @@ impl SchemaParserContext {
 
   /// Drains error log from errors that might have accumulated while parsing schema
   pub fn drain_errors(&mut self) -> Vec<StructuredError> {
-    self.errlog.borrow_mut().drain(0..).collect()
+    assert!(!self.errlog.is_null());
+    let errors = unsafe { &mut *self.errlog };
+    errors.drain(0..).collect()
   }
 
   /// Return a raw pointer to the underlying xmlSchemaParserCtxt structure
@@ -73,25 +73,32 @@ impl SchemaParserContext {
 /// Private Interface
 impl SchemaParserContext {
   fn from_raw(parser: *mut bindings::_xmlSchemaParserCtxt) -> Self {
-    let errors = Rc::new(RefCell::new(Vec::new()));
+    let errors: Box<Vec<StructuredError>> = Box::new(Vec::new());
 
     unsafe {
+      let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
       bindings::xmlSchemaSetParserStructuredErrors(
         parser,
         Some(common::structured_error_handler),
-        Box::into_raw(Box::new(Rc::downgrade(&errors))) as *mut _,
+        reference as *mut _,
       );
-    }
 
-    Self {
-      inner: parser,
-      errlog: errors,
+      Self {
+        inner: parser,
+        errlog: reference,
+      }
     }
   }
 }
 
 impl Drop for SchemaParserContext {
   fn drop(&mut self) {
-    unsafe { bindings::xmlSchemaFreeParserCtxt(self.inner) }
+    unsafe {
+      bindings::xmlSchemaFreeParserCtxt(self.inner);
+      if !self.errlog.is_null() {
+        let errors: Box<Vec<StructuredError>> = std::mem::transmute(self.errlog);
+        drop(errors)
+      }
+    }
   }
 }
