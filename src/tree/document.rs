@@ -1,7 +1,5 @@
 //! Document feature set
 //!
-
-use libc;
 use libc::{c_char, c_int};
 use std::cell::RefCell;
 use std::collections::HashMap;

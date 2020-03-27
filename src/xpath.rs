@@ -4,7 +4,6 @@ use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::readonly::RoNode;
 use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
-use libc;
 use libc::{c_char, c_void, size_t};
 use std::cell::RefCell;
 use std::ffi::{CStr, CString};
