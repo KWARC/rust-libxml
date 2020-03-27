@@ -1,6 +1,12 @@
 # Change Log
 
-## [0.2.14] (in active development)
+## [0.2.15] (in active development)
+
+## [0.2.14] 2020-27-03
+
+### Changed
+
+More consistently use `c_char` to successfully compile on ARM targets
 
 ## [0.2.13] 2020-16-01
 
