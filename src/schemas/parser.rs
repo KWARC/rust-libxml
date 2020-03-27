@@ -46,7 +46,7 @@ impl SchemaParserContext {
   /// Create a schema parsing context from an URL
   pub fn from_file(path: &str) -> Self {
     let path = CString::new(path).unwrap(); // TODO error handling for \0 containing strings
-    let path_ptr = path.as_bytes_with_nul().as_ptr() as *const i8;
+    let path_ptr = path.as_bytes_with_nul().as_ptr() as *const c_char;
 
     let parser = unsafe { bindings::xmlSchemaNewParserCtxt(path_ptr) };
 

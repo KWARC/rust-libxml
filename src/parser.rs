@@ -12,11 +12,8 @@ use std::fs;
 use std::io;
 use std::os::raw::{c_char, c_int};
 use std::ptr;
-use std::error;
 use std::slice;
 use std::str;
-
-use std::error::Error;
 
 enum XmlParserOption {
   Recover = 1, // Relaxed parsing
@@ -57,7 +54,7 @@ pub enum XmlParseError {
 impl fmt::Debug for XmlParseError
 {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", self.description())
+    write!(f, "{}", self)
   }
 }
 
@@ -65,18 +62,11 @@ impl fmt::Debug for XmlParseError
 impl fmt::Display for XmlParseError
 {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", self.description())
-  }
-}
-
-impl error::Error for XmlParseError
-{
-  fn description(&self) -> &str {
-    match self {
+    write!(f, "{}", match self {
       XmlParseError::GotNullPointer   => "Got a Null pointer",
       XmlParseError::FileOpenError    => "Unable to open path to file.",
       XmlParseError::DocumentTooLarge => "Document too large for i32.",
-    }
+    })
   }
 }
 
