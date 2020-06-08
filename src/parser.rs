@@ -5,6 +5,7 @@ use crate::c_helpers::*;
 use crate::tree::*;
 
 use std::convert::AsRef;
+use std::error::Error;
 use std::ffi::c_void;
 use std::ffi::{CStr, CString};
 use std::fmt;
@@ -50,6 +51,8 @@ pub enum XmlParseError {
   ///Document too large for libxml2.
   DocumentTooLarge,
 }
+
+impl Error for XmlParseError {}
 
 impl fmt::Debug for XmlParseError
 {
