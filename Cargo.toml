@@ -20,8 +20,12 @@ name = "libxml"
 [dependencies]
 libc = "0.2"
 
+[features]
+default = ["pkg-config"]
+
 [build-dependencies]
-pkg-config = "0.3.2"
+pkg-config = {version = "0.3.2", optional = true }
+vcpkg = { version = "0.2", optional = true }
 
 [dev-dependencies]
 rayon = "1.0.0"
