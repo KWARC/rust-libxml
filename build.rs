@@ -23,7 +23,6 @@ fn main() {
 
 #[cfg(feature = "pkg-config")]
 mod pkg_config_dep {
-  use pkg_config;
   pub fn find() -> bool {
     if pkg_config::find_library("libxml-2.0").is_ok() {
       return true;
@@ -34,7 +33,6 @@ mod pkg_config_dep {
 
 #[cfg(feature = "vcpkg")]
 mod vcpkg_dep {
-  use vcpkg;
   pub fn find() -> bool {
     if vcpkg::find_package("libxml2").is_ok() {
       return true
