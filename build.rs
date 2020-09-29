@@ -1,17 +1,12 @@
-fn main() {  
-  if cfg!(not(feature = "pkg-config")) && cfg!(not(feature = "vcpkg"))
-  {
-    panic!(r#"Enable "pkg-config" or "vcpkg" feature flags to locate libxml2"#)
-  }
-
-  #[cfg(feature = "pkg-config")]
+fn main() {
+  #[cfg(any(unix, macos))]
   {
     if pkg_config_dep::find() {
       return;
     }
   }
 
-  #[cfg(feature = "vcpkg")]
+  #[cfg(windows)]
   {
     if vcpkg_dep::find() {
       return;
@@ -21,7 +16,7 @@ fn main() {
   panic!("Could not find libxml2.")
 }
 
-#[cfg(feature = "pkg-config")]
+#[cfg(any(unix, macos))]
 mod pkg_config_dep {
   pub fn find() -> bool {
     if pkg_config::find_library("libxml-2.0").is_ok() {
@@ -31,7 +26,7 @@ mod pkg_config_dep {
   }
 }
 
-#[cfg(feature = "vcpkg")]
+#[cfg(windows)]
 mod vcpkg_dep {
   pub fn find() -> bool {
     if vcpkg::find_package("libxml2").is_ok() {
