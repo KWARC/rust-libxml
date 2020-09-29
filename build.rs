@@ -10,7 +10,7 @@ fn main() {
   {
     if vcpkg_dep::find() {
       return;
-    } 
+    }
   }
 
   panic!("Could not find libxml2.")

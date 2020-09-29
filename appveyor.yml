@@ -13,19 +13,13 @@ environment:
   # TODO These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
   matrix:
-    # MinGW
-    - TARGET: i686-pc-windows-gnu
-    - TARGET: x86_64-pc-windows-gnu
-
-    # MSVC
-    - TARGET: i686-pc-windows-msvc
-    - TARGET: x86_64-pc-windows-msvc
-
-    # Testing other channels
-    - TARGET: x86_64-pc-windows-gnu
-      RUST_VERSION: nightly
-    - TARGET: x86_64-pc-windows-msvc
-      RUST_VERSION: nightly
+    - CHANNEL: stable
+      ARCH: x86_64
+      TOOLCHAIN: msvc
+      FEATURES: vcpkg
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKGRS_DYNAMIC: 1
+      TARGET: x86_64-pc-windows-msvc
 
 install:
   - ps: >-
@@ -34,6 +28,7 @@ install:
       } ElseIf ($env:TARGET -eq 'i686-pc-windows-gnu') {
         $env:PATH += ';C:\msys64\mingw32\bin'
       }
+  - vcpkg install libxml2
   - curl -sSf -o rustup-init.exe https://win.rustup.rs/
   - rustup-init.exe -y --default-host %TARGET% --default-toolchain %RUST_VERSION%
   - set PATH=%PATH%;C:\Users\appveyor\.cargo\bin
@@ -53,7 +48,8 @@ test_script:
     )
 
 cache:
-  - C:\Users\appveyor\.cargo\registry
+  - '%USERPROFILE%\.cargo\registry'
+  - C:\tools\vcpkg\installed
   - target
 
 branches:
