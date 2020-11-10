@@ -6,7 +6,6 @@ use std::collections::{HashMap, HashSet};
 use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
-use std::mem;
 use std::ptr;
 use std::rc::Rc;
 use std::str;
@@ -185,7 +184,7 @@ impl Node {
 
   /// `libc::c_void` isn't hashable and cannot be made hashable
   pub fn to_hashable(&self) -> usize {
-    unsafe { mem::transmute::<xmlNodePtr, usize>(self.node_ptr()) }
+    self.node_ptr() as usize
   }
 
   pub(crate) fn get_docref(&self) -> DocumentWeak {
