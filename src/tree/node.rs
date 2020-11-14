@@ -451,6 +451,34 @@ impl Node {
     }
   }
 
+  /// Removes the property of given `name` and namespace (`ns`)
+  pub fn remove_property_ns(&mut self, name: &str, ns: &str) -> Result<(), Box<dyn Error>> {
+    let c_name = CString::new(name).unwrap();
+    let c_ns = CString::new(ns).unwrap();
+    unsafe {
+      let attr_node = xmlHasNsProp(
+          self.node_ptr_mut()?,
+          c_name.as_bytes().as_ptr(),
+          c_ns.as_bytes().as_ptr(),
+      );
+      if !attr_node.is_null() {
+        let remove_prop_status = xmlRemoveProp(attr_node);
+        if remove_prop_status == 0 {
+          Ok(())
+        } else {
+          // Propagate libxml2 failure to remove
+          Err(From::from(format!(
+            "libxml2 failed to remove property with status: {:?}",
+            remove_prop_status
+          )))
+        }
+      } else {
+        // silently no-op if asked to remove a property which is not present
+        Ok(())
+      }
+    }
+  }
+
   /// Alias for get_property
   pub fn get_attribute(&self, name: &str) -> Option<String> {
     self.get_property(name)
@@ -482,6 +510,11 @@ impl Node {
   /// Alias for remove_property
   pub fn remove_attribute(&mut self, name: &str) -> Result<(), Box<dyn Error>> {
     self.remove_property(name)
+  }
+
+  /// Alias for remove_property_ns
+  pub fn remove_attribute_ns(&mut self, name: &str, ns: &str) -> Result<(), Box<dyn Error>> {
+    self.remove_property_ns(name, ns)
   }
 
   /// Get a copy of the attributes of this node
