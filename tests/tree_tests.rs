@@ -138,6 +138,9 @@ fn attribute_namespace_accessors() {
   assert!(fb_ns_result.is_ok());
   let fb_ns = fb_ns_result.unwrap();
   assert!(element.set_attribute_ns("fb", "fb", &fb_ns).is_ok());
+  assert_eq!(element.get_attribute_ns("fb", "http://www.foobar.org"), Some("fb".to_string()));
+  assert!(element.remove_attribute_ns("fb", "http://www.foobar.org").is_ok());
+  assert_eq!(element.get_attribute_ns("fb", "http://www.foobar.org"), None);
 
   let ns_prefix = element.lookup_namespace_prefix("http://www.w3.org/XML/1998/namespace");
   assert_eq!(ns_prefix, Some("xml".to_string())); // system ns has the global prefix when doing global lookup
