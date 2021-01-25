@@ -2,6 +2,10 @@
 
 ## [0.2.16] (in active development)
 
+### Added
+ * `Document::ronode_to_string` for printing read-only nodes
+ * `RoNode::node_ptr` for getting the internal libxml2 raw pointer of a read-only node
+
 ## [0.2.15] 2020-28-09
 
 Thanks to @JoshuaNitschke for contributing OS-based package detection for the native libxml2! Also thanks to @coding-yogi, @ignatenkobrain and @simoin for investigating platform-specific issues with this crate, some of which expect resolution in upcoming versions.

@@ -278,6 +278,28 @@ impl Document {
       node_string
     }
   }
+  /// Serializes a `RoNode` owned by this `Document
+  pub fn ronode_to_string(&self, node: &RoNode) -> String {
+    unsafe {
+      // allocate a buffer to dump into
+      let buf = xmlBufferCreate();
+
+      // dump the node
+      xmlNodeDump(
+        buf,
+        self.doc_ptr(),
+        node.node_ptr(),
+        1, // level of indentation
+        0, /* disable formatting */
+      );
+      let result = xmlBufferContent(buf);
+      let c_string = CStr::from_ptr(result as *const c_char);
+      let node_string = c_string.to_string_lossy().into_owned();
+      xmlBufferFree(buf);
+
+      node_string
+    }
+  }
 
   /// Creates a node for an XML processing instruction
   pub fn create_processing_instruction(&mut self, name: &str, content: &str) -> Result<Node, ()> {

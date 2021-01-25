@@ -28,6 +28,11 @@ impl PartialEq for RoNode {
 impl Eq for RoNode {}
 
 impl RoNode {
+  /// Immutably borrows the underlying libxml2 `xmlNodePtr` pointer
+  pub fn node_ptr(&self) -> xmlNodePtr {
+    self.0
+  }
+
   /// Returns the next sibling if it exists
   pub fn get_next_sibling(self) -> Option<RoNode> {
     let ptr = xmlNextSibling(self.0);
