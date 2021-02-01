@@ -1,8 +1,11 @@
 # Change Log
 
-## [0.2.16] (in active development)
+## [0.2.17] (in active development)
+
+## [0.2.16] 2021-31-01
 
 ### Added
+ * More element-oriented methods: `get_next_element_sibling`, `get_prev_element_sibling`, `get_last_element_child`, added to both `Node` and `RoNode`.
  * `Document::ronode_to_string` for printing read-only nodes
  * `RoNode::node_ptr` for getting the internal libxml2 raw pointer of a read-only node
 

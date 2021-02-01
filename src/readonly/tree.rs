@@ -51,6 +51,56 @@ impl RoNode {
     self.ptr_as_option(ptr)
   }
 
+  /// Returns the last child if it exists
+  pub fn get_last_child(self) -> Option<RoNode> {
+    let ptr = unsafe { xmlGetLastChild(self.0) };
+    self.ptr_as_option(ptr)
+  }
+
+  /// Returns the next element sibling if it exists
+  pub fn get_next_element_sibling(&self) -> Option<RoNode> {
+    match self.get_next_sibling() {
+      None => None,
+      Some(child) => {
+        let mut current_node = child;
+        while !current_node.is_element_node() {
+          if let Some(sibling) = current_node.get_next_sibling() {
+            current_node = sibling;
+          } else {
+            break;
+          }
+        }
+        if current_node.is_element_node() {
+          Some(current_node)
+        } else {
+          None
+        }
+      }
+    }
+  }
+
+  /// Returns the previous element sibling if it exists
+  pub fn get_prev_element_sibling(&self) -> Option<RoNode> {
+    match self.get_prev_sibling() {
+      None => None,
+      Some(child) => {
+        let mut current_node = child;
+        while !current_node.is_element_node() {
+          if let Some(sibling) = current_node.get_prev_sibling() {
+            current_node = sibling;
+          } else {
+            break;
+          }
+        }
+        if current_node.is_element_node() {
+          Some(current_node)
+        } else {
+          None
+        }
+      }
+    }
+  }
+
   /// Returns the first element child if it exists
   pub fn get_first_element_child(self) -> Option<RoNode> {
     match self.get_first_child() {
@@ -73,11 +123,28 @@ impl RoNode {
     }
   }
 
-  /// Returns the last child if it exists
-  pub fn get_last_child(self) -> Option<RoNode> {
-    let ptr = unsafe { xmlGetLastChild(self.0) };
-    self.ptr_as_option(ptr)
+  /// Returns the last element child if it exists
+  pub fn get_last_element_child(&self) -> Option<RoNode> {
+    match self.get_last_child() {
+      None => None,
+      Some(child) => {
+        let mut current_node = child;
+        while !current_node.is_element_node() {
+          if let Some(sibling) = current_node.get_prev_sibling() {
+            current_node = sibling;
+          } else {
+            break;
+          }
+        }
+        if current_node.is_element_node() {
+          Some(current_node)
+        } else {
+          None
+        }
+      }
+    }
   }
+
 
   /// Returns all child nodes of the given node as a vector
   pub fn get_child_nodes(self) -> Vec<RoNode> {
