@@ -5,7 +5,7 @@ fn main() {
       let p = std::path::Path::new(s);
       let fname = std::path::Path::new(p.file_name().expect("no file name in LIBXML2 env"));
       assert!(p.is_file());
-      println!("cargo:rustc-link-lib={}", fname.file_stem().unwrap().to_string_lossy());
+      println!("cargo:rustc-link-lib={}", fname.file_stem().unwrap().to_string_lossy().strip_prefix("lib").unwrap());
       println!("cargo:rustc-link-search={}", p.parent().expect("no library path in LIBXML2 env").to_string_lossy());
   } else {
     #[cfg(any(target_family = "unix", target_os = "macos"))]
