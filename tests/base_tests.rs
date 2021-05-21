@@ -3,7 +3,7 @@
 use std::fs::File;
 use std::io::Read;
 
-use libxml::parser::Parser;
+use libxml::parser::{Parser, ParserOptions};
 use libxml::tree::{Document, Node, SaveOptions};
 
 #[test]
@@ -164,6 +164,20 @@ fn well_formed_html() {
 
   let should_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head><title>Test</title></head><body>\n<h1>Tiny</h1><math><mn>2</mn></math></body></html>");
   assert!(should_well_formed);
+}
+
+#[test]
+/// Parse & serialize HTML fragment
+fn html_fragment() {
+  let fragment = r#"<figure><a href="tar-flac-subset-compress.svg"><img src="tar-flac-subset-compress.svg" alt="Compression results on incompressible data."></a><figcaption><p>Compression results on incompressible data.</p></figcaption></figure>"#;
+
+  let parser = Parser::default_html();
+  let document = parser.parse_string_with_options(&fragment, &ParserOptions { no_def_dtd: true, no_implied: true, ..Default::default()}).unwrap();
+
+  let mut serialized_fragment = document.to_string_with_options(SaveOptions { no_empty_tags: true, as_html: true, ..Default::default() });
+  let _added_newline = serialized_fragment.pop(); // remove added '\n'
+  
+  assert_eq!(fragment, serialized_fragment);
 }
 
 fn serialization_roundtrip(file_name: &str) {

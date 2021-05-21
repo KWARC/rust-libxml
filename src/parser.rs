@@ -17,29 +17,111 @@ use std::slice;
 use std::str;
 
 enum XmlParserOption {
-  Recover = 1, // Relaxed parsing
-  // XML_PARSE_NODEFDTD = 4, // do not default a doctype if not found
-  Noerror = 32, // suppress error reports
-  Nowarning = 64, // suppress warning reports
-                // XML_PARSE_PEDANTIC = 128, // pedantic error reporting
-                // XML_PARSE_NOBLANKS = 256, // remove blank nodes
-                // XML_PARSE_NONET = 2048, // Forbid network access
-                // XML_PARSE_NOIMPLIED = 8192, // Do not add implied Xml/body... elements
-                // XML_PARSE_COMPACT = 65536, // compact small text nodes
-                // XML_PARSE_IGNORE_ENC = 2097152, // ignore internal document encoding hint
+  Recover = 1,
+  Nodefdtd = 4,
+  Noerror = 32,
+  Nowarning = 64,
+  Pedantic = 128,
+  Noblanks = 256,
+  Nonet = 2048,
+  Noimplied = 8192,
+  Compact = 65_536,
+  Ignoreenc = 2_097_152,
 }
 
 enum HtmlParserOption {
-  Recover = 1, // Relaxed parsing
-  // HTML_PARSE_NODEFDTD = 4, // do not default a doctype if not found
-  Noerror = 32, // suppress error reports
-  Nowarning = 64, // suppress warning reports
-                // HTML_PARSE_PEDANTIC = 128, // pedantic error reporting
-                // HTML_PARSE_NOBLANKS = 256, // remove blank nodes
-                // HTML_PARSE_NONET = 2048, // Forbid network access
-                // HTML_PARSE_NOIMPLIED = 8192, // Do not add implied html/body... elements
-                // HTML_PARSE_COMPACT = 65536, // compact small text nodes
-                // HTML_PARSE_IGNORE_ENC = 2097152, // ignore internal document encoding hint
+  Recover = 1,
+  Nodefdtd = 4,
+  Noerror = 32,
+  Nowarning = 64,
+  Pedantic = 128,
+  Noblanks = 256,
+  Nonet = 2048,
+  Noimplied = 8192,
+  Compact = 65_536,
+  Ignoreenc = 2_097_152,
+}
+
+/// Parser Options
+pub struct ParserOptions<'a> {
+  /// Relaxed parsing
+  pub recover: bool,
+  /// do not default a doctype if not found
+  pub no_def_dtd: bool,
+  /// do not default a doctype if not found
+  pub no_error: bool,
+  /// suppress warning reports
+  pub no_warning: bool,
+  /// pedantic error reporting
+  pub pedantic: bool,
+  /// remove blank nodes
+  pub no_blanks: bool,
+  /// Forbid network access
+  pub no_net: bool,
+  /// Do not add implied html/body... elements
+  pub no_implied: bool,
+  /// compact small text nodes
+  pub compact: bool,
+  /// ignore internal document encoding hint
+  pub ignore_enc: bool,
+  /// manually-specified encoding
+  pub encoding: Option<&'a str>,
+}
+
+
+
+impl<'a> ParserOptions<'a> {
+  pub(crate) fn to_flags(&self, format: &ParseFormat) -> i32 {
+
+    macro_rules! to_option_flag {
+      (
+        $condition:expr => $variant:ident
+      ) => {
+          {
+            if $condition {
+              match format {
+                ParseFormat::HTML => HtmlParserOption::$variant as i32,
+                ParseFormat::XML => XmlParserOption::$variant as i32,
+              }
+            } else {
+              0
+            }
+          }
+      };
+    }
+
+    let flags = 0;
+    let flags = flags + to_option_flag!(self.recover => Recover);
+    let flags = flags + to_option_flag!(self.no_def_dtd => Nodefdtd);
+    let flags = flags + to_option_flag!(self.no_error => Noerror);
+    let flags = flags + to_option_flag!(self.no_warning => Nowarning);
+    let flags = flags + to_option_flag!(self.no_warning => Nowarning);
+    let flags = flags + to_option_flag!(self.pedantic => Pedantic);
+    let flags = flags + to_option_flag!(self.no_blanks => Noblanks);
+    let flags = flags + to_option_flag!(self.no_net => Nonet);
+    let flags = flags + to_option_flag!(self.no_implied => Noimplied);
+    let flags = flags + to_option_flag!(self.compact => Compact);
+    let flags = flags + to_option_flag!(self.ignore_enc => Ignoreenc);
+    flags
+  }
+}
+
+impl<'a> Default for ParserOptions<'a> {
+    fn default() -> Self {
+        ParserOptions {
+          recover: true,
+          no_def_dtd: false,
+          no_error: true,
+          no_warning: true,
+          pedantic: false,
+          no_blanks: false,
+          no_net: false,
+          no_implied: false,
+          compact: false,
+          ignore_enc: false,
+          encoding: None,
+        }
+    }
 }
 
 ///Parser Errors
@@ -151,15 +233,15 @@ impl Parser {
 
   /// Parses the XML/HTML file `filename` to generate a new `Document`
   pub fn parse_file(&self, filename: &str) -> Result<Document, XmlParseError> {
-    self.parse_file_with_encoding(filename, None)
+    self.parse_file_with_options(filename, &ParserOptions::default())
   }
 
-  /// Parses the XML/HTML file `filename` with a manually-specified encoding
+  /// Parses the XML/HTML file `filename` with a manually-specified parser-options
   /// to generate a new `Document`
-  pub fn parse_file_with_encoding(
+  pub fn parse_file_with_options(
     &self,
     filename: &str,
-    encoding: Option<&str>,
+    parser_options: &ParserOptions,
   ) -> Result<Document, XmlParseError> {
     // Create extern C callbacks for to read and close a Rust file through
     // a void pointer.
@@ -171,7 +253,7 @@ impl Parser {
     };
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> = parser_options.encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
@@ -183,11 +265,11 @@ impl Parser {
     unsafe {
       xmlKeepBlanksDefault(1);
     }
+
+    let options = parser_options.to_flags(&self.format);
+    
     match self.format {
       ParseFormat::XML => {
-        let options: i32 = XmlParserOption::Recover as i32
-          + XmlParserOption::Noerror as i32
-          + XmlParserOption::Nowarning as i32;
         unsafe {
           let doc_ptr = xmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
           if doc_ptr.is_null() {
@@ -198,10 +280,6 @@ impl Parser {
         }
       }
       ParseFormat::HTML => {
-        // TODO: Allow user-specified options later on
-        let options: i32 = HtmlParserOption::Recover as i32
-          + HtmlParserOption::Noerror as i32
-          + HtmlParserOption::Nowarning as i32;
         unsafe {
           let doc_ptr = htmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
           if doc_ptr.is_null() {
@@ -216,15 +294,15 @@ impl Parser {
 
   ///Parses the XML/HTML bytes `input` to generate a new `Document`
   pub fn parse_string<Bytes: AsRef<[u8]>>(&self, input: Bytes) -> Result<Document, XmlParseError> {
-    self.parse_string_with_encoding(input, None)
+    self.parse_string_with_options(input, &ParserOptions::default())
   }
 
   ///Parses the XML/HTML bytes `input` with a manually-specified
-  ///encoding to generate a new `Document`
-  pub fn parse_string_with_encoding<Bytes: AsRef<[u8]>>(
+  ///parser-options to generate a new `Document`
+  pub fn parse_string_with_options<Bytes: AsRef<[u8]>>(
     &self,
     input: Bytes,
-    encoding: Option<&str>,
+    parser_options: &ParserOptions,
   ) -> Result<Document, XmlParseError> {
     // Process input bytes.
     let input_bytes = input.as_ref();
@@ -232,7 +310,7 @@ impl Parser {
     let input_len = try_usize_to_i32(input_bytes.len())?;
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> = parser_options.encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
@@ -240,11 +318,11 @@ impl Parser {
 
     // Process url.
     let url_ptr = DEFAULT_URL;
+
+    let options = parser_options.to_flags(&self.format);
+
     match self.format {
       ParseFormat::XML => unsafe {
-        let options: i32 = XmlParserOption::Recover as i32
-          + XmlParserOption::Noerror as i32
-          + XmlParserOption::Nowarning as i32;
         let docptr = xmlReadMemory(input_ptr, input_len, url_ptr, encoding_ptr, options);
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
@@ -253,9 +331,6 @@ impl Parser {
         }
       },
       ParseFormat::HTML => unsafe {
-        let options: i32 = HtmlParserOption::Recover as i32
-          + HtmlParserOption::Noerror as i32
-          + HtmlParserOption::Nowarning as i32;
         let docptr = htmlReadMemory(input_ptr, input_len, url_ptr, encoding_ptr, options);
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
