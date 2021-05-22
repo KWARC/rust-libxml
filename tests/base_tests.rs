@@ -172,11 +172,11 @@ fn html_fragment() {
   let fragment = r#"<figure><a href="tar-flac-subset-compress.svg"><img src="tar-flac-subset-compress.svg" alt="Compression results on incompressible data."></a><figcaption><p>Compression results on incompressible data.</p></figcaption></figure>"#;
 
   let parser = Parser::default_html();
-  let document = parser.parse_string_with_options(&fragment, &ParserOptions { no_def_dtd: true, no_implied: true, ..Default::default()}).unwrap();
+  let document = parser.parse_string_with_options(&fragment, ParserOptions { no_def_dtd: true, no_implied: true, ..Default::default()}).unwrap();
 
   let mut serialized_fragment = document.to_string_with_options(SaveOptions { no_empty_tags: true, as_html: true, ..Default::default() });
   let _added_newline = serialized_fragment.pop(); // remove added '\n'
-  
+
   assert_eq!(fragment, serialized_fragment);
 }
 

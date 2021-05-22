@@ -233,7 +233,7 @@ impl Parser {
 
   /// Parses the XML/HTML file `filename` to generate a new `Document`
   pub fn parse_file(&self, filename: &str) -> Result<Document, XmlParseError> {
-    self.parse_file_with_options(filename, &ParserOptions::default())
+    self.parse_file_with_options(filename, ParserOptions::default())
   }
 
   /// Parses the XML/HTML file `filename` with a manually-specified parser-options
@@ -241,7 +241,7 @@ impl Parser {
   pub fn parse_file_with_options(
     &self,
     filename: &str,
-    parser_options: &ParserOptions,
+    parser_options: ParserOptions,
   ) -> Result<Document, XmlParseError> {
     // Create extern C callbacks for to read and close a Rust file through
     // a void pointer.
@@ -294,7 +294,7 @@ impl Parser {
 
   ///Parses the XML/HTML bytes `input` to generate a new `Document`
   pub fn parse_string<Bytes: AsRef<[u8]>>(&self, input: Bytes) -> Result<Document, XmlParseError> {
-    self.parse_string_with_options(input, &ParserOptions::default())
+    self.parse_string_with_options(input, ParserOptions::default())
   }
 
   ///Parses the XML/HTML bytes `input` with a manually-specified
@@ -302,7 +302,7 @@ impl Parser {
   pub fn parse_string_with_options<Bytes: AsRef<[u8]>>(
     &self,
     input: Bytes,
-    parser_options: &ParserOptions,
+    parser_options: ParserOptions,
   ) -> Result<Document, XmlParseError> {
     // Process input bytes.
     let input_bytes = input.as_ref();
