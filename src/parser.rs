@@ -77,16 +77,14 @@ impl<'a> ParserOptions<'a> {
       (
         $condition:expr => $variant:ident
       ) => {
-          {
-            if $condition {
-              match format {
-                ParseFormat::HTML => HtmlParserOption::$variant as i32,
-                ParseFormat::XML => XmlParserOption::$variant as i32,
-              }
-            } else {
-              0
-            }
+        if $condition {
+          match format {
+            ParseFormat::HTML => HtmlParserOption::$variant as i32,
+            ParseFormat::XML => XmlParserOption::$variant as i32,
           }
+        } else {
+          0
+        }
       };
     }
 
