@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Document","A libxml2 Document"],["SaveOptions","Save Options for Document"]]});

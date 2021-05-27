@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["StructuredError","Wrapper around xmlErrorPtr"]]});

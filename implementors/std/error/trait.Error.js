@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["libxml"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/std/error/trait.Error.html\" title=\"trait std::error::Error\">Error</a> for <a class=\"enum\" href=\"libxml/parser/enum.XmlParseError.html\" title=\"enum libxml::parser::XmlParseError\">XmlParseError</a>","synthetic":false,"types":["libxml::parser::XmlParseError"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

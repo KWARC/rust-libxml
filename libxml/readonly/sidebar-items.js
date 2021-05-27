@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RoNode","Lightweight struct for read-only parallel processing"]]});

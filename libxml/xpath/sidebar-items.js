@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Context","An XPath context"],["Object","Essentially, the result of the evaluation of some xpath expression"]]});
