@@ -1,12 +1,12 @@
 # Change Log
 
-## [0.2.18] (in development)
+## [0.3.1] (in development)
 
-* Change `Parser::parse_file/string_with_encoding` to `Parser::parse_file/string_with_options`. Introduce `ParserOptions` which encapsulates the forced encoding setting together with libxml2s HTML and XML parser options.
+## [0.3.0] 2021-27-05
 
-## [0.2.17] 2021-17-05
+* Change `Parser::parse_file/string_with_encoding` to `Parser::parse_file/string_with_options`. 
 
-### Added
+* Introduce `ParserOptions` which encapsulates the forced encoding setting together with libxml2s HTML and XML parser options.
 
 * For systems without a pkg-config capability, we now use the `LIBXML2` environment variable to detect an installed libxml2 toolchain. (thanks @przygienda !)
 
