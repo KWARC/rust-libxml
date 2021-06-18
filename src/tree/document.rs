@@ -256,7 +256,7 @@ impl Document {
     }
   }
 
-  /// Serializes a `Node` owned by this `Document
+  /// Serializes a `Node` owned by this `Document`
   pub fn node_to_string(&self, node: &Node) -> String {
     unsafe {
       // allocate a buffer to dump into
@@ -278,7 +278,7 @@ impl Document {
       node_string
     }
   }
-  /// Serializes a `RoNode` owned by this `Document
+  /// Serializes a `RoNode` owned by this `Document`
   pub fn ronode_to_string(&self, node: &RoNode) -> String {
     unsafe {
       // allocate a buffer to dump into
