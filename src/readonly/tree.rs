@@ -178,7 +178,7 @@ impl RoNode {
     NodeType::from_int(xmlGetNodeType(self.0))
   }
 
-  /// Returns true iff it is a text node
+  /// Returns true if it is a text node
   pub fn is_text_node(self) -> bool {
     self.get_type() == Some(NodeType::TextNode)
   }
