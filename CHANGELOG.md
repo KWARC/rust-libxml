@@ -2,6 +2,8 @@
 
 ## [0.3.1] (in development)
 
+* Added: Thanks to @lepapareil, @hurlenko and @ballsteve for contributing installation docs for Windows and MacOS.
+
 ## [0.3.0] 2021-27-05
 
 * Change `Parser::parse_file/string_with_encoding` to `Parser::parse_file/string_with_options`. 
