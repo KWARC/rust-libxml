@@ -40,13 +40,8 @@ $ export LIBXML2=/usr/local/Cellar/libxml2/2.9.12/lib/pkgconfig/libxml-2.0.pc
 [Community contributed](https://github.com/KWARC/rust-libxml/issues/81#issuecomment-760364976):
 
 * manually install builds tools c++ and english language by visiting [BuildTools](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16)
-* manually install choco by visiting [its chocolatey page](https://docs.chocolatey.org/en-us/choco/setup)
 * launch cmd prompt with admin privileges and execute these commands sequentially:
 ```
-C:\> choco install -y curl git unxUtils winlibs-llvm-free
-C:\> refreshenv
-C:\> %ChocolateyInstall%\bin\curl --output "c:\rustup-init.exe" "https://static.rust-lang.org/rustup/dist/i686-pc-windows-gnu/rustup-init.exe"
-C:\> c:\rustup-init.exe -y --default-toolchain stable-x86_64-pc-windows-msvc
 C:\> git clone https://github.com/microsoft/vcpkg
 C:\> .\vcpkg\bootstrap-vcpkg.bat
 C:\> setx /M PATH "%PATH%;c:\vcpkg" && setx VCPKGRS_DYNAMIC "1" /M
