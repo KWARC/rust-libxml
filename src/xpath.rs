@@ -259,6 +259,8 @@ pub fn xml_xpath_compiles(xpath: &str) -> bool {
   let c_xpath = CString::new(xpath).unwrap();
     let xml_xpath_comp_expr_ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
     let result = !xml_xpath_comp_expr_ptr.is_null();
-    unsafe { libc::free(xml_xpath_comp_expr_ptr as *mut c_void); }
+    if result {
+      unsafe { libc::free(xml_xpath_comp_expr_ptr as *mut c_void); }
+    }
     result
 }
