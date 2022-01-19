@@ -18,7 +18,7 @@ pub struct Namespace {
 
 impl Namespace {
   /// Creates a new namespace
-  pub fn new(prefix: &str, href: &str, node: &mut Node) -> Result<Self, Box<dyn Error>> {
+  pub fn new(prefix: &str, href: &str, node: &mut Node) -> Result<Self, Box<dyn Error + Send + Sync>> {
     let c_href = CString::new(href).unwrap();
     let c_prefix = CString::new(prefix).unwrap();
     let c_prefix_ptr = if prefix.is_empty() {
