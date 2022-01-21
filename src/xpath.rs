@@ -63,7 +63,7 @@ impl Context {
     } else {
       Ok(Context {
         context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(&docref),
+        document: Rc::downgrade(docref),
       })
     }
   }
@@ -154,23 +154,21 @@ impl Context {
 
   /// find nodes via xpath, at a specified node or the document root
   pub fn findnodes(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<Vec<Node>, ()> {
-    let evaluated;
-    if let Some(node) = node_opt {
-      evaluated = self.node_evaluate(xpath, node)?;
+    let evaluated = if let Some(node) = node_opt {
+      self.node_evaluate(xpath, node)?
     } else {
-      evaluated = self.evaluate(xpath)?;
-    }
+      self.evaluate(xpath)?
+    };
     Ok(evaluated.get_nodes_as_vec())
   }
 
   /// find a literal value via xpath, at a specified node or the document root
   pub fn findvalue(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<String, ()> {
-    let evaluated;
-    if let Some(node) = node_opt {
-      evaluated = self.node_evaluate(xpath, node)?;
+    let evaluated = if let Some(node) = node_opt {
+      self.node_evaluate(xpath, node)?
     } else {
-      evaluated = self.evaluate(xpath)?;
-    }
+      self.evaluate(xpath)?
+    };
     Ok(evaluated.to_string())
   }
 }

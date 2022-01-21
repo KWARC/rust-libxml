@@ -16,7 +16,7 @@ use crate::tree::node::Node;
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 /// Save Options for Document
 pub struct SaveOptions {
   /// format save output
@@ -35,21 +35,6 @@ pub struct SaveOptions {
   pub as_html: bool,
   /// format with non-significant whitespace
   pub non_significant_whitespace: bool,
-}
-
-impl Default for SaveOptions {
-  fn default() -> Self {
-    SaveOptions {
-      format: false,
-      no_declaration: false,
-      no_empty_tags: false,
-      no_xhtml: false,
-      xhtml: false,
-      as_xml: false,
-      as_html: false,
-      non_significant_whitespace: false,
-    }
-  }
 }
 
 #[derive(Debug)]

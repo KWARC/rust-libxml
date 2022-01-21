@@ -18,7 +18,7 @@ impl Schema {
     if raw.is_null() {
       Err(parser.drain_errors())
     } else {
-      Ok(Self { 0: raw })
+      Ok(Self(raw))
     }
   }
 
