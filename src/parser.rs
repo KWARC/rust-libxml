@@ -87,20 +87,18 @@ impl<'a> ParserOptions<'a> {
         }
       };
     }
-
-    let flags = 0;
-    let flags = flags + to_option_flag!(self.recover => Recover);
-    let flags = flags + to_option_flag!(self.no_def_dtd => Nodefdtd);
-    let flags = flags + to_option_flag!(self.no_error => Noerror);
-    let flags = flags + to_option_flag!(self.no_warning => Nowarning);
-    let flags = flags + to_option_flag!(self.no_warning => Nowarning);
-    let flags = flags + to_option_flag!(self.pedantic => Pedantic);
-    let flags = flags + to_option_flag!(self.no_blanks => Noblanks);
-    let flags = flags + to_option_flag!(self.no_net => Nonet);
-    let flags = flags + to_option_flag!(self.no_implied => Noimplied);
-    let flags = flags + to_option_flag!(self.compact => Compact);
-    let flags = flags + to_option_flag!(self.ignore_enc => Ignoreenc);
-    flags
+    // return the combined flags
+    to_option_flag!(self.recover => Recover)
+      + to_option_flag!(self.no_def_dtd => Nodefdtd)
+      + to_option_flag!(self.no_error => Noerror)
+      + to_option_flag!(self.no_warning => Nowarning)
+      + to_option_flag!(self.no_warning => Nowarning)
+      + to_option_flag!(self.pedantic => Pedantic)
+      + to_option_flag!(self.no_blanks => Noblanks)
+      + to_option_flag!(self.no_net => Nonet)
+      + to_option_flag!(self.no_implied => Noimplied)
+      + to_option_flag!(self.compact => Compact)
+      + to_option_flag!(self.ignore_enc => Ignoreenc)
   }
 }
 

@@ -12,7 +12,7 @@ pub struct StructuredError(*mut bindings::_xmlError);
 impl StructuredError {
   /// Wrap around and own a raw xmllib2 error structure
   pub fn from_raw(error: *mut bindings::_xmlError) -> Self {
-    Self { 0: error }
+    Self(error)
   }
 
   /// Human-readable informative error message

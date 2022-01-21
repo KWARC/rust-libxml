@@ -137,7 +137,7 @@ impl Node {
     // If newly encountered pointer, wrap
     let node = _Node {
       node_ptr,
-      document: Rc::downgrade(&document),
+      document: Rc::downgrade(document),
       unlinked,
     };
     let wrapped_node = Node(Rc::new(RefCell::new(node)));
@@ -170,7 +170,7 @@ impl Node {
   }
   /// Create a mock node, used for a placeholder argument
   pub fn mock(doc: &Document) -> Self {
-    Node::new("mock", None, &doc).unwrap()
+    Node::new("mock", None, doc).unwrap()
   }
 
   /// Create a mock node, used for a placeholder argument
@@ -868,7 +868,7 @@ impl Node {
 
   /// find nodes via xpath, at a specified node or the document root
   pub fn findnodes(&self, xpath: &str) -> Result<Vec<Node>, ()> {
-    let mut context = Context::from_node(&self)?;
+    let mut context = Context::from_node(self)?;
     context.findnodes(xpath, Some(self))
   }
 
