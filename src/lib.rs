@@ -4,8 +4,7 @@
 //! Providing a more or less complete wrapper would be too much work.
 #![deny(missing_docs)]
 // Our new methods return Result<Self, _> types
-#![allow(clippy::new_ret_no_self)]
-
+#![allow(clippy::new_ret_no_self, clippy::result_unit_err)]
 /// Bindings to the C interface
 pub mod bindings;
 mod c_helpers;

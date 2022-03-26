@@ -250,15 +250,18 @@ impl fmt::Display for Object {
   }
 }
 
-/// Calls the binding to http://xmlsoft.org/html/libxml-xpath.html#xmlXPathCompile and return true if 
+/// Calls the binding to http://xmlsoft.org/html/libxml-xpath.html#xmlXPathCompile and return true if
 /// a non-null pointer is returned. The idea is to use this to validate an xpath independent of context.
 /// Tests describing what this validates in tests/xpath_tests.rs
-pub fn xml_xpath_compiles(xpath: &str) -> bool {
+pub fn is_well_formed_xpath(xpath: &str) -> bool {
   let c_xpath = CString::new(xpath).unwrap();
-    let xml_xpath_comp_expr_ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
-    let result = !xml_xpath_comp_expr_ptr.is_null();
-    if result {
-      unsafe { libc::free(xml_xpath_comp_expr_ptr as *mut c_void); }
+  let xml_xpath_comp_expr_ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
+  if xml_xpath_comp_expr_ptr.is_null() {
+    false
+  } else {
+    unsafe {
+      libc::free(xml_xpath_comp_expr_ptr as *mut c_void);
     }
-    result
+    true
+  }
 }

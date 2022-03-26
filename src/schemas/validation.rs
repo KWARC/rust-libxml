@@ -14,7 +14,7 @@ use crate::tree::node::Node;
 use crate::error::StructuredError;
 
 use std::ffi::CString;
-use std::os::raw::{c_char};
+use std::os::raw::c_char;
 
 /// Wrapper on xmlSchemaValidCtxt
 pub struct SchemaValidationContext {
