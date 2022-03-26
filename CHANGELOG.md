@@ -3,10 +3,11 @@
 ## [0.3.1] (in development)
 
 * Added: Thanks to @lepapareil, @hurlenko and @ballsteve for contributing installation docs for Windows and MacOS.
+* Added: `Node` and `RoNode` now have `has_property` (alias `has_attribute`) and `has_property_ns` (alias `has_attribute_ns`) to check attribute presence without allocating the value.
 
 ## [0.3.0] 2021-27-05
 
-* Change `Parser::parse_file/string_with_encoding` to `Parser::parse_file/string_with_options`. 
+* Change `Parser::parse_file/string_with_encoding` to `Parser::parse_file/string_with_options`.
 
 * Introduce `ParserOptions` which encapsulates the forced encoding setting together with libxml2s HTML and XML parser options.
 

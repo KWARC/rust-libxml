@@ -83,6 +83,8 @@ fn node_attributes_accessor() {
   assert_eq!(attributes.len(), 1);
   assert_eq!(attributes.get("attribute"), Some(&"value".to_string()));
 
+  // Has
+  assert_eq!(child.has_attribute("attribute"), true);
   // Get
   assert_eq!(child.get_attribute("attribute"), Some("value".to_string()));
   // Get as node
@@ -101,6 +103,7 @@ fn node_attributes_accessor() {
   // Remove
   assert!(child.remove_attribute("attribute").is_ok());
   assert_eq!(child.get_attribute("attribute"), None);
+  assert_eq!(child.has_attribute("attribute"), false);
   // Recount
   let attributes = child.get_attributes();
   assert_eq!(attributes.len(), 0);
@@ -239,10 +242,14 @@ fn can_manage_attributes() {
   let value = "examplevalue";
   let pre_value = hello_element.get_attribute(key);
   assert_eq!(pre_value, None);
+  let pre_prop_check = hello_element.has_property(key);
+  assert_eq!(pre_prop_check, false);
   let pre_prop_value = hello_element.get_property(key);
   assert_eq!(pre_prop_value, None);
 
   assert!(hello_element.set_attribute(key, value).is_ok());
+  let new_check = hello_element.has_attribute(key);
+  assert_eq!(new_check, true);
   let new_value = hello_element.get_attribute(key);
   assert_eq!(new_value, Some(value.to_owned()));
 }
