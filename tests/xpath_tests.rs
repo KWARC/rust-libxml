@@ -193,7 +193,7 @@ fn cleanup_safely_unlinked_xpath_nodes() {
   assert!(true, "Drops went OK.");
 }
 
-/// Tests for the fn xml_xpath_compiles
+/// Tests for checking xpath well-formedness
 mod compile_tests {
   use libxml::xpath::is_well_formed_xpath;
 

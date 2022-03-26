@@ -1,9 +1,12 @@
 # Change Log
 
-## [0.3.1] (in development)
+## [0.3.2] (in development)
+
+## [0.3.1] 2022-26-03
 
 * Added: Thanks to @lepapareil, @hurlenko and @ballsteve for contributing installation docs for Windows and MacOS.
 * Added: `Node` and `RoNode` now have `has_property` (alias `has_attribute`) and `has_property_ns` (alias `has_attribute_ns`) to check attribute presence without allocating the value.
+* Added: `xpath::is_well_formed_xpath`, thanks @bcpeinhardt !
 
 ## [0.3.0] 2021-27-05
 
