@@ -460,6 +460,29 @@ impl Node {
     }
   }
 
+  /// Check if a property has been defined, without allocating its value
+  pub fn has_property(&self, name: &str) -> bool {
+    let c_name = CString::new(name).unwrap();
+    let value_ptr = unsafe { xmlHasProp(self.node_ptr(), c_name.as_bytes().as_ptr()) };
+    !value_ptr.is_null()
+  }
+  /// Check if property `name` in namespace `ns` exists
+  pub fn has_property_ns(&self, name: &str, ns: &str) -> bool {
+    let c_name = CString::new(name).unwrap();
+    let c_ns = CString::new(ns).unwrap();
+    let value_ptr =
+      unsafe { xmlHasNsProp(self.node_ptr(), c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
+    !value_ptr.is_null()
+  }
+  /// Alias for has_property
+  pub fn has_attribute(&self, name: &str) -> bool {
+    self.has_property(name)
+  }
+  /// Alias for has_property_ns
+  pub fn has_attribute_ns(&self, name: &str, ns: &str) -> bool {
+    self.has_property_ns(name, ns)
+  }
+
   /// Sets the value of property `name` to `value`
   pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name).unwrap();
