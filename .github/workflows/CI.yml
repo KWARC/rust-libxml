@@ -1,0 +1,23 @@
+on: [push, pull_request]
+
+name: CI
+
+jobs:
+  test:
+    name: rust-libxml CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        uses: ryankurte/action-apt@v0.2.0
+        with:
+          packages: "libxml2-dev"
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
