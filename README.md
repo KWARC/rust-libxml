@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/KWARC/rust-libxml.png?branch=master)](http://travis-ci.org/KWARC/rust-libxml)
+[![CI](https://github.com/KWARC/rust-libxml/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/KWARC/rust-libxml/actions/workflows/CI.yml)
 [![API Documentation](https://img.shields.io/badge/docs-API-blue.svg)](http://KWARC.github.io/rust-libxml/libxml/index.html)
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/KWARC/rust-libxml/master/LICENSE)
 [![crates.io](https://img.shields.io/crates/v/libxml.svg)](https://crates.io/crates/libxml)
