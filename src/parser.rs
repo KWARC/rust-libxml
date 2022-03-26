@@ -68,11 +68,8 @@ pub struct ParserOptions<'a> {
   pub encoding: Option<&'a str>,
 }
 
-
-
 impl<'a> ParserOptions<'a> {
   pub(crate) fn to_flags(&self, format: &ParseFormat) -> i32 {
-
     macro_rules! to_option_flag {
       (
         $condition:expr => $variant:ident
@@ -103,21 +100,21 @@ impl<'a> ParserOptions<'a> {
 }
 
 impl<'a> Default for ParserOptions<'a> {
-    fn default() -> Self {
-        ParserOptions {
-          recover: true,
-          no_def_dtd: false,
-          no_error: true,
-          no_warning: true,
-          pedantic: false,
-          no_blanks: false,
-          no_net: false,
-          no_implied: false,
-          compact: false,
-          ignore_enc: false,
-          encoding: None,
-        }
+  fn default() -> Self {
+    ParserOptions {
+      recover: true,
+      no_def_dtd: false,
+      no_error: true,
+      no_warning: true,
+      pedantic: false,
+      no_blanks: false,
+      no_net: false,
+      no_implied: false,
+      compact: false,
+      ignore_enc: false,
+      encoding: None,
     }
+  }
 }
 
 ///Parser Errors
@@ -132,22 +129,23 @@ pub enum XmlParseError {
 
 impl Error for XmlParseError {}
 
-impl fmt::Debug for XmlParseError
-{
+impl fmt::Debug for XmlParseError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", self)
   }
 }
 
-
-impl fmt::Display for XmlParseError
-{
+impl fmt::Display for XmlParseError {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", match self {
-      XmlParseError::GotNullPointer   => "Got a Null pointer",
-      XmlParseError::FileOpenError    => "Unable to open path to file.",
-      XmlParseError::DocumentTooLarge => "Document too large for i32.",
-    })
+    write!(
+      f,
+      "{}",
+      match self {
+        XmlParseError::GotNullPointer => "Got a Null pointer",
+        XmlParseError::FileOpenError => "Unable to open path to file.",
+        XmlParseError::DocumentTooLarge => "Document too large for i32.",
+      }
+    )
   }
 }
 
@@ -249,7 +247,8 @@ impl Parser {
     };
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = parser_options.encoding.map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> =
+      parser_options.encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
@@ -263,28 +262,24 @@ impl Parser {
     }
 
     let options = parser_options.to_flags(&self.format);
-    
+
     match self.format {
-      ParseFormat::XML => {
-        unsafe {
-          let doc_ptr = xmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
-          if doc_ptr.is_null() {
-            Err(XmlParseError::GotNullPointer)
-          } else {
-            Ok(Document::new_ptr(doc_ptr))
-          }
+      ParseFormat::XML => unsafe {
+        let doc_ptr = xmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
+        if doc_ptr.is_null() {
+          Err(XmlParseError::GotNullPointer)
+        } else {
+          Ok(Document::new_ptr(doc_ptr))
         }
-      }
-      ParseFormat::HTML => {
-        unsafe {
-          let doc_ptr = htmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
-          if doc_ptr.is_null() {
-            Err(XmlParseError::GotNullPointer)
-          } else {
-            Ok(Document::new_ptr(doc_ptr))
-          }
+      },
+      ParseFormat::HTML => unsafe {
+        let doc_ptr = htmlReadIO(ioread, ioclose, ioctx, url_ptr, encoding_ptr, options);
+        if doc_ptr.is_null() {
+          Err(XmlParseError::GotNullPointer)
+        } else {
+          Ok(Document::new_ptr(doc_ptr))
         }
-      }
+      },
     }
   }
 
@@ -306,7 +301,8 @@ impl Parser {
     let input_len = try_usize_to_i32(input_bytes.len())?;
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = parser_options.encoding.map(|v| CString::new(v).unwrap());
+    let encoding_cstring: Option<CString> =
+      parser_options.encoding.map(|v| CString::new(v).unwrap());
     let encoding_ptr = match encoding_cstring {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,

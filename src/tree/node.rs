@@ -335,7 +335,10 @@ impl Node {
   }
 
   /// Add a previous sibling
-  pub fn add_prev_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn add_prev_sibling(
+    &mut self,
+    new_sibling: &mut Node,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     new_sibling.set_linked();
     unsafe {
       if xmlAddPrevSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
@@ -347,7 +350,10 @@ impl Node {
   }
 
   /// Add a next sibling
-  pub fn add_next_sibling(&mut self, new_sibling: &mut Node) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn add_next_sibling(
+    &mut self,
+    new_sibling: &mut Node,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     new_sibling.set_linked();
     unsafe {
       if xmlAddNextSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
@@ -470,8 +476,13 @@ impl Node {
   pub fn has_property_ns(&self, name: &str, ns: &str) -> bool {
     let c_name = CString::new(name).unwrap();
     let c_ns = CString::new(ns).unwrap();
-    let value_ptr =
-      unsafe { xmlHasNsProp(self.node_ptr(), c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
+    let value_ptr = unsafe {
+      xmlHasNsProp(
+        self.node_ptr(),
+        c_name.as_bytes().as_ptr(),
+        c_ns.as_bytes().as_ptr(),
+      )
+    };
     !value_ptr.is_null()
   }
   /// Alias for has_property
@@ -484,7 +495,11 @@ impl Node {
   }
 
   /// Sets the value of property `name` to `value`
-  pub fn set_property(&mut self, name: &str, value: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn set_property(
+    &mut self,
+    name: &str,
+    value: &str,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name).unwrap();
     let c_value = CString::new(value).unwrap();
     unsafe {
@@ -540,14 +555,18 @@ impl Node {
   }
 
   /// Removes the property of given `name` and namespace (`ns`)
-  pub fn remove_property_ns(&mut self, name: &str, ns: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn remove_property_ns(
+    &mut self,
+    name: &str,
+    ns: &str,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name).unwrap();
     let c_ns = CString::new(ns).unwrap();
     unsafe {
       let attr_node = xmlHasNsProp(
-          self.node_ptr_mut()?,
-          c_name.as_bytes().as_ptr(),
-          c_ns.as_bytes().as_ptr(),
+        self.node_ptr_mut()?,
+        c_name.as_bytes().as_ptr(),
+        c_ns.as_bytes().as_ptr(),
       );
       if !attr_node.is_null() {
         let remove_prop_status = xmlRemoveProp(attr_node);
@@ -582,7 +601,11 @@ impl Node {
   }
 
   /// Alias for set_property
-  pub fn set_attribute(&mut self, name: &str, value: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn set_attribute(
+    &mut self,
+    name: &str,
+    value: &str,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     self.set_property(name, value)
   }
   /// Alias for set_property_ns
@@ -601,7 +624,11 @@ impl Node {
   }
 
   /// Alias for remove_property_ns
-  pub fn remove_attribute_ns(&mut self, name: &str, ns: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn remove_attribute_ns(
+    &mut self,
+    name: &str,
+    ns: &str,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     self.remove_property_ns(name, ns)
   }
 
@@ -691,7 +718,10 @@ impl Node {
   }
 
   /// Sets a `Namespace` for the node
-  pub fn set_namespace(&mut self, namespace: &Namespace) -> Result<(), Box<dyn Error + Send + Sync>> {
+  pub fn set_namespace(
+    &mut self,
+    namespace: &Namespace,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
     unsafe {
       xmlSetNs(self.node_ptr_mut()?, namespace.ns_ptr());
     }
@@ -775,7 +805,11 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
-  pub fn new_child(&mut self, ns: Option<Namespace>, name: &str) -> Result<Node, Box<dyn Error + Send + Sync>> {
+  pub fn new_child(
+    &mut self,
+    ns: Option<Namespace>,
+    name: &str,
+  ) -> Result<Node, Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name).unwrap();
     let ns_ptr = match ns {
       None => ptr::null_mut(),

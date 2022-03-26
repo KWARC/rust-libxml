@@ -145,7 +145,6 @@ impl RoNode {
     }
   }
 
-
   /// Returns all child nodes of the given node as a vector
   pub fn get_child_nodes(self) -> Vec<RoNode> {
     let mut children = Vec::new();

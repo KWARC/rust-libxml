@@ -195,17 +195,17 @@ fn cleanup_safely_unlinked_xpath_nodes() {
 
 /// Tests for the fn xml_xpath_compiles
 mod compile_tests {
-  use libxml::xpath::xml_xpath_compiles;
+  use libxml::xpath::is_well_formed_xpath;
 
   #[test]
   fn can_compile_an_xpath() {
-      let compiles = xml_xpath_compiles("//a");
-      assert_eq!(compiles, true);
+    let compiles = is_well_formed_xpath("//a");
+    assert_eq!(compiles, true);
   }
 
   #[test]
   fn invalid_xpath_does_not_compile() {
-      let compiles = xml_xpath_compiles("//a[but invalid]");
-      assert_eq!(compiles, false);
+    let compiles = is_well_formed_xpath("//a[but invalid]");
+    assert_eq!(compiles, false);
   }
 }
