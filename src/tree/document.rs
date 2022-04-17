@@ -230,7 +230,7 @@ impl Document {
 
       let save_ctx = xmlSaveToBuffer(buf, c_utf8.as_ptr(), xml_options as i32);
       let _size = xmlSaveDoc(save_ctx, self.doc_ptr());
-      let _size = xmlSaveFlush(save_ctx);
+      let _size = xmlSaveClose(save_ctx);
 
       let result = xmlBufferContent(buf);
       let c_string = CStr::from_ptr(result as *const c_char);
