@@ -26,13 +26,54 @@ Before performing the usual cargo build/install steps, you need to have the rele
 On linux systems you'd need the development headers of libxml2 (e.g. `libxml2-dev` in Debian), as well as `pkg-config`.
 
 ### MacOS
-[Community contributed](https://github.com/KWARC/rust-libxml/issues/88#issuecomment-890876895):
+
+With the ability of [custom cargo configuration](https://doc.rust-lang.org/cargo/reference/config.html), we can now override build scripts per project separately without the need of modifying environment variables.
+
+Firstly, install relevant librarys by [homebrew](https://brew.sh/)
 
 ```
-$ brew install libxml2 # e.g. version 2.9.12 
-$ ln -s /usr/local/Cellar/libxml2/2.9.12/lib/libxml2.2.dylib /usr/local/lib/libxml-2.0.dylib
-$ export LIBXML2=/usr/local/Cellar/libxml2/2.9.12/lib/pkgconfig/libxml-2.0.pc
+$ brew install libxml2 # e.g. version 2.9.13 
 ```
+
+Then we can manually [override](https://doc.rust-lang.org/cargo/reference/config.html#targettriplelinks) the path of native library in a **project-level** configuration separately.
+
+* make sure we are in the same folder where `Cargo.toml` located in.
+* create a dir named `.cargo` with a file named `config.toml` in it. 
+* Then add our custom build configuration like below. Also, don't forget to change the target and library paths to yours.
+
+  
+```
+$ cd /path/to/your/project
+$ mkdir .cargo
+$ vim .cargo/config.toml
+$ cat .cargo/config.toml
+[target.YOUR_TARGET.libxml]
+rustc-link-lib = ["xml2"]
+rustc-link-search = ["/path/to/lib"]
+```
+
+Targets may **different** between the archs and operating systems you are using. To figure out which you should use, simply run `rustup target list`, then replace `YOUR_TARGET` by the name of the installed one.
+
+```
+$ rustup target list
+aarch64-apple-darwin (installed)
+aarch64-apple-ios
+aarch64-apple-ios-sim
+aarch64-fuchsia
+aarch64-linux-android
+...
+...
+...
+
+# so we edit config.toml like below:
+$ cat .cargo/config.toml
+[target.aarch64-apple-darwin.libxml]
+rustc-link-lib = ["xml2"]
+rustc-link-search = ["/opt/homebrew/opt/libxml2/lib/"]
+```
+
+
+`rustc-link-search` indicates the path where compiler would try to find native library in. It should be set according to your own environment.
 
 ### Windows
 
@@ -48,3 +89,5 @@ C:\> refreshenv
 C:\> vcpkg install libxml2:x64-windows
 C:\> vcpkg integrate install
 ```
+
+If you encounter any errors in the build script(`build.rs`), just do the same steps to manually set the path in section `MacOS` above 

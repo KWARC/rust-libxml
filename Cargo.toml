@@ -9,13 +9,11 @@ documentation = "http://kwarc.github.io/rust-libxml/libxml/index.html"
 readme = "README.md"
 license = "MIT"
 keywords = ["xml", "libxml","xpath", "parser", "html"]
+links = "libxml"
 build = "build.rs"
 exclude = [
   "scripts/*"
 ]
-
-[lib]
-name = "libxml"
 
 [dependencies]
 libc = "0.2"
