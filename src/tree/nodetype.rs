@@ -2,7 +2,7 @@
 //!
 
 /// Types of xml nodes
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub enum NodeType {
   ElementNode,
