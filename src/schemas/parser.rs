@@ -73,7 +73,7 @@ impl SchemaParserContext {
 /// Private Interface
 impl SchemaParserContext {
   fn from_raw(parser: *mut bindings::_xmlSchemaParserCtxt) -> Self {
-    let errors: Box<Vec<StructuredError>> = Box::new(Vec::new());
+    let errors: Box<Vec<StructuredError>> = Box::default();
 
     unsafe {
       let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);

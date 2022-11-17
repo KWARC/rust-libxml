@@ -196,7 +196,7 @@ fn try_usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
   }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 /// Enum for the parse formats supported by libxml2
 pub enum ParseFormat {
   /// Strict parsing for XML

@@ -95,7 +95,7 @@ impl SchemaValidationContext {
 /// Private Interface
 impl SchemaValidationContext {
   fn from_raw(ctx: *mut bindings::_xmlSchemaValidCtxt, schema: Schema) -> Self {
-    let errors: Box<Vec<StructuredError>> = Box::new(Vec::new());
+    let errors: Box<Vec<StructuredError>> = Box::default();
 
     unsafe {
       let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
