@@ -193,6 +193,29 @@ fn cleanup_safely_unlinked_xpath_nodes() {
   assert!(true, "Drops went OK.");
 }
 
+#[test]
+fn xpath_find_string_values() {
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/ids.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+  let mut xpath = libxml::xpath::Context::new(&doc).unwrap();
+  if let Some(root) = doc.get_root_element() {
+    let tests = root.get_child_elements();
+    let empty_test = &tests[0];
+    let ids_test = &tests[1];
+    let empty_values = xpath.findvalues(".//@xml:id", Some(empty_test));
+    assert_eq!(empty_values, Ok(Vec::new()));
+    let ids_values = xpath.findvalues(".//@xml:id", Some(ids_test));
+    let expected_ids = Ok(vec![String::from("start"),String::from("mid"),String::from("end")]);
+    assert_eq!(ids_values, expected_ids);
+    let node_ids_values = ids_test.findvalues(".//@xml:id");
+    assert_eq!(node_ids_values, expected_ids);
+  } else {
+    panic!("Document fails to obtain root!");
+  }
+}
+
 /// Tests for checking xpath well-formedness
 mod compile_tests {
   use libxml::xpath::is_well_formed_xpath;

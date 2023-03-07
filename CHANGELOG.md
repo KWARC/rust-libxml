@@ -1,6 +1,14 @@
 # Change Log
 
-## [0.3.2] (in development)
+## [0.3.3] (in development)
+
+## [0.3.2] 2023-07-05
+
+### Added
+
+* XPath: `Context::findvalues`, with optional node-bound evaluation, obtaining `String` values.
+
+* `Node::findvalues` method for direct XPath search obtaining `String` values, without first explicitly instantiating a `Context`. Reusing a `Context` remains more efficient.
 
 ## [0.3.1] 2022-26-03
 
