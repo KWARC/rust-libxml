@@ -162,6 +162,16 @@ impl Context {
     Ok(evaluated.get_nodes_as_vec())
   }
 
+  /// find literal values via xpath, at a specified node or the document root
+  pub fn findvalues(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<Vec<String>, ()> {
+    let evaluated = if let Some(node) = node_opt {
+      self.node_evaluate(xpath, node)?
+    } else {
+      self.evaluate(xpath)?
+    };
+    Ok(evaluated.get_nodes_as_str())
+  }
+
   /// find a literal value via xpath, at a specified node or the document root
   pub fn findvalue(&mut self, xpath: &str, node_opt: Option<&Node>) -> Result<String, ()> {
     let evaluated = if let Some(node) = node_opt {
@@ -199,7 +209,7 @@ impl Object {
     v as usize
   }
 
-  /// returns the result set as a vector of node references
+  /// returns the result set as a vector of `Node` objects
   pub fn get_nodes_as_vec(&self) -> Vec<Node> {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<Node> = Vec::with_capacity(n);
@@ -218,7 +228,7 @@ impl Object {
     vec
   }
 
-  /// returns the result set as a vector of node references
+  /// returns the result set as a vector of `RoNode` objects
   pub fn get_readonly_nodes_as_vec(&self) -> Vec<RoNode> {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<RoNode> = Vec::with_capacity(n);
@@ -235,6 +245,31 @@ impl Object {
     }
     vec
   }
+
+  /// returns the result set as a vector of Strings
+  pub fn get_nodes_as_str(&self) -> Vec<String> {
+    let n = self.get_number_of_nodes();
+    let mut vec: Vec<String> = Vec::with_capacity(n);
+    let slice = if n > 0 {
+      xmlXPathObjectGetNodes(self.ptr, n as size_t)
+    } else {
+      Vec::new()
+    };
+    for ptr in slice {
+      if ptr.is_null() {
+        panic!("rust-libxml: xpath: found null pointer result set");
+      }
+      let value_ptr = unsafe { xmlXPathCastNodeToString(ptr) };
+      let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
+      let ready_str = c_value_string.to_string_lossy().into_owned();
+      unsafe {
+        libc::free(value_ptr as *mut c_void);
+      }
+      vec.push(ready_str);
+    }
+    vec
+  }
+
 }
 
 impl fmt::Display for Object {

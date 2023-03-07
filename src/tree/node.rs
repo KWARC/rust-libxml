@@ -929,6 +929,12 @@ impl Node {
     context.findnodes(xpath, Some(self))
   }
 
+  /// find String values via xpath, at a specified node or the document root
+  pub fn findvalues(&self, xpath: &str) -> Result<Vec<String>, ()> {
+    let mut context = Context::from_node(self)?;
+    context.findvalues(xpath, Some(self))
+  }
+
   /// replace a `self`'s `old` child node with a `new` node in the same position
   /// borrowed from Perl's XML::LibXML
   pub fn replace_child_node(
