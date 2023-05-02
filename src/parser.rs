@@ -89,7 +89,6 @@ impl<'a> ParserOptions<'a> {
       + to_option_flag!(self.no_def_dtd => Nodefdtd)
       + to_option_flag!(self.no_error => Noerror)
       + to_option_flag!(self.no_warning => Nowarning)
-      + to_option_flag!(self.no_warning => Nowarning)
       + to_option_flag!(self.pedantic => Pedantic)
       + to_option_flag!(self.no_blanks => Noblanks)
       + to_option_flag!(self.no_net => Nonet)
