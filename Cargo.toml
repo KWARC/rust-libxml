@@ -31,7 +31,7 @@ pkg-config = "0.3.2"
 
 [dev-dependencies]
 rayon = "1.0.0"
-criterion = "0.4.0"
+criterion = "0.5.0"
 
 [[bench]]
 name = "parsing_benchmarks"
