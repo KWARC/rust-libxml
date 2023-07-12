@@ -10,6 +10,11 @@ use crate::tree::document::Document;
 use std::ffi::CString;
 use std::os::raw::c_char;
 
+/*
+TODO:
+- Can we replace the usage of transmute with Box::into_row and Box::from_raw?
+*/
+
 /// Wrapper on xmlSchemaParserCtxt
 pub struct SchemaParserContext {
   inner: *mut bindings::_xmlSchemaParserCtxt,

@@ -6,7 +6,7 @@ use libxml::schemas::SchemaValidationContext;
 
 use libxml::parser::Parser;
 
-static SCHEMA: &'static str = r#"<?xml version="1.0"?>
+static NOTE_SCHEMA: &'static str = r#"<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="note">
     <xs:complexType>
@@ -21,7 +21,28 @@ static SCHEMA: &'static str = r#"<?xml version="1.0"?>
 </xs:schema>
 "#;
 
-static XML: &'static str = r#"<?xml version="1.0"?>
+static STOCK_SCHEMA: &'static str = r#"<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="stock">
+    <xs:complexType>
+      <xs:sequence maxOccurs="unbounded">
+        <xs:element name="sample">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="date" type="xs:date"/>
+              <xs:element name="price" type="xs:float"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="ticker" type="xs:string" use="required"/>
+      <xs:attribute name="exchange" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+"#;
+
+static VALID_NOTE_XML: &'static str = r#"<?xml version="1.0"?>
 <note>
   <to>Tove</to>
   <from>Jani</from>
@@ -30,7 +51,7 @@ static XML: &'static str = r#"<?xml version="1.0"?>
 </note>
 "#;
 
-static INVALID_XML: &'static str = r#"<?xml version="1.0"?>
+static INVALID_NOTE_XML: &'static str = r#"<?xml version="1.0"?>
 <note>
   <bad>Tove</bad>
   <another>Jani</another>
@@ -39,13 +60,30 @@ static INVALID_XML: &'static str = r#"<?xml version="1.0"?>
 </note>
 "#;
 
+static INVALID_STOCK_XML: &'static str = r#"<?xml version="1.0"?>
+<stock junkAttribute="foo">
+  <sample>
+    <date>2014-01-01</date>
+    <price>NOT A NUMBER</price>
+  </sample>
+  <sample>
+    <date>2014-01-02</date>
+    <price>540.98</price>
+  </sample>
+  <sample>
+    <date>NOT A DATE</date>
+    <price>543.93</price>
+  </sample>
+</stock
+"#;
+
 #[test]
 fn schema_from_string() {
   let xml = Parser::default()
-    .parse_string(XML)
+    .parse_string(VALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(SCHEMA);
+  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -73,10 +111,10 @@ fn schema_from_string() {
 #[test]
 fn schema_from_string_generates_errors() {
   let xml = Parser::default()
-    .parse_string(INVALID_XML)
+    .parse_string(INVALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(SCHEMA);
+  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -96,6 +134,39 @@ fn schema_from_string_generates_errors() {
           err.message()
         );
       }
+    }
+  }
+}
+
+#[test]
+fn schema_from_string_reports_unique_errors() {
+  let xml = Parser::default()
+    .parse_string(INVALID_STOCK_XML)
+    .expect("Expected to be able to parse XML Document from string");
+  
+  let mut xsdparser = SchemaParserContext::from_buffer(STOCK_SCHEMA);
+  let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
+
+  if let Err(errors) = xsd {
+    for err in &errors {
+      println!("{}", err.message());
+    }
+
+    panic!("Failed to parse schema");
+  }
+
+  let mut xsdvalidator = xsd.unwrap();
+  if let Err(errors) = xsdvalidator.validate_document(&xml) {
+    assert_eq!(errors.len(), 5);
+    let expected_errors = vec![
+      "Element 'stock', attribute 'junkAttribute': The attribute 'junkAttribute' is not allowed.\n",
+      "Element 'stock': The attribute 'ticker' is required but missing.\n",
+      "Element 'stock': The attribute 'exchange' is required but missing.\n",
+      "Element 'price': 'NOT A NUMBER' is not a valid value of the atomic type 'xs:float'.\n",
+      "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n"
+    ];
+    for err_msg in expected_errors {
+      assert!(errors.iter().any(|err| err.message() == err_msg), "Expected error message {} was not found", err_msg);
     }
   }
 }
