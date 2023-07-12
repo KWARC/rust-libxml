@@ -16,6 +16,11 @@ use crate::error::StructuredError;
 use std::ffi::CString;
 use std::os::raw::c_char;
 
+/*
+TODO:
+- Can we replace the usage of transmute with Box::into_row and Box::from_raw?
+*/
+
 /// Wrapper on xmlSchemaValidCtxt
 pub struct SchemaValidationContext {
   ctxt: *mut bindings::_xmlSchemaValidCtxt,
