@@ -88,7 +88,7 @@ fn schema_from_string() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message());
+      println!("{}", err.message.as_ref().unwrap());
     }
 
     panic!("Failed to parse schema");
@@ -100,7 +100,7 @@ fn schema_from_string() {
   for _ in 0..5 {
     if let Err(errors) = xsdvalidator.validate_document(&xml) {
       for err in &errors {
-        println!("{}", err.message());
+        println!("{}", err.message.as_ref().unwrap());
       }
 
       panic!("Invalid XML accoding to XSD schema");
@@ -119,7 +119,7 @@ fn schema_from_string_generates_errors() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message());
+      println!("{}", err.message.as_ref().unwrap());
     }
 
     panic!("Failed to parse schema");
@@ -131,7 +131,7 @@ fn schema_from_string_generates_errors() {
       for err in &errors {
         assert_eq!(
           "Element 'bad': This element is not expected. Expected is ( to ).\n",
-          err.message()
+          err.message.as_ref().unwrap()
         );
       }
     }
@@ -149,7 +149,7 @@ fn schema_from_string_reports_unique_errors() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message());
+      println!("{}", err.message.as_ref().unwrap());
     }
 
     panic!("Failed to parse schema");
@@ -166,7 +166,7 @@ fn schema_from_string_reports_unique_errors() {
       "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n"
     ];
     for err_msg in expected_errors {
-      assert!(errors.iter().any(|err| err.message() == err_msg), "Expected error message {} was not found", err_msg);
+      assert!(errors.iter().any(|err| err.message.as_ref().unwrap() == err_msg), "Expected error message {} was not found", err_msg);
     }
   }
 }

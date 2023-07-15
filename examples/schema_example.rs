@@ -16,7 +16,7 @@ fn main() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message());
+      println!("{}", err.message.as_ref().unwrap());
     }
 
     panic!("Failed to parse schema");
@@ -26,7 +26,7 @@ fn main() {
 
   if let Err(errors) = xsd.validate_document(&xml) {
     for err in &errors {
-      println!("{}", err.message());
+      println!("{}", err.message.as_ref().unwrap());
     }
 
     panic!("Invalid XML accoding to XSD schema");
