@@ -3,60 +3,97 @@
 //!
 use super::bindings;
 
-use std::ffi::CStr;
+use std::ffi::{c_char, c_int, CStr};
 
-/*
-TODO:
-The reason that the validation errors are duplicated is because libxml mutates
-the same memory location for each error. This means that every StructuredError
-object is actually wrapping the same pointer, and so every StructuredError ends
-up with the contents of the last error that was generated.
-
-My tentative plan is to rewrite StructuredError so that it contains all the same
-fields as libxml's xmlError struct, and update the plumbing so that the errors
-are copied into a new StructuredError object for each error that is generated.
-
-After rummaging around in the libxml source code, I don't think we need to be calling
-xmlResetError, at least in the new version where we'll be copying the data out into
-a normal Rust struct.
-
-In error.c, the __xmlRaiseError function appears to be what ultimately calls the
-structured error handler (defined in schema/common, in this crate). __xmlRaiseError
-does not allocate any new memory for the error it reports. Instead, it refers to a
-a global: `xmlLastError`. In a threaded context, `xmlLastError` is buried inside
-a "global state" struct that is unique per thread. Otherwise, xmlLastError is file
-level variable that is globally shared through macro magic I don't quite grasp.
-
-Point being, I don't think we need to call resetError as part of a Drop impl.
-Even in a threaded context I don't think it'd make a difference, because internally
-it calls memset instead of free, so it doesn't release any memory to the system.
-*/
-
-/// Wrapper around xmlErrorPtr
+/// Rust enum variant of libxml2's xmlErrorLevel
 #[derive(Debug)]
-pub struct StructuredError(*mut bindings::_xmlError);
+pub enum XmlErrorLevel {
+  /// No error
+  None,
+  /// A simple warning
+  Warning,
+  /// A recoverable error
+  Error,
+  /// A fatal error
+  Fatal,
+}
 
-impl StructuredError {
-  /// Wrap around and own a raw xmllib2 error structure
-  pub fn from_raw(error: *mut bindings::_xmlError) -> Self {
-    Self(error)
-  }
-
-  /// Human-readable informative error message
-  pub fn message(&self) -> &str {
-    let msg = unsafe { CStr::from_ptr((*self.0).message) };
-
-    msg.to_str().unwrap()
-  }
-
-  /// Return a raw pointer to the underlying xmlError structure
-  pub fn as_ptr(&self) -> *const bindings::_xmlError {
-    self.0 // we loose the *mut since we own it
+impl XmlErrorLevel {
+  /// Convert an xmlErrorLevel provided by libxml2 (as an integer) into a Rust enum
+  pub fn from_raw(error_level: bindings::xmlErrorLevel) -> XmlErrorLevel {
+    match error_level {
+      bindings::xmlErrorLevel_XML_ERR_NONE => XmlErrorLevel::None,
+      bindings::xmlErrorLevel_XML_ERR_WARNING => XmlErrorLevel::Warning,
+      bindings::xmlErrorLevel_XML_ERR_ERROR => XmlErrorLevel::Error,
+      bindings::xmlErrorLevel_XML_ERR_FATAL => XmlErrorLevel::Fatal,
+      _ => XmlErrorLevel::None, // TODO: What is the right fallback here?
+    }
   }
 }
 
-impl Drop for StructuredError {
-  fn drop(&mut self) {
-    unsafe { bindings::xmlResetError(self.0) }
+/// Wrapper around xmlErrorPtr.
+/// Some fields have been omitted for simplicity/safety
+#[derive(Debug)]
+pub struct StructuredError {
+  /// Human-friendly error message, lossily converted into UTF-8 from the underlying
+  /// C string. May be `None` if an error message is not provided by libxml2.
+  pub message: Option<String>,
+  /// The error's level
+  pub level: XmlErrorLevel,
+  /// The filename, lossily converted into UTF-8 from the underlying C string.
+  /// May be `None` if a filename is not provided by libxml2, such as when validating
+  /// an XML document stored entirely in memory.
+  pub filename: Option<String>,
+  /// The linenumber, or None if not applicable.
+  pub line: Option<c_int>,
+  /// The column where the error is present, or None if not applicable.
+  pub col: Option<c_int>,
+
+  /// The module that the error came from. See libxml's xmlErrorDomain enum.
+  pub domain: c_int,
+  /// The variety of error. See libxml's xmlParserErrors enum.
+  pub code: c_int,
+}
+
+impl StructuredError {
+  /// Copies the error information stored at `error_ptr` into a new `StructuredError`
+  pub fn from_raw(error_ptr: *mut bindings::_xmlError) -> Self {
+    unsafe {
+      let error = *error_ptr;
+      let message = StructuredError::convert_to_owned(error.message);
+      let level = XmlErrorLevel::from_raw(error.level);
+      let filename = StructuredError::convert_to_owned(error.file);
+
+      let line = if error.line == 0 {
+        None
+      } else {
+        Some(error.line)
+      };
+      let col = if error.int2 == 0 {
+        None
+      } else {
+        Some(error.int2)
+      };
+
+      StructuredError {
+        message,
+        level,
+        filename,
+        line,
+        col,
+        domain: error.domain,
+        code: error.code,
+      }
+    }
+  }
+
+  /// Returns the provided c_str as Some(String), or None if the provided pointer is null.
+  unsafe fn convert_to_owned(c_str: *mut c_char) -> Option<String> {
+    if c_str.is_null() {
+      return None;
+    }
+
+    let raw_str = CStr::from_ptr(c_str);
+    Some(String::from_utf8_lossy(raw_str.to_bytes()).to_string())
   }
 }
