@@ -156,17 +156,19 @@ fn schema_from_string_reports_unique_errors() {
   }
 
   let mut xsdvalidator = xsd.unwrap();
-  if let Err(errors) = xsdvalidator.validate_document(&xml) {
-    assert_eq!(errors.len(), 5);
-    let expected_errors = vec![
-      "Element 'stock', attribute 'junkAttribute': The attribute 'junkAttribute' is not allowed.\n",
-      "Element 'stock': The attribute 'ticker' is required but missing.\n",
-      "Element 'stock': The attribute 'exchange' is required but missing.\n",
-      "Element 'price': 'NOT A NUMBER' is not a valid value of the atomic type 'xs:float'.\n",
-      "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n"
-    ];
-    for err_msg in expected_errors {
-      assert!(errors.iter().any(|err| err.message.as_ref().unwrap() == err_msg), "Expected error message {} was not found", err_msg);
+  for _ in 0..5 {
+    if let Err(errors) = xsdvalidator.validate_document(&xml) {
+      assert_eq!(errors.len(), 5);
+      let expected_errors = vec![
+        "Element 'stock', attribute 'junkAttribute': The attribute 'junkAttribute' is not allowed.\n",
+        "Element 'stock': The attribute 'ticker' is required but missing.\n",
+        "Element 'stock': The attribute 'exchange' is required but missing.\n",
+        "Element 'price': 'NOT A NUMBER' is not a valid value of the atomic type 'xs:float'.\n",
+        "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n"
+      ];
+      for err_msg in expected_errors {
+        assert!(errors.iter().any(|err| err.message.as_ref().unwrap() == err_msg), "Expected error message {} was not found", err_msg);
+      }
     }
   }
 }
