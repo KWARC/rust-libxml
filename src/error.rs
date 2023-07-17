@@ -26,7 +26,7 @@ impl XmlErrorLevel {
       bindings::xmlErrorLevel_XML_ERR_WARNING => XmlErrorLevel::Warning,
       bindings::xmlErrorLevel_XML_ERR_ERROR => XmlErrorLevel::Error,
       bindings::xmlErrorLevel_XML_ERR_FATAL => XmlErrorLevel::Fatal,
-      _ => XmlErrorLevel::None, // TODO: What is the right fallback here?
+      _ => unreachable!("Should never receive an error level not in the range 0..=3"),
     }
   }
 }
@@ -57,43 +57,62 @@ pub struct StructuredError {
 
 impl StructuredError {
   /// Copies the error information stored at `error_ptr` into a new `StructuredError`
-  pub fn from_raw(error_ptr: *mut bindings::_xmlError) -> Self {
-    unsafe {
-      let error = *error_ptr;
-      let message = StructuredError::convert_to_owned(error.message);
-      let level = XmlErrorLevel::from_raw(error.level);
-      let filename = StructuredError::convert_to_owned(error.file);
+  /// 
+  /// # Safety
+  /// This function must be given a pointer to a valid `xmlError` struct. Typically, you
+  /// will acquire such a pointer by implementing one of a number of callbacks
+  /// defined in libXml which are provided an `xmlError` as an argument.
+  /// 
+  /// This function copies data from the memory `error_ptr` but does not deallocate
+  /// the error. Depending on the context in which this function is used, you may
+  /// need to take additional steps to avoid a memory leak.
+  pub unsafe fn from_raw(error_ptr: *mut bindings::xmlError) -> Self {
+    let error = *error_ptr;
+    let message = StructuredError::ptr_to_string(error.message);
+    let level = XmlErrorLevel::from_raw(error.level);
+    let filename = StructuredError::ptr_to_string(error.file);
 
-      let line = if error.line == 0 {
-        None
-      } else {
-        Some(error.line)
-      };
-      let col = if error.int2 == 0 {
-        None
-      } else {
-        Some(error.int2)
-      };
+    let line = if error.line == 0 {
+      None
+    } else {
+      Some(error.line)
+    };
+    let col = if error.int2 == 0 {
+      None
+    } else {
+      Some(error.int2)
+    };
 
-      StructuredError {
-        message,
-        level,
-        filename,
-        line,
-        col,
-        domain: error.domain,
-        code: error.code,
-      }
+    StructuredError {
+      message,
+      level,
+      filename,
+      line,
+      col,
+      domain: error.domain,
+      code: error.code,
     }
   }
 
+  /// Human-readable informative error message.
+  /// 
+  /// This function is a hold-over from the original bindings to libxml's error
+  /// reporting mechanism. Instead of calling this method, you can access the 
+  /// StructuredError `message` field directly.
+  #[deprecated(since="0.3.3", note="Please use the `message` field directly instead.")]
+  pub fn message(&self) -> String {
+    self.message
+      .clone()
+      .unwrap_or("".to_string())
+  }
+
   /// Returns the provided c_str as Some(String), or None if the provided pointer is null.
-  unsafe fn convert_to_owned(c_str: *mut c_char) -> Option<String> {
+  fn ptr_to_string(c_str: *mut c_char) -> Option<String> {
     if c_str.is_null() {
       return None;
     }
 
-    let raw_str = CStr::from_ptr(c_str);
+    let raw_str = unsafe { CStr::from_ptr(c_str) };
     Some(String::from_utf8_lossy(raw_str.to_bytes()).to_string())
   }
 }
