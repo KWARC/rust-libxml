@@ -1,10 +1,13 @@
 # Change Log
 
-## [0.3.3] (in development)
+## [0.3.4] (in development)
+
+## [0.3.3] 2023-17-07
 
 ### Changed
 
-* Update the implementation of StructuredError so that all validation errors are returned from the validation methods present on `SchemaValidationContext`. Previously, all returned validation errors were identical due to libxml reusing a global memory address for all reported errors.
+* Update the implementation of `StructuredError` so that all validation errors are returned from the validation methods present on `SchemaValidationContext`. Previously, all returned validation errors were identical due to libxml reusing a global memory address for all reported errors. Thanks @JDSeiler !
+* The `message` method of `StructuredError` has been deprecated.
 
 ## [0.3.2] 2023-07-05
 
