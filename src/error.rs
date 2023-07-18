@@ -101,7 +101,7 @@ impl StructuredError {
   /// StructuredError `message` field directly.
   #[deprecated(since="0.3.3", note="Please use the `message` field directly instead.")]
   pub fn message(&self) -> &str {
-    self.message.as_ref().unwrap().as_str()
+    self.message.as_deref().unwrap_or("")
   }
 
   /// Returns the provided c_str as Some(String), or None if the provided pointer is null.
