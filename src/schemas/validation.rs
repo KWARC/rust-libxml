@@ -83,7 +83,7 @@ impl SchemaValidationContext {
   pub fn drain_errors(&mut self) -> Vec<StructuredError> {
     assert!(!self.errlog.is_null());
     let errors = unsafe { &mut *self.errlog };
-    errors.drain(0..).collect()
+    std::mem::take(errors)
   }
 
   /// Return a raw pointer to the underlying xmlSchemaValidCtxt structure
