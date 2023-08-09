@@ -26,6 +26,7 @@ enum XmlParserOption {
   Nonet = 2048,
   Noimplied = 8192,
   Compact = 65_536,
+  Huge = 524_288,
   Ignoreenc = 2_097_152,
 }
 
@@ -38,6 +39,7 @@ enum HtmlParserOption {
   Noblanks = 256,
   Nonet = 2048,
   Noimplied = 8192,
+  Huge = 524_288,
   Compact = 65_536,
   Ignoreenc = 2_097_152,
 }
@@ -60,6 +62,8 @@ pub struct ParserOptions<'a> {
   pub no_net: bool,
   /// Do not add implied html/body... elements
   pub no_implied: bool,
+  /// relax any hardcoded limit from the parser
+  pub huge: bool,
   /// compact small text nodes
   pub compact: bool,
   /// ignore internal document encoding hint
@@ -93,6 +97,7 @@ impl<'a> ParserOptions<'a> {
       + to_option_flag!(self.no_blanks => Noblanks)
       + to_option_flag!(self.no_net => Nonet)
       + to_option_flag!(self.no_implied => Noimplied)
+      + to_option_flag!(self.huge => Huge)
       + to_option_flag!(self.compact => Compact)
       + to_option_flag!(self.ignore_enc => Ignoreenc)
   }
@@ -109,6 +114,7 @@ impl<'a> Default for ParserOptions<'a> {
       no_blanks: false,
       no_net: false,
       no_implied: false,
+      huge: false,
       compact: false,
       ignore_enc: false,
       encoding: None,
