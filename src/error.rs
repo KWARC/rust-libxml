@@ -94,32 +94,35 @@ impl StructuredError {
     }
   }
 
-  // pub fn new(message: &str, level: XmlErrorLevel) -> Self {
-  //   StructuredError {
-  //     message: Some(message.into()),
-  //     level,
-  //     filename,
-  //     line,
-  //     col,
-  //     domain: error.domain,
-  //     code: error.code,
-  //   }
-  // }
-
-  /// TODO: doc
-  pub fn null_ptr() -> Self {
+  /// Creates a custom `StructuredError`to report unexpected 0-byte when attempting to convert `Vec<u8>` to `CString`
+  pub fn cstring_error(position: usize) -> Self {
     StructuredError {
-      message: Some("Failed to create validation context from XML schema".into()),
+      message: Some(
+        format!("Path contained an unexpected null-terminator at position {position}. String must not contain any 0-bytes."),
+      ),
       level: XmlErrorLevel::Fatal,
       filename: None,
       line: None,
       col: None,
-      domain: 0, /* TODO: check codes */
-      code: 0,
+      domain: 0,
+      code: -1,
     }
   }
 
-  /// TODO: doc
+  /// Creates a custom `StructuredError`to report an invalid pointer-reference
+  pub fn null_ptr() -> Self {
+    StructuredError {
+      message: Some("Could not create context due to an unexpected null-reference.".into()),
+      level: XmlErrorLevel::Fatal,
+      filename: None,
+      line: None,
+      col: None,
+      domain: 0,
+      code: -1,
+    }
+  }
+
+  /// Wraps the `libxml2` internal error (exit-code `-1`) in a `StructuredError`
   pub fn internal() -> Self {
     StructuredError {
       message: Some("Failed to validate file due to internal error".into()),
@@ -127,8 +130,8 @@ impl StructuredError {
       filename: None,
       line: None,
       col: None,
-      domain: 0, /* TODO: check codes */
-      code: 0,
+      domain: 0,
+      code: -1,
     }
   }
 

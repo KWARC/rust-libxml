@@ -18,18 +18,18 @@ pub struct SchemaParserContext {
 
 impl SchemaParserContext {
   /// Create a schema parsing context from a Document object
-  pub fn from_document(doc: &Document) -> Self {
+  pub fn from_document(doc: &Document) -> Result<Self, StructuredError> {
     let parser = unsafe { bindings::xmlSchemaNewDocParserCtxt(doc.doc_ptr()) };
 
     if parser.is_null() {
-      panic!("Failed to create schema parser context from XmlDocument"); // TODO error handling
+      return Err(StructuredError::null_ptr());
     }
 
-    Self::from_raw(parser)
+    Ok(Self::from_raw(parser))
   }
 
   /// Create a schema parsing context from a buffer in memory
-  pub fn from_buffer<Bytes: AsRef<[u8]>>(buff: Bytes) -> Self {
+  pub fn from_buffer<Bytes: AsRef<[u8]>>(buff: Bytes) -> Result<Self, StructuredError> {
     let buff_bytes = buff.as_ref();
     let buff_ptr = buff_bytes.as_ptr() as *const c_char;
     let buff_len = buff_bytes.len() as i32;
@@ -37,24 +37,25 @@ impl SchemaParserContext {
     let parser = unsafe { bindings::xmlSchemaNewMemParserCtxt(buff_ptr, buff_len) };
 
     if parser.is_null() {
-      panic!("Failed to create schema parser context from buffer"); // TODO error handling
+      return Err(StructuredError::null_ptr());
     }
 
-    Self::from_raw(parser)
+    Ok(Self::from_raw(parser))
   }
 
   /// Create a schema parsing context from an URL
-  pub fn from_file(path: &str) -> Self {
-    let path = CString::new(path).unwrap(); // TODO error handling for \0 containing strings
+  pub fn from_file(path: &str) -> Result<Self, StructuredError> {
+    let path =
+      CString::new(path).map_err(|err| StructuredError::cstring_error(err.nul_position()))?;
     let path_ptr = path.as_bytes_with_nul().as_ptr() as *const c_char;
 
     let parser = unsafe { bindings::xmlSchemaNewParserCtxt(path_ptr) };
 
     if parser.is_null() {
-      panic!("Failed to create schema parser context from path"); // TODO error handling
+      return Err(StructuredError::null_ptr());
     }
 
-    Self::from_raw(parser)
+    Ok(Self::from_raw(parser))
   }
 
   /// Drains error log from errors that might have accumulated while parsing schema

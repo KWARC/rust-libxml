@@ -56,7 +56,8 @@ impl SchemaValidationContext {
 
   /// Validates a given file from path for its compliance with the loaded XSD schema definition
   pub fn validate_file(&mut self, path: &str) -> Result<(), Vec<StructuredError>> {
-    let path = CString::new(path).unwrap(); // TODO error handling for \0 containing strings
+    let path =
+      CString::new(path).map_err(|err| vec![StructuredError::cstring_error(err.nul_position())])?;
     let path_ptr = path.as_bytes_with_nul().as_ptr() as *const c_char;
 
     let rc = unsafe { bindings::xmlSchemaValidateFile(self.ctxt, path_ptr, 0) };
