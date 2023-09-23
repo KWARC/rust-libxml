@@ -57,12 +57,12 @@ pub struct StructuredError {
 
 impl StructuredError {
   /// Copies the error information stored at `error_ptr` into a new `StructuredError`
-  /// 
+  ///
   /// # Safety
   /// This function must be given a pointer to a valid `xmlError` struct. Typically, you
   /// will acquire such a pointer by implementing one of a number of callbacks
   /// defined in libXml which are provided an `xmlError` as an argument.
-  /// 
+  ///
   /// This function copies data from the memory `error_ptr` but does not deallocate
   /// the error. Depending on the context in which this function is used, you may
   /// need to take additional steps to avoid a memory leak.
@@ -94,12 +94,53 @@ impl StructuredError {
     }
   }
 
+  // pub fn new(message: &str, level: XmlErrorLevel) -> Self {
+  //   StructuredError {
+  //     message: Some(message.into()),
+  //     level,
+  //     filename,
+  //     line,
+  //     col,
+  //     domain: error.domain,
+  //     code: error.code,
+  //   }
+  // }
+
+  /// TODO: doc
+  pub fn null_ptr() -> Self {
+    StructuredError {
+      message: Some("Failed to create validation context from XML schema".into()),
+      level: XmlErrorLevel::Fatal,
+      filename: None,
+      line: None,
+      col: None,
+      domain: 0, /* TODO: check codes */
+      code: 0,
+    }
+  }
+
+  /// TODO: doc
+  pub fn internal() -> Self {
+    StructuredError {
+      message: Some("Failed to validate file due to internal error".into()),
+      level: XmlErrorLevel::Fatal,
+      filename: None,
+      line: None,
+      col: None,
+      domain: 0, /* TODO: check codes */
+      code: 0,
+    }
+  }
+
   /// Human-readable informative error message.
-  /// 
+  ///
   /// This function is a hold-over from the original bindings to libxml's error
-  /// reporting mechanism. Instead of calling this method, you can access the 
+  /// reporting mechanism. Instead of calling this method, you can access the
   /// StructuredError `message` field directly.
-  #[deprecated(since="0.3.3", note="Please use the `message` field directly instead.")]
+  #[deprecated(
+    since = "0.3.3",
+    note = "Please use the `message` field directly instead."
+  )]
   pub fn message(&self) -> &str {
     self.message.as_deref().unwrap_or("")
   }

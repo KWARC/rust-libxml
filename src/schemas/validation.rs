@@ -33,7 +33,7 @@ impl SchemaValidationContext {
         let ctx = unsafe { bindings::xmlSchemaNewValidCtxt(s.as_ptr()) };
 
         if ctx.is_null() {
-          panic!("Failed to create validation context from XML schema") // TODO error handling
+          return Err(vec![StructuredError::null_ptr()]);
         }
 
         Ok(Self::from_raw(ctx, s))
@@ -48,7 +48,7 @@ impl SchemaValidationContext {
     let rc = unsafe { bindings::xmlSchemaValidateDoc(self.ctxt, doc.doc_ptr()) };
 
     match rc {
-      -1 => panic!("Failed to validate document due to internal error"), // TODO error handling
+      -1 => Err(vec![StructuredError::internal()]),
       0 => Ok(()),
       _ => Err(self.drain_errors()),
     }
@@ -62,7 +62,7 @@ impl SchemaValidationContext {
     let rc = unsafe { bindings::xmlSchemaValidateFile(self.ctxt, path_ptr, 0) };
 
     match rc {
-      -1 => panic!("Failed to validate file due to internal error"), // TODO error handling
+      -1 => Err(vec![StructuredError::internal()]),
       0 => Ok(()),
       _ => Err(self.drain_errors()),
     }
@@ -73,7 +73,7 @@ impl SchemaValidationContext {
     let rc = unsafe { bindings::xmlSchemaValidateOneElement(self.ctxt, node.node_ptr()) };
 
     match rc {
-      -1 => panic!("Failed to validate element due to internal error"), // TODO error handling
+      -1 => Err(vec![StructuredError::internal()]),
       0 => Ok(()),
       _ => Err(self.drain_errors()),
     }
