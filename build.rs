@@ -3,8 +3,15 @@ fn main() {
     // println!("{:?}", std::env::vars());
     // panic!("set libxml2.");
     let p = std::path::Path::new(s);
-    let fname = std::path::Path::new(p.file_name().expect("no file name in LIBXML2 env"));
-    assert!(p.is_file());
+    let fname = std::path::Path::new(
+      p.file_name()
+        .unwrap_or_else(|| panic!("no file name in LIBXML2 env ({s})")),
+    );
+    assert!(
+      p.is_file(),
+      "{}",
+      &format!("not a file in LIBXML2 env ({s})")
+    );
     println!(
       "cargo:rustc-link-lib={}",
       fname
