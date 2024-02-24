@@ -168,6 +168,47 @@ fn attribute_namespace_accessors() {
 }
 
 #[test]
+fn attribute_no_namespace() {
+  let mut doc = Document::new().unwrap();
+  let element_result = Node::new("example", None, &doc);
+  assert!(element_result.is_ok());
+
+  let mut element = element_result.unwrap();
+  doc.set_root_element(&element);
+
+  let ns_result = Namespace::new("myns", "https://www.example.com/myns", &mut element);
+  assert!(ns_result.is_ok());
+  let ns = ns_result.unwrap();
+  assert!(element.set_attribute_ns("foo", "ns", &ns).is_ok());
+
+  let foo_ns_attr = element.get_attribute_ns("foo", "https://www.example.com/myns");
+  assert!(foo_ns_attr.is_some());
+  assert_eq!(foo_ns_attr.unwrap(), "ns");
+
+  let foo_no_ns_attr = element.get_attribute_no_ns("foo");
+  assert!(foo_no_ns_attr.is_none());
+
+  assert!(element.set_attribute("foo", "no_ns").is_ok());
+
+  let foo_no_ns_attr = element.get_attribute_no_ns("foo");
+  assert!(foo_no_ns_attr.is_some());
+  assert_eq!(foo_no_ns_attr.unwrap(), "no_ns");
+
+  // TODO: include this when `remove_attribute_no_ns` is implemented
+  // It's not possible use remove_attribute here as it removes the first
+  // attribute found with the local name regardless of the namespace; here it
+  // removes the attribute with the namespace
+  // assert!(element.remove_attribute_no_ns("foo").is_ok());
+  // let foo_no_ns_attr = element.get_attribute_no_ns("foo");
+  // assert!(foo_no_ns_attr.is_none());
+
+  assert!(element.set_attribute("bar", "bar").is_ok());
+  let bar_no_ns_attr = element.get_attribute_no_ns("bar");
+  assert!(bar_no_ns_attr.is_some());
+  assert_eq!(bar_no_ns_attr.unwrap(), "bar");
+}
+
+#[test]
 fn node_can_unbind() {
   let mut doc = Document::new().unwrap();
   let element_result = Node::new("example", None, &doc);
