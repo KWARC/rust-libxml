@@ -67,6 +67,9 @@ pub fn xmlNextPropertySibling(attr: xmlAttrPtr) -> xmlAttrPtr {
 pub fn xmlAttrName(attr: xmlAttrPtr) -> *const c_char {
   unsafe { (*attr).name as *const c_char }
 }
+pub fn xmlAttrNs(attr: xmlAttrPtr) -> xmlNsPtr {
+  unsafe { (*attr).ns }
+}
 pub fn xmlGetFirstProperty(node: xmlNodePtr) -> xmlAttrPtr {
   unsafe { (*node).properties }
 }
