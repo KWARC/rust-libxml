@@ -110,6 +110,133 @@ fn node_attributes_accessor() {
 }
 
 #[test]
+fn node_attributes_ns_accessor() {
+  // Setup
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/file01_ns.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+  let root = doc.get_root_element().unwrap();
+  let mut root_elements = root.get_child_elements();
+  let child_opt = root_elements.first_mut();
+  assert!(child_opt.is_some());
+  let child = child_opt.unwrap();
+
+  // All attributes
+  let attributes = child.get_attributes_ns();
+  assert_eq!(attributes.len(), 3);
+  assert_eq!(
+    attributes.get(&("attribute".to_string(), None)),
+    Some(&"value1".to_string())
+  );
+  let namespaces = child.get_namespaces(&doc);
+  assert_eq!(namespaces.len(), 2);
+  let foo_ns = namespaces[0].clone();
+  let bar_ns = namespaces[1].clone();
+
+  assert_eq!(
+    attributes.get(&("attribute".to_string(), Some(foo_ns.clone()))),
+    Some(&"foo1".to_string())
+  );
+  assert_eq!(
+    attributes.get(&("attr".to_string(), Some(bar_ns.clone()))),
+    Some(&"bar1".to_string())
+  );
+
+  // Has
+  // TODO include this when `has_attribute_no_ns` is implemented
+  // assert!(child.has_attribute("attribute"));
+
+  // Get
+  assert_eq!(
+    child.get_attribute_no_ns("attribute"),
+    Some("value1".to_string())
+  );
+  assert_eq!(
+    child.get_attribute_ns("attribute", "http://www.example.com/myns"),
+    Some("foo1".to_string())
+  );
+  assert_eq!(
+    child.get_attribute_ns("attr", "http://www.example.com/myns"),
+    Some("bar1".to_string())
+  );
+
+  // Get as node
+  // TODO include this when `get_attribute_node_ns` and
+  // `get_attribute_node_no_ns` are implemented
+  //  let attr_node_opt = child.get_attribute_node("attribute");
+  //  assert!(attr_node_opt.is_some());
+  //  let attr_node = attr_node_opt.unwrap();
+  //  assert_eq!(attr_node.get_name(), "attribute");
+  //  assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
+
+  // Set
+  assert!(child.set_attribute("attribute", "setter_value").is_ok());
+  assert_eq!(
+    child.get_attribute_no_ns("attribute"),
+    Some("setter_value".to_string())
+  );
+  assert!(child
+    .set_attribute_ns("attribute", "foo_value", &foo_ns)
+    .is_ok());
+  assert_eq!(
+    child.get_attribute_no_ns("attribute"),
+    Some("setter_value".to_string())
+  );
+  // Remove
+  // TODO include this when `remove_attribute_no_ns` is implemented
+  // assert!(child.remove_attribute("attribute").is_ok());
+  // assert_eq!(child.get_attribute("attribute"), None);
+  // assert_eq!(child.has_attribute("attribute"), false);
+  // Recount
+  // let attributes = child.get_attributes_ns();
+  // assert_eq!(attributes.len(), 2);
+}
+
+#[test]
+fn namespace_partial_eq() {
+  // Setup
+  let parser = Parser::default();
+  let doc_result = parser.parse_file("tests/resources/file01_ns.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+  let root = doc.get_root_element().unwrap();
+  let mut root_elements = root.get_child_elements();
+  let child1_opt = root_elements.first_mut();
+  assert!(child1_opt.is_some());
+  let child1 = child1_opt.unwrap();
+
+  // Child 1 namespaces
+  let namespaces1 = child1.get_namespaces(&doc);
+  assert_eq!(namespaces1.len(), 2);
+  let foo_ns1 = namespaces1[0].clone();
+  assert_eq!(foo_ns1.get_prefix(), "foo");
+  assert_eq!(foo_ns1.get_href(), "http://www.example.com/myns");
+  let bar_ns1 = namespaces1[1].clone();
+  assert_eq!(bar_ns1.get_prefix(), "bar");
+  assert_eq!(bar_ns1.get_href(), "http://www.example.com/myns");
+  // The current implementation of PartialEq for Namespace compares the prefix
+  // and href
+  assert!(foo_ns1 != bar_ns1);
+
+  //  Compare with child2 namespace
+  let child2_opt = child1.get_next_element_sibling();
+  assert!(child2_opt.is_some());
+  let child2 = child2_opt.unwrap();
+  let attributes2 = child2.get_attributes_ns();
+  assert_eq!(attributes2.len(), 2);
+  let namespaces2 = child2.get_namespaces(&doc);
+  assert_eq!(namespaces2.len(), 1);
+  let foo_ns2 = namespaces2[0].clone();
+  // The current implementation of PartialEq for Namespace compares the prefix
+  // and href not the pointer
+  assert!(foo_ns1 == foo_ns2);
+  assert_eq!(foo_ns1.get_href(), foo_ns2.get_href());
+  assert_eq!(foo_ns1.get_prefix(), foo_ns2.get_prefix());
+  assert_ne!(foo_ns1.ns_ptr(), foo_ns2.ns_ptr());
+}
+
+#[test]
 fn attribute_namespace_accessors() {
   let mut doc = Document::new().unwrap();
   let element_result = Node::new("example", None, &doc);

@@ -2,6 +2,7 @@
 //!
 use std::error::Error;
 use std::ffi::{CStr, CString};
+use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::str;
 
@@ -14,6 +15,21 @@ use crate::tree::node::Node;
 pub struct Namespace {
   ///libxml's xmlNsPtr
   pub(crate) ns_ptr: xmlNsPtr,
+}
+
+impl PartialEq for Namespace {
+  fn eq(&self, other: &Self) -> bool {
+    self.get_prefix() == other.get_prefix() && self.get_href() == other.get_href()
+  }
+}
+
+impl Eq for Namespace {}
+
+impl Hash for Namespace {
+  fn hash<H: Hasher>(&self, state: &mut H) {
+    self.get_prefix().hash(state);
+    self.get_href().hash(state);
+  }
 }
 
 impl Namespace {

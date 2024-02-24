@@ -298,21 +298,41 @@ impl RoNode {
   /// Get a copy of the attributes of this node
   pub fn get_properties(self) -> HashMap<String, String> {
     let mut attributes = HashMap::new();
-    let mut attr_names = Vec::new();
-    unsafe {
-      let mut current_prop = xmlGetFirstProperty(self.0);
-      while !current_prop.is_null() {
-        let name_ptr = xmlAttrName(current_prop);
-        let c_name_string = CStr::from_ptr(name_ptr);
-        let name = c_name_string.to_string_lossy().into_owned();
-        attr_names.push(name);
-        current_prop = xmlNextPropertySibling(current_prop);
-      }
-    }
 
-    for name in attr_names {
+    let mut current_prop = xmlGetFirstProperty(self.0);
+    while !current_prop.is_null() {
+      let name_ptr = xmlAttrName(current_prop);
+      let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
+      let name = c_name_string.to_string_lossy().into_owned();
       let value = self.get_property(&name).unwrap_or_default();
       attributes.insert(name, value);
+      current_prop = xmlNextPropertySibling(current_prop);
+    }
+
+    attributes
+  }
+
+  /// Get a copy of this node's attributes and their namespaces
+  pub fn get_properties_ns(self) -> HashMap<(String, Option<Namespace>), String> {
+    let mut attributes = HashMap::new();
+
+    let mut current_prop = xmlGetFirstProperty(self.0);
+    while !current_prop.is_null() {
+      let name_ptr = xmlAttrName(current_prop);
+      let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
+      let name = c_name_string.to_string_lossy().into_owned();
+      let ns_ptr = xmlAttrNs(current_prop);
+      if ns_ptr.is_null() {
+        let value = self.get_property_no_ns(&name).unwrap_or_default();
+        attributes.insert((name, None), value);
+      } else {
+        let ns = Namespace { ns_ptr };
+        let value = self
+          .get_property_ns(&name, &ns.get_href())
+          .unwrap_or_default();
+        attributes.insert((name, Some(ns)), value);
+      }
+      current_prop = xmlNextPropertySibling(current_prop);
     }
 
     attributes
@@ -321,6 +341,11 @@ impl RoNode {
   /// Alias for `get_properties`
   pub fn get_attributes(self) -> HashMap<String, String> {
     self.get_properties()
+  }
+
+  /// Alias for `get_properties_ns`
+  pub fn get_attributes_ns(self) -> HashMap<(String, Option<Namespace>), String> {
+    self.get_properties_ns()
   }
 
   /// Check if a property has been defined, without allocating its value
