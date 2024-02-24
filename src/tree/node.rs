@@ -457,6 +457,21 @@ impl Node {
     Some(prop_str)
   }
 
+  /// Returns the value of property `name` with no namespace
+  pub fn get_property_no_ns(&self, name: &str) -> Option<String> {
+    let c_name = CString::new(name).unwrap();
+    let value_ptr = unsafe { xmlGetNoNsProp(self.node_ptr(), c_name.as_bytes().as_ptr()) };
+    if value_ptr.is_null() {
+      return None;
+    }
+    let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
+    let prop_str = c_value_string.to_string_lossy().into_owned();
+    unsafe {
+      libc::free(value_ptr as *mut c_void);
+    }
+    Some(prop_str)
+  }
+
   /// Return an attribute as a `Node` struct of type AttributeNode
   pub fn get_property_node(&self, name: &str) -> Option<Node> {
     let c_name = CString::new(name).unwrap();
@@ -590,9 +605,15 @@ impl Node {
   pub fn get_attribute(&self, name: &str) -> Option<String> {
     self.get_property(name)
   }
+
   /// Alias for get_property_ns
   pub fn get_attribute_ns(&self, name: &str, ns: &str) -> Option<String> {
     self.get_property_ns(name, ns)
+  }
+
+  /// Alias for get_property_no_ns
+  pub fn get_attribute_no_ns(&self, name: &str) -> Option<String> {
+    self.get_property_no_ns(name)
   }
 
   /// Alias for get_property_node

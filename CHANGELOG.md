@@ -2,6 +2,10 @@
 
 ## [0.3.4] (in development)
 
+### Added
+
+* Node methods: `get_property_no_ns` (alias: `get_attribute_no_ns`)
+
 ## [0.3.3] 2023-17-07
 
 ### Changed
