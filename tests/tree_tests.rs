@@ -144,8 +144,12 @@ fn node_attributes_ns_accessor() {
   );
 
   // Has
-  // TODO include this when `has_attribute_no_ns` is implemented
-  // assert!(child.has_attribute("attribute"));
+  assert!(child.has_attribute("attribute"));
+  assert!(child.has_attribute_no_ns("attribute"));
+  assert!(child.has_attribute_ns("attribute", "http://www.example.com/myns"),);
+  assert!(child.has_attribute("attr"));
+  assert!(!child.has_attribute_no_ns("attr"));
+  assert!(child.has_attribute_ns("attr", "http://www.example.com/myns"));
 
   // Get
   assert_eq!(
@@ -162,13 +166,18 @@ fn node_attributes_ns_accessor() {
   );
 
   // Get as node
-  // TODO include this when `get_attribute_node_ns` and
-  // `get_attribute_node_no_ns` are implemented
-  //  let attr_node_opt = child.get_attribute_node("attribute");
-  //  assert!(attr_node_opt.is_some());
-  //  let attr_node = attr_node_opt.unwrap();
-  //  assert_eq!(attr_node.get_name(), "attribute");
-  //  assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
+  let attr_node_opt = child.get_attribute_node_no_ns("attribute");
+  assert!(attr_node_opt.is_some());
+  let attr_node = attr_node_opt.unwrap();
+  assert_eq!(attr_node.get_name(), "attribute");
+  assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
+  let attr_node_opt = child.get_attribute_node_no_ns("attr");
+  assert!(attr_node_opt.is_none());
+  let attr_node_opt = child.get_attribute_node_ns("attr", "http://www.example.com/myns");
+  assert!(attr_node_opt.is_some());
+  let attr_node = attr_node_opt.unwrap();
+  assert_eq!(attr_node.get_name(), "attr");
+  assert_eq!(attr_node.get_type(), Some(NodeType::AttributeNode));
 
   // Set
   assert!(child.set_attribute("attribute", "setter_value").is_ok());
@@ -184,13 +193,13 @@ fn node_attributes_ns_accessor() {
     Some("setter_value".to_string())
   );
   // Remove
-  // TODO include this when `remove_attribute_no_ns` is implemented
-  // assert!(child.remove_attribute("attribute").is_ok());
-  // assert_eq!(child.get_attribute("attribute"), None);
-  // assert_eq!(child.has_attribute("attribute"), false);
+  assert!(child.has_attribute_no_ns("attribute"));
+  assert!(child.remove_attribute_no_ns("attribute").is_ok());
+  assert_eq!(child.get_attribute_no_ns("attribute"), None);
+  assert!(!child.has_attribute_no_ns("attribute"));
   // Recount
-  // let attributes = child.get_attributes_ns();
-  // assert_eq!(attributes.len(), 2);
+  let attributes = child.get_attributes_ns();
+  assert_eq!(attributes.len(), 2);
 }
 
 #[test]
@@ -321,13 +330,9 @@ fn attribute_no_namespace() {
   assert!(foo_no_ns_attr.is_some());
   assert_eq!(foo_no_ns_attr.unwrap(), "no_ns");
 
-  // TODO: include this when `remove_attribute_no_ns` is implemented
-  // It's not possible use remove_attribute here as it removes the first
-  // attribute found with the local name regardless of the namespace; here it
-  // removes the attribute with the namespace
-  // assert!(element.remove_attribute_no_ns("foo").is_ok());
-  // let foo_no_ns_attr = element.get_attribute_no_ns("foo");
-  // assert!(foo_no_ns_attr.is_none());
+  assert!(element.remove_attribute_no_ns("foo").is_ok());
+  let foo_no_ns_attr = element.get_attribute_no_ns("foo");
+  assert!(foo_no_ns_attr.is_none());
 
   assert!(element.set_attribute("bar", "bar").is_ok());
   let bar_no_ns_attr = element.get_attribute_no_ns("bar");

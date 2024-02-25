@@ -4,7 +4,7 @@
 
 ### Added
 
-* Node methods: `get_property_no_ns` (alias: `get_attribute_no_ns`), `get_properties_ns` (alias: `get_attributes_ns`) 
+* Node methods: `get_property_no_ns` (alias: `get_attribute_no_ns`), `get_properties_ns` (alias: `get_attributes_ns`), `has_property_no_ns` (alias: `has_attribute_no_ns`), `remove_property_no_ns` (alias: `remove_attribute_no_ns`), `get_property_node_ns` (alias: `get_attribute_node_ns`), `get_property_node_no_ns` (alias: `get_attribute_node_no_ns`)
 * Added implementations of `Hash`, `PartialEq` and `Eq` traits for `Namespace` 
 
 ## [0.3.3] 2023-17-07

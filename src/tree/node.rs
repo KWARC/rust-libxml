@@ -481,12 +481,35 @@ impl Node {
     }
   }
 
+  /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
+  pub fn get_property_node_ns(&self, name: &str, ns: &str) -> Option<Node> {
+    let c_name = CString::new(name).unwrap();
+    let c_ns = CString::new(ns).unwrap();
+    let attr_node = unsafe {
+      xmlHasNsProp(
+        self.node_ptr(),
+        c_name.as_bytes().as_ptr(),
+        c_ns.as_bytes().as_ptr(),
+      )
+    };
+    self.ptr_as_option(attr_node as xmlNodePtr)
+  }
+
+  /// Return an attribute with no namespace as a `Node` of type AttributeNode
+  pub fn get_property_node_no_ns(&self, name: &str) -> Option<Node> {
+    let c_name = CString::new(name).unwrap();
+    let attr_node =
+      unsafe { xmlHasNsProp(self.node_ptr(), c_name.as_bytes().as_ptr(), ptr::null()) };
+    self.ptr_as_option(attr_node as xmlNodePtr)
+  }
+
   /// Check if a property has been defined, without allocating its value
   pub fn has_property(&self, name: &str) -> bool {
     let c_name = CString::new(name).unwrap();
     let value_ptr = unsafe { xmlHasProp(self.node_ptr(), c_name.as_bytes().as_ptr()) };
     !value_ptr.is_null()
   }
+
   /// Check if property `name` in namespace `ns` exists
   pub fn has_property_ns(&self, name: &str, ns: &str) -> bool {
     let c_name = CString::new(name).unwrap();
@@ -500,6 +523,15 @@ impl Node {
     };
     !value_ptr.is_null()
   }
+
+  /// Check if property `name` with no namespace exists
+  pub fn has_property_no_ns(&self, name: &str) -> bool {
+    let c_name = CString::new(name).unwrap();
+    let value_ptr =
+      unsafe { xmlHasNsProp(self.node_ptr(), c_name.as_bytes().as_ptr(), ptr::null()) };
+    !value_ptr.is_null()
+  }
+
   /// Alias for has_property
   pub fn has_attribute(&self, name: &str) -> bool {
     self.has_property(name)
@@ -507,6 +539,11 @@ impl Node {
   /// Alias for has_property_ns
   pub fn has_attribute_ns(&self, name: &str, ns: &str) -> bool {
     self.has_property_ns(name, ns)
+  }
+
+  /// Alias for has_property_no_ns
+  pub fn has_attribute_no_ns(&self, name: &str) -> bool {
+    self.has_property_no_ns(name)
   }
 
   /// Sets the value of property `name` to `value`
@@ -601,6 +638,33 @@ impl Node {
     }
   }
 
+  /// Removes the property of given `name` with no namespace
+  pub fn remove_property_no_ns(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let c_name = CString::new(name).unwrap();
+    let attr_node = unsafe {
+      xmlHasNsProp(
+        self.node_ptr_mut()?,
+        c_name.as_bytes().as_ptr(),
+        ptr::null(),
+      )
+    };
+    if !attr_node.is_null() {
+      let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
+      if remove_prop_status == 0 {
+        Ok(())
+      } else {
+        // Propagate libxml2 failure to remove
+        Err(From::from(format!(
+          "libxml2 failed to remove property with status: {:?}",
+          remove_prop_status
+        )))
+      }
+    } else {
+      // silently no-op if asked to remove a property which is not present
+      Ok(())
+    }
+  }
+
   /// Alias for get_property
   pub fn get_attribute(&self, name: &str) -> Option<String> {
     self.get_property(name)
@@ -619,6 +683,16 @@ impl Node {
   /// Alias for get_property_node
   pub fn get_attribute_node(&self, name: &str) -> Option<Node> {
     self.get_property_node(name)
+  }
+
+  /// Alias for get_property_node_ns
+  pub fn get_attribute_node_ns(&self, name: &str, ns: &str) -> Option<Node> {
+    self.get_property_node_ns(name, ns)
+  }
+
+  /// Alias for get_property_node_no_ns
+  pub fn get_attribute_node_no_ns(&self, name: &str) -> Option<Node> {
+    self.get_property_node_no_ns(name)
   }
 
   /// Alias for set_property
@@ -651,6 +725,11 @@ impl Node {
     ns: &str,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
     self.remove_property_ns(name, ns)
+  }
+
+  /// Alias for remove_property_no_ns
+  pub fn remove_attribute_no_ns(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+    self.remove_property_no_ns(name)
   }
 
   /// Get a copy of the attributes of this node
