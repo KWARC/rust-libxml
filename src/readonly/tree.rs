@@ -275,6 +275,22 @@ impl RoNode {
     }
   }
 
+  /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
+  pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
+    let c_name = CString::new(name).unwrap();
+    let c_ns = CString::new(ns).unwrap();
+    let attr_node =
+      unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
+    self.ptr_as_option(attr_node as xmlNodePtr)
+  }
+
+  /// Return an attribute with no namespace as a `Node` of type AttributeNode
+  pub fn get_property_node_no_ns(self, name: &str) -> Option<RoNode> {
+    let c_name = CString::new(name).unwrap();
+    let attr_node = unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), ptr::null()) };
+    self.ptr_as_option(attr_node as xmlNodePtr)
+  }
+
   /// Alias for get_property
   pub fn get_attribute(self, name: &str) -> Option<String> {
     self.get_property(name)
@@ -293,6 +309,16 @@ impl RoNode {
   /// Alias for get_property_node
   pub fn get_attribute_node(self, name: &str) -> Option<RoNode> {
     self.get_property_node(name)
+  }
+
+  /// Alias for get_property_node_ns
+  pub fn get_attribute_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
+    self.get_property_node_ns(name, ns)
+  }
+
+  /// Alias for get_property_node_no_ns
+  pub fn get_attribute_node_no_ns(self, name: &str) -> Option<RoNode> {
+    self.get_property_node_no_ns(name)
   }
 
   /// Get a copy of the attributes of this node
@@ -354,6 +380,7 @@ impl RoNode {
     let value_ptr = unsafe { xmlHasProp(self.0, c_name.as_bytes().as_ptr()) };
     !value_ptr.is_null()
   }
+
   /// Check if property `name` in namespace `ns` exists
   pub fn has_property_ns(self, name: &str, ns: &str) -> bool {
     let c_name = CString::new(name).unwrap();
@@ -362,13 +389,27 @@ impl RoNode {
       unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
     !value_ptr.is_null()
   }
+
+  /// Check if property `name` with no namespace exists
+  pub fn has_property_no_ns(self, name: &str) -> bool {
+    let c_name = CString::new(name).unwrap();
+    let value_ptr = unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), ptr::null()) };
+    !value_ptr.is_null()
+  }
+
   /// Alias for has_property
   pub fn has_attribute(self, name: &str) -> bool {
     self.has_property(name)
   }
+
   /// Alias for has_property_ns
   pub fn has_attribute_ns(self, name: &str, ns: &str) -> bool {
     self.has_property_ns(name, ns)
+  }
+
+  /// Alias for has_property_no_ns
+  pub fn has_attribute_no_ns(self, name: &str) -> bool {
+    self.has_property_no_ns(name)
   }
 
   /// Gets the active namespace associated of this node
