@@ -34,6 +34,13 @@ $ ln -s /usr/local/Cellar/libxml2/2.9.12/lib/libxml2.2.dylib /usr/local/lib/libx
 $ export LIBXML2=/usr/local/Cellar/libxml2/2.9.12/lib/pkgconfig/libxml-2.0.pc
 ```
 
+### FreeBSD
+[Community contributed](https://github.com/KWARC/rust-libxml/issues/130#issuecomment-1976348349)
+
+```
+$ pkg install libxml2 pkgconf
+```
+
 ### Windows
 
 [Community contributed](https://github.com/KWARC/rust-libxml/issues/81#issuecomment-760364976):
