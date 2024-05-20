@@ -14927,6 +14927,13 @@ extern "C" {
     -> ::std::os::raw::c_int;
 }
 extern "C" {
+  pub fn xmlXPathSetErrorHandler(
+    ctxt: xmlXPathContextPtr,
+    handler: xmlStructuredErrorFunc,
+    data: *mut ::std::os::raw::c_void,
+  );
+}
+extern "C" {
   pub fn xmlXPathNodeEval(
     node: xmlNodePtr,
     str: *const xmlChar,

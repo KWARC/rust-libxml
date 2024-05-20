@@ -207,7 +207,11 @@ fn xpath_find_string_values() {
     let empty_values = xpath.findvalues(".//@xml:id", Some(empty_test));
     assert_eq!(empty_values, Ok(Vec::new()));
     let ids_values = xpath.findvalues(".//@xml:id", Some(ids_test));
-    let expected_ids = Ok(vec![String::from("start"),String::from("mid"),String::from("end")]);
+    let expected_ids = Ok(vec![
+      String::from("start"),
+      String::from("mid"),
+      String::from("end"),
+    ]);
     assert_eq!(ids_values, expected_ids);
     let node_ids_values = ids_test.findvalues(".//@xml:id");
     assert_eq!(node_ids_values, expected_ids);
@@ -216,6 +220,28 @@ fn xpath_find_string_values() {
   }
 }
 
+#[test]
+// brew install --HEAD libxml2
+// export LIBXML2=`ls /opt/homebrew/Cellar/libxml2/*/lib/libxml2.dylib` && echo $LIBXML2
+// cargo clean
+// cargo test
+fn xpath_context_new() {
+  let parser = Parser::default_html();
+  let doc_result = parser.parse_file("tests/resources/file02.xml");
+  assert!(doc_result.is_ok());
+  let doc = doc_result.unwrap();
+
+  // Xpath interface
+  let mut context = Context::new(&doc).unwrap();
+  match context.evaluate("/html/un:body") {
+    Ok(_) => assert!(false),
+    Err(e) => {
+      // for msg in context.drain_errors() {
+        // assert_eq!(1,msg.code);
+      // }
+    }
+  }
+}
 /// Tests for checking xpath well-formedness
 mod compile_tests {
   use libxml::xpath::is_well_formed_xpath;

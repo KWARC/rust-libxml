@@ -4,6 +4,7 @@
 *.rlib
 *.dll
 Cargo.lock
+.DS_Store
 
 # Executables
 *.exe

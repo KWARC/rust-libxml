@@ -1,9 +1,13 @@
 //! The `XPath` functionality
 
-use crate::bindings::*;
-use crate::c_helpers::*;
-use crate::readonly::RoNode;
-use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
+use crate::{
+  bindings::{self, *},
+  c_helpers::*,
+  error::StructuredError,
+  readonly::RoNode,
+  schemas::structured_error_handler,
+  tree::{Document, DocumentRef, DocumentWeak, Node},
+};
 use libc::{c_char, c_void, size_t};
 use std::cell::RefCell;
 use std::ffi::{CStr, CString};
@@ -33,6 +37,19 @@ pub struct Context {
   pub(crate) context_ptr: ContextRef,
   ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
   pub(crate) document: DocumentWeak,
+  ///Errors registered during libxml2 xpath processing3
+  pub(crate) errlog: *mut Vec<StructuredError>,
+}
+
+impl Drop for Context {
+  fn drop(&mut self) {
+    unsafe {
+      if !self.errlog.is_null() {
+        let errors: Box<Vec<StructuredError>> = std::mem::transmute(self.errlog);
+        drop(errors)
+      }
+    }
+  }
 }
 
 ///Essentially, the result of the evaluation of some xpath expression
@@ -50,27 +67,58 @@ impl Context {
     if ctxtptr.is_null() {
       Err(())
     } else {
-      Ok(Context {
-        context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(&doc.0),
-      })
+      let errors: Box<Vec<StructuredError>> = Box::default();
+
+      unsafe {
+        let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
+        bindings::xmlXPathSetErrorHandler(
+          ctxtptr,
+          Some(structured_error_handler),
+          reference as *mut _,
+        );
+        Ok(Context {
+          context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
+          document: Rc::downgrade(&doc.0),
+          errlog: reference as *mut _,
+        })
+      }
     }
   }
+
   pub(crate) fn new_ptr(docref: &DocumentRef) -> Result<Context, ()> {
     let ctxtptr = unsafe { xmlXPathNewContext(docref.borrow().doc_ptr) };
     if ctxtptr.is_null() {
       Err(())
     } else {
-      Ok(Context {
-        context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(docref),
-      })
+      let errors: Box<Vec<StructuredError>> = Box::default();
+
+      unsafe {
+        let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
+        bindings::xmlXPathSetErrorHandler(
+          ctxtptr,
+          Some(structured_error_handler),
+          reference as *mut _,
+        );
+
+        Ok(Context {
+          context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
+          document: Rc::downgrade(docref),
+          errlog: reference as *mut _,
+        })
+      }
     }
   }
 
   /// Returns the raw libxml2 context pointer behind the struct
   pub fn as_ptr(&self) -> xmlXPathContextPtr {
     self.context_ptr.borrow().0
+  }
+
+  /// Drains error log from errors that might have accumulated while evaluating an xpath
+  pub fn drain_errors(&mut self) -> Vec<StructuredError> {
+    assert!(!self.errlog.is_null());
+    let errors = unsafe { &mut *self.errlog };
+    std::mem::take(errors)
   }
 
   /// Instantiate a new Context for the Document of a given Node.
@@ -269,7 +317,6 @@ impl Object {
     }
     vec
   }
-
 }
 
 impl fmt::Display for Object {

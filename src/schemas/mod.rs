@@ -16,3 +16,4 @@ use schema::Schema; // internally handled by SchemaValidationContext
 
 pub use parser::SchemaParserContext;
 pub use validation::SchemaValidationContext;
+pub use common::structured_error_handler;
