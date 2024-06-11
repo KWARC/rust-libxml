@@ -24,7 +24,11 @@ Before performing the usual cargo build/install steps, you need to have the rele
 ### Linux/Debian
 
 On linux systems you'd need the development headers of libxml2 (e.g. `libxml2-dev` in Debian), as well as `pkg-config`.
+```
+$ sudo apt update
+$ sudo apt install libxml2-dev pkg-config -y
 
+```
 ### MacOS
 [Community contributed](https://github.com/KWARC/rust-libxml/issues/88#issuecomment-890876895):
 
