@@ -72,7 +72,7 @@ pub struct ParserOptions<'a> {
   pub encoding: Option<&'a str>,
 }
 
-impl<'a> ParserOptions<'a> {
+impl ParserOptions<'_> {
   pub(crate) fn to_flags(&self, format: &ParseFormat) -> i32 {
     macro_rules! to_option_flag {
       (
@@ -103,7 +103,7 @@ impl<'a> ParserOptions<'a> {
   }
 }
 
-impl<'a> Default for ParserOptions<'a> {
+impl Default for ParserOptions<'_> {
   fn default() -> Self {
     ParserOptions {
       recover: true,
@@ -191,7 +191,7 @@ type XmlCloseCallback = unsafe extern "C" fn(*mut c_void) -> c_int;
 
 ///Convert usize to i32 safely.
 fn try_usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
-  if cfg!(target_pointer_width = "16") || (value < i32::max_value() as usize) {
+  if cfg!(target_pointer_width = "16") || (value < i32::MAX as usize) {
     // Cannot safely use our value comparison, but the conversion if always safe.
     // Or, if the value can be safely represented as a 32-bit signed integer.
     Ok(value as i32)
