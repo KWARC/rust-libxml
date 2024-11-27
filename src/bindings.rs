@@ -7141,7 +7141,7 @@ pub struct _xmlSAXLocator {
 /// the application can either:
 /// - override this resolveEntity() callback in the SAX block
 /// - or better use the xmlSetExternalEntityLoader() function to
-/// set up it's own entity resolution routine
+///   set up its own entity resolution routine
 ///
 /// Returns the xmlParserInputPtr if inlined or NULL for DOM behaviour.
 pub type resolveEntitySAXFunc = ::std::option::Option<
@@ -14206,8 +14206,10 @@ pub type xmlXPathFuncLookupFunc = ::std::option::Option<
 /// - a set of variable bindings
 /// - a function library
 /// - the set of namespace declarations in scope for the expression
+/// 
 /// Following the switch to hash tables, this need to be trimmed up at
 /// the next binary incompatible release.
+/// 
 /// The node may be modified when the context is passed to libxml2
 /// for an XPath evaluation so you may need to initialize it again
 /// before the next call.
