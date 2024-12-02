@@ -57,12 +57,12 @@ pub struct StructuredError {
 
 impl StructuredError {
   /// Copies the error information stored at `error_ptr` into a new `StructuredError`
-  /// 
+  ///
   /// # Safety
   /// This function must be given a pointer to a valid `xmlError` struct. Typically, you
   /// will acquire such a pointer by implementing one of a number of callbacks
   /// defined in libXml which are provided an `xmlError` as an argument.
-  /// 
+  ///
   /// This function copies data from the memory `error_ptr` but does not deallocate
   /// the error. Depending on the context in which this function is used, you may
   /// need to take additional steps to avoid a memory leak.
@@ -94,12 +94,56 @@ impl StructuredError {
     }
   }
 
+  /// Creates a custom `StructuredError`to report unexpected 0-byte when attempting to convert `Vec<u8>` to `CString`
+  pub fn cstring_error(position: usize) -> Self {
+    StructuredError {
+      message: Some(
+        format!("Path contained an unexpected null-terminator at position {position}. String must not contain any 0-bytes."),
+      ),
+      level: XmlErrorLevel::Fatal,
+      filename: None,
+      line: None,
+      col: None,
+      domain: 0,
+      code: -1,
+    }
+  }
+
+  /// Creates a custom `StructuredError`to report an invalid pointer-reference
+  pub fn null_ptr() -> Self {
+    StructuredError {
+      message: Some("Could not create context due to an unexpected null-reference.".into()),
+      level: XmlErrorLevel::Fatal,
+      filename: None,
+      line: None,
+      col: None,
+      domain: 0,
+      code: -1,
+    }
+  }
+
+  /// Wraps the `libxml2` internal error (exit-code `-1`) in a `StructuredError`
+  pub fn internal() -> Self {
+    StructuredError {
+      message: Some("Failed to validate file due to internal error".into()),
+      level: XmlErrorLevel::Fatal,
+      filename: None,
+      line: None,
+      col: None,
+      domain: 0,
+      code: -1,
+    }
+  }
+
   /// Human-readable informative error message.
-  /// 
+  ///
   /// This function is a hold-over from the original bindings to libxml's error
-  /// reporting mechanism. Instead of calling this method, you can access the 
+  /// reporting mechanism. Instead of calling this method, you can access the
   /// StructuredError `message` field directly.
-  #[deprecated(since="0.3.3", note="Please use the `message` field directly instead.")]
+  #[deprecated(
+    since = "0.3.3",
+    note = "Please use the `message` field directly instead."
+  )]
   pub fn message(&self) -> &str {
     self.message.as_deref().unwrap_or("")
   }

@@ -11,7 +11,13 @@ fn main() {
     .parse_file("tests/resources/schema.xml")
     .expect("Expected to be able to parse XML Document from file");
 
-  let mut xsdparser = SchemaParserContext::from_file("tests/resources/schema.xsd");
+  let mut xsdparser =
+    SchemaParserContext::from_file("tests/resources/schema.xsd").unwrap_or_else(|err| {
+      println!("{}", err.message.as_ref().unwrap());
+
+      panic!("Failed to create parsing context");
+    });
+
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {

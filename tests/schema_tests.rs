@@ -83,7 +83,12 @@ fn schema_from_string() {
     .parse_string(VALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
+  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA).unwrap_or_else(|err| {
+    println!("{}", err.message.as_ref().unwrap());
+
+    panic!("Failed to create parsing context");
+  });
+
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -114,7 +119,12 @@ fn schema_from_string_generates_errors() {
     .parse_string(INVALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
+  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA).unwrap_or_else(|err| {
+    println!("{}", err.message.as_ref().unwrap());
+
+    panic!("Failed to create parsing context");
+  });
+
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -143,8 +153,13 @@ fn schema_from_string_reports_unique_errors() {
   let xml = Parser::default()
     .parse_string(INVALID_STOCK_XML)
     .expect("Expected to be able to parse XML Document from string");
-  
-  let mut xsdparser = SchemaParserContext::from_buffer(STOCK_SCHEMA);
+
+  let mut xsdparser = SchemaParserContext::from_buffer(STOCK_SCHEMA).unwrap_or_else(|err| {
+    println!("{}", err.message.as_ref().unwrap());
+
+    panic!("Failed to create parsing context");
+  });
+
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -167,8 +182,42 @@ fn schema_from_string_reports_unique_errors() {
         "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n"
       ];
       for err_msg in expected_errors {
-        assert!(errors.iter().any(|err| err.message.as_ref().unwrap() == err_msg), "Expected error message {} was not found", err_msg);
+        assert!(
+          errors
+            .iter()
+            .any(|err| err.message.as_ref().unwrap() == err_msg),
+          "Expected error message {} was not found",
+          err_msg
+        );
       }
     }
   }
+}
+
+#[test]
+fn zero_bytes_in_path_are_reported_as_error() {
+  let mut xsdparser = SchemaParserContext::from_buffer(STOCK_SCHEMA).unwrap_or_else(|err| {
+    println!("{}", err.message.as_ref().unwrap());
+
+    panic!("Failed to create parsing context");
+  });
+
+  let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
+
+  if let Err(errors) = xsd {
+    for err in &errors {
+      println!("{}", err.message.as_ref().unwrap());
+    }
+
+    panic!("Failed to parse schema");
+  }
+
+  let mut xsdvalidator = xsd.unwrap();
+  let result = xsdvalidator.validate_file("\0");
+  assert!(result.is_err());
+  let _ = result.map_err(|err| {
+    let expected = "Path contained an unexpected null-terminator at position 0. String must not contain any 0-bytes.";
+    let actual = err.first().unwrap().message.as_ref().unwrap();
+    assert_eq!(expected, actual)
+  });
 }
