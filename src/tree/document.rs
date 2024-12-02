@@ -343,3 +343,5 @@ impl Document {
     Ok(())
   }
 }
+
+mod c14n;
