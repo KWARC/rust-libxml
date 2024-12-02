@@ -43,6 +43,12 @@ $ pkg install libxml2 pkgconf
 
 ### Windows
 
+#### gnu
+
+On mingw64 environment you'd install libxml2 with `pacman -S mingw64/mingw-w64-x86_64-libxml2`.
+
+#### msvc
+
 [Community contributed](https://github.com/KWARC/rust-libxml/issues/81#issuecomment-760364976):
 
 * manually install builds tools c++ and english language by visiting [BuildTools](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16)
