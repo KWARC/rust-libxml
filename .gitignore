@@ -18,5 +18,4 @@ Cargo.lock
 /target/
 
 # Test results
-/tests/results/*.xml
 /tags
