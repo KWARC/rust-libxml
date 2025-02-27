@@ -1,5 +1,6 @@
 //! Base API tests, to be split into distinct sub-suites later on
 //!
+use std::env;
 use std::fs::File;
 use std::io::Read;
 
@@ -44,7 +45,8 @@ fn hello_builder() {
 
   let doc_string = doc.to_string();
   assert!(doc_string.len() > 1);
-  assert!(doc.save_file("tests/results/helloworld.xml").is_ok());
+  let output_path = env::temp_dir().join("rust_libxml_tests_helloworld.xml");
+  assert!(doc.save_file(&output_path.display().to_string()).is_ok());
 }
 
 #[test]
@@ -69,7 +71,8 @@ fn duplicate_file() {
     assert!(doc_result.is_ok());
 
     let doc = doc_result.unwrap();
-    doc.save_file("tests/results/copy.xml").unwrap();
+    let output_path = env::temp_dir().join("rust_libxml_tests_copy.xml");
+    doc.save_file(&output_path.display().to_string()).unwrap();
   }
 }
 
