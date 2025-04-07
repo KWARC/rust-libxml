@@ -1,4 +1,10 @@
-fn main() {
+use std::{env, fs, path::{Path, PathBuf}};
+
+/// Finds libxml2 and optionally return a list of header
+/// files from which the bindings can be generated.
+fn find_libxml2() -> Option<Vec<PathBuf>> {
+  #![allow(unreachable_code)] // for platform-dependent dead code
+
   if let Ok(ref s) = std::env::var("LIBXML2") {
     // println!("{:?}", std::env::vars());
     // panic!("set libxml2.");
@@ -27,32 +33,54 @@ fn main() {
         .expect("no library path in LIBXML2 env")
         .to_string_lossy()
     );
-  } else {
+    None
+  } else {    
     #[cfg(any(target_family = "unix", target_os = "macos"))]
     {
-      if pkg_config_dep::find() {
-        return;
-      }
+      let lib = pkg_config::Config::new()
+        .probe("libxml-2.0")
+        .expect("Couldn't find libxml2 via pkg-config");
+      return Some(lib.include_paths)
     }
 
     #[cfg(windows)]
     {
       if vcpkg_dep::find() {
-        return;
+        return None
       }
     }
-
+    
     panic!("Could not find libxml2.")
   }
 }
 
-#[cfg(any(target_family = "unix", target_os = "macos"))]
-mod pkg_config_dep {
-  pub fn find() -> bool {
-    if pkg_config::find_library("libxml-2.0").is_ok() {
-      return true;
-    }
-    false
+fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
+  let bindings = bindgen::Builder::default()
+    .header("src/wrapper.h")
+    // invalidate build as soon as the wrapper changes
+    .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+    .layout_tests(true)
+    .clang_args(&["-DPKG-CONFIG"])
+    .clang_args(
+      header_dirs.iter()
+        .map(|dir| format!("-I{}", dir.display()))
+    );
+  bindings
+    .generate()
+    .expect("failed to generate bindings with bindgen")
+    .write_to_file(output_path)
+    .expect("Failed to write bindings.rs");
+}
+
+fn main() {
+  let bindings_path = PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("bindings.rs");
+  if let Some(header_dirs) = find_libxml2() {
+    // if we could find header files, generate fresh bindings from them
+    generate_bindings(header_dirs, &bindings_path);
+  } else {
+    // otherwise, use the default bindings on platforms where pkg-config isn't available
+    fs::copy(PathBuf::from("src/default_bindings.rs"), bindings_path)
+      .expect("Failed to copy the default bindings to the build directory");
   }
 }
 

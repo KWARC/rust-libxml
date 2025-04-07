@@ -97,7 +97,7 @@ pub fn xmlNodeGetName(cur: xmlNodePtr) -> *const c_char {
 }
 
 // dummy function: no debug output at all
-fn _ignoreInvalidTagsErrorFunc(_user_data: *mut c_void, error: xmlErrorPtr) {
+unsafe extern "C" fn _ignoreInvalidTagsErrorFunc(_user_data: *mut c_void, error: xmlErrorPtr) {
   unsafe {
     if !error.is_null() && (*error).code as u32 == xmlParserErrors_XML_HTML_UNKNOWN_TAG {
       // do not record invalid, in fact (out of despair) claim we ARE well-formed, when a tag is invalid.
