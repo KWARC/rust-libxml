@@ -6,11 +6,17 @@ jobs:
   test:
     name: rust-libxml CI
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        with_default_bindings: [false, true]
     steps:
       - name: install dependencies
         uses: ryankurte/action-apt@v0.2.0
         with:
           packages: "libxml2-dev"
+      - name: Set up LIBXML2 env var if compiling with the default bindings
+        run: echo "LIBXML2=$(pkg-config libxml-2.0 --variable=libdir)/libxml2.so" >> "$GITHUB_ENV"
+        if: ${{ matrix.with_default_bindings }}
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
