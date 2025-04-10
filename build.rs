@@ -87,6 +87,11 @@ fn main() {
 #[cfg(target_family = "windows")]
 mod vcpkg_dep {
   pub fn find() -> bool {
+    #[cfg(target_env = "gnu")]
+    if pkg_config::find_library("libxml-2.0").is_ok() {
+      return true;
+    }
+    #[cfg(target_env = "msvc")]
     if vcpkg::find_package("libxml2").is_ok() {
       return true;
     }
