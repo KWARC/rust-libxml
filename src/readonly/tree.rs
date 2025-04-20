@@ -22,7 +22,7 @@ unsafe impl Send for RoNode {}
 impl PartialEq for RoNode {
   /// Two nodes are considered equal, if they point to the same xmlNode.
   fn eq(&self, other: &RoNode) -> bool {
-    self.0 == other.0
+    std::ptr::eq(self.0, other.0)
   }
 }
 impl Eq for RoNode {}
