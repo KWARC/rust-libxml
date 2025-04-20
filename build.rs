@@ -57,6 +57,7 @@ fn find_libxml2() -> Option<Vec<PathBuf>> {
 fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
   let bindings = bindgen::Builder::default()
     .header("src/wrapper.h")
+    .opaque_type("max_align_t")
     // invalidate build as soon as the wrapper changes
     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
     .layout_tests(true)
