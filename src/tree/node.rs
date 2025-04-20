@@ -54,7 +54,7 @@ impl Hash for Node {
 impl PartialEq for Node {
   /// Two nodes are considered equal, if they point to the same xmlNode.
   fn eq(&self, other: &Node) -> bool {
-    self.node_ptr() == other.node_ptr()
+    std::ptr::eq(self.node_ptr(), other.node_ptr())
   }
 }
 
