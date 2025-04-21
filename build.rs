@@ -89,6 +89,15 @@ fn main() {
   if let Some(probed_lib) = find_libxml2() {
     // if we could find header files, generate fresh bindings from them
     generate_bindings(probed_lib.include_paths, &bindings_path);
+    // and expose the libxml2 version to the code
+    let version_parts: Vec<i32> = probed_lib.version.split('.')
+      .map(|part| part.parse::<i32>().unwrap_or(-1)).collect();
+    let older_than_2_12 = version_parts.len() > 1 && (version_parts[0] < 2 ||
+        version_parts[0] == 2 && version_parts[1] < 12);
+    println!("cargo::rustc-check-cfg=cfg(libxml_older_than_2_12)");
+    if older_than_2_12 {
+      println!("cargo::rustc-cfg=libxml_older_than_2_12");
+    }
   } else {
     // otherwise, use the default bindings on platforms where pkg-config isn't available
     fs::copy(PathBuf::from("src/default_bindings.rs"), bindings_path)
