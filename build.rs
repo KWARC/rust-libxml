@@ -1,8 +1,13 @@
 use std::{env, fs, path::{Path, PathBuf}};
 
+struct ProbedLib {
+  version: String,
+  include_paths: Vec<PathBuf>,
+}
+
 /// Finds libxml2 and optionally return a list of header
 /// files from which the bindings can be generated.
-fn find_libxml2() -> Option<Vec<PathBuf>> {
+fn find_libxml2() -> Option<ProbedLib> {
   #![allow(unreachable_code)] // for platform-dependent dead code
 
   if let Ok(ref s) = std::env::var("LIBXML2") {
@@ -40,7 +45,10 @@ fn find_libxml2() -> Option<Vec<PathBuf>> {
       let lib = pkg_config::Config::new()
         .probe("libxml-2.0")
         .expect("Couldn't find libxml2 via pkg-config");
-      return Some(lib.include_paths)
+      return Some(ProbedLib {
+        include_paths: lib.include_paths,
+        version: lib.version,
+      })
     }
 
     #[cfg(windows)]
@@ -75,13 +83,18 @@ fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
 
 fn main() {
   let bindings_path = PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("bindings.rs");
-  if let Some(header_dirs) = find_libxml2() {
+  // declare availability of config variable (without setting it)
+  println!("cargo::rustc-check-cfg=cfg(libxml_older_than_2_12)");
+
+  if let Some(probed_lib) = find_libxml2() {
     // if we could find header files, generate fresh bindings from them
-    generate_bindings(header_dirs, &bindings_path);
+    generate_bindings(probed_lib.include_paths, &bindings_path);
   } else {
     // otherwise, use the default bindings on platforms where pkg-config isn't available
     fs::copy(PathBuf::from("src/default_bindings.rs"), bindings_path)
       .expect("Failed to copy the default bindings to the build directory");
+    // for now, assume that the library is older than 2.12, because that's what those bindings are computed with
+    println!("cargo::rustc-cfg=libxml_older_than_2_12");
   }
 }
 
