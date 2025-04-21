@@ -28,8 +28,11 @@ jobs:
         with:
           command: test
 
-  test-libxml2_12:
-    name: With libxml 2.12
+  test-newer-libxml2:
+    strategy:
+      matrix:
+        libxml_version: ["2.12.9", "2.13.8"]
+    name: With libxml ${{ matrix.libxml_version }}
     runs-on: ubuntu-latest
     steps:
       - name: install dependencies
@@ -37,16 +40,14 @@ jobs:
         with:
           packages: "libpython3-dev"
       - uses: actions/checkout@v2
-      - name: Install libxml 2.12 by hand
+      - name: Install libxml ${{ matrix.libxml_version }} by hand
         run: |
-          wget https://download.gnome.org/sources/libxml2/2.12/libxml2-2.12.9.tar.xz
-          tar xf libxml2-2.12.9.tar.xz
-          cd libxml2-2.12.9
+          wget https://download.gnome.org/sources/libxml2/$(echo ${{ matrix.libxml_version }} | sed -e 's/\.[0-9]*$//')/libxml2-${{ matrix.libxml_version }}.tar.xz
+          tar xf libxml2-${{ matrix.libxml_version }}.tar.xz
+          cd libxml2-${{ matrix.libxml_version }}
           ./configure
           make
-          cp libxml-2.0-uninstalled.pc libxml-2.0.pc
-          cd include
-          ln -s . libxml2
+          sudo make install
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -57,5 +58,5 @@ jobs:
         with:
           command: test
         env:
-          PKG_CONFIG_PATH: "./libxml2-2.12.9"
+          LD_LIBRARY_PATH: /usr/local/lib
 
