@@ -384,6 +384,9 @@ impl Parser {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
           if !docptr.is_null() {
             let node_ptr = xmlDocGetRootElement(docptr);
+            if node_ptr.is_null() {
+              return false
+            }
             let name_ptr = xmlNodeGetName(node_ptr);
             if name_ptr.is_null() {
               false
