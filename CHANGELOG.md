@@ -1,6 +1,32 @@
 # Change Log
 
-## [0.3.5] (in development)
+## [0.3.6] (in development)
+
+## [0.3.5] (2025-28-04)
+
+This release stabilizes the new "bindgen during build" approach of v0.3.4 to more platforms.
+
+Support for newer libxml2 versions has been improved.
+ - CI support for v2.12.9, v2.13.8, v2.14.1
+
+Thanks go to @wetneb and @charmitro for contributing.
+
+### Added
+
+* cargo build: expose libxml2 version to main build script;
+* creating a new `Parser` now initializes via `bindings::xmlInitParser`, called at most once.
+
+### Changes
+
+* cargo build: mark `max_align_t` as opaque to fix i386 build failure
+* cfg: adapt mutability of error pointer depending on libxml version
+* change the return type of `xmlGetNodeType` from `u32` to the more portable `bindings::xmlElementType`
+* change the argument type of `NodeType::from_int` from `u32` to the more portable `bindings::xmlElementType`
+* protect `Schema` initialization to be closer to thread-safe (note that this wrapper is NOT thread-safe in general)
+
+### Removed
+ * The use of `SchemaParserContext` and `SchemaValidationContext` is currently NOT thread safe.
+   Hence, The `schema_test` has been weakened to run in a single thread (future improvements welcome).
 
 ## [0.3.4] (2025-16-04)
 
