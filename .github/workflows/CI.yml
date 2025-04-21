@@ -27,3 +27,35 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+
+  test-libxml2_12:
+    name: With libxml 2.12
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        uses: ryankurte/action-apt@v0.2.0
+        with:
+          packages: "libpython3-dev"
+      - uses: actions/checkout@v2
+      - name: Install libxml 2.12 by hand
+        run: |
+          wget https://download.gnome.org/sources/libxml2/2.12/libxml2-2.12.9.tar.xz
+          tar xf libxml2-2.12.9.tar.xz
+          cd libxml2-2.12.9
+          ./configure
+          make
+          cp libxml-2.0-uninstalled.pc libxml-2.0.pc
+          cd include
+          ln -s . libxml2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+        env:
+          PKG_CONFIG_PATH: "./libxml2-2.12.9"
+
