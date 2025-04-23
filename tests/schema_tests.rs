@@ -79,7 +79,7 @@ static INVALID_STOCK_XML: &str = r#"<?xml version="1.0"?>
 
 
 // TODO: This test has revealed SchemaParserContext+SchemaValidationContext are not safe for
-//       multi-threaded us in libxml >=2.12, at least not as currently implemented.
+//       multi-threaded use in libxml >=2.12, at least not as currently implemented.
 //       while it still reliably succeeds single-threaded, new implementation is needed to use
 //       these in a parallel setting.
 #[test]
