@@ -3791,9 +3791,7 @@ pub type xmlStructuredErrorFunc = ::std::option::Option<
 unsafe extern "C" {
   pub fn xmlSetGenericErrorFunc(ctx: *mut ::std::os::raw::c_void, handler: xmlGenericErrorFunc);
 }
-unsafe extern "C" {
-  pub fn initGenericErrorDefaultFunc(handler: *mut xmlGenericErrorFunc);
-}
+
 unsafe extern "C" {
   pub fn xmlSetStructuredErrorFunc(
     ctx: *mut ::std::os::raw::c_void,

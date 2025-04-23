@@ -6,7 +6,7 @@ use libxml::schemas::SchemaValidationContext;
 
 use libxml::parser::Parser;
 
-static NOTE_SCHEMA: &'static str = r#"<?xml version="1.0"?>
+static NOTE_SCHEMA: &str = r#"<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="note">
     <xs:complexType>
@@ -21,7 +21,7 @@ static NOTE_SCHEMA: &'static str = r#"<?xml version="1.0"?>
 </xs:schema>
 "#;
 
-static STOCK_SCHEMA: &'static str = r#"<?xml version="1.0"?>
+static STOCK_SCHEMA: &str = r#"<?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:element name="stock">
     <xs:complexType>
@@ -42,7 +42,7 @@ static STOCK_SCHEMA: &'static str = r#"<?xml version="1.0"?>
 </xs:schema>
 "#;
 
-static VALID_NOTE_XML: &'static str = r#"<?xml version="1.0"?>
+static VALID_NOTE_XML: &str = r#"<?xml version="1.0"?>
 <note>
   <to>Tove</to>
   <from>Jani</from>
@@ -51,7 +51,7 @@ static VALID_NOTE_XML: &'static str = r#"<?xml version="1.0"?>
 </note>
 "#;
 
-static INVALID_NOTE_XML: &'static str = r#"<?xml version="1.0"?>
+static INVALID_NOTE_XML: &str = r#"<?xml version="1.0"?>
 <note>
   <bad>Tove</bad>
   <another>Jani</another>
@@ -60,7 +60,7 @@ static INVALID_NOTE_XML: &'static str = r#"<?xml version="1.0"?>
 </note>
 "#;
 
-static INVALID_STOCK_XML: &'static str = r#"<?xml version="1.0"?>
+static INVALID_STOCK_XML: &str = r#"<?xml version="1.0"?>
 <stock junkAttribute="foo">
   <sample>
     <date>2014-01-01</date>
@@ -77,8 +77,14 @@ static INVALID_STOCK_XML: &'static str = r#"<?xml version="1.0"?>
 </stock
 "#;
 
+
+// TODO: This test has revealed SchemaParserContext+SchemaValidationContext are not safe for
+//       multi-threaded use in libxml >=2.12, at least not as currently implemented.
+//       while it still reliably succeeds single-threaded, new implementation is needed to use
+//       these in a parallel setting.
 #[test]
-fn schema_from_string() {
+fn schema_all_tests() {
+// fn schema_from_string() {
   let xml = Parser::default()
     .parse_string(VALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
@@ -88,10 +94,9 @@ fn schema_from_string() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message.as_ref().unwrap());
+      eprintln!("{}", err.message.as_ref().unwrap());
     }
-
-    panic!("Failed to parse schema");
+    panic!("Failed to parse schema with {} errors", errors.len());
   }
 
   let mut xsdvalidator = xsd.unwrap();
@@ -100,16 +105,14 @@ fn schema_from_string() {
   for _ in 0..5 {
     if let Err(errors) = xsdvalidator.validate_document(&xml) {
       for err in &errors {
-        println!("{}", err.message.as_ref().unwrap());
+        eprintln!("{}", err.message.as_ref().unwrap());
       }
 
       panic!("Invalid XML accoding to XSD schema");
     }
   }
-}
-
-#[test]
-fn schema_from_string_generates_errors() {
+  
+  // fn schema_from_string_generates_errors() {
   let xml = Parser::default()
     .parse_string(INVALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
@@ -119,10 +122,9 @@ fn schema_from_string_generates_errors() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message.as_ref().unwrap());
+      eprintln!("{}", err.message.as_ref().unwrap());
     }
-
-    panic!("Failed to parse schema");
+    panic!("Failed to parse schema with {} errors", errors.len());
   }
 
   let mut xsdvalidator = xsd.unwrap();
@@ -136,10 +138,8 @@ fn schema_from_string_generates_errors() {
       }
     }
   }
-}
 
-#[test]
-fn schema_from_string_reports_unique_errors() {
+  // fn schema_from_string_reports_unique_errors() {
   let xml = Parser::default()
     .parse_string(INVALID_STOCK_XML)
     .expect("Expected to be able to parse XML Document from string");
@@ -149,10 +149,10 @@ fn schema_from_string_reports_unique_errors() {
 
   if let Err(errors) = xsd {
     for err in &errors {
-      println!("{}", err.message.as_ref().unwrap());
+      eprintln!("{}", err.message.as_ref().unwrap());
     }
 
-    panic!("Failed to parse schema");
+    panic!("Failed to parse schema with {} errors", errors.len());
   }
 
   let mut xsdvalidator = xsd.unwrap();

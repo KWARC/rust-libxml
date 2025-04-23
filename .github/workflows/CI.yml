@@ -31,7 +31,7 @@ jobs:
   test-newer-libxml2:
     strategy:
       matrix:
-        libxml_version: ["2.12.9", "2.13.8"]
+        libxml_version: ["2.12.9", "2.13.8","2.14.1"]
     name: With libxml ${{ matrix.libxml_version }}
     runs-on: ubuntu-latest
     steps:
@@ -59,4 +59,3 @@ jobs:
           command: test
         env:
           LD_LIBRARY_PATH: /usr/local/lib
-

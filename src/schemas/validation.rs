@@ -23,6 +23,7 @@ pub struct SchemaValidationContext {
   _schema: Schema,
 }
 
+
 impl SchemaValidationContext {
   /// Create a schema validation context from a parser object
   pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<StructuredError>> {
@@ -38,7 +39,6 @@ impl SchemaValidationContext {
 
         Ok(Self::from_raw(ctx, s))
       }
-
       Err(e) => Err(e),
     }
   }
