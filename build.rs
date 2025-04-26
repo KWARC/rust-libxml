@@ -51,10 +51,12 @@ fn find_libxml2() -> Option<ProbedLib> {
       })
     }
 
-    #[cfg(windows)]
+    #[cfg(target_family = "windows")]
     {
-      if let Some(meta) =  vcpkg_dep::find() {
+      if let Some(meta) =  vcpkg_dep::vcpkg_find_libxml2() {
         return Some(meta);
+      } else {
+        eprintln!("vcpkg did not succeed in finding libxml2.");
       }
     }
 
@@ -110,7 +112,7 @@ fn main() {
 #[cfg(target_family = "windows")]
 mod vcpkg_dep {
   use crate::ProbedLib;
-  pub fn find() -> Option<ProbedLib> {
+  pub fn vcpkg_find_libxml2() -> Option<ProbedLib> {
     if let Ok(metadata) = vcpkg::find_package("libxml2") {
       Some(ProbedLib { version: vcpkg_version(), include_paths: metadata.include_paths })
     } else {
