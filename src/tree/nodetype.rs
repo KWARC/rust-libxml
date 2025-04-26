@@ -1,6 +1,8 @@
 //! Types of libxml2 Nodes
 //!
 
+use crate::bindings::xmlElementType;
+
 /// Types of xml nodes
 #[derive(Debug, PartialEq, Eq)]
 #[allow(missing_docs)]
@@ -31,7 +33,7 @@ pub enum NodeType {
 impl NodeType {
   /// converts an integer from libxml's `enum NodeType`
   /// to an instance of our `NodeType`
-  pub fn from_int(i: u32) -> Option<NodeType> {
+  pub fn from_int(i: xmlElementType) -> Option<NodeType> {
     match i {
       1 => Some(NodeType::ElementNode),
       2 => Some(NodeType::AttributeNode),
