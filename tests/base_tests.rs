@@ -212,7 +212,9 @@ fn serialization_roundtrip(file_name: &str) {
 }
 
 fn strip_whitespace(string: &str) -> String {
-  string.replace("\n", "").replace(" ", "")
+  string.replace("\r","")
+    .replace("\n", "")
+    .replace(" ", "")
 }
 
 #[test]
