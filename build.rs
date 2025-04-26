@@ -39,7 +39,7 @@ fn find_libxml2() -> Option<ProbedLib> {
         .to_string_lossy()
     );
     None
-  } else {    
+  } else {
     #[cfg(any(target_family = "unix", target_os = "macos"))]
     {
       let lib = pkg_config::Config::new()
@@ -57,7 +57,7 @@ fn find_libxml2() -> Option<ProbedLib> {
         return Some(meta);
       }
     }
-    
+
     panic!("Could not find libxml2.")
   }
 }
@@ -68,7 +68,7 @@ fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
     .opaque_type("max_align_t")
     // invalidate build as soon as the wrapper changes
     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-    .layout_tests(false)
+    .layout_tests(true)
     .clang_args(&["-DPKG-CONFIG"])
     .clang_args(
       header_dirs.iter()
@@ -112,10 +112,38 @@ mod vcpkg_dep {
   use crate::ProbedLib;
   pub fn find() -> Option<ProbedLib> {
     if let Ok(metadata) = vcpkg::find_package("libxml2") {
-      eprintln!(" ---- \n{:?}", metadata.ports.first());
-      Some(ProbedLib { version: String::from("2.13.5"), include_paths: metadata.include_paths })
+      Some(ProbedLib { version: vcpkg_version(), include_paths: metadata.include_paths })
     } else {
       None
     }
+  }
+
+  fn vcpkg_version() -> String {
+    // What is the best way to obtain the version on Windows *before* bindgen runs?
+    // here we attempt asking the shell for "vcpkg list libxml2"
+    let mut vcpkg_exe = vcpkg::find_vcpkg_root(&vcpkg::Config::new()).unwrap();
+    vcpkg_exe.push("vcpkg.exe");
+    let vcpkg_list_libxml2 = std::process::Command::new(vcpkg_exe)
+      .args(["list","libxml2"])
+      .output()
+      .expect("vcpkg.exe failed to execute in vcpkg_dep build step");
+    if vcpkg_list_libxml2.status.success() {
+      let libxml2_list_str = String::from_utf8_lossy(&vcpkg_list_libxml2.stdout);
+      for line in libxml2_list_str.lines() {
+        if line.starts_with("libxml2:") {
+          let mut version_piece = line.split("2.");
+          version_piece.next();
+          if let Some(version_tail) = version_piece.next() {
+            if let Some(version) = version_tail.split(' ').next()
+              .unwrap().split('#').next() {
+                return format!("2.{version}");
+            }
+          }
+        }
+      }
+    }
+    // default to a recent libxml2 from Windows 10
+    // (or should this panic?)
+    String::from("2.13.5")
   }
 }
