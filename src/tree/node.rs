@@ -331,7 +331,7 @@ impl Node {
 
   /// Get the node type
   pub fn get_type(&self) -> Option<NodeType> {
-    NodeType::from_int(xmlGetNodeType(self.node_ptr()))
+    NodeType::from_int(xmlGetNodeType(self.node_ptr()) as u32)
   }
 
   /// Add a previous sibling
