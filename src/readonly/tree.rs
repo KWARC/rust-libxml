@@ -174,7 +174,7 @@ impl RoNode {
 
   /// Get the node type
   pub fn get_type(self) -> Option<NodeType> {
-    NodeType::from_int(xmlGetNodeType(self.0))
+    NodeType::from_int(xmlGetNodeType(self.0) as u32)
   }
 
   /// Returns true if it is a text node

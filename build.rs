@@ -53,8 +53,8 @@ fn find_libxml2() -> Option<ProbedLib> {
 
     #[cfg(windows)]
     {
-      if vcpkg_dep::find() {
-        return None
+      if let Some(meta) =  vcpkg_dep::find() {
+        return Some(meta);
       }
     }
     
@@ -68,7 +68,7 @@ fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
     .opaque_type("max_align_t")
     // invalidate build as soon as the wrapper changes
     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-    .layout_tests(true)
+    .layout_tests(false)
     .clang_args(&["-DPKG-CONFIG"])
     .clang_args(
       header_dirs.iter()
@@ -109,10 +109,13 @@ fn main() {
 
 #[cfg(target_family = "windows")]
 mod vcpkg_dep {
-  pub fn find() -> bool {
-    if vcpkg::find_package("libxml2").is_ok() {
-      return true;
+  use crate::ProbedLib;
+  pub fn find() -> Option<ProbedLib> {
+    if let Ok(metadata) = vcpkg::find_package("libxml2") {
+      eprintln!(" ---- \n{:?}", metadata.ports.first());
+      Some(ProbedLib { version: String::from("2.13.5"), include_paths: metadata.include_paths })
+    } else {
+      None
     }
-    false
   }
 }
