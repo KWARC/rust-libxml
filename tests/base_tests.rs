@@ -177,7 +177,7 @@ fn html_fragment() {
   let parser = Parser::default_html();
   let document = parser
     .parse_string_with_options(
-      &fragment,
+      fragment,
       ParserOptions {
         no_def_dtd: true,
         no_implied: true,

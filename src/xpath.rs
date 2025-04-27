@@ -262,9 +262,7 @@ impl Object {
       let value_ptr = unsafe { xmlXPathCastNodeToString(ptr) };
       let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
       let ready_str = c_value_string.to_string_lossy().into_owned();
-      unsafe {
-        libc::free(value_ptr as *mut c_void);
-      }
+      bindgenFree(value_ptr as *mut c_void);
       vec.push(ready_str);
     }
     vec
@@ -279,7 +277,7 @@ impl fmt::Display for Object {
       let receiver = xmlXPathCastToString(self.ptr);
       let c_string = CStr::from_ptr(receiver as *const c_char);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
-      libc::free(receiver as *mut c_void);
+      bindgenFree(receiver as *mut c_void);
       write!(f, "{}", rust_string)
     }
   }
@@ -294,9 +292,7 @@ pub fn is_well_formed_xpath(xpath: &str) -> bool {
   if xml_xpath_comp_expr_ptr.is_null() {
     false
   } else {
-    unsafe {
-      libc::free(xml_xpath_comp_expr_ptr as *mut c_void);
-    }
+    bindgenFree(xml_xpath_comp_expr_ptr as *mut c_void);
     true
   }
 }

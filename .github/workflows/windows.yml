@@ -4,13 +4,14 @@ name: CI Windows
 
 jobs:
   test-default-windows:
-    name: Windows default
+    name: Windows vcpkg (default)
     runs-on: windows-latest
     env: 
       VCPKGRS_DYNAMIC: 1
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKG_ROOT: C:\vcpkg
     steps:
+      - uses: actions/checkout@v4
       - name: Setup vcpkg libxml2 Cache
         uses: actions/cache@v4
         id: vcpkg-cache
@@ -19,9 +20,38 @@ jobs:
           key: vcpkg-libxml2
       - name: Install libxml2 with vcpkg
         run: |
-          vcpkg install libxml2
+          vcpkg install libxml2:x64-windows
           vcpkg integrate install
-      - uses: actions/checkout@v2
+      - name: run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+  test-mingw64-windows:
+    name: Windows (mingw64)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          path-type: minimal
+          release: false
+          update: false
+          msystem: MINGW64
+          install: >-
+            mingw64/mingw-w64-x86_64-pkg-config
+            mingw64/mingw-w64-x86_64-libxml2
+      - name: Install stable windows-gnu Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable-x86_64-pc-windows-gnu
+          target: x86_64-pc-windows-gnu
+          override: true
+      - name: Ensure mingw64 pkg-config is in path
+        run: echo "C:\msys64\mingw64\bin" >> "$GITHUB_PATH"
       - name: run tests
         uses: actions-rs/cargo@v1
         with:

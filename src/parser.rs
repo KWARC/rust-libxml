@@ -17,7 +17,7 @@ use std::slice;
 use std::str;
 use std::sync::Once;
 
-static INIT_LIBXML_PARSER: Once = Once::new();
+pub(crate) static INIT_LIBXML_PARSER: Once = Once::new();
 
 enum XmlParserOption {
   Recover = 1,

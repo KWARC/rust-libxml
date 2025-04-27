@@ -212,9 +212,7 @@ impl RoNode {
     }
     let c_string = unsafe { CStr::from_ptr(content_ptr as *const c_char) };
     let rust_utf8 = c_string.to_string_lossy().into_owned();
-    unsafe {
-      libc::free(content_ptr as *mut c_void);
-    }
+    bindgenFree(content_ptr as *mut c_void);
     rust_utf8
   }
 
@@ -227,10 +225,7 @@ impl RoNode {
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
-    // A safe way to free the memory is using libc::free -- I have experienced that xmlFree from libxml2 is not reliable
-    unsafe {
-      libc::free(value_ptr as *mut c_void);
-    }
+    bindgenFree(value_ptr as *mut c_void);
     Some(prop_str)
   }
 
@@ -245,9 +240,7 @@ impl RoNode {
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
-    unsafe {
-      libc::free(value_ptr as *mut c_void);
-    }
+    bindgenFree(value_ptr as *mut c_void);
     Some(prop_str)
   }
 
@@ -260,9 +253,7 @@ impl RoNode {
     }
     let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
     let prop_str = c_value_string.to_string_lossy().into_owned();
-    unsafe {
-      libc::free(value_ptr as *mut c_void);
-    }
+    bindgenFree(value_ptr as *mut c_void);
     Some(prop_str)
   }
 
