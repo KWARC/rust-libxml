@@ -40,7 +40,7 @@ fn find_libxml2() -> Option<ProbedLib> {
     );
     None
   } else {
-    #[cfg(any(target_family = "unix", target_os = "macos"))]
+    #[cfg(any(target_family = "unix", target_os = "macos", all(target_family="windows", target_env="gnu")))]
     {
       let lib = pkg_config::Config::new()
         .probe("libxml-2.0")
@@ -109,7 +109,7 @@ fn main() {
   }
 }
 
-#[cfg(target_family = "windows")]
+#[cfg(all(target_family = "windows", target_env = "msvc"))]
 mod vcpkg_dep {
   use crate::ProbedLib;
   pub fn vcpkg_find_libxml2() -> Option<ProbedLib> {
