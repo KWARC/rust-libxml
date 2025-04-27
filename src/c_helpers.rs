@@ -143,3 +143,18 @@ pub fn xmlXPathObjectNumberOfNodes(val: xmlXPathObjectPtr) -> c_int {
 pub fn xmlXPathObjectGetNodes(val: xmlXPathObjectPtr, size: size_t) -> Vec<xmlNodePtr> {
   unsafe { slice::from_raw_parts((*(*val).nodesetval).nodeTab, size).to_vec() }
 }
+
+#[cfg(any(target_family = "unix", target_os = "macos", all(target_family="windows", target_env="gnu")))]
+pub fn bindgenFree(val: *mut c_void) {
+  unsafe {
+    if let Some(xml_free_fn) = xmlFree {
+      xml_free_fn(val);
+    } else {
+      libc::free(val);
+    }
+  }
+}
+#[cfg(all(target_family="windows", target_env="msvc"))]
+pub fn bindgenFree(val: *mut c_void) {
+  unsafe { libc::free(val as *mut c_void); }
+}

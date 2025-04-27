@@ -84,9 +84,14 @@ impl fmt::Display for Document {
 impl Document {
   /// Creates a new empty libxml2 document
   pub fn new() -> Result<Self, ()> {
+    // initialize the parser context
+    crate::parser::INIT_LIBXML_PARSER.call_once(|| unsafe {
+      crate::bindings::xmlInitParser();
+    });
     unsafe {
       let c_version = CString::new("1.0").unwrap();
-      let doc_ptr = xmlNewDoc(c_version.as_bytes().as_ptr());
+      let c_version_bytes = c_version.as_bytes();
+      let doc_ptr = xmlNewDoc(c_version_bytes.as_ptr());
       if doc_ptr.is_null() {
         Err(())
       } else {
@@ -290,12 +295,14 @@ impl Document {
   pub fn create_processing_instruction(&mut self, name: &str, content: &str) -> Result<Node, ()> {
     unsafe {
       let c_name = CString::new(name).unwrap();
+      let c_name_bytes = c_name.as_bytes();
       let c_content = CString::new(content).unwrap();
+      let c_content_bytes = c_content.as_bytes();
 
       let node_ptr: xmlNodePtr = xmlNewDocPI(
         self.doc_ptr(),
-        c_name.as_bytes().as_ptr(),
-        c_content.as_bytes().as_ptr(),
+        c_name_bytes.as_ptr(),
+        c_content_bytes.as_ptr(),
       );
       if node_ptr.is_null() {
         Err(())
