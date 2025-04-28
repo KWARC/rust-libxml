@@ -586,9 +586,7 @@ impl Node {
         } else {
           // Propagate libxml2 failure to remove
           Err(From::from(format!(
-            "libxml2 failed to remove property with status: {:?}",
-            remove_prop_status
-          )))
+            "libxml2 failed to remove property with status: {remove_prop_status:?}")))
         }
       } else {
         // silently no-op if asked to remove a property which is not present
@@ -618,9 +616,7 @@ impl Node {
         } else {
           // Propagate libxml2 failure to remove
           Err(From::from(format!(
-            "libxml2 failed to remove property with status: {:?}",
-            remove_prop_status
-          )))
+            "libxml2 failed to remove property with status: {remove_prop_status:?}")))
         }
       } else {
         // silently no-op if asked to remove a property which is not present
@@ -646,9 +642,7 @@ impl Node {
       } else {
         // Propagate libxml2 failure to remove
         Err(From::from(format!(
-          "libxml2 failed to remove property with status: {:?}",
-          remove_prop_status
-        )))
+          "libxml2 failed to remove property with status: {remove_prop_status:?}")))
       }
     } else {
       // silently no-op if asked to remove a property which is not present

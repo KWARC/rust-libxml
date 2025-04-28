@@ -278,7 +278,7 @@ impl fmt::Display for Object {
       let c_string = CStr::from_ptr(receiver as *const c_char);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       bindgenFree(receiver as *mut c_void);
-      write!(f, "{}", rust_string)
+      write!(f, "{rust_string}")
     }
   }
 }
