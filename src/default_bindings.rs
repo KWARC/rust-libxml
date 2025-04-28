@@ -10795,6 +10795,9 @@ unsafe extern "C" {
   pub fn xmlSchemaIsValid(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+  pub fn xmlSchemaInitTypes();
+}
+unsafe extern "C" {
   pub fn xmlSchemaParse(ctxt: xmlSchemaParserCtxtPtr) -> xmlSchemaPtr;
 }
 unsafe extern "C" {

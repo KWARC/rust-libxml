@@ -3,4 +3,5 @@
 #include <libxml/xpathInternals.h>
 #include <libxml/xmlsave.h>
 #include <libxml/HTMLparser.h>
+#include <libxml/xmlschemastypes.h>
 #include <libxml/xmlschemas.h>
