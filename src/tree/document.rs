@@ -84,10 +84,6 @@ impl fmt::Display for Document {
 impl Document {
   /// Creates a new empty libxml2 document
   pub fn new() -> Result<Self, ()> {
-    // initialize the parser context
-    crate::parser::INIT_LIBXML_PARSER.call_once(|| unsafe {
-      crate::bindings::xmlInitParser();
-    });
     unsafe {
       let c_version = CString::new("1.0").unwrap();
       let c_version_bytes = c_version.as_bytes();

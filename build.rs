@@ -115,7 +115,7 @@ mod vcpkg_dep {
   pub fn vcpkg_find_libxml2() -> Option<ProbedLib> {
     if let Ok(metadata) = vcpkg::Config::new()
       .find_package("libxml2") {
-      Some(ProbedLib { version: vcpkg_version(), include_paths: dbg!(metadata).include_paths })
+      Some(ProbedLib { version: vcpkg_version(), include_paths: metadata.include_paths })
     } else {
       None
     }
