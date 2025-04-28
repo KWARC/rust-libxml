@@ -83,8 +83,7 @@ static INVALID_STOCK_XML: &str = r#"<?xml version="1.0"?>
 //       while it still reliably succeeds single-threaded, new implementation is needed to use
 //       these in a parallel setting.
 #[test]
-fn schema_all_tests() {
-// fn schema_from_string() {
+fn schema_from_string() {
   let xml = Parser::default()
     .parse_string(VALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
@@ -111,8 +110,10 @@ fn schema_all_tests() {
       panic!("Invalid XML accoding to XSD schema");
     }
   }
-  
-  // fn schema_from_string_generates_errors() {
+}
+
+#[test]
+fn schema_from_string_generates_errors() {
   let xml = Parser::default()
     .parse_string(INVALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
@@ -138,8 +139,10 @@ fn schema_all_tests() {
       }
     }
   }
+}
 
-  // fn schema_from_string_reports_unique_errors() {
+#[test]
+fn schema_from_string_reports_unique_errors() {
   let xml = Parser::default()
     .parse_string(INVALID_STOCK_XML)
     .expect("Expected to be able to parse XML Document from string");
