@@ -1,0 +1,9 @@
+(function() {
+    var implementors = Object.fromEntries([["libxml",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"libxml/parser/enum.ParseFormat.html\" title=\"enum libxml::parser::ParseFormat\">ParseFormat</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"enum\" href=\"libxml/tree/nodetype/enum.NodeType.html\" title=\"enum libxml::tree::nodetype::NodeType\">NodeType</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"struct\" href=\"libxml/readonly/struct.RoNode.html\" title=\"struct libxml::readonly::RoNode\">RoNode</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"struct\" href=\"libxml/tree/namespace/struct.Namespace.html\" title=\"struct libxml::tree::namespace::Namespace\">Namespace</a>"],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.86.0/core/cmp/trait.Eq.html\" title=\"trait core::cmp::Eq\">Eq</a> for <a class=\"struct\" href=\"libxml/tree/node/struct.Node.html\" title=\"struct libxml::tree::node::Node\">Node</a>"]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":57,"fragment_lengths":[1302]}
