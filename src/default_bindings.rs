@@ -8,7 +8,7 @@ pub const LIBXML_MODULE_EXTENSION: &[u8; 4] = b".so\0";
 pub const _STDIO_H: u32 = 1;
 pub const _FEATURES_H: u32 = 1;
 pub const _DEFAULT_SOURCE: u32 = 1;
-pub const __GLIBC_USE_ISOC23: u32 = 0;
+pub const __GLIBC_USE_ISOC2X: u32 = 0;
 pub const __USE_ISOC11: u32 = 1;
 pub const __USE_ISOC99: u32 = 1;
 pub const __USE_ISOC95: u32 = 1;
@@ -26,13 +26,12 @@ pub const __WORDSIZE: u32 = 64;
 pub const __WORDSIZE_TIME64_COMPAT32: u32 = 1;
 pub const __SYSCALL_WORDSIZE: u32 = 64;
 pub const __TIMESIZE: u32 = 64;
-pub const __USE_TIME_BITS64: u32 = 1;
 pub const __USE_MISC: u32 = 1;
 pub const __USE_ATFILE: u32 = 1;
 pub const __USE_FORTIFY_LEVEL: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_GETS: u32 = 0;
 pub const __GLIBC_USE_DEPRECATED_SCANF: u32 = 0;
-pub const __GLIBC_USE_C23_STRTOL: u32 = 0;
+pub const __GLIBC_USE_C2X_STRTOL: u32 = 0;
 pub const _STDC_PREDEF_H: u32 = 1;
 pub const __STDC_IEC_559__: u32 = 1;
 pub const __STDC_IEC_60559_BFP__: u32 = 201404;
@@ -41,17 +40,17 @@ pub const __STDC_IEC_60559_COMPLEX__: u32 = 201404;
 pub const __STDC_ISO_10646__: u32 = 201706;
 pub const __GNU_LIBRARY__: u32 = 6;
 pub const __GLIBC__: u32 = 2;
-pub const __GLIBC_MINOR__: u32 = 40;
+pub const __GLIBC_MINOR__: u32 = 39;
 pub const _SYS_CDEFS_H: u32 = 1;
 pub const __glibc_c99_flexarr_available: u32 = 1;
 pub const __LDOUBLE_REDIRECTS_TO_FLOAT128_ABI: u32 = 0;
 pub const __HAVE_GENERIC_SELECTION: u32 = 1;
 pub const __GLIBC_USE_LIB_EXT2: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_BFP_EXT: u32 = 0;
-pub const __GLIBC_USE_IEC_60559_BFP_EXT_C23: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_BFP_EXT_C2X: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_EXT: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_FUNCS_EXT: u32 = 0;
-pub const __GLIBC_USE_IEC_60559_FUNCS_EXT_C23: u32 = 0;
+pub const __GLIBC_USE_IEC_60559_FUNCS_EXT_C2X: u32 = 0;
 pub const __GLIBC_USE_IEC_60559_TYPES_EXT: u32 = 0;
 pub const _BITS_TYPES_H: u32 = 1;
 pub const _BITS_TYPESIZES_H: u32 = 1;
@@ -205,6 +204,7 @@ pub const UCONFIG_NO_CONVERSION: u32 = 0;
 pub const UCONFIG_ONLY_HTML_CONVERSION: u32 = 0;
 pub const UCONFIG_NO_LEGACY_CONVERSION: u32 = 0;
 pub const UCONFIG_NO_NORMALIZATION: u32 = 0;
+pub const UCONFIG_USE_ML_PHRASE_BREAKING: u32 = 0;
 pub const UCONFIG_NO_BREAK_ITERATION: u32 = 0;
 pub const UCONFIG_NO_IDNA: u32 = 0;
 pub const UCONFIG_USE_WINDOWS_LCID_MAPPING_API: u32 = 1;
@@ -216,14 +216,14 @@ pub const UCONFIG_NO_SERVICE: u32 = 0;
 pub const UCONFIG_HAVE_PARSEALLINPUT: u32 = 1;
 pub const UCONFIG_NO_FILTERED_BREAK_ITERATION: u32 = 0;
 pub const U_COPYRIGHT_STRING : & [u8 ; 120] = b" Copyright (C) 2016 and later: Unicode, Inc. and others. License & terms of use: http://www.unicode.org/copyright.html \0" ;
-pub const U_ICU_VERSION_MAJOR_NUM: u32 = 72;
-pub const U_ICU_VERSION_MINOR_NUM: u32 = 1;
+pub const U_ICU_VERSION_MAJOR_NUM: u32 = 74;
+pub const U_ICU_VERSION_MINOR_NUM: u32 = 2;
 pub const U_ICU_VERSION_PATCHLEVEL_NUM: u32 = 0;
 pub const U_ICU_VERSION_BUILDLEVEL_NUM: u32 = 0;
 pub const U_DISABLE_VERSION_SUFFIX: u32 = 0;
-pub const U_ICU_VERSION: &[u8; 5] = b"72.1\0";
-pub const U_ICU_VERSION_SHORT: &[u8; 3] = b"72\0";
-pub const U_ICU_DATA_VERSION: &[u8; 5] = b"72.1\0";
+pub const U_ICU_VERSION: &[u8; 5] = b"74.2\0";
+pub const U_ICU_VERSION_SHORT: &[u8; 3] = b"74\0";
+pub const U_ICU_DATA_VERSION: &[u8; 5] = b"74.2\0";
 pub const UCOL_RUNTIME_VERSION: u32 = 9;
 pub const UCOL_BUILDER_VERSION: u32 = 9;
 pub const UCOL_TAILORINGS_VERSION: u32 = 1;
@@ -336,8 +336,8 @@ pub const UTF32_MAX_CHAR_LENGTH: u32 = 1;
 pub const UTF_MAX_CHAR_LENGTH: u32 = 2;
 pub const U_SHOW_CPLUSPLUS_API: u32 = 0;
 pub const U_ICUDATA_TYPE_LETTER: &[u8; 2] = b"l\0";
-pub const U_ICUDATA_NAME: &[u8; 9] = b"icudt72l\0";
-pub const U_USRDATA_NAME: &[u8; 9] = b"usrdt72l\0";
+pub const U_ICUDATA_NAME: &[u8; 9] = b"icudt74l\0";
+pub const U_USRDATA_NAME: &[u8; 9] = b"usrdt74l\0";
 pub const U_USE_USRDATA: u32 = 0;
 pub const U_MILLIS_PER_SECOND: u32 = 1000;
 pub const U_MILLIS_PER_MINUTE: u32 = 60000;
@@ -424,11 +424,103 @@ pub const __have_pthread_attr_t: u32 = 1;
 pub const _ALLOCA_H: u32 = 1;
 pub const XML_XPATH_CHECKNS: u32 = 1;
 pub const XML_XPATH_NOVAR: u32 = 2;
-pub type __gnuc_va_list = __builtin_va_list;
-pub type va_list = __builtin_va_list;
+pub const XML_MAX_TEXT_LENGTH: u32 = 10000000;
+pub const XML_MAX_NAME_LENGTH: u32 = 50000;
+pub const XML_MAX_DICTIONARY_LIMIT: u32 = 10000000;
+pub const XML_MAX_LOOKUP_LIMIT: u32 = 10000000;
+pub const XML_MAX_NAMELEN: u32 = 100;
+pub const INPUT_CHUNK: u32 = 250;
+pub const XML_SUBSTITUTE_NONE: u32 = 0;
+pub const XML_SUBSTITUTE_REF: u32 = 1;
+pub const XML_SUBSTITUTE_PEREF: u32 = 2;
+pub const XML_SUBSTITUTE_BOTH: u32 = 3;
+pub const INVALID_SOCKET: i32 = -1;
+pub const XML_SCHEMAS_ANYATTR_SKIP: u32 = 1;
+pub const XML_SCHEMAS_ANYATTR_LAX: u32 = 2;
+pub const XML_SCHEMAS_ANYATTR_STRICT: u32 = 3;
+pub const XML_SCHEMAS_ANY_SKIP: u32 = 1;
+pub const XML_SCHEMAS_ANY_LAX: u32 = 2;
+pub const XML_SCHEMAS_ANY_STRICT: u32 = 3;
+pub const XML_SCHEMAS_ATTR_USE_PROHIBITED: u32 = 0;
+pub const XML_SCHEMAS_ATTR_USE_REQUIRED: u32 = 1;
+pub const XML_SCHEMAS_ATTR_USE_OPTIONAL: u32 = 2;
+pub const XML_SCHEMAS_ATTR_GLOBAL: u32 = 1;
+pub const XML_SCHEMAS_ATTR_NSDEFAULT: u32 = 128;
+pub const XML_SCHEMAS_ATTR_INTERNAL_RESOLVED: u32 = 256;
+pub const XML_SCHEMAS_ATTR_FIXED: u32 = 512;
+pub const XML_SCHEMAS_WILDCARD_COMPLETE: u32 = 1;
+pub const XML_SCHEMAS_ATTRGROUP_WILDCARD_BUILDED: u32 = 1;
+pub const XML_SCHEMAS_ATTRGROUP_GLOBAL: u32 = 2;
+pub const XML_SCHEMAS_ATTRGROUP_MARKED: u32 = 4;
+pub const XML_SCHEMAS_ATTRGROUP_REDEFINED: u32 = 8;
+pub const XML_SCHEMAS_ATTRGROUP_HAS_REFS: u32 = 16;
+pub const XML_SCHEMAS_TYPE_MIXED: u32 = 1;
+pub const XML_SCHEMAS_TYPE_DERIVATION_METHOD_EXTENSION: u32 = 2;
+pub const XML_SCHEMAS_TYPE_DERIVATION_METHOD_RESTRICTION: u32 = 4;
+pub const XML_SCHEMAS_TYPE_GLOBAL: u32 = 8;
+pub const XML_SCHEMAS_TYPE_OWNED_ATTR_WILDCARD: u32 = 16;
+pub const XML_SCHEMAS_TYPE_VARIETY_ABSENT: u32 = 32;
+pub const XML_SCHEMAS_TYPE_VARIETY_LIST: u32 = 64;
+pub const XML_SCHEMAS_TYPE_VARIETY_UNION: u32 = 128;
+pub const XML_SCHEMAS_TYPE_VARIETY_ATOMIC: u32 = 256;
+pub const XML_SCHEMAS_TYPE_FINAL_EXTENSION: u32 = 512;
+pub const XML_SCHEMAS_TYPE_FINAL_RESTRICTION: u32 = 1024;
+pub const XML_SCHEMAS_TYPE_FINAL_LIST: u32 = 2048;
+pub const XML_SCHEMAS_TYPE_FINAL_UNION: u32 = 4096;
+pub const XML_SCHEMAS_TYPE_FINAL_DEFAULT: u32 = 8192;
+pub const XML_SCHEMAS_TYPE_BUILTIN_PRIMITIVE: u32 = 16384;
+pub const XML_SCHEMAS_TYPE_MARKED: u32 = 65536;
+pub const XML_SCHEMAS_TYPE_BLOCK_DEFAULT: u32 = 131072;
+pub const XML_SCHEMAS_TYPE_BLOCK_EXTENSION: u32 = 262144;
+pub const XML_SCHEMAS_TYPE_BLOCK_RESTRICTION: u32 = 524288;
+pub const XML_SCHEMAS_TYPE_ABSTRACT: u32 = 1048576;
+pub const XML_SCHEMAS_TYPE_FACETSNEEDVALUE: u32 = 2097152;
+pub const XML_SCHEMAS_TYPE_INTERNAL_RESOLVED: u32 = 4194304;
+pub const XML_SCHEMAS_TYPE_INTERNAL_INVALID: u32 = 8388608;
+pub const XML_SCHEMAS_TYPE_WHITESPACE_PRESERVE: u32 = 16777216;
+pub const XML_SCHEMAS_TYPE_WHITESPACE_REPLACE: u32 = 33554432;
+pub const XML_SCHEMAS_TYPE_WHITESPACE_COLLAPSE: u32 = 67108864;
+pub const XML_SCHEMAS_TYPE_HAS_FACETS: u32 = 134217728;
+pub const XML_SCHEMAS_TYPE_NORMVALUENEEDED: u32 = 268435456;
+pub const XML_SCHEMAS_TYPE_FIXUP_1: u32 = 536870912;
+pub const XML_SCHEMAS_TYPE_REDEFINED: u32 = 1073741824;
+pub const XML_SCHEMAS_ELEM_NILLABLE: u32 = 1;
+pub const XML_SCHEMAS_ELEM_GLOBAL: u32 = 2;
+pub const XML_SCHEMAS_ELEM_DEFAULT: u32 = 4;
+pub const XML_SCHEMAS_ELEM_FIXED: u32 = 8;
+pub const XML_SCHEMAS_ELEM_ABSTRACT: u32 = 16;
+pub const XML_SCHEMAS_ELEM_TOPLEVEL: u32 = 32;
+pub const XML_SCHEMAS_ELEM_REF: u32 = 64;
+pub const XML_SCHEMAS_ELEM_NSDEFAULT: u32 = 128;
+pub const XML_SCHEMAS_ELEM_INTERNAL_RESOLVED: u32 = 256;
+pub const XML_SCHEMAS_ELEM_CIRCULAR: u32 = 512;
+pub const XML_SCHEMAS_ELEM_BLOCK_ABSENT: u32 = 1024;
+pub const XML_SCHEMAS_ELEM_BLOCK_EXTENSION: u32 = 2048;
+pub const XML_SCHEMAS_ELEM_BLOCK_RESTRICTION: u32 = 4096;
+pub const XML_SCHEMAS_ELEM_BLOCK_SUBSTITUTION: u32 = 8192;
+pub const XML_SCHEMAS_ELEM_FINAL_ABSENT: u32 = 16384;
+pub const XML_SCHEMAS_ELEM_FINAL_EXTENSION: u32 = 32768;
+pub const XML_SCHEMAS_ELEM_FINAL_RESTRICTION: u32 = 65536;
+pub const XML_SCHEMAS_ELEM_SUBST_GROUP_HEAD: u32 = 131072;
+pub const XML_SCHEMAS_ELEM_INTERNAL_CHECKED: u32 = 262144;
+pub const XML_SCHEMAS_FACET_UNKNOWN: u32 = 0;
+pub const XML_SCHEMAS_FACET_PRESERVE: u32 = 1;
+pub const XML_SCHEMAS_FACET_REPLACE: u32 = 2;
+pub const XML_SCHEMAS_FACET_COLLAPSE: u32 = 3;
+pub const XML_SCHEMAS_QUALIF_ELEM: u32 = 1;
+pub const XML_SCHEMAS_QUALIF_ATTR: u32 = 2;
+pub const XML_SCHEMAS_FINAL_DEFAULT_EXTENSION: u32 = 4;
+pub const XML_SCHEMAS_FINAL_DEFAULT_RESTRICTION: u32 = 8;
+pub const XML_SCHEMAS_FINAL_DEFAULT_LIST: u32 = 16;
+pub const XML_SCHEMAS_FINAL_DEFAULT_UNION: u32 = 32;
+pub const XML_SCHEMAS_BLOCK_DEFAULT_EXTENSION: u32 = 64;
+pub const XML_SCHEMAS_BLOCK_DEFAULT_RESTRICTION: u32 = 128;
+pub const XML_SCHEMAS_BLOCK_DEFAULT_SUBSTITUTION: u32 = 256;
+pub const XML_SCHEMAS_INCLUDING_CONVERT_NS: u32 = 512;
 unsafe extern "C" {
   pub fn xmlCheckVersion(version: ::std::os::raw::c_int);
 }
+pub type __gnuc_va_list = __builtin_va_list;
 pub type __u_char = ::std::os::raw::c_uchar;
 pub type __u_short = ::std::os::raw::c_ushort;
 pub type __u_int = ::std::os::raw::c_uint;
@@ -607,7 +699,7 @@ pub struct _IO_FILE {
   pub _wide_data: *mut _IO_wide_data,
   pub _freeres_list: *mut _IO_FILE,
   pub _freeres_buf: *mut ::std::os::raw::c_void,
-  pub _prevchain: *mut *mut _IO_FILE,
+  pub __pad5: usize,
   pub _mode: ::std::os::raw::c_int,
   pub _unused2: [::std::os::raw::c_char; 20usize],
 }
@@ -658,8 +750,7 @@ const _: () = {
     [::std::mem::offset_of!(_IO_FILE, _freeres_list) - 168usize];
   ["Offset of field: _IO_FILE::_freeres_buf"]
     [::std::mem::offset_of!(_IO_FILE, _freeres_buf) - 176usize];
-  ["Offset of field: _IO_FILE::_prevchain"]
-    [::std::mem::offset_of!(_IO_FILE, _prevchain) - 184usize];
+  ["Offset of field: _IO_FILE::__pad5"][::std::mem::offset_of!(_IO_FILE, __pad5) - 184usize];
   ["Offset of field: _IO_FILE::_mode"][::std::mem::offset_of!(_IO_FILE, _mode) - 192usize];
   ["Offset of field: _IO_FILE::_unused2"][::std::mem::offset_of!(_IO_FILE, _unused2) - 196usize];
 };
@@ -711,6 +802,7 @@ const _: () = {
     [::std::mem::offset_of!(_IO_cookie_io_functions_t, close) - 24usize];
 };
 pub type cookie_io_functions_t = _IO_cookie_io_functions_t;
+pub type va_list = __gnuc_va_list;
 pub type off_t = __off_t;
 pub type fpos_t = __fpos_t;
 unsafe extern "C" {
@@ -1588,18 +1680,12 @@ pub type wchar_t = ::std::os::raw::c_int;
 #[repr(align(16))]
 #[derive(Debug, Copy, Clone)]
 pub struct max_align_t {
-  pub __clang_max_align_nonce1: ::std::os::raw::c_longlong,
-  pub __bindgen_padding_0: u64,
-  pub __clang_max_align_nonce2: u128,
+  pub _bindgen_opaque_blob: [u128; 2usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
   ["Size of max_align_t"][::std::mem::size_of::<max_align_t>() - 32usize];
   ["Alignment of max_align_t"][::std::mem::align_of::<max_align_t>() - 16usize];
-  ["Offset of field: max_align_t::__clang_max_align_nonce1"]
-    [::std::mem::offset_of!(max_align_t, __clang_max_align_nonce1) - 0usize];
-  ["Offset of field: max_align_t::__clang_max_align_nonce2"]
-    [::std::mem::offset_of!(max_align_t, __clang_max_align_nonce2) - 16usize];
 };
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2762,6 +2848,139 @@ unsafe extern "C" {
 unsafe extern "C" {
   pub fn xmlPreviousElementSibling(node: xmlNodePtr) -> xmlNodePtr;
 }
+#[doc = " xmlFreeFunc:\n @mem: an already allocated block of memory\n\n Signature for a free() implementation."]
+pub type xmlFreeFunc =
+  ::std::option::Option<unsafe extern "C" fn(mem: *mut ::std::os::raw::c_void)>;
+#[doc = " xmlMallocFunc:\n @size:  the size requested in bytes\n\n Signature for a malloc() implementation.\n\n Returns a pointer to the newly allocated block or NULL in case of error."]
+pub type xmlMallocFunc =
+  ::std::option::Option<unsafe extern "C" fn(size: usize) -> *mut ::std::os::raw::c_void>;
+#[doc = " xmlReallocFunc:\n @mem: an already allocated block of memory\n @size:  the new size requested in bytes\n\n Signature for a realloc() implementation.\n\n Returns a pointer to the newly reallocated block or NULL in case of error."]
+pub type xmlReallocFunc = ::std::option::Option<
+  unsafe extern "C" fn(
+    mem: *mut ::std::os::raw::c_void,
+    size: usize,
+  ) -> *mut ::std::os::raw::c_void,
+>;
+#[doc = " xmlStrdupFunc:\n @str: a zero terminated string\n\n Signature for an strdup() implementation.\n\n Returns the copy of the string or NULL in case of error."]
+pub type xmlStrdupFunc = ::std::option::Option<
+  unsafe extern "C" fn(str_: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char,
+>;
+unsafe extern "C" {
+  pub fn xmlMemSetup(
+    freeFunc: xmlFreeFunc,
+    mallocFunc: xmlMallocFunc,
+    reallocFunc: xmlReallocFunc,
+    strdupFunc: xmlStrdupFunc,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlMemGet(
+    freeFunc: *mut xmlFreeFunc,
+    mallocFunc: *mut xmlMallocFunc,
+    reallocFunc: *mut xmlReallocFunc,
+    strdupFunc: *mut xmlStrdupFunc,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlGcMemSetup(
+    freeFunc: xmlFreeFunc,
+    mallocFunc: xmlMallocFunc,
+    mallocAtomicFunc: xmlMallocFunc,
+    reallocFunc: xmlReallocFunc,
+    strdupFunc: xmlStrdupFunc,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlGcMemGet(
+    freeFunc: *mut xmlFreeFunc,
+    mallocFunc: *mut xmlMallocFunc,
+    mallocAtomicFunc: *mut xmlMallocFunc,
+    reallocFunc: *mut xmlReallocFunc,
+    strdupFunc: *mut xmlStrdupFunc,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlInitMemory() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCleanupMemory();
+}
+unsafe extern "C" {
+  pub fn xmlMemUsed() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlMemBlocks() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlMemDisplay(fp: *mut FILE);
+}
+unsafe extern "C" {
+  pub fn xmlMemDisplayLast(fp: *mut FILE, nbBytes: ::std::os::raw::c_long);
+}
+unsafe extern "C" {
+  pub fn xmlMemShow(fp: *mut FILE, nr: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlMemoryDump();
+}
+unsafe extern "C" {
+  pub fn xmlMemMalloc(size: usize) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlMemRealloc(
+    ptr: *mut ::std::os::raw::c_void,
+    size: usize,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlMemFree(ptr: *mut ::std::os::raw::c_void);
+}
+unsafe extern "C" {
+  pub fn xmlMemoryStrdup(str_: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlMallocLoc(
+    size: usize,
+    file: *const ::std::os::raw::c_char,
+    line: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlReallocLoc(
+    ptr: *mut ::std::os::raw::c_void,
+    size: usize,
+    file: *const ::std::os::raw::c_char,
+    line: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlMallocAtomicLoc(
+    size: usize,
+    file: *const ::std::os::raw::c_char,
+    line: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlMemStrdupLoc(
+    str_: *const ::std::os::raw::c_char,
+    file: *const ::std::os::raw::c_char,
+    line: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_char;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlMutex {
+  _unused: [u8; 0],
+}
+pub type xmlMutex = _xmlMutex;
+pub type xmlMutexPtr = *mut xmlMutex;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlRMutex {
+  _unused: [u8; 0],
+}
+pub type xmlRMutex = _xmlRMutex;
+pub type xmlRMutexPtr = *mut xmlRMutex;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _xmlHashTable {
@@ -3791,7 +4010,9 @@ pub type xmlStructuredErrorFunc = ::std::option::Option<
 unsafe extern "C" {
   pub fn xmlSetGenericErrorFunc(ctx: *mut ::std::os::raw::c_void, handler: xmlGenericErrorFunc);
 }
-
+unsafe extern "C" {
+  pub fn initGenericErrorDefaultFunc(handler: *mut xmlGenericErrorFunc);
+}
 unsafe extern "C" {
   pub fn xmlSetStructuredErrorFunc(
     ctx: *mut ::std::os::raw::c_void,
@@ -5582,22 +5803,22 @@ pub type OldUChar = ::std::os::raw::c_ushort;
 pub type UChar32 = i32;
 pub type UVersionInfo = [u8; 4usize];
 unsafe extern "C" {
-  pub fn u_versionFromString_72(
+  pub fn u_versionFromString_74(
     versionArray: *mut u8,
     versionString: *const ::std::os::raw::c_char,
   );
 }
 unsafe extern "C" {
-  pub fn u_versionFromUString_72(versionArray: *mut u8, versionString: *const UChar);
+  pub fn u_versionFromUString_74(versionArray: *mut u8, versionString: *const UChar);
 }
 unsafe extern "C" {
-  pub fn u_versionToString_72(versionArray: *const u8, versionString: *mut ::std::os::raw::c_char);
+  pub fn u_versionToString_74(versionArray: *const u8, versionString: *mut ::std::os::raw::c_char);
 }
 unsafe extern "C" {
-  pub fn u_getVersion_72(versionArray: *mut u8);
+  pub fn u_getVersion_74(versionArray: *mut u8);
 }
 unsafe extern "C" {
-  pub fn utf8_nextCharSafeBody_72(
+  pub fn utf8_nextCharSafeBody_74(
     s: *const u8,
     pi: *mut i32,
     length: i32,
@@ -5606,7 +5827,7 @@ unsafe extern "C" {
   ) -> UChar32;
 }
 unsafe extern "C" {
-  pub fn utf8_appendCharSafeBody_72(
+  pub fn utf8_appendCharSafeBody_74(
     s: *mut u8,
     i: i32,
     length: i32,
@@ -5615,7 +5836,7 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn utf8_prevCharSafeBody_72(
+  pub fn utf8_prevCharSafeBody_74(
     s: *const u8,
     start: i32,
     pi: *mut i32,
@@ -5624,10 +5845,10 @@ unsafe extern "C" {
   ) -> UChar32;
 }
 unsafe extern "C" {
-  pub fn utf8_back1SafeBody_72(s: *const u8, start: i32, i: i32) -> i32;
+  pub fn utf8_back1SafeBody_74(s: *const u8, start: i32, i: i32) -> i32;
 }
 unsafe extern "C" {
-  pub static utf8_countTrailBytes_72: [u8; 0usize];
+  pub static utf8_countTrailBytes_74: [u8; 0usize];
 }
 pub type UDate = f64;
 pub const UErrorCode_U_USING_FALLBACK_WARNING: UErrorCode = -128;
@@ -5795,7 +6016,7 @@ pub const UErrorCode_U_PLUGIN_ERROR_LIMIT: UErrorCode = 66818;
 pub const UErrorCode_U_ERROR_LIMIT: UErrorCode = 66818;
 pub type UErrorCode = ::std::os::raw::c_int;
 unsafe extern "C" {
-  pub fn u_errorName_72(code: UErrorCode) -> *const ::std::os::raw::c_char;
+  pub fn u_errorName_74(code: UErrorCode) -> *const ::std::os::raw::c_char;
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -5879,7 +6100,7 @@ const _: () = {
     [::std::mem::offset_of!(UConverterToUnicodeArgs, offsets) - 48usize];
 };
 unsafe extern "C" {
-  pub fn UCNV_FROM_U_CALLBACK_STOP_72(
+  pub fn UCNV_FROM_U_CALLBACK_STOP_74(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -5890,7 +6111,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_TO_U_CALLBACK_STOP_72(
+  pub fn UCNV_TO_U_CALLBACK_STOP_74(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -5900,7 +6121,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_FROM_U_CALLBACK_SKIP_72(
+  pub fn UCNV_FROM_U_CALLBACK_SKIP_74(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -5911,7 +6132,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_FROM_U_CALLBACK_SUBSTITUTE_72(
+  pub fn UCNV_FROM_U_CALLBACK_SUBSTITUTE_74(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -5922,7 +6143,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_FROM_U_CALLBACK_ESCAPE_72(
+  pub fn UCNV_FROM_U_CALLBACK_ESCAPE_74(
     context: *const ::std::os::raw::c_void,
     fromUArgs: *mut UConverterFromUnicodeArgs,
     codeUnits: *const UChar,
@@ -5933,7 +6154,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_TO_U_CALLBACK_SKIP_72(
+  pub fn UCNV_TO_U_CALLBACK_SKIP_74(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -5943,7 +6164,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_TO_U_CALLBACK_SUBSTITUTE_72(
+  pub fn UCNV_TO_U_CALLBACK_SUBSTITUTE_74(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -5953,7 +6174,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn UCNV_TO_U_CALLBACK_ESCAPE_72(
+  pub fn UCNV_TO_U_CALLBACK_ESCAPE_74(
     context: *const ::std::os::raw::c_void,
     toUArgs: *mut UConverterToUnicodeArgs,
     codeUnits: *const ::std::os::raw::c_char,
@@ -5968,37 +6189,37 @@ pub struct UEnumeration {
   _unused: [u8; 0],
 }
 unsafe extern "C" {
-  pub fn uenum_close_72(en: *mut UEnumeration);
+  pub fn uenum_close_74(en: *mut UEnumeration);
 }
 unsafe extern "C" {
-  pub fn uenum_count_72(en: *mut UEnumeration, status: *mut UErrorCode) -> i32;
+  pub fn uenum_count_74(en: *mut UEnumeration, status: *mut UErrorCode) -> i32;
 }
 unsafe extern "C" {
-  pub fn uenum_unext_72(
+  pub fn uenum_unext_74(
     en: *mut UEnumeration,
     resultLength: *mut i32,
     status: *mut UErrorCode,
   ) -> *const UChar;
 }
 unsafe extern "C" {
-  pub fn uenum_next_72(
+  pub fn uenum_next_74(
     en: *mut UEnumeration,
     resultLength: *mut i32,
     status: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn uenum_reset_72(en: *mut UEnumeration, status: *mut UErrorCode);
+  pub fn uenum_reset_74(en: *mut UEnumeration, status: *mut UErrorCode);
 }
 unsafe extern "C" {
-  pub fn uenum_openUCharStringsEnumeration_72(
+  pub fn uenum_openUCharStringsEnumeration_74(
     strings: *const *const UChar,
     count: i32,
     ec: *mut UErrorCode,
   ) -> *mut UEnumeration;
 }
 unsafe extern "C" {
-  pub fn uenum_openCharStringsEnumeration_72(
+  pub fn uenum_openCharStringsEnumeration_74(
     strings: *const *const ::std::os::raw::c_char,
     count: i32,
     ec: *mut UErrorCode,
@@ -6072,39 +6293,39 @@ pub type UConverterFromUCallback = ::std::option::Option<
   ),
 >;
 unsafe extern "C" {
-  pub fn ucnv_compareNames_72(
+  pub fn ucnv_compareNames_74(
     name1: *const ::std::os::raw::c_char,
     name2: *const ::std::os::raw::c_char,
   ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-  pub fn ucnv_open_72(
+  pub fn ucnv_open_74(
     converterName: *const ::std::os::raw::c_char,
     err: *mut UErrorCode,
   ) -> *mut UConverter;
 }
 unsafe extern "C" {
-  pub fn ucnv_openU_72(name: *const UChar, err: *mut UErrorCode) -> *mut UConverter;
+  pub fn ucnv_openU_74(name: *const UChar, err: *mut UErrorCode) -> *mut UConverter;
 }
 unsafe extern "C" {
-  pub fn ucnv_openCCSID_72(
+  pub fn ucnv_openCCSID_74(
     codepage: i32,
     platform: UConverterPlatform,
     err: *mut UErrorCode,
   ) -> *mut UConverter;
 }
 unsafe extern "C" {
-  pub fn ucnv_openPackage_72(
+  pub fn ucnv_openPackage_74(
     packageName: *const ::std::os::raw::c_char,
     converterName: *const ::std::os::raw::c_char,
     err: *mut UErrorCode,
   ) -> *mut UConverter;
 }
 unsafe extern "C" {
-  pub fn ucnv_clone_72(cnv: *const UConverter, status: *mut UErrorCode) -> *mut UConverter;
+  pub fn ucnv_clone_74(cnv: *const UConverter, status: *mut UErrorCode) -> *mut UConverter;
 }
 unsafe extern "C" {
-  pub fn ucnv_safeClone_72(
+  pub fn ucnv_safeClone_74(
     cnv: *const UConverter,
     stackBuffer: *mut ::std::os::raw::c_void,
     pBufferSize: *mut i32,
@@ -6112,10 +6333,10 @@ unsafe extern "C" {
   ) -> *mut UConverter;
 }
 unsafe extern "C" {
-  pub fn ucnv_close_72(converter: *mut UConverter);
+  pub fn ucnv_close_74(converter: *mut UConverter);
 }
 unsafe extern "C" {
-  pub fn ucnv_getSubstChars_72(
+  pub fn ucnv_getSubstChars_74(
     converter: *const UConverter,
     subChars: *mut ::std::os::raw::c_char,
     len: *mut i8,
@@ -6123,7 +6344,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_setSubstChars_72(
+  pub fn ucnv_setSubstChars_74(
     converter: *mut UConverter,
     subChars: *const ::std::os::raw::c_char,
     len: i8,
@@ -6131,7 +6352,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_setSubstString_72(
+  pub fn ucnv_setSubstString_74(
     cnv: *mut UConverter,
     s: *const UChar,
     length: i32,
@@ -6139,7 +6360,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_getInvalidChars_72(
+  pub fn ucnv_getInvalidChars_74(
     converter: *const UConverter,
     errBytes: *mut ::std::os::raw::c_char,
     len: *mut i8,
@@ -6147,7 +6368,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_getInvalidUChars_72(
+  pub fn ucnv_getInvalidUChars_74(
     converter: *const UConverter,
     errUChars: *mut UChar,
     len: *mut i8,
@@ -6155,22 +6376,22 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_reset_72(converter: *mut UConverter);
+  pub fn ucnv_reset_74(converter: *mut UConverter);
 }
 unsafe extern "C" {
-  pub fn ucnv_resetToUnicode_72(converter: *mut UConverter);
+  pub fn ucnv_resetToUnicode_74(converter: *mut UConverter);
 }
 unsafe extern "C" {
-  pub fn ucnv_resetFromUnicode_72(converter: *mut UConverter);
+  pub fn ucnv_resetFromUnicode_74(converter: *mut UConverter);
 }
 unsafe extern "C" {
-  pub fn ucnv_getMaxCharSize_72(converter: *const UConverter) -> i8;
+  pub fn ucnv_getMaxCharSize_74(converter: *const UConverter) -> i8;
 }
 unsafe extern "C" {
-  pub fn ucnv_getMinCharSize_72(converter: *const UConverter) -> i8;
+  pub fn ucnv_getMinCharSize_74(converter: *const UConverter) -> i8;
 }
 unsafe extern "C" {
-  pub fn ucnv_getDisplayName_72(
+  pub fn ucnv_getDisplayName_74(
     converter: *const UConverter,
     displayLocale: *const ::std::os::raw::c_char,
     displayName: *mut UChar,
@@ -6179,25 +6400,25 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_getName_72(
+  pub fn ucnv_getName_74(
     converter: *const UConverter,
     err: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_getCCSID_72(converter: *const UConverter, err: *mut UErrorCode) -> i32;
+  pub fn ucnv_getCCSID_74(converter: *const UConverter, err: *mut UErrorCode) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_getPlatform_72(
+  pub fn ucnv_getPlatform_74(
     converter: *const UConverter,
     err: *mut UErrorCode,
   ) -> UConverterPlatform;
 }
 unsafe extern "C" {
-  pub fn ucnv_getType_72(converter: *const UConverter) -> UConverterType;
+  pub fn ucnv_getType_74(converter: *const UConverter) -> UConverterType;
 }
 unsafe extern "C" {
-  pub fn ucnv_getStarters_72(
+  pub fn ucnv_getStarters_74(
     converter: *const UConverter,
     starters: *mut UBool,
     err: *mut UErrorCode,
@@ -6208,7 +6429,7 @@ pub const UConverterUnicodeSet_UCNV_ROUNDTRIP_AND_FALLBACK_SET: UConverterUnicod
 pub const UConverterUnicodeSet_UCNV_SET_COUNT: UConverterUnicodeSet = 2;
 pub type UConverterUnicodeSet = ::std::os::raw::c_uint;
 unsafe extern "C" {
-  pub fn ucnv_getUnicodeSet_72(
+  pub fn ucnv_getUnicodeSet_74(
     cnv: *const UConverter,
     setFillIn: *mut USet,
     whichSet: UConverterUnicodeSet,
@@ -6216,21 +6437,21 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_getToUCallBack_72(
+  pub fn ucnv_getToUCallBack_74(
     converter: *const UConverter,
     action: *mut UConverterToUCallback,
     context: *mut *const ::std::os::raw::c_void,
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_getFromUCallBack_72(
+  pub fn ucnv_getFromUCallBack_74(
     converter: *const UConverter,
     action: *mut UConverterFromUCallback,
     context: *mut *const ::std::os::raw::c_void,
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_setToUCallBack_72(
+  pub fn ucnv_setToUCallBack_74(
     converter: *mut UConverter,
     newAction: UConverterToUCallback,
     newContext: *const ::std::os::raw::c_void,
@@ -6240,7 +6461,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_setFromUCallBack_72(
+  pub fn ucnv_setFromUCallBack_74(
     converter: *mut UConverter,
     newAction: UConverterFromUCallback,
     newContext: *const ::std::os::raw::c_void,
@@ -6250,7 +6471,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_fromUnicode_72(
+  pub fn ucnv_fromUnicode_74(
     converter: *mut UConverter,
     target: *mut *mut ::std::os::raw::c_char,
     targetLimit: *const ::std::os::raw::c_char,
@@ -6262,7 +6483,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_toUnicode_72(
+  pub fn ucnv_toUnicode_74(
     converter: *mut UConverter,
     target: *mut *mut UChar,
     targetLimit: *const UChar,
@@ -6274,7 +6495,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_fromUChars_72(
+  pub fn ucnv_fromUChars_74(
     cnv: *mut UConverter,
     dest: *mut ::std::os::raw::c_char,
     destCapacity: i32,
@@ -6284,7 +6505,7 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_toUChars_72(
+  pub fn ucnv_toUChars_74(
     cnv: *mut UConverter,
     dest: *mut UChar,
     destCapacity: i32,
@@ -6294,7 +6515,7 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_getNextUChar_72(
+  pub fn ucnv_getNextUChar_74(
     converter: *mut UConverter,
     source: *mut *const ::std::os::raw::c_char,
     sourceLimit: *const ::std::os::raw::c_char,
@@ -6302,7 +6523,7 @@ unsafe extern "C" {
   ) -> UChar32;
 }
 unsafe extern "C" {
-  pub fn ucnv_convertEx_72(
+  pub fn ucnv_convertEx_74(
     targetCnv: *mut UConverter,
     sourceCnv: *mut UConverter,
     target: *mut *mut ::std::os::raw::c_char,
@@ -6319,7 +6540,7 @@ unsafe extern "C" {
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_convert_72(
+  pub fn ucnv_convert_74(
     toConverterName: *const ::std::os::raw::c_char,
     fromConverterName: *const ::std::os::raw::c_char,
     target: *mut ::std::os::raw::c_char,
@@ -6330,7 +6551,7 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_toAlgorithmic_72(
+  pub fn ucnv_toAlgorithmic_74(
     algorithmicType: UConverterType,
     cnv: *mut UConverter,
     target: *mut ::std::os::raw::c_char,
@@ -6341,7 +6562,7 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_fromAlgorithmic_72(
+  pub fn ucnv_fromAlgorithmic_74(
     cnv: *mut UConverter,
     algorithmicType: UConverterType,
     target: *mut ::std::os::raw::c_char,
@@ -6352,84 +6573,84 @@ unsafe extern "C" {
   ) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_flushCache_72() -> i32;
+  pub fn ucnv_flushCache_74() -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_countAvailable_72() -> i32;
+  pub fn ucnv_countAvailable_74() -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_getAvailableName_72(n: i32) -> *const ::std::os::raw::c_char;
+  pub fn ucnv_getAvailableName_74(n: i32) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_openAllNames_72(pErrorCode: *mut UErrorCode) -> *mut UEnumeration;
+  pub fn ucnv_openAllNames_74(pErrorCode: *mut UErrorCode) -> *mut UEnumeration;
 }
 unsafe extern "C" {
-  pub fn ucnv_countAliases_72(
+  pub fn ucnv_countAliases_74(
     alias: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> u16;
 }
 unsafe extern "C" {
-  pub fn ucnv_getAlias_72(
+  pub fn ucnv_getAlias_74(
     alias: *const ::std::os::raw::c_char,
     n: u16,
     pErrorCode: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_getAliases_72(
+  pub fn ucnv_getAliases_74(
     alias: *const ::std::os::raw::c_char,
     aliases: *mut *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   );
 }
 unsafe extern "C" {
-  pub fn ucnv_openStandardNames_72(
+  pub fn ucnv_openStandardNames_74(
     convName: *const ::std::os::raw::c_char,
     standard: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> *mut UEnumeration;
 }
 unsafe extern "C" {
-  pub fn ucnv_countStandards_72() -> u16;
+  pub fn ucnv_countStandards_74() -> u16;
 }
 unsafe extern "C" {
-  pub fn ucnv_getStandard_72(n: u16, pErrorCode: *mut UErrorCode) -> *const ::std::os::raw::c_char;
+  pub fn ucnv_getStandard_74(n: u16, pErrorCode: *mut UErrorCode) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_getStandardName_72(
+  pub fn ucnv_getStandardName_74(
     name: *const ::std::os::raw::c_char,
     standard: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_getCanonicalName_72(
+  pub fn ucnv_getCanonicalName_74(
     alias: *const ::std::os::raw::c_char,
     standard: *const ::std::os::raw::c_char,
     pErrorCode: *mut UErrorCode,
   ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_getDefaultName_72() -> *const ::std::os::raw::c_char;
+  pub fn ucnv_getDefaultName_74() -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_setDefaultName_72(name: *const ::std::os::raw::c_char);
+  pub fn ucnv_setDefaultName_74(name: *const ::std::os::raw::c_char);
 }
 unsafe extern "C" {
-  pub fn ucnv_fixFileSeparator_72(cnv: *const UConverter, source: *mut UChar, sourceLen: i32);
+  pub fn ucnv_fixFileSeparator_74(cnv: *const UConverter, source: *mut UChar, sourceLen: i32);
 }
 unsafe extern "C" {
-  pub fn ucnv_isAmbiguous_72(cnv: *const UConverter) -> UBool;
+  pub fn ucnv_isAmbiguous_74(cnv: *const UConverter) -> UBool;
 }
 unsafe extern "C" {
-  pub fn ucnv_setFallback_72(cnv: *mut UConverter, usesFallback: UBool);
+  pub fn ucnv_setFallback_74(cnv: *mut UConverter, usesFallback: UBool);
 }
 unsafe extern "C" {
-  pub fn ucnv_usesFallback_72(cnv: *const UConverter) -> UBool;
+  pub fn ucnv_usesFallback_74(cnv: *const UConverter) -> UBool;
 }
 unsafe extern "C" {
-  pub fn ucnv_detectUnicodeSignature_72(
+  pub fn ucnv_detectUnicodeSignature_74(
     source: *const ::std::os::raw::c_char,
     sourceLength: i32,
     signatureLength: *mut i32,
@@ -6437,13 +6658,13 @@ unsafe extern "C" {
   ) -> *const ::std::os::raw::c_char;
 }
 unsafe extern "C" {
-  pub fn ucnv_fromUCountPending_72(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
+  pub fn ucnv_fromUCountPending_74(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_toUCountPending_72(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
+  pub fn ucnv_toUCountPending_74(cnv: *const UConverter, status: *mut UErrorCode) -> i32;
 }
 unsafe extern "C" {
-  pub fn ucnv_isFixedWidth_72(cnv: *mut UConverter, status: *mut UErrorCode) -> UBool;
+  pub fn ucnv_isFixedWidth_74(cnv: *mut UConverter, status: *mut UErrorCode) -> UBool;
 }
 pub const xmlCharEncoding_XML_CHAR_ENCODING_ERROR: xmlCharEncoding = -1;
 pub const xmlCharEncoding_XML_CHAR_ENCODING_NONE: xmlCharEncoding = 0;
@@ -6675,6 +6896,810 @@ pub type xmlOutputWriteCallback = ::std::option::Option<
 pub type xmlOutputCloseCallback = ::std::option::Option<
   unsafe extern "C" fn(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int,
 >;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlParserInputBuffer {
+  pub context: *mut ::std::os::raw::c_void,
+  pub readcallback: xmlInputReadCallback,
+  pub closecallback: xmlInputCloseCallback,
+  pub encoder: xmlCharEncodingHandlerPtr,
+  pub buffer: xmlBufPtr,
+  pub raw: xmlBufPtr,
+  pub compressed: ::std::os::raw::c_int,
+  pub error: ::std::os::raw::c_int,
+  pub rawconsumed: ::std::os::raw::c_ulong,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlParserInputBuffer"][::std::mem::size_of::<_xmlParserInputBuffer>() - 64usize];
+  ["Alignment of _xmlParserInputBuffer"][::std::mem::align_of::<_xmlParserInputBuffer>() - 8usize];
+  ["Offset of field: _xmlParserInputBuffer::context"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, context) - 0usize];
+  ["Offset of field: _xmlParserInputBuffer::readcallback"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, readcallback) - 8usize];
+  ["Offset of field: _xmlParserInputBuffer::closecallback"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, closecallback) - 16usize];
+  ["Offset of field: _xmlParserInputBuffer::encoder"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, encoder) - 24usize];
+  ["Offset of field: _xmlParserInputBuffer::buffer"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, buffer) - 32usize];
+  ["Offset of field: _xmlParserInputBuffer::raw"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, raw) - 40usize];
+  ["Offset of field: _xmlParserInputBuffer::compressed"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, compressed) - 48usize];
+  ["Offset of field: _xmlParserInputBuffer::error"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, error) - 52usize];
+  ["Offset of field: _xmlParserInputBuffer::rawconsumed"]
+    [::std::mem::offset_of!(_xmlParserInputBuffer, rawconsumed) - 56usize];
+};
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlOutputBuffer {
+  pub context: *mut ::std::os::raw::c_void,
+  pub writecallback: xmlOutputWriteCallback,
+  pub closecallback: xmlOutputCloseCallback,
+  pub encoder: xmlCharEncodingHandlerPtr,
+  pub buffer: xmlBufPtr,
+  pub conv: xmlBufPtr,
+  pub written: ::std::os::raw::c_int,
+  pub error: ::std::os::raw::c_int,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlOutputBuffer"][::std::mem::size_of::<_xmlOutputBuffer>() - 56usize];
+  ["Alignment of _xmlOutputBuffer"][::std::mem::align_of::<_xmlOutputBuffer>() - 8usize];
+  ["Offset of field: _xmlOutputBuffer::context"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, context) - 0usize];
+  ["Offset of field: _xmlOutputBuffer::writecallback"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, writecallback) - 8usize];
+  ["Offset of field: _xmlOutputBuffer::closecallback"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, closecallback) - 16usize];
+  ["Offset of field: _xmlOutputBuffer::encoder"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, encoder) - 24usize];
+  ["Offset of field: _xmlOutputBuffer::buffer"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, buffer) - 32usize];
+  ["Offset of field: _xmlOutputBuffer::conv"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, conv) - 40usize];
+  ["Offset of field: _xmlOutputBuffer::written"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, written) - 48usize];
+  ["Offset of field: _xmlOutputBuffer::error"]
+    [::std::mem::offset_of!(_xmlOutputBuffer, error) - 52usize];
+};
+unsafe extern "C" {
+  pub fn xmlCleanupInputCallbacks();
+}
+unsafe extern "C" {
+  pub fn xmlPopInputCallbacks() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRegisterDefaultInputCallbacks();
+}
+unsafe extern "C" {
+  pub fn xmlAllocParserInputBuffer(enc: xmlCharEncoding) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferCreateFilename(
+    URI: *const ::std::os::raw::c_char,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferCreateFile(
+    file: *mut FILE,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferCreateFd(
+    fd: ::std::os::raw::c_int,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferCreateMem(
+    mem: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferCreateStatic(
+    mem: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferCreateIO(
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferRead(
+    in_: xmlParserInputBufferPtr,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferGrow(
+    in_: xmlParserInputBufferPtr,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputBufferPush(
+    in_: xmlParserInputBufferPtr,
+    len: ::std::os::raw::c_int,
+    buf: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlFreeParserInputBuffer(in_: xmlParserInputBufferPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParserGetDirectory(
+    filename: *const ::std::os::raw::c_char,
+  ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlRegisterInputCallbacks(
+    matchFunc: xmlInputMatchCallback,
+    openFunc: xmlInputOpenCallback,
+    readFunc: xmlInputReadCallback,
+    closeFunc: xmlInputCloseCallback,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn __xmlParserInputBufferCreateFilename(
+    URI: *const ::std::os::raw::c_char,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCleanupOutputCallbacks();
+}
+unsafe extern "C" {
+  pub fn xmlPopOutputCallbacks() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRegisterDefaultOutputCallbacks();
+}
+unsafe extern "C" {
+  pub fn xmlAllocOutputBuffer(encoder: xmlCharEncodingHandlerPtr) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferCreateFilename(
+    URI: *const ::std::os::raw::c_char,
+    encoder: xmlCharEncodingHandlerPtr,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferCreateFile(
+    file: *mut FILE,
+    encoder: xmlCharEncodingHandlerPtr,
+  ) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferCreateBuffer(
+    buffer: xmlBufferPtr,
+    encoder: xmlCharEncodingHandlerPtr,
+  ) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferCreateFd(
+    fd: ::std::os::raw::c_int,
+    encoder: xmlCharEncodingHandlerPtr,
+  ) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferCreateIO(
+    iowrite: xmlOutputWriteCallback,
+    ioclose: xmlOutputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    encoder: xmlCharEncodingHandlerPtr,
+  ) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferGetContent(out: xmlOutputBufferPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferGetSize(out: xmlOutputBufferPtr) -> usize;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferWrite(
+    out: xmlOutputBufferPtr,
+    len: ::std::os::raw::c_int,
+    buf: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferWriteString(
+    out: xmlOutputBufferPtr,
+    str_: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferWriteEscape(
+    out: xmlOutputBufferPtr,
+    str_: *const xmlChar,
+    escaping: xmlCharEncodingOutputFunc,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferFlush(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlOutputBufferClose(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRegisterOutputCallbacks(
+    matchFunc: xmlOutputMatchCallback,
+    openFunc: xmlOutputOpenCallback,
+    writeFunc: xmlOutputWriteCallback,
+    closeFunc: xmlOutputCloseCallback,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn __xmlOutputBufferCreateFilename(
+    URI: *const ::std::os::raw::c_char,
+    encoder: xmlCharEncodingHandlerPtr,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlOutputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRegisterHTTPPostCallbacks();
+}
+unsafe extern "C" {
+  pub fn xmlCheckHTTPInput(ctxt: xmlParserCtxtPtr, ret: xmlParserInputPtr) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNoNetExternalEntityLoader(
+    URL: *const ::std::os::raw::c_char,
+    ID: *const ::std::os::raw::c_char,
+    ctxt: xmlParserCtxtPtr,
+  ) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNormalizeWindowsPath(path: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCheckFilename(path: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  #[doc = " Default 'file://' protocol callbacks"]
+  pub fn xmlFileMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlFileOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlFileRead(
+    context: *mut ::std::os::raw::c_void,
+    buffer: *mut ::std::os::raw::c_char,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlFileClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIOHTTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIOHTTPOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlIOHTTPOpenW(
+    post_uri: *const ::std::os::raw::c_char,
+    compression: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlIOHTTPRead(
+    context: *mut ::std::os::raw::c_void,
+    buffer: *mut ::std::os::raw::c_char,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIOHTTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIOFTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIOFTPOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlIOFTPRead(
+    context: *mut ::std::os::raw::c_void,
+    buffer: *mut ::std::os::raw::c_char,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIOFTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlInitParser();
+}
+unsafe extern "C" {
+  pub fn xmlCleanupParser();
+}
+unsafe extern "C" {
+  pub fn xmlParserInputRead(
+    in_: xmlParserInputPtr,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParserInputGrow(
+    in_: xmlParserInputPtr,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseDoc(cur: *const xmlChar) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseMemory(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSubstituteEntitiesDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlKeepBlanksDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlStopParser(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlPedanticParserDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlLineNumbersDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRecoverDoc(cur: *const xmlChar) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRecoverMemory(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRecoverFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseDocument(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseExtParsedEnt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSAXUserParseFile(
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    filename: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSAXUserParseMemory(
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseDoc(
+    sax: xmlSAXHandlerPtr,
+    cur: *const xmlChar,
+    recovery: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseMemory(
+    sax: xmlSAXHandlerPtr,
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    recovery: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseMemoryWithData(
+    sax: xmlSAXHandlerPtr,
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    recovery: ::std::os::raw::c_int,
+    data: *mut ::std::os::raw::c_void,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseFile(
+    sax: xmlSAXHandlerPtr,
+    filename: *const ::std::os::raw::c_char,
+    recovery: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseFileWithData(
+    sax: xmlSAXHandlerPtr,
+    filename: *const ::std::os::raw::c_char,
+    recovery: ::std::os::raw::c_int,
+    data: *mut ::std::os::raw::c_void,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseEntity(
+    sax: xmlSAXHandlerPtr,
+    filename: *const ::std::os::raw::c_char,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseEntity(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSAXParseDTD(
+    sax: xmlSAXHandlerPtr,
+    ExternalID: *const xmlChar,
+    SystemID: *const xmlChar,
+  ) -> xmlDtdPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseDTD(ExternalID: *const xmlChar, SystemID: *const xmlChar) -> xmlDtdPtr;
+}
+unsafe extern "C" {
+  pub fn xmlIOParseDTD(
+    sax: xmlSAXHandlerPtr,
+    input: xmlParserInputBufferPtr,
+    enc: xmlCharEncoding,
+  ) -> xmlDtdPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseBalancedChunkMemory(
+    doc: xmlDocPtr,
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    depth: ::std::os::raw::c_int,
+    string: *const xmlChar,
+    lst: *mut xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseInNodeContext(
+    node: xmlNodePtr,
+    data: *const ::std::os::raw::c_char,
+    datalen: ::std::os::raw::c_int,
+    options: ::std::os::raw::c_int,
+    lst: *mut xmlNodePtr,
+  ) -> xmlParserErrors;
+}
+unsafe extern "C" {
+  pub fn xmlParseBalancedChunkMemoryRecover(
+    doc: xmlDocPtr,
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    depth: ::std::os::raw::c_int,
+    string: *const xmlChar,
+    lst: *mut xmlNodePtr,
+    recover: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseExternalEntity(
+    doc: xmlDocPtr,
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    depth: ::std::os::raw::c_int,
+    URL: *const xmlChar,
+    ID: *const xmlChar,
+    lst: *mut xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseCtxtExternalEntity(
+    ctx: xmlParserCtxtPtr,
+    URL: *const xmlChar,
+    ID: *const xmlChar,
+    lst: *mut xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNewParserCtxt() -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlInitParserCtxt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlClearParserCtxt(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlFreeParserCtxt(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSetupParserForBuffer(
+    ctxt: xmlParserCtxtPtr,
+    buffer: *const xmlChar,
+    filename: *const ::std::os::raw::c_char,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlCreateDocParserCtxt(cur: *const xmlChar) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlGetFeaturesList(
+    len: *mut ::std::os::raw::c_int,
+    result: *mut *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlGetFeature(
+    ctxt: xmlParserCtxtPtr,
+    name: *const ::std::os::raw::c_char,
+    result: *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSetFeature(
+    ctxt: xmlParserCtxtPtr,
+    name: *const ::std::os::raw::c_char,
+    value: *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCreatePushParserCtxt(
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    filename: *const ::std::os::raw::c_char,
+  ) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseChunk(
+    ctxt: xmlParserCtxtPtr,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    terminate: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCreateIOParserCtxt(
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    enc: xmlCharEncoding,
+  ) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewIOInputStream(
+    ctxt: xmlParserCtxtPtr,
+    input: xmlParserInputBufferPtr,
+    enc: xmlCharEncoding,
+  ) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParserFindNodeInfo(
+    ctxt: xmlParserCtxtPtr,
+    node: xmlNodePtr,
+  ) -> *const xmlParserNodeInfo;
+}
+unsafe extern "C" {
+  pub fn xmlInitNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
+}
+unsafe extern "C" {
+  pub fn xmlClearNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParserFindNodeInfoIndex(
+    seq: xmlParserNodeInfoSeqPtr,
+    node: xmlNodePtr,
+  ) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+  pub fn xmlParserAddNodeInfo(ctxt: xmlParserCtxtPtr, info: xmlParserNodeInfoPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSetExternalEntityLoader(f: xmlExternalEntityLoader);
+}
+unsafe extern "C" {
+  pub fn xmlGetExternalEntityLoader() -> xmlExternalEntityLoader;
+}
+unsafe extern "C" {
+  pub fn xmlLoadExternalEntity(
+    URL: *const ::std::os::raw::c_char,
+    ID: *const ::std::os::raw::c_char,
+    ctxt: xmlParserCtxtPtr,
+  ) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlByteConsumed(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_long;
+}
+pub const xmlParserOption_XML_PARSE_RECOVER: xmlParserOption = 1;
+pub const xmlParserOption_XML_PARSE_NOENT: xmlParserOption = 2;
+pub const xmlParserOption_XML_PARSE_DTDLOAD: xmlParserOption = 4;
+pub const xmlParserOption_XML_PARSE_DTDATTR: xmlParserOption = 8;
+pub const xmlParserOption_XML_PARSE_DTDVALID: xmlParserOption = 16;
+pub const xmlParserOption_XML_PARSE_NOERROR: xmlParserOption = 32;
+pub const xmlParserOption_XML_PARSE_NOWARNING: xmlParserOption = 64;
+pub const xmlParserOption_XML_PARSE_PEDANTIC: xmlParserOption = 128;
+pub const xmlParserOption_XML_PARSE_NOBLANKS: xmlParserOption = 256;
+pub const xmlParserOption_XML_PARSE_SAX1: xmlParserOption = 512;
+pub const xmlParserOption_XML_PARSE_XINCLUDE: xmlParserOption = 1024;
+pub const xmlParserOption_XML_PARSE_NONET: xmlParserOption = 2048;
+pub const xmlParserOption_XML_PARSE_NODICT: xmlParserOption = 4096;
+pub const xmlParserOption_XML_PARSE_NSCLEAN: xmlParserOption = 8192;
+pub const xmlParserOption_XML_PARSE_NOCDATA: xmlParserOption = 16384;
+pub const xmlParserOption_XML_PARSE_NOXINCNODE: xmlParserOption = 32768;
+pub const xmlParserOption_XML_PARSE_COMPACT: xmlParserOption = 65536;
+pub const xmlParserOption_XML_PARSE_OLD10: xmlParserOption = 131072;
+pub const xmlParserOption_XML_PARSE_NOBASEFIX: xmlParserOption = 262144;
+pub const xmlParserOption_XML_PARSE_HUGE: xmlParserOption = 524288;
+pub const xmlParserOption_XML_PARSE_OLDSAX: xmlParserOption = 1048576;
+pub const xmlParserOption_XML_PARSE_IGNORE_ENC: xmlParserOption = 2097152;
+pub const xmlParserOption_XML_PARSE_BIG_LINES: xmlParserOption = 4194304;
+#[doc = " xmlParserOption:\n\n This is the set of XML parser options that can be passed down\n to the xmlReadDoc() and similar calls."]
+pub type xmlParserOption = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlCtxtReset(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlCtxtResetPush(
+    ctxt: xmlParserCtxtPtr,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCtxtUseOptions(
+    ctxt: xmlParserCtxtPtr,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlReadDoc(
+    cur: *const xmlChar,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReadFile(
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReadMemory(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReadFd(
+    fd: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReadIO(
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCtxtReadDoc(
+    ctxt: xmlParserCtxtPtr,
+    cur: *const xmlChar,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCtxtReadFile(
+    ctxt: xmlParserCtxtPtr,
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCtxtReadMemory(
+    ctxt: xmlParserCtxtPtr,
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCtxtReadFd(
+    ctxt: xmlParserCtxtPtr,
+    fd: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCtxtReadIO(
+    ctxt: xmlParserCtxtPtr,
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlDocPtr;
+}
+pub const xmlFeature_XML_WITH_THREAD: xmlFeature = 1;
+pub const xmlFeature_XML_WITH_TREE: xmlFeature = 2;
+pub const xmlFeature_XML_WITH_OUTPUT: xmlFeature = 3;
+pub const xmlFeature_XML_WITH_PUSH: xmlFeature = 4;
+pub const xmlFeature_XML_WITH_READER: xmlFeature = 5;
+pub const xmlFeature_XML_WITH_PATTERN: xmlFeature = 6;
+pub const xmlFeature_XML_WITH_WRITER: xmlFeature = 7;
+pub const xmlFeature_XML_WITH_SAX1: xmlFeature = 8;
+pub const xmlFeature_XML_WITH_FTP: xmlFeature = 9;
+pub const xmlFeature_XML_WITH_HTTP: xmlFeature = 10;
+pub const xmlFeature_XML_WITH_VALID: xmlFeature = 11;
+pub const xmlFeature_XML_WITH_HTML: xmlFeature = 12;
+pub const xmlFeature_XML_WITH_LEGACY: xmlFeature = 13;
+pub const xmlFeature_XML_WITH_C14N: xmlFeature = 14;
+pub const xmlFeature_XML_WITH_CATALOG: xmlFeature = 15;
+pub const xmlFeature_XML_WITH_XPATH: xmlFeature = 16;
+pub const xmlFeature_XML_WITH_XPTR: xmlFeature = 17;
+pub const xmlFeature_XML_WITH_XINCLUDE: xmlFeature = 18;
+pub const xmlFeature_XML_WITH_ICONV: xmlFeature = 19;
+pub const xmlFeature_XML_WITH_ISO8859X: xmlFeature = 20;
+pub const xmlFeature_XML_WITH_UNICODE: xmlFeature = 21;
+pub const xmlFeature_XML_WITH_REGEXP: xmlFeature = 22;
+pub const xmlFeature_XML_WITH_AUTOMATA: xmlFeature = 23;
+pub const xmlFeature_XML_WITH_EXPR: xmlFeature = 24;
+pub const xmlFeature_XML_WITH_SCHEMAS: xmlFeature = 25;
+pub const xmlFeature_XML_WITH_SCHEMATRON: xmlFeature = 26;
+pub const xmlFeature_XML_WITH_MODULES: xmlFeature = 27;
+pub const xmlFeature_XML_WITH_DEBUG: xmlFeature = 28;
+pub const xmlFeature_XML_WITH_DEBUG_MEM: xmlFeature = 29;
+pub const xmlFeature_XML_WITH_DEBUG_RUN: xmlFeature = 30;
+pub const xmlFeature_XML_WITH_ZLIB: xmlFeature = 31;
+pub const xmlFeature_XML_WITH_ICU: xmlFeature = 32;
+pub const xmlFeature_XML_WITH_LZMA: xmlFeature = 33;
+pub const xmlFeature_XML_WITH_NONE: xmlFeature = 99999;
+#[doc = " xmlFeature:\n\n Used to examine the existence of features that can be enabled\n or disabled at compile-time.\n They used to be called XML_FEATURE_xxx but this clashed with Expat"]
+pub type xmlFeature = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlHasFeature(feature: xmlFeature) -> ::std::os::raw::c_int;
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct div_t {
@@ -7990,125 +9015,6 @@ unsafe extern "C" {
 unsafe extern "C" {
   pub fn xmlDefaultSAXHandlerInit();
 }
-#[doc = " xmlFreeFunc:\n @mem: an already allocated block of memory\n\n Signature for a free() implementation."]
-pub type xmlFreeFunc =
-  ::std::option::Option<unsafe extern "C" fn(mem: *mut ::std::os::raw::c_void)>;
-#[doc = " xmlMallocFunc:\n @size:  the size requested in bytes\n\n Signature for a malloc() implementation.\n\n Returns a pointer to the newly allocated block or NULL in case of error."]
-pub type xmlMallocFunc =
-  ::std::option::Option<unsafe extern "C" fn(size: usize) -> *mut ::std::os::raw::c_void>;
-#[doc = " xmlReallocFunc:\n @mem: an already allocated block of memory\n @size:  the new size requested in bytes\n\n Signature for a realloc() implementation.\n\n Returns a pointer to the newly reallocated block or NULL in case of error."]
-pub type xmlReallocFunc = ::std::option::Option<
-  unsafe extern "C" fn(
-    mem: *mut ::std::os::raw::c_void,
-    size: usize,
-  ) -> *mut ::std::os::raw::c_void,
->;
-#[doc = " xmlStrdupFunc:\n @str: a zero terminated string\n\n Signature for an strdup() implementation.\n\n Returns the copy of the string or NULL in case of error."]
-pub type xmlStrdupFunc = ::std::option::Option<
-  unsafe extern "C" fn(str_: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char,
->;
-unsafe extern "C" {
-  pub fn xmlMemSetup(
-    freeFunc: xmlFreeFunc,
-    mallocFunc: xmlMallocFunc,
-    reallocFunc: xmlReallocFunc,
-    strdupFunc: xmlStrdupFunc,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlMemGet(
-    freeFunc: *mut xmlFreeFunc,
-    mallocFunc: *mut xmlMallocFunc,
-    reallocFunc: *mut xmlReallocFunc,
-    strdupFunc: *mut xmlStrdupFunc,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlGcMemSetup(
-    freeFunc: xmlFreeFunc,
-    mallocFunc: xmlMallocFunc,
-    mallocAtomicFunc: xmlMallocFunc,
-    reallocFunc: xmlReallocFunc,
-    strdupFunc: xmlStrdupFunc,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlGcMemGet(
-    freeFunc: *mut xmlFreeFunc,
-    mallocFunc: *mut xmlMallocFunc,
-    mallocAtomicFunc: *mut xmlMallocFunc,
-    reallocFunc: *mut xmlReallocFunc,
-    strdupFunc: *mut xmlStrdupFunc,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlInitMemory() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlCleanupMemory();
-}
-unsafe extern "C" {
-  pub fn xmlMemUsed() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlMemBlocks() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlMemDisplay(fp: *mut FILE);
-}
-unsafe extern "C" {
-  pub fn xmlMemDisplayLast(fp: *mut FILE, nbBytes: ::std::os::raw::c_long);
-}
-unsafe extern "C" {
-  pub fn xmlMemShow(fp: *mut FILE, nr: ::std::os::raw::c_int);
-}
-unsafe extern "C" {
-  pub fn xmlMemoryDump();
-}
-unsafe extern "C" {
-  pub fn xmlMemMalloc(size: usize) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlMemRealloc(
-    ptr: *mut ::std::os::raw::c_void,
-    size: usize,
-  ) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlMemFree(ptr: *mut ::std::os::raw::c_void);
-}
-unsafe extern "C" {
-  pub fn xmlMemoryStrdup(str_: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-  pub fn xmlMallocLoc(
-    size: usize,
-    file: *const ::std::os::raw::c_char,
-    line: ::std::os::raw::c_int,
-  ) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlReallocLoc(
-    ptr: *mut ::std::os::raw::c_void,
-    size: usize,
-    file: *const ::std::os::raw::c_char,
-    line: ::std::os::raw::c_int,
-  ) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlMallocAtomicLoc(
-    size: usize,
-    file: *const ::std::os::raw::c_char,
-    line: ::std::os::raw::c_int,
-  ) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlMemStrdupLoc(
-    str_: *const ::std::os::raw::c_char,
-    file: *const ::std::os::raw::c_char,
-    line: ::std::os::raw::c_int,
-  ) -> *mut ::std::os::raw::c_char;
-}
 unsafe extern "C" {
   pub fn xmlInitGlobals();
 }
@@ -8254,65 +9160,6 @@ const _: () = {
   ["Offset of field: _xmlGlobalState::xmlStructuredErrorContext"]
     [::std::mem::offset_of!(_xmlGlobalState, xmlStructuredErrorContext) - 960usize];
 };
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlMutex {
-  _unused: [u8; 0],
-}
-pub type xmlMutex = _xmlMutex;
-pub type xmlMutexPtr = *mut xmlMutex;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlRMutex {
-  _unused: [u8; 0],
-}
-pub type xmlRMutex = _xmlRMutex;
-pub type xmlRMutexPtr = *mut xmlRMutex;
-unsafe extern "C" {
-  pub fn xmlNewMutex() -> xmlMutexPtr;
-}
-unsafe extern "C" {
-  pub fn xmlMutexLock(tok: xmlMutexPtr);
-}
-unsafe extern "C" {
-  pub fn xmlMutexUnlock(tok: xmlMutexPtr);
-}
-unsafe extern "C" {
-  pub fn xmlFreeMutex(tok: xmlMutexPtr);
-}
-unsafe extern "C" {
-  pub fn xmlNewRMutex() -> xmlRMutexPtr;
-}
-unsafe extern "C" {
-  pub fn xmlRMutexLock(tok: xmlRMutexPtr);
-}
-unsafe extern "C" {
-  pub fn xmlRMutexUnlock(tok: xmlRMutexPtr);
-}
-unsafe extern "C" {
-  pub fn xmlFreeRMutex(tok: xmlRMutexPtr);
-}
-unsafe extern "C" {
-  pub fn xmlInitThreads();
-}
-unsafe extern "C" {
-  pub fn xmlLockLibrary();
-}
-unsafe extern "C" {
-  pub fn xmlUnlockLibrary();
-}
-unsafe extern "C" {
-  pub fn xmlGetThreadId() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIsMainThread() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlCleanupThreads();
-}
-unsafe extern "C" {
-  pub fn xmlGetGlobalState() -> xmlGlobalStatePtr;
-}
 unsafe extern "C" {
   pub fn xmlInitializeGlobalState(gs: xmlGlobalStatePtr);
 }
@@ -8492,809 +9339,50 @@ unsafe extern "C" {
 unsafe extern "C" {
   pub fn __xmlOutputBufferCreateFilenameValue() -> *mut xmlOutputBufferCreateFilenameFunc;
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlParserInputBuffer {
-  pub context: *mut ::std::os::raw::c_void,
-  pub readcallback: xmlInputReadCallback,
-  pub closecallback: xmlInputCloseCallback,
-  pub encoder: xmlCharEncodingHandlerPtr,
-  pub buffer: xmlBufPtr,
-  pub raw: xmlBufPtr,
-  pub compressed: ::std::os::raw::c_int,
-  pub error: ::std::os::raw::c_int,
-  pub rawconsumed: ::std::os::raw::c_ulong,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-  ["Size of _xmlParserInputBuffer"][::std::mem::size_of::<_xmlParserInputBuffer>() - 64usize];
-  ["Alignment of _xmlParserInputBuffer"][::std::mem::align_of::<_xmlParserInputBuffer>() - 8usize];
-  ["Offset of field: _xmlParserInputBuffer::context"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, context) - 0usize];
-  ["Offset of field: _xmlParserInputBuffer::readcallback"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, readcallback) - 8usize];
-  ["Offset of field: _xmlParserInputBuffer::closecallback"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, closecallback) - 16usize];
-  ["Offset of field: _xmlParserInputBuffer::encoder"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, encoder) - 24usize];
-  ["Offset of field: _xmlParserInputBuffer::buffer"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, buffer) - 32usize];
-  ["Offset of field: _xmlParserInputBuffer::raw"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, raw) - 40usize];
-  ["Offset of field: _xmlParserInputBuffer::compressed"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, compressed) - 48usize];
-  ["Offset of field: _xmlParserInputBuffer::error"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, error) - 52usize];
-  ["Offset of field: _xmlParserInputBuffer::rawconsumed"]
-    [::std::mem::offset_of!(_xmlParserInputBuffer, rawconsumed) - 56usize];
-};
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlOutputBuffer {
-  pub context: *mut ::std::os::raw::c_void,
-  pub writecallback: xmlOutputWriteCallback,
-  pub closecallback: xmlOutputCloseCallback,
-  pub encoder: xmlCharEncodingHandlerPtr,
-  pub buffer: xmlBufPtr,
-  pub conv: xmlBufPtr,
-  pub written: ::std::os::raw::c_int,
-  pub error: ::std::os::raw::c_int,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-  ["Size of _xmlOutputBuffer"][::std::mem::size_of::<_xmlOutputBuffer>() - 56usize];
-  ["Alignment of _xmlOutputBuffer"][::std::mem::align_of::<_xmlOutputBuffer>() - 8usize];
-  ["Offset of field: _xmlOutputBuffer::context"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, context) - 0usize];
-  ["Offset of field: _xmlOutputBuffer::writecallback"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, writecallback) - 8usize];
-  ["Offset of field: _xmlOutputBuffer::closecallback"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, closecallback) - 16usize];
-  ["Offset of field: _xmlOutputBuffer::encoder"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, encoder) - 24usize];
-  ["Offset of field: _xmlOutputBuffer::buffer"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, buffer) - 32usize];
-  ["Offset of field: _xmlOutputBuffer::conv"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, conv) - 40usize];
-  ["Offset of field: _xmlOutputBuffer::written"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, written) - 48usize];
-  ["Offset of field: _xmlOutputBuffer::error"]
-    [::std::mem::offset_of!(_xmlOutputBuffer, error) - 52usize];
-};
-unsafe extern "C" {
-  pub fn xmlCleanupInputCallbacks();
-}
-unsafe extern "C" {
-  pub fn xmlPopInputCallbacks() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlRegisterDefaultInputCallbacks();
-}
-unsafe extern "C" {
-  pub fn xmlAllocParserInputBuffer(enc: xmlCharEncoding) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferCreateFilename(
-    URI: *const ::std::os::raw::c_char,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferCreateFile(
-    file: *mut FILE,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferCreateFd(
-    fd: ::std::os::raw::c_int,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferCreateMem(
-    mem: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferCreateStatic(
-    mem: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferCreateIO(
-    ioread: xmlInputReadCallback,
-    ioclose: xmlInputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferRead(
-    in_: xmlParserInputBufferPtr,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferGrow(
-    in_: xmlParserInputBufferPtr,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputBufferPush(
-    in_: xmlParserInputBufferPtr,
-    len: ::std::os::raw::c_int,
-    buf: *const ::std::os::raw::c_char,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlFreeParserInputBuffer(in_: xmlParserInputBufferPtr);
-}
-unsafe extern "C" {
-  pub fn xmlParserGetDirectory(
-    filename: *const ::std::os::raw::c_char,
-  ) -> *mut ::std::os::raw::c_char;
-}
-unsafe extern "C" {
-  pub fn xmlRegisterInputCallbacks(
-    matchFunc: xmlInputMatchCallback,
-    openFunc: xmlInputOpenCallback,
-    readFunc: xmlInputReadCallback,
-    closeFunc: xmlInputCloseCallback,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn __xmlParserInputBufferCreateFilename(
-    URI: *const ::std::os::raw::c_char,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlCleanupOutputCallbacks();
-}
-unsafe extern "C" {
-  pub fn xmlPopOutputCallbacks() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlRegisterDefaultOutputCallbacks();
-}
-unsafe extern "C" {
-  pub fn xmlAllocOutputBuffer(encoder: xmlCharEncodingHandlerPtr) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferCreateFilename(
-    URI: *const ::std::os::raw::c_char,
-    encoder: xmlCharEncodingHandlerPtr,
-    compression: ::std::os::raw::c_int,
-  ) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferCreateFile(
-    file: *mut FILE,
-    encoder: xmlCharEncodingHandlerPtr,
-  ) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferCreateBuffer(
-    buffer: xmlBufferPtr,
-    encoder: xmlCharEncodingHandlerPtr,
-  ) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferCreateFd(
-    fd: ::std::os::raw::c_int,
-    encoder: xmlCharEncodingHandlerPtr,
-  ) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferCreateIO(
-    iowrite: xmlOutputWriteCallback,
-    ioclose: xmlOutputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    encoder: xmlCharEncodingHandlerPtr,
-  ) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferGetContent(out: xmlOutputBufferPtr) -> *const xmlChar;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferGetSize(out: xmlOutputBufferPtr) -> usize;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferWrite(
-    out: xmlOutputBufferPtr,
-    len: ::std::os::raw::c_int,
-    buf: *const ::std::os::raw::c_char,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferWriteString(
-    out: xmlOutputBufferPtr,
-    str_: *const ::std::os::raw::c_char,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferWriteEscape(
-    out: xmlOutputBufferPtr,
-    str_: *const xmlChar,
-    escaping: xmlCharEncodingOutputFunc,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferFlush(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlOutputBufferClose(out: xmlOutputBufferPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlRegisterOutputCallbacks(
-    matchFunc: xmlOutputMatchCallback,
-    openFunc: xmlOutputOpenCallback,
-    writeFunc: xmlOutputWriteCallback,
-    closeFunc: xmlOutputCloseCallback,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn __xmlOutputBufferCreateFilename(
-    URI: *const ::std::os::raw::c_char,
-    encoder: xmlCharEncodingHandlerPtr,
-    compression: ::std::os::raw::c_int,
-  ) -> xmlOutputBufferPtr;
-}
-unsafe extern "C" {
-  pub fn xmlRegisterHTTPPostCallbacks();
-}
-unsafe extern "C" {
-  pub fn xmlCheckHTTPInput(ctxt: xmlParserCtxtPtr, ret: xmlParserInputPtr) -> xmlParserInputPtr;
-}
-unsafe extern "C" {
-  pub fn xmlNoNetExternalEntityLoader(
-    URL: *const ::std::os::raw::c_char,
-    ID: *const ::std::os::raw::c_char,
-    ctxt: xmlParserCtxtPtr,
-  ) -> xmlParserInputPtr;
-}
-unsafe extern "C" {
-  pub fn xmlNormalizeWindowsPath(path: *const xmlChar) -> *mut xmlChar;
-}
-unsafe extern "C" {
-  pub fn xmlCheckFilename(path: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  #[doc = " Default 'file://' protocol callbacks"]
-  pub fn xmlFileMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlFileOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlFileRead(
-    context: *mut ::std::os::raw::c_void,
-    buffer: *mut ::std::os::raw::c_char,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlFileClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIOHTTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIOHTTPOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlIOHTTPOpenW(
-    post_uri: *const ::std::os::raw::c_char,
-    compression: ::std::os::raw::c_int,
-  ) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlIOHTTPRead(
-    context: *mut ::std::os::raw::c_void,
-    buffer: *mut ::std::os::raw::c_char,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIOHTTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIOFTPMatch(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIOFTPOpen(filename: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
-  pub fn xmlIOFTPRead(
-    context: *mut ::std::os::raw::c_void,
-    buffer: *mut ::std::os::raw::c_char,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlIOFTPClose(context: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlInitParser();
-}
-unsafe extern "C" {
-  pub fn xmlCleanupParser();
-}
-unsafe extern "C" {
-  pub fn xmlParserInputRead(
-    in_: xmlParserInputPtr,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParserInputGrow(
-    in_: xmlParserInputPtr,
-    len: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParseDoc(cur: *const xmlChar) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseMemory(
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSubstituteEntitiesDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlKeepBlanksDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlStopParser(ctxt: xmlParserCtxtPtr);
-}
-unsafe extern "C" {
-  pub fn xmlPedanticParserDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlLineNumbersDefault(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlRecoverDoc(cur: *const xmlChar) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlRecoverMemory(
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlRecoverFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseDocument(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParseExtParsedEnt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSAXUserParseFile(
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    filename: *const ::std::os::raw::c_char,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSAXUserParseMemory(
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseDoc(
-    sax: xmlSAXHandlerPtr,
-    cur: *const xmlChar,
-    recovery: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseMemory(
-    sax: xmlSAXHandlerPtr,
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    recovery: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseMemoryWithData(
-    sax: xmlSAXHandlerPtr,
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    recovery: ::std::os::raw::c_int,
-    data: *mut ::std::os::raw::c_void,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseFile(
-    sax: xmlSAXHandlerPtr,
-    filename: *const ::std::os::raw::c_char,
-    recovery: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseFileWithData(
-    sax: xmlSAXHandlerPtr,
-    filename: *const ::std::os::raw::c_char,
-    recovery: ::std::os::raw::c_int,
-    data: *mut ::std::os::raw::c_void,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseEntity(
-    sax: xmlSAXHandlerPtr,
-    filename: *const ::std::os::raw::c_char,
-  ) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseEntity(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSAXParseDTD(
-    sax: xmlSAXHandlerPtr,
-    ExternalID: *const xmlChar,
-    SystemID: *const xmlChar,
-  ) -> xmlDtdPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseDTD(ExternalID: *const xmlChar, SystemID: *const xmlChar) -> xmlDtdPtr;
-}
-unsafe extern "C" {
-  pub fn xmlIOParseDTD(
-    sax: xmlSAXHandlerPtr,
-    input: xmlParserInputBufferPtr,
-    enc: xmlCharEncoding,
-  ) -> xmlDtdPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseBalancedChunkMemory(
-    doc: xmlDocPtr,
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    depth: ::std::os::raw::c_int,
-    string: *const xmlChar,
-    lst: *mut xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParseInNodeContext(
-    node: xmlNodePtr,
-    data: *const ::std::os::raw::c_char,
-    datalen: ::std::os::raw::c_int,
-    options: ::std::os::raw::c_int,
-    lst: *mut xmlNodePtr,
-  ) -> xmlParserErrors;
-}
-unsafe extern "C" {
-  pub fn xmlParseBalancedChunkMemoryRecover(
-    doc: xmlDocPtr,
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    depth: ::std::os::raw::c_int,
-    string: *const xmlChar,
-    lst: *mut xmlNodePtr,
-    recover: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParseExternalEntity(
-    doc: xmlDocPtr,
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    depth: ::std::os::raw::c_int,
-    URL: *const xmlChar,
-    ID: *const xmlChar,
-    lst: *mut xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlParseCtxtExternalEntity(
-    ctx: xmlParserCtxtPtr,
-    URL: *const xmlChar,
-    ID: *const xmlChar,
-    lst: *mut xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlNewParserCtxt() -> xmlParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlInitParserCtxt(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlClearParserCtxt(ctxt: xmlParserCtxtPtr);
-}
-unsafe extern "C" {
-  pub fn xmlFreeParserCtxt(ctxt: xmlParserCtxtPtr);
-}
-unsafe extern "C" {
-  pub fn xmlSetupParserForBuffer(
-    ctxt: xmlParserCtxtPtr,
-    buffer: *const xmlChar,
-    filename: *const ::std::os::raw::c_char,
-  );
-}
-unsafe extern "C" {
-  pub fn xmlCreateDocParserCtxt(cur: *const xmlChar) -> xmlParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlGetFeaturesList(
-    len: *mut ::std::os::raw::c_int,
-    result: *mut *const ::std::os::raw::c_char,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlGetFeature(
-    ctxt: xmlParserCtxtPtr,
-    name: *const ::std::os::raw::c_char,
-    result: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSetFeature(
-    ctxt: xmlParserCtxtPtr,
-    name: *const ::std::os::raw::c_char,
-    value: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlCreatePushParserCtxt(
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    chunk: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    filename: *const ::std::os::raw::c_char,
-  ) -> xmlParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParseChunk(
-    ctxt: xmlParserCtxtPtr,
-    chunk: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    terminate: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlCreateIOParserCtxt(
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    ioread: xmlInputReadCallback,
-    ioclose: xmlInputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    enc: xmlCharEncoding,
-  ) -> xmlParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlNewIOInputStream(
-    ctxt: xmlParserCtxtPtr,
-    input: xmlParserInputBufferPtr,
-    enc: xmlCharEncoding,
-  ) -> xmlParserInputPtr;
-}
-unsafe extern "C" {
-  pub fn xmlParserFindNodeInfo(
-    ctxt: xmlParserCtxtPtr,
-    node: xmlNodePtr,
-  ) -> *const xmlParserNodeInfo;
-}
-unsafe extern "C" {
-  pub fn xmlInitNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
-}
-unsafe extern "C" {
-  pub fn xmlClearNodeInfoSeq(seq: xmlParserNodeInfoSeqPtr);
-}
-unsafe extern "C" {
-  pub fn xmlParserFindNodeInfoIndex(
-    seq: xmlParserNodeInfoSeqPtr,
-    node: xmlNodePtr,
-  ) -> ::std::os::raw::c_ulong;
-}
-unsafe extern "C" {
-  pub fn xmlParserAddNodeInfo(ctxt: xmlParserCtxtPtr, info: xmlParserNodeInfoPtr);
-}
-unsafe extern "C" {
-  pub fn xmlSetExternalEntityLoader(f: xmlExternalEntityLoader);
-}
-unsafe extern "C" {
-  pub fn xmlGetExternalEntityLoader() -> xmlExternalEntityLoader;
-}
-unsafe extern "C" {
-  pub fn xmlLoadExternalEntity(
-    URL: *const ::std::os::raw::c_char,
-    ID: *const ::std::os::raw::c_char,
-    ctxt: xmlParserCtxtPtr,
-  ) -> xmlParserInputPtr;
-}
 unsafe extern "C" {
-  pub fn xmlByteConsumed(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_long;
+  pub fn xmlNewMutex() -> xmlMutexPtr;
 }
-pub const xmlParserOption_XML_PARSE_RECOVER: xmlParserOption = 1;
-pub const xmlParserOption_XML_PARSE_NOENT: xmlParserOption = 2;
-pub const xmlParserOption_XML_PARSE_DTDLOAD: xmlParserOption = 4;
-pub const xmlParserOption_XML_PARSE_DTDATTR: xmlParserOption = 8;
-pub const xmlParserOption_XML_PARSE_DTDVALID: xmlParserOption = 16;
-pub const xmlParserOption_XML_PARSE_NOERROR: xmlParserOption = 32;
-pub const xmlParserOption_XML_PARSE_NOWARNING: xmlParserOption = 64;
-pub const xmlParserOption_XML_PARSE_PEDANTIC: xmlParserOption = 128;
-pub const xmlParserOption_XML_PARSE_NOBLANKS: xmlParserOption = 256;
-pub const xmlParserOption_XML_PARSE_SAX1: xmlParserOption = 512;
-pub const xmlParserOption_XML_PARSE_XINCLUDE: xmlParserOption = 1024;
-pub const xmlParserOption_XML_PARSE_NONET: xmlParserOption = 2048;
-pub const xmlParserOption_XML_PARSE_NODICT: xmlParserOption = 4096;
-pub const xmlParserOption_XML_PARSE_NSCLEAN: xmlParserOption = 8192;
-pub const xmlParserOption_XML_PARSE_NOCDATA: xmlParserOption = 16384;
-pub const xmlParserOption_XML_PARSE_NOXINCNODE: xmlParserOption = 32768;
-pub const xmlParserOption_XML_PARSE_COMPACT: xmlParserOption = 65536;
-pub const xmlParserOption_XML_PARSE_OLD10: xmlParserOption = 131072;
-pub const xmlParserOption_XML_PARSE_NOBASEFIX: xmlParserOption = 262144;
-pub const xmlParserOption_XML_PARSE_HUGE: xmlParserOption = 524288;
-pub const xmlParserOption_XML_PARSE_OLDSAX: xmlParserOption = 1048576;
-pub const xmlParserOption_XML_PARSE_IGNORE_ENC: xmlParserOption = 2097152;
-pub const xmlParserOption_XML_PARSE_BIG_LINES: xmlParserOption = 4194304;
-#[doc = " xmlParserOption:\n\n This is the set of XML parser options that can be passed down\n to the xmlReadDoc() and similar calls."]
-pub type xmlParserOption = ::std::os::raw::c_uint;
 unsafe extern "C" {
-  pub fn xmlCtxtReset(ctxt: xmlParserCtxtPtr);
+  pub fn xmlMutexLock(tok: xmlMutexPtr);
 }
 unsafe extern "C" {
-  pub fn xmlCtxtResetPush(
-    ctxt: xmlParserCtxtPtr,
-    chunk: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    filename: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlMutexUnlock(tok: xmlMutexPtr);
 }
 unsafe extern "C" {
-  pub fn xmlCtxtUseOptions(
-    ctxt: xmlParserCtxtPtr,
-    options: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlFreeMutex(tok: xmlMutexPtr);
 }
 unsafe extern "C" {
-  pub fn xmlReadDoc(
-    cur: *const xmlChar,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlNewRMutex() -> xmlRMutexPtr;
 }
 unsafe extern "C" {
-  pub fn xmlReadFile(
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlRMutexLock(tok: xmlRMutexPtr);
 }
 unsafe extern "C" {
-  pub fn xmlReadMemory(
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlRMutexUnlock(tok: xmlRMutexPtr);
 }
 unsafe extern "C" {
-  pub fn xmlReadFd(
-    fd: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlFreeRMutex(tok: xmlRMutexPtr);
 }
 unsafe extern "C" {
-  pub fn xmlReadIO(
-    ioread: xmlInputReadCallback,
-    ioclose: xmlInputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlInitThreads();
 }
 unsafe extern "C" {
-  pub fn xmlCtxtReadDoc(
-    ctxt: xmlParserCtxtPtr,
-    cur: *const xmlChar,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlLockLibrary();
 }
 unsafe extern "C" {
-  pub fn xmlCtxtReadFile(
-    ctxt: xmlParserCtxtPtr,
-    filename: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlUnlockLibrary();
 }
 unsafe extern "C" {
-  pub fn xmlCtxtReadMemory(
-    ctxt: xmlParserCtxtPtr,
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlGetThreadId() -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-  pub fn xmlCtxtReadFd(
-    ctxt: xmlParserCtxtPtr,
-    fd: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlIsMainThread() -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-  pub fn xmlCtxtReadIO(
-    ctxt: xmlParserCtxtPtr,
-    ioread: xmlInputReadCallback,
-    ioclose: xmlInputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlDocPtr;
+  pub fn xmlCleanupThreads();
 }
-pub const xmlFeature_XML_WITH_THREAD: xmlFeature = 1;
-pub const xmlFeature_XML_WITH_TREE: xmlFeature = 2;
-pub const xmlFeature_XML_WITH_OUTPUT: xmlFeature = 3;
-pub const xmlFeature_XML_WITH_PUSH: xmlFeature = 4;
-pub const xmlFeature_XML_WITH_READER: xmlFeature = 5;
-pub const xmlFeature_XML_WITH_PATTERN: xmlFeature = 6;
-pub const xmlFeature_XML_WITH_WRITER: xmlFeature = 7;
-pub const xmlFeature_XML_WITH_SAX1: xmlFeature = 8;
-pub const xmlFeature_XML_WITH_FTP: xmlFeature = 9;
-pub const xmlFeature_XML_WITH_HTTP: xmlFeature = 10;
-pub const xmlFeature_XML_WITH_VALID: xmlFeature = 11;
-pub const xmlFeature_XML_WITH_HTML: xmlFeature = 12;
-pub const xmlFeature_XML_WITH_LEGACY: xmlFeature = 13;
-pub const xmlFeature_XML_WITH_C14N: xmlFeature = 14;
-pub const xmlFeature_XML_WITH_CATALOG: xmlFeature = 15;
-pub const xmlFeature_XML_WITH_XPATH: xmlFeature = 16;
-pub const xmlFeature_XML_WITH_XPTR: xmlFeature = 17;
-pub const xmlFeature_XML_WITH_XINCLUDE: xmlFeature = 18;
-pub const xmlFeature_XML_WITH_ICONV: xmlFeature = 19;
-pub const xmlFeature_XML_WITH_ISO8859X: xmlFeature = 20;
-pub const xmlFeature_XML_WITH_UNICODE: xmlFeature = 21;
-pub const xmlFeature_XML_WITH_REGEXP: xmlFeature = 22;
-pub const xmlFeature_XML_WITH_AUTOMATA: xmlFeature = 23;
-pub const xmlFeature_XML_WITH_EXPR: xmlFeature = 24;
-pub const xmlFeature_XML_WITH_SCHEMAS: xmlFeature = 25;
-pub const xmlFeature_XML_WITH_SCHEMATRON: xmlFeature = 26;
-pub const xmlFeature_XML_WITH_MODULES: xmlFeature = 27;
-pub const xmlFeature_XML_WITH_DEBUG: xmlFeature = 28;
-pub const xmlFeature_XML_WITH_DEBUG_MEM: xmlFeature = 29;
-pub const xmlFeature_XML_WITH_DEBUG_RUN: xmlFeature = 30;
-pub const xmlFeature_XML_WITH_ZLIB: xmlFeature = 31;
-pub const xmlFeature_XML_WITH_ICU: xmlFeature = 32;
-pub const xmlFeature_XML_WITH_LZMA: xmlFeature = 33;
-pub const xmlFeature_XML_WITH_NONE: xmlFeature = 99999;
-#[doc = " xmlFeature:\n\n Used to examine the existence of features that can be enabled\n or disabled at compile-time.\n They used to be called XML_FEATURE_xxx but this clashed with Expat"]
-pub type xmlFeature = ::std::os::raw::c_uint;
 unsafe extern "C" {
-  pub fn xmlHasFeature(feature: xmlFeature) -> ::std::os::raw::c_int;
+  pub fn xmlGetGlobalState() -> xmlGlobalStatePtr;
 }
 #[doc = " xmlXPathContext:\n\n Expression evaluation occurs with respect to a context.\n he context consists of:\n    - a node (the context node)\n    - a node list (the context node list)\n    - a set of variable bindings\n    - a function library\n    - the set of namespace declarations in scope for the expression\n Following the switch to hash tables, this need to be trimmed up at\n the next binary incompatible release.\n The node may be modified when the context is passed to libxml2\n for an XPath evaluation so you may need to initialize it again\n before the next call."]
 pub type xmlXPathContext = _xmlXPathContext;
@@ -9841,6 +9929,5004 @@ unsafe extern "C" {
 unsafe extern "C" {
   pub fn xmlXPathIsInf(val: f64) -> ::std::os::raw::c_int;
 }
+pub const xmlC14NMode_XML_C14N_1_0: xmlC14NMode = 0;
+pub const xmlC14NMode_XML_C14N_EXCLUSIVE_1_0: xmlC14NMode = 1;
+pub const xmlC14NMode_XML_C14N_1_1: xmlC14NMode = 2;
+pub type xmlC14NMode = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlC14NDocSaveTo(
+    doc: xmlDocPtr,
+    nodes: xmlNodeSetPtr,
+    mode: ::std::os::raw::c_int,
+    inclusive_ns_prefixes: *mut *mut xmlChar,
+    with_comments: ::std::os::raw::c_int,
+    buf: xmlOutputBufferPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlC14NDocDumpMemory(
+    doc: xmlDocPtr,
+    nodes: xmlNodeSetPtr,
+    mode: ::std::os::raw::c_int,
+    inclusive_ns_prefixes: *mut *mut xmlChar,
+    with_comments: ::std::os::raw::c_int,
+    doc_txt_ptr: *mut *mut xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlC14NDocSave(
+    doc: xmlDocPtr,
+    nodes: xmlNodeSetPtr,
+    mode: ::std::os::raw::c_int,
+    inclusive_ns_prefixes: *mut *mut xmlChar,
+    with_comments: ::std::os::raw::c_int,
+    filename: *const ::std::os::raw::c_char,
+    compression: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+#[doc = " This is the core C14N function\n/\n/**\n xmlC14NIsVisibleCallback:\n @user_data: user data\n @node: the current node\n @parent: the parent node\n\n Signature for a C14N callback on visible nodes\n\n Returns 1 if the node should be included"]
+pub type xmlC14NIsVisibleCallback = ::std::option::Option<
+  unsafe extern "C" fn(
+    user_data: *mut ::std::os::raw::c_void,
+    node: xmlNodePtr,
+    parent: xmlNodePtr,
+  ) -> ::std::os::raw::c_int,
+>;
+unsafe extern "C" {
+  pub fn xmlC14NExecute(
+    doc: xmlDocPtr,
+    is_visible_callback: xmlC14NIsVisibleCallback,
+    user_data: *mut ::std::os::raw::c_void,
+    mode: ::std::os::raw::c_int,
+    inclusive_ns_prefixes: *mut *mut xmlChar,
+    with_comments: ::std::os::raw::c_int,
+    buf: xmlOutputBufferPtr,
+  ) -> ::std::os::raw::c_int;
+}
+pub const xmlCatalogPrefer_XML_CATA_PREFER_NONE: xmlCatalogPrefer = 0;
+pub const xmlCatalogPrefer_XML_CATA_PREFER_PUBLIC: xmlCatalogPrefer = 1;
+pub const xmlCatalogPrefer_XML_CATA_PREFER_SYSTEM: xmlCatalogPrefer = 2;
+pub type xmlCatalogPrefer = ::std::os::raw::c_uint;
+pub const xmlCatalogAllow_XML_CATA_ALLOW_NONE: xmlCatalogAllow = 0;
+pub const xmlCatalogAllow_XML_CATA_ALLOW_GLOBAL: xmlCatalogAllow = 1;
+pub const xmlCatalogAllow_XML_CATA_ALLOW_DOCUMENT: xmlCatalogAllow = 2;
+pub const xmlCatalogAllow_XML_CATA_ALLOW_ALL: xmlCatalogAllow = 3;
+pub type xmlCatalogAllow = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlCatalog {
+  _unused: [u8; 0],
+}
+pub type xmlCatalog = _xmlCatalog;
+pub type xmlCatalogPtr = *mut xmlCatalog;
+unsafe extern "C" {
+  pub fn xmlNewCatalog(sgml: ::std::os::raw::c_int) -> xmlCatalogPtr;
+}
+unsafe extern "C" {
+  pub fn xmlLoadACatalog(filename: *const ::std::os::raw::c_char) -> xmlCatalogPtr;
+}
+unsafe extern "C" {
+  pub fn xmlLoadSGMLSuperCatalog(filename: *const ::std::os::raw::c_char) -> xmlCatalogPtr;
+}
+unsafe extern "C" {
+  pub fn xmlConvertSGMLCatalog(catal: xmlCatalogPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogAdd(
+    catal: xmlCatalogPtr,
+    type_: *const xmlChar,
+    orig: *const xmlChar,
+    replace: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogRemove(catal: xmlCatalogPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogResolve(
+    catal: xmlCatalogPtr,
+    pubID: *const xmlChar,
+    sysID: *const xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogResolveSystem(catal: xmlCatalogPtr, sysID: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogResolvePublic(catal: xmlCatalogPtr, pubID: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogResolveURI(catal: xmlCatalogPtr, URI: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlACatalogDump(catal: xmlCatalogPtr, out: *mut FILE);
+}
+unsafe extern "C" {
+  pub fn xmlFreeCatalog(catal: xmlCatalogPtr);
+}
+unsafe extern "C" {
+  pub fn xmlCatalogIsEmpty(catal: xmlCatalogPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlInitializeCatalog();
+}
+unsafe extern "C" {
+  pub fn xmlLoadCatalog(filename: *const ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlLoadCatalogs(paths: *const ::std::os::raw::c_char);
+}
+unsafe extern "C" {
+  pub fn xmlCatalogCleanup();
+}
+unsafe extern "C" {
+  pub fn xmlCatalogDump(out: *mut FILE);
+}
+unsafe extern "C" {
+  pub fn xmlCatalogResolve(pubID: *const xmlChar, sysID: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogResolveSystem(sysID: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogResolvePublic(pubID: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogResolveURI(URI: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogAdd(
+    type_: *const xmlChar,
+    orig: *const xmlChar,
+    replace: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogRemove(value: *const xmlChar) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseCatalogFile(filename: *const ::std::os::raw::c_char) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogConvert() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogFreeLocal(catalogs: *mut ::std::os::raw::c_void);
+}
+unsafe extern "C" {
+  pub fn xmlCatalogAddLocal(
+    catalogs: *mut ::std::os::raw::c_void,
+    URL: *const xmlChar,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogLocalResolve(
+    catalogs: *mut ::std::os::raw::c_void,
+    pubID: *const xmlChar,
+    sysID: *const xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogLocalResolveURI(
+    catalogs: *mut ::std::os::raw::c_void,
+    URI: *const xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogSetDebug(level: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogSetDefaultPrefer(prefer: xmlCatalogPrefer) -> xmlCatalogPrefer;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogSetDefaults(allow: xmlCatalogAllow);
+}
+unsafe extern "C" {
+  pub fn xmlCatalogGetDefaults() -> xmlCatalogAllow;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogGetSystem(sysID: *const xmlChar) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlCatalogGetPublic(pubID: *const xmlChar) -> *const xmlChar;
+}
+pub type xmlChSRange = _xmlChSRange;
+pub type xmlChSRangePtr = *mut xmlChSRange;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlChSRange {
+  pub low: ::std::os::raw::c_ushort,
+  pub high: ::std::os::raw::c_ushort,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlChSRange"][::std::mem::size_of::<_xmlChSRange>() - 4usize];
+  ["Alignment of _xmlChSRange"][::std::mem::align_of::<_xmlChSRange>() - 2usize];
+  ["Offset of field: _xmlChSRange::low"][::std::mem::offset_of!(_xmlChSRange, low) - 0usize];
+  ["Offset of field: _xmlChSRange::high"][::std::mem::offset_of!(_xmlChSRange, high) - 2usize];
+};
+pub type xmlChLRange = _xmlChLRange;
+pub type xmlChLRangePtr = *mut xmlChLRange;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlChLRange {
+  pub low: ::std::os::raw::c_uint,
+  pub high: ::std::os::raw::c_uint,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlChLRange"][::std::mem::size_of::<_xmlChLRange>() - 8usize];
+  ["Alignment of _xmlChLRange"][::std::mem::align_of::<_xmlChLRange>() - 4usize];
+  ["Offset of field: _xmlChLRange::low"][::std::mem::offset_of!(_xmlChLRange, low) - 0usize];
+  ["Offset of field: _xmlChLRange::high"][::std::mem::offset_of!(_xmlChLRange, high) - 4usize];
+};
+pub type xmlChRangeGroup = _xmlChRangeGroup;
+pub type xmlChRangeGroupPtr = *mut xmlChRangeGroup;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlChRangeGroup {
+  pub nbShortRange: ::std::os::raw::c_int,
+  pub nbLongRange: ::std::os::raw::c_int,
+  pub shortRange: *const xmlChSRange,
+  pub longRange: *const xmlChLRange,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlChRangeGroup"][::std::mem::size_of::<_xmlChRangeGroup>() - 24usize];
+  ["Alignment of _xmlChRangeGroup"][::std::mem::align_of::<_xmlChRangeGroup>() - 8usize];
+  ["Offset of field: _xmlChRangeGroup::nbShortRange"]
+    [::std::mem::offset_of!(_xmlChRangeGroup, nbShortRange) - 0usize];
+  ["Offset of field: _xmlChRangeGroup::nbLongRange"]
+    [::std::mem::offset_of!(_xmlChRangeGroup, nbLongRange) - 4usize];
+  ["Offset of field: _xmlChRangeGroup::shortRange"]
+    [::std::mem::offset_of!(_xmlChRangeGroup, shortRange) - 8usize];
+  ["Offset of field: _xmlChRangeGroup::longRange"]
+    [::std::mem::offset_of!(_xmlChRangeGroup, longRange) - 16usize];
+};
+unsafe extern "C" {
+  #[doc = " Range checking routine"]
+  pub fn xmlCharInRange(
+    val: ::std::os::raw::c_uint,
+    group: *const xmlChRangeGroup,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub static xmlIsBaseCharGroup: xmlChRangeGroup;
+}
+unsafe extern "C" {
+  pub static xmlIsCharGroup: xmlChRangeGroup;
+}
+unsafe extern "C" {
+  pub static xmlIsCombiningGroup: xmlChRangeGroup;
+}
+unsafe extern "C" {
+  pub static xmlIsDigitGroup: xmlChRangeGroup;
+}
+unsafe extern "C" {
+  pub static xmlIsExtenderGroup: xmlChRangeGroup;
+}
+unsafe extern "C" {
+  pub static xmlIsIdeographicGroup: xmlChRangeGroup;
+}
+unsafe extern "C" {
+  pub static xmlIsPubidChar_tab: [::std::os::raw::c_uchar; 256usize];
+}
+unsafe extern "C" {
+  pub fn xmlIsBaseChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsBlank(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsCombining(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsDigit(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsExtender(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsIdeographic(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlIsPubidChar(ch: ::std::os::raw::c_uint) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpString(output: *mut FILE, str_: *const xmlChar);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpAttr(output: *mut FILE, attr: xmlAttrPtr, depth: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpAttrList(output: *mut FILE, attr: xmlAttrPtr, depth: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpOneNode(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpNode(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpNodeList(output: *mut FILE, node: xmlNodePtr, depth: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpDocumentHead(output: *mut FILE, doc: xmlDocPtr);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpDocument(output: *mut FILE, doc: xmlDocPtr);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpDTD(output: *mut FILE, dtd: xmlDtdPtr);
+}
+unsafe extern "C" {
+  pub fn xmlDebugDumpEntities(output: *mut FILE, doc: xmlDocPtr);
+}
+unsafe extern "C" {
+  #[doc = "\t\t\t\t\t\t\t\t*\n\t\t\tChecking routines\t\t\t*\n\t\t\t\t\t\t\t\t*"]
+  pub fn xmlDebugCheckDocument(output: *mut FILE, doc: xmlDocPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  #[doc = "\t\t\t\t\t\t\t\t*\n\t\t\tXML shell helpers\t\t\t*\n\t\t\t\t\t\t\t\t*"]
+  pub fn xmlLsOneNode(output: *mut FILE, node: xmlNodePtr);
+}
+unsafe extern "C" {
+  pub fn xmlLsCountNode(node: xmlNodePtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlBoolToText(boolval: ::std::os::raw::c_int) -> *const ::std::os::raw::c_char;
+}
+#[doc = " xmlShellReadlineFunc:\n @prompt:  a string prompt\n\n This is a generic signature for the XML shell input function.\n\n Returns a string which will be freed by the Shell."]
+pub type xmlShellReadlineFunc = ::std::option::Option<
+  unsafe extern "C" fn(prompt: *mut ::std::os::raw::c_char) -> *mut ::std::os::raw::c_char,
+>;
+#[doc = " xmlShellCtxt:\n\n A debugging shell context.\n TODO: add the defined function tables."]
+pub type xmlShellCtxt = _xmlShellCtxt;
+pub type xmlShellCtxtPtr = *mut xmlShellCtxt;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlShellCtxt {
+  pub filename: *mut ::std::os::raw::c_char,
+  pub doc: xmlDocPtr,
+  pub node: xmlNodePtr,
+  pub pctxt: xmlXPathContextPtr,
+  pub loaded: ::std::os::raw::c_int,
+  pub output: *mut FILE,
+  pub input: xmlShellReadlineFunc,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlShellCtxt"][::std::mem::size_of::<_xmlShellCtxt>() - 56usize];
+  ["Alignment of _xmlShellCtxt"][::std::mem::align_of::<_xmlShellCtxt>() - 8usize];
+  ["Offset of field: _xmlShellCtxt::filename"]
+    [::std::mem::offset_of!(_xmlShellCtxt, filename) - 0usize];
+  ["Offset of field: _xmlShellCtxt::doc"][::std::mem::offset_of!(_xmlShellCtxt, doc) - 8usize];
+  ["Offset of field: _xmlShellCtxt::node"][::std::mem::offset_of!(_xmlShellCtxt, node) - 16usize];
+  ["Offset of field: _xmlShellCtxt::pctxt"][::std::mem::offset_of!(_xmlShellCtxt, pctxt) - 24usize];
+  ["Offset of field: _xmlShellCtxt::loaded"]
+    [::std::mem::offset_of!(_xmlShellCtxt, loaded) - 32usize];
+  ["Offset of field: _xmlShellCtxt::output"]
+    [::std::mem::offset_of!(_xmlShellCtxt, output) - 40usize];
+  ["Offset of field: _xmlShellCtxt::input"][::std::mem::offset_of!(_xmlShellCtxt, input) - 48usize];
+};
+#[doc = " xmlShellCmd:\n @ctxt:  a shell context\n @arg:  a string argument\n @node:  a first node\n @node2:  a second node\n\n This is a generic signature for the XML shell functions.\n\n Returns an int, negative returns indicating errors."]
+pub type xmlShellCmd = ::std::option::Option<
+  unsafe extern "C" fn(
+    ctxt: xmlShellCtxtPtr,
+    arg: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int,
+>;
+unsafe extern "C" {
+  pub fn xmlShellPrintXPathError(
+    errorType: ::std::os::raw::c_int,
+    arg: *const ::std::os::raw::c_char,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlShellPrintXPathResult(list: xmlXPathObjectPtr);
+}
+unsafe extern "C" {
+  pub fn xmlShellList(
+    ctxt: xmlShellCtxtPtr,
+    arg: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellBase(
+    ctxt: xmlShellCtxtPtr,
+    arg: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellDir(
+    ctxt: xmlShellCtxtPtr,
+    arg: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellLoad(
+    ctxt: xmlShellCtxtPtr,
+    filename: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellPrintNode(node: xmlNodePtr);
+}
+unsafe extern "C" {
+  pub fn xmlShellCat(
+    ctxt: xmlShellCtxtPtr,
+    arg: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellWrite(
+    ctxt: xmlShellCtxtPtr,
+    filename: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellSave(
+    ctxt: xmlShellCtxtPtr,
+    filename: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellValidate(
+    ctxt: xmlShellCtxtPtr,
+    dtd: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellDu(
+    ctxt: xmlShellCtxtPtr,
+    arg: *mut ::std::os::raw::c_char,
+    tree: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShellPwd(
+    ctxt: xmlShellCtxtPtr,
+    buffer: *mut ::std::os::raw::c_char,
+    node: xmlNodePtr,
+    node2: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlShell(
+    doc: xmlDocPtr,
+    filename: *mut ::std::os::raw::c_char,
+    input: xmlShellReadlineFunc,
+    output: *mut FILE,
+  );
+}
+#[doc = " xmlParserCtxt:\n\n The parser context.\n NOTE This doesn't completely define the parser state, the (current ?)\n      design of the parser uses recursive function calls since this allow\n      and easy mapping from the production rules of the specification\n      to the actual code. The drawback is that the actual function call\n      also reflect the parser state. However most of the parsing routines\n      takes as the only argument the parser context pointer, so migrating\n      to a state based parser for progressive parsing shouldn't be too hard."]
+pub type htmlParserCtxt = xmlParserCtxt;
+pub type htmlParserCtxtPtr = xmlParserCtxtPtr;
+pub type htmlParserNodeInfo = xmlParserNodeInfo;
+pub type htmlSAXHandler = xmlSAXHandler;
+pub type htmlSAXHandlerPtr = xmlSAXHandlerPtr;
+pub type htmlParserInput = xmlParserInput;
+pub type htmlParserInputPtr = xmlParserInputPtr;
+pub type htmlDocPtr = xmlDocPtr;
+pub type htmlNodePtr = xmlNodePtr;
+pub type htmlElemDesc = _htmlElemDesc;
+pub type htmlElemDescPtr = *mut htmlElemDesc;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _htmlElemDesc {
+  pub name: *const ::std::os::raw::c_char,
+  pub startTag: ::std::os::raw::c_char,
+  pub endTag: ::std::os::raw::c_char,
+  pub saveEndTag: ::std::os::raw::c_char,
+  pub empty: ::std::os::raw::c_char,
+  pub depr: ::std::os::raw::c_char,
+  pub dtd: ::std::os::raw::c_char,
+  pub isinline: ::std::os::raw::c_char,
+  pub desc: *const ::std::os::raw::c_char,
+  pub subelts: *mut *const ::std::os::raw::c_char,
+  pub defaultsubelt: *const ::std::os::raw::c_char,
+  pub attrs_opt: *mut *const ::std::os::raw::c_char,
+  pub attrs_depr: *mut *const ::std::os::raw::c_char,
+  pub attrs_req: *mut *const ::std::os::raw::c_char,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _htmlElemDesc"][::std::mem::size_of::<_htmlElemDesc>() - 64usize];
+  ["Alignment of _htmlElemDesc"][::std::mem::align_of::<_htmlElemDesc>() - 8usize];
+  ["Offset of field: _htmlElemDesc::name"][::std::mem::offset_of!(_htmlElemDesc, name) - 0usize];
+  ["Offset of field: _htmlElemDesc::startTag"]
+    [::std::mem::offset_of!(_htmlElemDesc, startTag) - 8usize];
+  ["Offset of field: _htmlElemDesc::endTag"]
+    [::std::mem::offset_of!(_htmlElemDesc, endTag) - 9usize];
+  ["Offset of field: _htmlElemDesc::saveEndTag"]
+    [::std::mem::offset_of!(_htmlElemDesc, saveEndTag) - 10usize];
+  ["Offset of field: _htmlElemDesc::empty"][::std::mem::offset_of!(_htmlElemDesc, empty) - 11usize];
+  ["Offset of field: _htmlElemDesc::depr"][::std::mem::offset_of!(_htmlElemDesc, depr) - 12usize];
+  ["Offset of field: _htmlElemDesc::dtd"][::std::mem::offset_of!(_htmlElemDesc, dtd) - 13usize];
+  ["Offset of field: _htmlElemDesc::isinline"]
+    [::std::mem::offset_of!(_htmlElemDesc, isinline) - 14usize];
+  ["Offset of field: _htmlElemDesc::desc"][::std::mem::offset_of!(_htmlElemDesc, desc) - 16usize];
+  ["Offset of field: _htmlElemDesc::subelts"]
+    [::std::mem::offset_of!(_htmlElemDesc, subelts) - 24usize];
+  ["Offset of field: _htmlElemDesc::defaultsubelt"]
+    [::std::mem::offset_of!(_htmlElemDesc, defaultsubelt) - 32usize];
+  ["Offset of field: _htmlElemDesc::attrs_opt"]
+    [::std::mem::offset_of!(_htmlElemDesc, attrs_opt) - 40usize];
+  ["Offset of field: _htmlElemDesc::attrs_depr"]
+    [::std::mem::offset_of!(_htmlElemDesc, attrs_depr) - 48usize];
+  ["Offset of field: _htmlElemDesc::attrs_req"]
+    [::std::mem::offset_of!(_htmlElemDesc, attrs_req) - 56usize];
+};
+pub type htmlEntityDesc = _htmlEntityDesc;
+pub type htmlEntityDescPtr = *mut htmlEntityDesc;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _htmlEntityDesc {
+  pub value: ::std::os::raw::c_uint,
+  pub name: *const ::std::os::raw::c_char,
+  pub desc: *const ::std::os::raw::c_char,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _htmlEntityDesc"][::std::mem::size_of::<_htmlEntityDesc>() - 24usize];
+  ["Alignment of _htmlEntityDesc"][::std::mem::align_of::<_htmlEntityDesc>() - 8usize];
+  ["Offset of field: _htmlEntityDesc::value"]
+    [::std::mem::offset_of!(_htmlEntityDesc, value) - 0usize];
+  ["Offset of field: _htmlEntityDesc::name"]
+    [::std::mem::offset_of!(_htmlEntityDesc, name) - 8usize];
+  ["Offset of field: _htmlEntityDesc::desc"]
+    [::std::mem::offset_of!(_htmlEntityDesc, desc) - 16usize];
+};
+unsafe extern "C" {
+  pub fn htmlTagLookup(tag: *const xmlChar) -> *const htmlElemDesc;
+}
+unsafe extern "C" {
+  pub fn htmlEntityLookup(name: *const xmlChar) -> *const htmlEntityDesc;
+}
+unsafe extern "C" {
+  pub fn htmlEntityValueLookup(value: ::std::os::raw::c_uint) -> *const htmlEntityDesc;
+}
+unsafe extern "C" {
+  pub fn htmlIsAutoClosed(doc: htmlDocPtr, elem: htmlNodePtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlAutoCloseTag(
+    doc: htmlDocPtr,
+    name: *const xmlChar,
+    elem: htmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlParseEntityRef(
+    ctxt: htmlParserCtxtPtr,
+    str_: *mut *const xmlChar,
+  ) -> *const htmlEntityDesc;
+}
+unsafe extern "C" {
+  pub fn htmlParseCharRef(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlParseElement(ctxt: htmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn htmlNewParserCtxt() -> htmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn htmlCreateMemoryParserCtxt(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> htmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn htmlParseDocument(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlSAXParseDoc(
+    cur: *const xmlChar,
+    encoding: *const ::std::os::raw::c_char,
+    sax: htmlSAXHandlerPtr,
+    userData: *mut ::std::os::raw::c_void,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlParseDoc(cur: *const xmlChar, encoding: *const ::std::os::raw::c_char) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlSAXParseFile(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    sax: htmlSAXHandlerPtr,
+    userData: *mut ::std::os::raw::c_void,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlParseFile(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn UTF8ToHtml(
+    out: *mut ::std::os::raw::c_uchar,
+    outlen: *mut ::std::os::raw::c_int,
+    in_: *const ::std::os::raw::c_uchar,
+    inlen: *mut ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlEncodeEntities(
+    out: *mut ::std::os::raw::c_uchar,
+    outlen: *mut ::std::os::raw::c_int,
+    in_: *const ::std::os::raw::c_uchar,
+    inlen: *mut ::std::os::raw::c_int,
+    quoteChar: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlIsScriptAttribute(name: *const xmlChar) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlHandleOmittedElem(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  #[doc = " Interfaces for the Push mode."]
+  pub fn htmlCreatePushParserCtxt(
+    sax: htmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    filename: *const ::std::os::raw::c_char,
+    enc: xmlCharEncoding,
+  ) -> htmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn htmlParseChunk(
+    ctxt: htmlParserCtxtPtr,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    terminate: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlFreeParserCtxt(ctxt: htmlParserCtxtPtr);
+}
+pub const htmlParserOption_HTML_PARSE_RECOVER: htmlParserOption = 1;
+pub const htmlParserOption_HTML_PARSE_NODEFDTD: htmlParserOption = 4;
+pub const htmlParserOption_HTML_PARSE_NOERROR: htmlParserOption = 32;
+pub const htmlParserOption_HTML_PARSE_NOWARNING: htmlParserOption = 64;
+pub const htmlParserOption_HTML_PARSE_PEDANTIC: htmlParserOption = 128;
+pub const htmlParserOption_HTML_PARSE_NOBLANKS: htmlParserOption = 256;
+pub const htmlParserOption_HTML_PARSE_NONET: htmlParserOption = 2048;
+pub const htmlParserOption_HTML_PARSE_NOIMPLIED: htmlParserOption = 8192;
+pub const htmlParserOption_HTML_PARSE_COMPACT: htmlParserOption = 65536;
+pub const htmlParserOption_HTML_PARSE_IGNORE_ENC: htmlParserOption = 2097152;
+#[doc = " xmlParserOption:\n\n This is the set of XML parser options that can be passed down\n to the xmlReadDoc() and similar calls."]
+pub type htmlParserOption = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn htmlCtxtReset(ctxt: htmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn htmlCtxtUseOptions(
+    ctxt: htmlParserCtxtPtr,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlReadDoc(
+    cur: *const xmlChar,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlReadFile(
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlReadMemory(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlReadFd(
+    fd: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlReadIO(
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlCtxtReadDoc(
+    ctxt: xmlParserCtxtPtr,
+    cur: *const xmlChar,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlCtxtReadFile(
+    ctxt: xmlParserCtxtPtr,
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlCtxtReadMemory(
+    ctxt: xmlParserCtxtPtr,
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlCtxtReadFd(
+    ctxt: xmlParserCtxtPtr,
+    fd: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlCtxtReadIO(
+    ctxt: xmlParserCtxtPtr,
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> htmlDocPtr;
+}
+pub const htmlStatus_HTML_NA: htmlStatus = 0;
+pub const htmlStatus_HTML_INVALID: htmlStatus = 1;
+pub const htmlStatus_HTML_DEPRECATED: htmlStatus = 2;
+pub const htmlStatus_HTML_VALID: htmlStatus = 4;
+pub const htmlStatus_HTML_REQUIRED: htmlStatus = 12;
+pub type htmlStatus = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn htmlAttrAllowed(
+    arg1: *const htmlElemDesc,
+    arg2: *const xmlChar,
+    arg3: ::std::os::raw::c_int,
+  ) -> htmlStatus;
+}
+unsafe extern "C" {
+  pub fn htmlElementAllowedHere(
+    arg1: *const htmlElemDesc,
+    arg2: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlElementStatusHere(arg1: *const htmlElemDesc, arg2: *const htmlElemDesc) -> htmlStatus;
+}
+unsafe extern "C" {
+  pub fn htmlNodeStatus(arg1: htmlNodePtr, arg2: ::std::os::raw::c_int) -> htmlStatus;
+}
+unsafe extern "C" {
+  #[doc = " xmlParserMaxDepth:\n\n arbitrary depth limit for the XML documents that we allow to\n process. This is not a limitation of the parser but a safety\n boundary feature, use XML_PARSE_HUGE option to override it."]
+  pub static mut xmlParserMaxDepth: ::std::os::raw::c_uint;
+}
+unsafe extern "C" {
+  #[doc = " Global variables used for predefined strings."]
+  pub static xmlStringText: [xmlChar; 0usize];
+}
+unsafe extern "C" {
+  pub static xmlStringTextNoenc: [xmlChar; 0usize];
+}
+unsafe extern "C" {
+  pub static xmlStringComment: [xmlChar; 0usize];
+}
+unsafe extern "C" {
+  pub fn xmlIsLetter(c: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  #[doc = " Parser context."]
+  pub fn xmlCreateFileParserCtxt(filename: *const ::std::os::raw::c_char) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCreateURLParserCtxt(
+    filename: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCreateMemoryParserCtxt(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlCreateEntityParserCtxt(
+    URL: *const xmlChar,
+    ID: *const xmlChar,
+    base: *const xmlChar,
+  ) -> xmlParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSwitchEncoding(ctxt: xmlParserCtxtPtr, enc: xmlCharEncoding) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSwitchToEncoding(
+    ctxt: xmlParserCtxtPtr,
+    handler: xmlCharEncodingHandlerPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSwitchInputEncoding(
+    ctxt: xmlParserCtxtPtr,
+    input: xmlParserInputPtr,
+    handler: xmlCharEncodingHandlerPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  #[doc = " Input Streams."]
+  pub fn xmlNewStringInputStream(
+    ctxt: xmlParserCtxtPtr,
+    buffer: *const xmlChar,
+  ) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewEntityInputStream(ctxt: xmlParserCtxtPtr, entity: xmlEntityPtr)
+    -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlPushInput(ctxt: xmlParserCtxtPtr, input: xmlParserInputPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlPopInput(ctxt: xmlParserCtxtPtr) -> xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlFreeInputStream(input: xmlParserInputPtr);
+}
+unsafe extern "C" {
+  pub fn xmlNewInputFromFile(
+    ctxt: xmlParserCtxtPtr,
+    filename: *const ::std::os::raw::c_char,
+  ) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewInputStream(ctxt: xmlParserCtxtPtr) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  #[doc = " Namespaces."]
+  pub fn xmlSplitQName(
+    ctxt: xmlParserCtxtPtr,
+    name: *const xmlChar,
+    prefix: *mut *mut xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  #[doc = " Generic production rules."]
+  pub fn xmlParseName(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseNmtoken(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseEntityValue(ctxt: xmlParserCtxtPtr, orig: *mut *mut xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseAttValue(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseSystemLiteral(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParsePubidLiteral(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseCharData(ctxt: xmlParserCtxtPtr, cdata: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn xmlParseExternalID(
+    ctxt: xmlParserCtxtPtr,
+    publicID: *mut *mut xmlChar,
+    strict: ::std::os::raw::c_int,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseComment(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParsePITarget(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParsePI(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseNotationDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseEntityDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseDefaultDecl(
+    ctxt: xmlParserCtxtPtr,
+    value: *mut *mut xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseNotationType(ctxt: xmlParserCtxtPtr) -> xmlEnumerationPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseEnumerationType(ctxt: xmlParserCtxtPtr) -> xmlEnumerationPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseEnumeratedType(
+    ctxt: xmlParserCtxtPtr,
+    tree: *mut xmlEnumerationPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseAttributeType(
+    ctxt: xmlParserCtxtPtr,
+    tree: *mut xmlEnumerationPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseAttributeListDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseElementMixedContentDecl(
+    ctxt: xmlParserCtxtPtr,
+    inputchk: ::std::os::raw::c_int,
+  ) -> xmlElementContentPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseElementChildrenContentDecl(
+    ctxt: xmlParserCtxtPtr,
+    inputchk: ::std::os::raw::c_int,
+  ) -> xmlElementContentPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseElementContentDecl(
+    ctxt: xmlParserCtxtPtr,
+    name: *const xmlChar,
+    result: *mut xmlElementContentPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseElementDecl(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseMarkupDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseCharRef(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseEntityRef(ctxt: xmlParserCtxtPtr) -> xmlEntityPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseReference(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParsePEReference(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseDocTypeDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseAttribute(ctxt: xmlParserCtxtPtr, value: *mut *mut xmlChar) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseStartTag(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseEndTag(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseCDSect(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseContent(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseElement(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseVersionNum(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseVersionInfo(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseEncName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseEncodingDecl(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseSDDecl(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParseXMLDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseTextDecl(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseMisc(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParseExternalSubset(
+    ctxt: xmlParserCtxtPtr,
+    ExternalID: *const xmlChar,
+    SystemID: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlStringDecodeEntities(
+    ctxt: xmlParserCtxtPtr,
+    str_: *const xmlChar,
+    what: ::std::os::raw::c_int,
+    end: xmlChar,
+    end2: xmlChar,
+    end3: xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlStringLenDecodeEntities(
+    ctxt: xmlParserCtxtPtr,
+    str_: *const xmlChar,
+    len: ::std::os::raw::c_int,
+    what: ::std::os::raw::c_int,
+    end: xmlChar,
+    end2: xmlChar,
+    end3: xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn nodePush(ctxt: xmlParserCtxtPtr, value: xmlNodePtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn nodePop(ctxt: xmlParserCtxtPtr) -> xmlNodePtr;
+}
+unsafe extern "C" {
+  pub fn inputPush(ctxt: xmlParserCtxtPtr, value: xmlParserInputPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn inputPop(ctxt: xmlParserCtxtPtr) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn namePop(ctxt: xmlParserCtxtPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn namePush(ctxt: xmlParserCtxtPtr, value: *const xmlChar) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSkipBlankChars(ctxt: xmlParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlStringCurrentChar(
+    ctxt: xmlParserCtxtPtr,
+    cur: *const xmlChar,
+    len: *mut ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlParserHandlePEReference(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlCheckLanguageID(lang: *const xmlChar) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCurrentChar(
+    ctxt: xmlParserCtxtPtr,
+    len: *mut ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCopyCharMultiByte(
+    out: *mut xmlChar,
+    val: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlCopyChar(
+    len: ::std::os::raw::c_int,
+    out: *mut xmlChar,
+    val: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNextChar(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlParserInputShrink(in_: xmlParserInputPtr);
+}
+unsafe extern "C" {
+  pub fn htmlInitAutoClose();
+}
+unsafe extern "C" {
+  pub fn htmlCreateFileParserCtxt(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+  ) -> htmlParserCtxtPtr;
+}
+#[doc = " xmlEntityReferenceFunc:\n @ent: the entity\n @firstNode:  the fist node in the chunk\n @lastNode:  the last nod in the chunk\n\n Callback function used when one needs to be able to track back the\n provenance of a chunk of nodes inherited from an entity replacement."]
+pub type xmlEntityReferenceFunc = ::std::option::Option<
+  unsafe extern "C" fn(ent: xmlEntityPtr, firstNode: xmlNodePtr, lastNode: xmlNodePtr),
+>;
+unsafe extern "C" {
+  pub fn xmlSetEntityReferenceFunc(func: xmlEntityReferenceFunc);
+}
+unsafe extern "C" {
+  pub fn xmlParseQuotedString(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseNamespace(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlNamespaceParseNSDef(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlScanName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlNamespaceParseNCName(ctxt: xmlParserCtxtPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParserHandleReference(ctxt: xmlParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlNamespaceParseQName(ctxt: xmlParserCtxtPtr, prefix: *mut *mut xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  #[doc = " Entities"]
+  pub fn xmlDecodeEntities(
+    ctxt: xmlParserCtxtPtr,
+    len: ::std::os::raw::c_int,
+    what: ::std::os::raw::c_int,
+    end: xmlChar,
+    end2: xmlChar,
+    end3: xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlHandleEntity(ctxt: xmlParserCtxtPtr, entity: xmlEntityPtr);
+}
+#[doc = " xmlParserCtxt:\n\n The parser context.\n NOTE This doesn't completely define the parser state, the (current ?)\n      design of the parser uses recursive function calls since this allow\n      and easy mapping from the production rules of the specification\n      to the actual code. The drawback is that the actual function call\n      also reflect the parser state. However most of the parsing routines\n      takes as the only argument the parser context pointer, so migrating\n      to a state based parser for progressive parsing shouldn't be too hard."]
+pub type docbParserCtxt = xmlParserCtxt;
+pub type docbParserCtxtPtr = xmlParserCtxtPtr;
+pub type docbSAXHandler = xmlSAXHandler;
+pub type docbSAXHandlerPtr = xmlSAXHandlerPtr;
+pub type docbParserInput = xmlParserInput;
+pub type docbParserInputPtr = xmlParserInputPtr;
+pub type docbDocPtr = xmlDocPtr;
+unsafe extern "C" {
+  pub fn docbEncodeEntities(
+    out: *mut ::std::os::raw::c_uchar,
+    outlen: *mut ::std::os::raw::c_int,
+    in_: *const ::std::os::raw::c_uchar,
+    inlen: *mut ::std::os::raw::c_int,
+    quoteChar: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn docbSAXParseDoc(
+    cur: *mut xmlChar,
+    encoding: *const ::std::os::raw::c_char,
+    sax: docbSAXHandlerPtr,
+    userData: *mut ::std::os::raw::c_void,
+  ) -> docbDocPtr;
+}
+unsafe extern "C" {
+  pub fn docbParseDoc(cur: *mut xmlChar, encoding: *const ::std::os::raw::c_char) -> docbDocPtr;
+}
+unsafe extern "C" {
+  pub fn docbSAXParseFile(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    sax: docbSAXHandlerPtr,
+    userData: *mut ::std::os::raw::c_void,
+  ) -> docbDocPtr;
+}
+unsafe extern "C" {
+  pub fn docbParseFile(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+  ) -> docbDocPtr;
+}
+unsafe extern "C" {
+  #[doc = " Interfaces for the Push mode."]
+  pub fn docbFreeParserCtxt(ctxt: docbParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn docbCreatePushParserCtxt(
+    sax: docbSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    filename: *const ::std::os::raw::c_char,
+    enc: xmlCharEncoding,
+  ) -> docbParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn docbParseChunk(
+    ctxt: docbParserCtxtPtr,
+    chunk: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    terminate: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn docbCreateFileParserCtxt(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+  ) -> docbParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn docbParseDocument(ctxt: docbParserCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlNewDoc(URI: *const xmlChar, ExternalID: *const xmlChar) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlNewDocNoDtD(URI: *const xmlChar, ExternalID: *const xmlChar) -> htmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn htmlGetMetaEncoding(doc: htmlDocPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn htmlSetMetaEncoding(doc: htmlDocPtr, encoding: *const xmlChar) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlDocDumpMemory(
+    cur: xmlDocPtr,
+    mem: *mut *mut xmlChar,
+    size: *mut ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn htmlDocDumpMemoryFormat(
+    cur: xmlDocPtr,
+    mem: *mut *mut xmlChar,
+    size: *mut ::std::os::raw::c_int,
+    format: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn htmlDocDump(f: *mut FILE, cur: xmlDocPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlSaveFile(
+    filename: *const ::std::os::raw::c_char,
+    cur: xmlDocPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlNodeDump(buf: xmlBufferPtr, doc: xmlDocPtr, cur: xmlNodePtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlNodeDumpFile(out: *mut FILE, doc: xmlDocPtr, cur: xmlNodePtr);
+}
+unsafe extern "C" {
+  pub fn htmlNodeDumpFileFormat(
+    out: *mut FILE,
+    doc: xmlDocPtr,
+    cur: xmlNodePtr,
+    encoding: *const ::std::os::raw::c_char,
+    format: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlSaveFileEnc(
+    filename: *const ::std::os::raw::c_char,
+    cur: xmlDocPtr,
+    encoding: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlSaveFileFormat(
+    filename: *const ::std::os::raw::c_char,
+    cur: xmlDocPtr,
+    encoding: *const ::std::os::raw::c_char,
+    format: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn htmlNodeDumpFormatOutput(
+    buf: xmlOutputBufferPtr,
+    doc: xmlDocPtr,
+    cur: xmlNodePtr,
+    encoding: *const ::std::os::raw::c_char,
+    format: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn htmlDocContentDumpOutput(
+    buf: xmlOutputBufferPtr,
+    cur: xmlDocPtr,
+    encoding: *const ::std::os::raw::c_char,
+  );
+}
+unsafe extern "C" {
+  pub fn htmlDocContentDumpFormatOutput(
+    buf: xmlOutputBufferPtr,
+    cur: xmlDocPtr,
+    encoding: *const ::std::os::raw::c_char,
+    format: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn htmlNodeDumpOutput(
+    buf: xmlOutputBufferPtr,
+    doc: xmlDocPtr,
+    cur: xmlNodePtr,
+    encoding: *const ::std::os::raw::c_char,
+  );
+}
+unsafe extern "C" {
+  pub fn htmlIsBooleanAttr(name: *const xmlChar) -> ::std::os::raw::c_int;
+}
+#[doc = " ftpListCallback:\n @userData:  user provided data for the callback\n @filename:  the file name (including \"->\" when links are shown)\n @attrib:  the attribute string\n @owner:  the owner string\n @group:  the group string\n @size:  the file size\n @links:  the link count\n @year:  the year\n @month:  the month\n @day:  the day\n @hour:  the hour\n @minute:  the minute\n\n A callback for the xmlNanoFTPList command.\n Note that only one of year and day:minute are specified."]
+pub type ftpListCallback = ::std::option::Option<
+  unsafe extern "C" fn(
+    userData: *mut ::std::os::raw::c_void,
+    filename: *const ::std::os::raw::c_char,
+    attrib: *const ::std::os::raw::c_char,
+    owner: *const ::std::os::raw::c_char,
+    group: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_ulong,
+    links: ::std::os::raw::c_int,
+    year: ::std::os::raw::c_int,
+    month: *const ::std::os::raw::c_char,
+    day: ::std::os::raw::c_int,
+    hour: ::std::os::raw::c_int,
+    minute: ::std::os::raw::c_int,
+  ),
+>;
+#[doc = " ftpDataCallback:\n @userData: the user provided context\n @data: the data received\n @len: its size in bytes\n\n A callback for the xmlNanoFTPGet command."]
+pub type ftpDataCallback = ::std::option::Option<
+  unsafe extern "C" fn(
+    userData: *mut ::std::os::raw::c_void,
+    data: *const ::std::os::raw::c_char,
+    len: ::std::os::raw::c_int,
+  ),
+>;
+unsafe extern "C" {
+  pub fn xmlNanoFTPInit();
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPCleanup();
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPNewCtxt(URL: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPFreeCtxt(ctx: *mut ::std::os::raw::c_void);
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPConnectTo(
+    server: *const ::std::os::raw::c_char,
+    port: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPOpen(URL: *const ::std::os::raw::c_char) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPConnect(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPClose(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPQuit(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPScanProxy(URL: *const ::std::os::raw::c_char);
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPProxy(
+    host: *const ::std::os::raw::c_char,
+    port: ::std::os::raw::c_int,
+    user: *const ::std::os::raw::c_char,
+    passwd: *const ::std::os::raw::c_char,
+    type_: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPUpdateURL(
+    ctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPGetResponse(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPCheckResponse(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPCwd(
+    ctx: *mut ::std::os::raw::c_void,
+    directory: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPDele(
+    ctx: *mut ::std::os::raw::c_void,
+    file: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPGetConnection(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPCloseConnection(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPList(
+    ctx: *mut ::std::os::raw::c_void,
+    callback: ftpListCallback,
+    userData: *mut ::std::os::raw::c_void,
+    filename: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPGetSocket(
+    ctx: *mut ::std::os::raw::c_void,
+    filename: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPGet(
+    ctx: *mut ::std::os::raw::c_void,
+    callback: ftpDataCallback,
+    userData: *mut ::std::os::raw::c_void,
+    filename: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoFTPRead(
+    ctx: *mut ::std::os::raw::c_void,
+    dest: *mut ::std::os::raw::c_void,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPInit();
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPCleanup();
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPScanProxy(URL: *const ::std::os::raw::c_char);
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPFetch(
+    URL: *const ::std::os::raw::c_char,
+    filename: *const ::std::os::raw::c_char,
+    contentType: *mut *mut ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPMethod(
+    URL: *const ::std::os::raw::c_char,
+    method: *const ::std::os::raw::c_char,
+    input: *const ::std::os::raw::c_char,
+    contentType: *mut *mut ::std::os::raw::c_char,
+    headers: *const ::std::os::raw::c_char,
+    ilen: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPMethodRedir(
+    URL: *const ::std::os::raw::c_char,
+    method: *const ::std::os::raw::c_char,
+    input: *const ::std::os::raw::c_char,
+    contentType: *mut *mut ::std::os::raw::c_char,
+    redir: *mut *mut ::std::os::raw::c_char,
+    headers: *const ::std::os::raw::c_char,
+    ilen: ::std::os::raw::c_int,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPOpen(
+    URL: *const ::std::os::raw::c_char,
+    contentType: *mut *mut ::std::os::raw::c_char,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPOpenRedir(
+    URL: *const ::std::os::raw::c_char,
+    contentType: *mut *mut ::std::os::raw::c_char,
+    redir: *mut *mut ::std::os::raw::c_char,
+  ) -> *mut ::std::os::raw::c_void;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPReturnCode(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPAuthHeader(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPRedir(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPContentLength(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPEncoding(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPMimeType(ctx: *mut ::std::os::raw::c_void) -> *const ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPRead(
+    ctx: *mut ::std::os::raw::c_void,
+    dest: *mut ::std::os::raw::c_void,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPSave(
+    ctxt: *mut ::std::os::raw::c_void,
+    filename: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlNanoHTTPClose(ctx: *mut ::std::os::raw::c_void);
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlPattern {
+  _unused: [u8; 0],
+}
+#[doc = " xmlPattern:\n\n A compiled (XPath based) pattern to select nodes"]
+pub type xmlPattern = _xmlPattern;
+pub type xmlPatternPtr = *mut xmlPattern;
+pub const xmlPatternFlags_XML_PATTERN_DEFAULT: xmlPatternFlags = 0;
+pub const xmlPatternFlags_XML_PATTERN_XPATH: xmlPatternFlags = 1;
+pub const xmlPatternFlags_XML_PATTERN_XSSEL: xmlPatternFlags = 2;
+pub const xmlPatternFlags_XML_PATTERN_XSFIELD: xmlPatternFlags = 4;
+#[doc = " xmlPatternFlags:\n\n This is the set of options affecting the behaviour of pattern\n matching with this module\n"]
+pub type xmlPatternFlags = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlFreePattern(comp: xmlPatternPtr);
+}
+unsafe extern "C" {
+  pub fn xmlFreePatternList(comp: xmlPatternPtr);
+}
+unsafe extern "C" {
+  pub fn xmlPatterncompile(
+    pattern: *const xmlChar,
+    dict: *mut xmlDict,
+    flags: ::std::os::raw::c_int,
+    namespaces: *mut *const xmlChar,
+  ) -> xmlPatternPtr;
+}
+unsafe extern "C" {
+  pub fn xmlPatternMatch(comp: xmlPatternPtr, node: xmlNodePtr) -> ::std::os::raw::c_int;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlStreamCtxt {
+  _unused: [u8; 0],
+}
+pub type xmlStreamCtxt = _xmlStreamCtxt;
+pub type xmlStreamCtxtPtr = *mut xmlStreamCtxt;
+unsafe extern "C" {
+  pub fn xmlPatternStreamable(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlPatternMaxDepth(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlPatternMinDepth(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlPatternFromRoot(comp: xmlPatternPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlPatternGetStreamCtxt(comp: xmlPatternPtr) -> xmlStreamCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlFreeStreamCtxt(stream: xmlStreamCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlStreamPushNode(
+    stream: xmlStreamCtxtPtr,
+    name: *const xmlChar,
+    ns: *const xmlChar,
+    nodeType: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlStreamPush(
+    stream: xmlStreamCtxtPtr,
+    name: *const xmlChar,
+    ns: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlStreamPushAttr(
+    stream: xmlStreamCtxtPtr,
+    name: *const xmlChar,
+    ns: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlStreamPop(stream: xmlStreamCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlStreamWantsAnyNode(stream: xmlStreamCtxtPtr) -> ::std::os::raw::c_int;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlRelaxNG {
+  _unused: [u8; 0],
+}
+pub type xmlRelaxNG = _xmlRelaxNG;
+pub type xmlRelaxNGPtr = *mut xmlRelaxNG;
+#[doc = " xmlRelaxNGValidityErrorFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of an error callback from a Relax-NG validation"]
+pub type xmlRelaxNGValidityErrorFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
+>;
+#[doc = " xmlRelaxNGValidityWarningFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of a warning callback from a Relax-NG validation"]
+pub type xmlRelaxNGValidityWarningFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlRelaxNGParserCtxt {
+  _unused: [u8; 0],
+}
+#[doc = " A schemas validation context"]
+pub type xmlRelaxNGParserCtxt = _xmlRelaxNGParserCtxt;
+pub type xmlRelaxNGParserCtxtPtr = *mut xmlRelaxNGParserCtxt;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlRelaxNGValidCtxt {
+  _unused: [u8; 0],
+}
+pub type xmlRelaxNGValidCtxt = _xmlRelaxNGValidCtxt;
+pub type xmlRelaxNGValidCtxtPtr = *mut xmlRelaxNGValidCtxt;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_OK: xmlRelaxNGValidErr = 0;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_MEMORY: xmlRelaxNGValidErr = 1;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_TYPE: xmlRelaxNGValidErr = 2;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_TYPEVAL: xmlRelaxNGValidErr = 3;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_DUPID: xmlRelaxNGValidErr = 4;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_TYPECMP: xmlRelaxNGValidErr = 5;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_NOSTATE: xmlRelaxNGValidErr = 6;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_NODEFINE: xmlRelaxNGValidErr = 7;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_LISTEXTRA: xmlRelaxNGValidErr = 8;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_LISTEMPTY: xmlRelaxNGValidErr = 9;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_INTERNODATA: xmlRelaxNGValidErr = 10;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_INTERSEQ: xmlRelaxNGValidErr = 11;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_INTEREXTRA: xmlRelaxNGValidErr = 12;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ELEMNAME: xmlRelaxNGValidErr = 13;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ATTRNAME: xmlRelaxNGValidErr = 14;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ELEMNONS: xmlRelaxNGValidErr = 15;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ATTRNONS: xmlRelaxNGValidErr = 16;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ELEMWRONGNS: xmlRelaxNGValidErr = 17;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ATTRWRONGNS: xmlRelaxNGValidErr = 18;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ELEMEXTRANS: xmlRelaxNGValidErr = 19;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ATTREXTRANS: xmlRelaxNGValidErr = 20;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ELEMNOTEMPTY: xmlRelaxNGValidErr = 21;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_NOELEM: xmlRelaxNGValidErr = 22;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_NOTELEM: xmlRelaxNGValidErr = 23;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ATTRVALID: xmlRelaxNGValidErr = 24;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_CONTENTVALID: xmlRelaxNGValidErr = 25;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_EXTRACONTENT: xmlRelaxNGValidErr = 26;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_INVALIDATTR: xmlRelaxNGValidErr = 27;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_DATAELEM: xmlRelaxNGValidErr = 28;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_VALELEM: xmlRelaxNGValidErr = 29;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_LISTELEM: xmlRelaxNGValidErr = 30;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_DATATYPE: xmlRelaxNGValidErr = 31;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_VALUE: xmlRelaxNGValidErr = 32;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_LIST: xmlRelaxNGValidErr = 33;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_NOGRAMMAR: xmlRelaxNGValidErr = 34;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_EXTRADATA: xmlRelaxNGValidErr = 35;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_LACKDATA: xmlRelaxNGValidErr = 36;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_INTERNAL: xmlRelaxNGValidErr = 37;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_ELEMWRONG: xmlRelaxNGValidErr = 38;
+pub const xmlRelaxNGValidErr_XML_RELAXNG_ERR_TEXTWRONG: xmlRelaxNGValidErr = 39;
+pub type xmlRelaxNGValidErr = ::std::os::raw::c_uint;
+pub const xmlRelaxNGParserFlag_XML_RELAXNGP_NONE: xmlRelaxNGParserFlag = 0;
+pub const xmlRelaxNGParserFlag_XML_RELAXNGP_FREE_DOC: xmlRelaxNGParserFlag = 1;
+pub const xmlRelaxNGParserFlag_XML_RELAXNGP_CRNG: xmlRelaxNGParserFlag = 2;
+pub type xmlRelaxNGParserFlag = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlRelaxNGInitTypes() -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGCleanupTypes();
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGNewParserCtxt(URL: *const ::std::os::raw::c_char) -> xmlRelaxNGParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGNewMemParserCtxt(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> xmlRelaxNGParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGNewDocParserCtxt(doc: xmlDocPtr) -> xmlRelaxNGParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxParserSetFlag(
+    ctxt: xmlRelaxNGParserCtxtPtr,
+    flag: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGFreeParserCtxt(ctxt: xmlRelaxNGParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGSetParserErrors(
+    ctxt: xmlRelaxNGParserCtxtPtr,
+    err: xmlRelaxNGValidityErrorFunc,
+    warn: xmlRelaxNGValidityWarningFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGGetParserErrors(
+    ctxt: xmlRelaxNGParserCtxtPtr,
+    err: *mut xmlRelaxNGValidityErrorFunc,
+    warn: *mut xmlRelaxNGValidityWarningFunc,
+    ctx: *mut *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGSetParserStructuredErrors(
+    ctxt: xmlRelaxNGParserCtxtPtr,
+    serror: xmlStructuredErrorFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGParse(ctxt: xmlRelaxNGParserCtxtPtr) -> xmlRelaxNGPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGFree(schema: xmlRelaxNGPtr);
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGDump(output: *mut FILE, schema: xmlRelaxNGPtr);
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGDumpTree(output: *mut FILE, schema: xmlRelaxNGPtr);
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGSetValidErrors(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    err: xmlRelaxNGValidityErrorFunc,
+    warn: xmlRelaxNGValidityWarningFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGGetValidErrors(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    err: *mut xmlRelaxNGValidityErrorFunc,
+    warn: *mut xmlRelaxNGValidityWarningFunc,
+    ctx: *mut *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGSetValidStructuredErrors(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    serror: xmlStructuredErrorFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGNewValidCtxt(schema: xmlRelaxNGPtr) -> xmlRelaxNGValidCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGFreeValidCtxt(ctxt: xmlRelaxNGValidCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGValidateDoc(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    doc: xmlDocPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGValidatePushElement(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    doc: xmlDocPtr,
+    elem: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGValidatePushCData(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    data: *const xmlChar,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGValidatePopElement(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    doc: xmlDocPtr,
+    elem: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlRelaxNGValidateFullElement(
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    doc: xmlDocPtr,
+    elem: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn getPublicId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn getSystemId(ctx: *mut ::std::os::raw::c_void) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn setDocumentLocator(ctx: *mut ::std::os::raw::c_void, loc: xmlSAXLocatorPtr);
+}
+unsafe extern "C" {
+  pub fn getLineNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn getColumnNumber(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn isStandalone(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn hasInternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn hasExternalSubset(ctx: *mut ::std::os::raw::c_void) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn internalSubset(
+    ctx: *mut ::std::os::raw::c_void,
+    name: *const xmlChar,
+    ExternalID: *const xmlChar,
+    SystemID: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn externalSubset(
+    ctx: *mut ::std::os::raw::c_void,
+    name: *const xmlChar,
+    ExternalID: *const xmlChar,
+    SystemID: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn getEntity(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar) -> xmlEntityPtr;
+}
+unsafe extern "C" {
+  pub fn getParameterEntity(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar)
+    -> xmlEntityPtr;
+}
+unsafe extern "C" {
+  pub fn resolveEntity(
+    ctx: *mut ::std::os::raw::c_void,
+    publicId: *const xmlChar,
+    systemId: *const xmlChar,
+  ) -> xmlParserInputPtr;
+}
+unsafe extern "C" {
+  pub fn entityDecl(
+    ctx: *mut ::std::os::raw::c_void,
+    name: *const xmlChar,
+    type_: ::std::os::raw::c_int,
+    publicId: *const xmlChar,
+    systemId: *const xmlChar,
+    content: *mut xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn attributeDecl(
+    ctx: *mut ::std::os::raw::c_void,
+    elem: *const xmlChar,
+    fullname: *const xmlChar,
+    type_: ::std::os::raw::c_int,
+    def: ::std::os::raw::c_int,
+    defaultValue: *const xmlChar,
+    tree: xmlEnumerationPtr,
+  );
+}
+unsafe extern "C" {
+  pub fn elementDecl(
+    ctx: *mut ::std::os::raw::c_void,
+    name: *const xmlChar,
+    type_: ::std::os::raw::c_int,
+    content: xmlElementContentPtr,
+  );
+}
+unsafe extern "C" {
+  pub fn notationDecl(
+    ctx: *mut ::std::os::raw::c_void,
+    name: *const xmlChar,
+    publicId: *const xmlChar,
+    systemId: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn unparsedEntityDecl(
+    ctx: *mut ::std::os::raw::c_void,
+    name: *const xmlChar,
+    publicId: *const xmlChar,
+    systemId: *const xmlChar,
+    notationName: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn startDocument(ctx: *mut ::std::os::raw::c_void);
+}
+unsafe extern "C" {
+  pub fn endDocument(ctx: *mut ::std::os::raw::c_void);
+}
+unsafe extern "C" {
+  pub fn attribute(
+    ctx: *mut ::std::os::raw::c_void,
+    fullname: *const xmlChar,
+    value: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn startElement(
+    ctx: *mut ::std::os::raw::c_void,
+    fullname: *const xmlChar,
+    atts: *mut *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn endElement(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+}
+unsafe extern "C" {
+  pub fn reference(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+}
+unsafe extern "C" {
+  pub fn characters(
+    ctx: *mut ::std::os::raw::c_void,
+    ch: *const xmlChar,
+    len: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn ignorableWhitespace(
+    ctx: *mut ::std::os::raw::c_void,
+    ch: *const xmlChar,
+    len: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn processingInstruction(
+    ctx: *mut ::std::os::raw::c_void,
+    target: *const xmlChar,
+    data: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn globalNamespace(
+    ctx: *mut ::std::os::raw::c_void,
+    href: *const xmlChar,
+    prefix: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn setNamespace(ctx: *mut ::std::os::raw::c_void, name: *const xmlChar);
+}
+unsafe extern "C" {
+  pub fn getNamespace(ctx: *mut ::std::os::raw::c_void) -> xmlNsPtr;
+}
+unsafe extern "C" {
+  pub fn checkNamespace(
+    ctx: *mut ::std::os::raw::c_void,
+    nameSpace: *mut xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn namespaceDecl(
+    ctx: *mut ::std::os::raw::c_void,
+    href: *const xmlChar,
+    prefix: *const xmlChar,
+  );
+}
+unsafe extern "C" {
+  pub fn comment(ctx: *mut ::std::os::raw::c_void, value: *const xmlChar);
+}
+unsafe extern "C" {
+  pub fn cdataBlock(
+    ctx: *mut ::std::os::raw::c_void,
+    value: *const xmlChar,
+    len: ::std::os::raw::c_int,
+  );
+}
+unsafe extern "C" {
+  pub fn initxmlDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1, warning: ::std::os::raw::c_int);
+}
+unsafe extern "C" {
+  pub fn inithtmlDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1);
+}
+unsafe extern "C" {
+  pub fn initdocbDefaultSAXHandler(hdlr: *mut xmlSAXHandlerV1);
+}
+pub const xmlSchemaValType_XML_SCHEMAS_UNKNOWN: xmlSchemaValType = 0;
+pub const xmlSchemaValType_XML_SCHEMAS_STRING: xmlSchemaValType = 1;
+pub const xmlSchemaValType_XML_SCHEMAS_NORMSTRING: xmlSchemaValType = 2;
+pub const xmlSchemaValType_XML_SCHEMAS_DECIMAL: xmlSchemaValType = 3;
+pub const xmlSchemaValType_XML_SCHEMAS_TIME: xmlSchemaValType = 4;
+pub const xmlSchemaValType_XML_SCHEMAS_GDAY: xmlSchemaValType = 5;
+pub const xmlSchemaValType_XML_SCHEMAS_GMONTH: xmlSchemaValType = 6;
+pub const xmlSchemaValType_XML_SCHEMAS_GMONTHDAY: xmlSchemaValType = 7;
+pub const xmlSchemaValType_XML_SCHEMAS_GYEAR: xmlSchemaValType = 8;
+pub const xmlSchemaValType_XML_SCHEMAS_GYEARMONTH: xmlSchemaValType = 9;
+pub const xmlSchemaValType_XML_SCHEMAS_DATE: xmlSchemaValType = 10;
+pub const xmlSchemaValType_XML_SCHEMAS_DATETIME: xmlSchemaValType = 11;
+pub const xmlSchemaValType_XML_SCHEMAS_DURATION: xmlSchemaValType = 12;
+pub const xmlSchemaValType_XML_SCHEMAS_FLOAT: xmlSchemaValType = 13;
+pub const xmlSchemaValType_XML_SCHEMAS_DOUBLE: xmlSchemaValType = 14;
+pub const xmlSchemaValType_XML_SCHEMAS_BOOLEAN: xmlSchemaValType = 15;
+pub const xmlSchemaValType_XML_SCHEMAS_TOKEN: xmlSchemaValType = 16;
+pub const xmlSchemaValType_XML_SCHEMAS_LANGUAGE: xmlSchemaValType = 17;
+pub const xmlSchemaValType_XML_SCHEMAS_NMTOKEN: xmlSchemaValType = 18;
+pub const xmlSchemaValType_XML_SCHEMAS_NMTOKENS: xmlSchemaValType = 19;
+pub const xmlSchemaValType_XML_SCHEMAS_NAME: xmlSchemaValType = 20;
+pub const xmlSchemaValType_XML_SCHEMAS_QNAME: xmlSchemaValType = 21;
+pub const xmlSchemaValType_XML_SCHEMAS_NCNAME: xmlSchemaValType = 22;
+pub const xmlSchemaValType_XML_SCHEMAS_ID: xmlSchemaValType = 23;
+pub const xmlSchemaValType_XML_SCHEMAS_IDREF: xmlSchemaValType = 24;
+pub const xmlSchemaValType_XML_SCHEMAS_IDREFS: xmlSchemaValType = 25;
+pub const xmlSchemaValType_XML_SCHEMAS_ENTITY: xmlSchemaValType = 26;
+pub const xmlSchemaValType_XML_SCHEMAS_ENTITIES: xmlSchemaValType = 27;
+pub const xmlSchemaValType_XML_SCHEMAS_NOTATION: xmlSchemaValType = 28;
+pub const xmlSchemaValType_XML_SCHEMAS_ANYURI: xmlSchemaValType = 29;
+pub const xmlSchemaValType_XML_SCHEMAS_INTEGER: xmlSchemaValType = 30;
+pub const xmlSchemaValType_XML_SCHEMAS_NPINTEGER: xmlSchemaValType = 31;
+pub const xmlSchemaValType_XML_SCHEMAS_NINTEGER: xmlSchemaValType = 32;
+pub const xmlSchemaValType_XML_SCHEMAS_NNINTEGER: xmlSchemaValType = 33;
+pub const xmlSchemaValType_XML_SCHEMAS_PINTEGER: xmlSchemaValType = 34;
+pub const xmlSchemaValType_XML_SCHEMAS_INT: xmlSchemaValType = 35;
+pub const xmlSchemaValType_XML_SCHEMAS_UINT: xmlSchemaValType = 36;
+pub const xmlSchemaValType_XML_SCHEMAS_LONG: xmlSchemaValType = 37;
+pub const xmlSchemaValType_XML_SCHEMAS_ULONG: xmlSchemaValType = 38;
+pub const xmlSchemaValType_XML_SCHEMAS_SHORT: xmlSchemaValType = 39;
+pub const xmlSchemaValType_XML_SCHEMAS_USHORT: xmlSchemaValType = 40;
+pub const xmlSchemaValType_XML_SCHEMAS_BYTE: xmlSchemaValType = 41;
+pub const xmlSchemaValType_XML_SCHEMAS_UBYTE: xmlSchemaValType = 42;
+pub const xmlSchemaValType_XML_SCHEMAS_HEXBINARY: xmlSchemaValType = 43;
+pub const xmlSchemaValType_XML_SCHEMAS_BASE64BINARY: xmlSchemaValType = 44;
+pub const xmlSchemaValType_XML_SCHEMAS_ANYTYPE: xmlSchemaValType = 45;
+pub const xmlSchemaValType_XML_SCHEMAS_ANYSIMPLETYPE: xmlSchemaValType = 46;
+pub type xmlSchemaValType = ::std::os::raw::c_uint;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_BASIC: xmlSchemaTypeType = 1;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ANY: xmlSchemaTypeType = 2;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_FACET: xmlSchemaTypeType = 3;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_SIMPLE: xmlSchemaTypeType = 4;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_COMPLEX: xmlSchemaTypeType = 5;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_SEQUENCE: xmlSchemaTypeType = 6;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_CHOICE: xmlSchemaTypeType = 7;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ALL: xmlSchemaTypeType = 8;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_SIMPLE_CONTENT: xmlSchemaTypeType = 9;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_COMPLEX_CONTENT: xmlSchemaTypeType = 10;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_UR: xmlSchemaTypeType = 11;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_RESTRICTION: xmlSchemaTypeType = 12;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_EXTENSION: xmlSchemaTypeType = 13;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ELEMENT: xmlSchemaTypeType = 14;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ATTRIBUTE: xmlSchemaTypeType = 15;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ATTRIBUTEGROUP: xmlSchemaTypeType = 16;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_GROUP: xmlSchemaTypeType = 17;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_NOTATION: xmlSchemaTypeType = 18;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_LIST: xmlSchemaTypeType = 19;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_UNION: xmlSchemaTypeType = 20;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ANY_ATTRIBUTE: xmlSchemaTypeType = 21;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_IDC_UNIQUE: xmlSchemaTypeType = 22;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_IDC_KEY: xmlSchemaTypeType = 23;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_IDC_KEYREF: xmlSchemaTypeType = 24;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_PARTICLE: xmlSchemaTypeType = 25;
+pub const xmlSchemaTypeType_XML_SCHEMA_TYPE_ATTRIBUTE_USE: xmlSchemaTypeType = 26;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_MININCLUSIVE: xmlSchemaTypeType = 1000;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_MINEXCLUSIVE: xmlSchemaTypeType = 1001;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_MAXINCLUSIVE: xmlSchemaTypeType = 1002;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_MAXEXCLUSIVE: xmlSchemaTypeType = 1003;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_TOTALDIGITS: xmlSchemaTypeType = 1004;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_FRACTIONDIGITS: xmlSchemaTypeType = 1005;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_PATTERN: xmlSchemaTypeType = 1006;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_ENUMERATION: xmlSchemaTypeType = 1007;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_WHITESPACE: xmlSchemaTypeType = 1008;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_LENGTH: xmlSchemaTypeType = 1009;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_MAXLENGTH: xmlSchemaTypeType = 1010;
+pub const xmlSchemaTypeType_XML_SCHEMA_FACET_MINLENGTH: xmlSchemaTypeType = 1011;
+pub const xmlSchemaTypeType_XML_SCHEMA_EXTRA_QNAMEREF: xmlSchemaTypeType = 2000;
+pub const xmlSchemaTypeType_XML_SCHEMA_EXTRA_ATTR_USE_PROHIB: xmlSchemaTypeType = 2001;
+pub type xmlSchemaTypeType = ::std::os::raw::c_uint;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_UNKNOWN: xmlSchemaContentType = 0;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_EMPTY: xmlSchemaContentType = 1;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_ELEMENTS: xmlSchemaContentType = 2;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_MIXED: xmlSchemaContentType = 3;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_SIMPLE: xmlSchemaContentType = 4;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_MIXED_OR_ELEMENTS: xmlSchemaContentType = 5;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_BASIC: xmlSchemaContentType = 6;
+pub const xmlSchemaContentType_XML_SCHEMA_CONTENT_ANY: xmlSchemaContentType = 7;
+pub type xmlSchemaContentType = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaVal {
+  _unused: [u8; 0],
+}
+pub type xmlSchemaVal = _xmlSchemaVal;
+pub type xmlSchemaValPtr = *mut xmlSchemaVal;
+#[doc = " _xmlSchemaType:\n\n Schemas type definition."]
+pub type xmlSchemaType = _xmlSchemaType;
+pub type xmlSchemaTypePtr = *mut xmlSchemaType;
+#[doc = " A facet definition."]
+pub type xmlSchemaFacet = _xmlSchemaFacet;
+pub type xmlSchemaFacetPtr = *mut xmlSchemaFacet;
+#[doc = " Annotation"]
+pub type xmlSchemaAnnot = _xmlSchemaAnnot;
+pub type xmlSchemaAnnotPtr = *mut xmlSchemaAnnot;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaAnnot {
+  pub next: *mut _xmlSchemaAnnot,
+  pub content: xmlNodePtr,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaAnnot"][::std::mem::size_of::<_xmlSchemaAnnot>() - 16usize];
+  ["Alignment of _xmlSchemaAnnot"][::std::mem::align_of::<_xmlSchemaAnnot>() - 8usize];
+  ["Offset of field: _xmlSchemaAnnot::next"]
+    [::std::mem::offset_of!(_xmlSchemaAnnot, next) - 0usize];
+  ["Offset of field: _xmlSchemaAnnot::content"]
+    [::std::mem::offset_of!(_xmlSchemaAnnot, content) - 8usize];
+};
+#[doc = " xmlSchemaAttribute:\n An attribute definition."]
+pub type xmlSchemaAttribute = _xmlSchemaAttribute;
+pub type xmlSchemaAttributePtr = *mut xmlSchemaAttribute;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaAttribute {
+  pub type_: xmlSchemaTypeType,
+  pub next: *mut _xmlSchemaAttribute,
+  pub name: *const xmlChar,
+  pub id: *const xmlChar,
+  pub ref_: *const xmlChar,
+  pub refNs: *const xmlChar,
+  pub typeName: *const xmlChar,
+  pub typeNs: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub base: xmlSchemaTypePtr,
+  pub occurs: ::std::os::raw::c_int,
+  pub defValue: *const xmlChar,
+  pub subtypes: xmlSchemaTypePtr,
+  pub node: xmlNodePtr,
+  pub targetNamespace: *const xmlChar,
+  pub flags: ::std::os::raw::c_int,
+  pub refPrefix: *const xmlChar,
+  pub defVal: xmlSchemaValPtr,
+  pub refDecl: xmlSchemaAttributePtr,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaAttribute"][::std::mem::size_of::<_xmlSchemaAttribute>() - 152usize];
+  ["Alignment of _xmlSchemaAttribute"][::std::mem::align_of::<_xmlSchemaAttribute>() - 8usize];
+  ["Offset of field: _xmlSchemaAttribute::type_"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, type_) - 0usize];
+  ["Offset of field: _xmlSchemaAttribute::next"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, next) - 8usize];
+  ["Offset of field: _xmlSchemaAttribute::name"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, name) - 16usize];
+  ["Offset of field: _xmlSchemaAttribute::id"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, id) - 24usize];
+  ["Offset of field: _xmlSchemaAttribute::ref_"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, ref_) - 32usize];
+  ["Offset of field: _xmlSchemaAttribute::refNs"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, refNs) - 40usize];
+  ["Offset of field: _xmlSchemaAttribute::typeName"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, typeName) - 48usize];
+  ["Offset of field: _xmlSchemaAttribute::typeNs"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, typeNs) - 56usize];
+  ["Offset of field: _xmlSchemaAttribute::annot"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, annot) - 64usize];
+  ["Offset of field: _xmlSchemaAttribute::base"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, base) - 72usize];
+  ["Offset of field: _xmlSchemaAttribute::occurs"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, occurs) - 80usize];
+  ["Offset of field: _xmlSchemaAttribute::defValue"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, defValue) - 88usize];
+  ["Offset of field: _xmlSchemaAttribute::subtypes"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, subtypes) - 96usize];
+  ["Offset of field: _xmlSchemaAttribute::node"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, node) - 104usize];
+  ["Offset of field: _xmlSchemaAttribute::targetNamespace"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, targetNamespace) - 112usize];
+  ["Offset of field: _xmlSchemaAttribute::flags"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, flags) - 120usize];
+  ["Offset of field: _xmlSchemaAttribute::refPrefix"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, refPrefix) - 128usize];
+  ["Offset of field: _xmlSchemaAttribute::defVal"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, defVal) - 136usize];
+  ["Offset of field: _xmlSchemaAttribute::refDecl"]
+    [::std::mem::offset_of!(_xmlSchemaAttribute, refDecl) - 144usize];
+};
+#[doc = " xmlSchemaAttributeLink:\n Used to build a list of attribute uses on complexType definitions.\n WARNING: Deprecated; not used."]
+pub type xmlSchemaAttributeLink = _xmlSchemaAttributeLink;
+pub type xmlSchemaAttributeLinkPtr = *mut xmlSchemaAttributeLink;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaAttributeLink {
+  pub next: *mut _xmlSchemaAttributeLink,
+  pub attr: *mut _xmlSchemaAttribute,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaAttributeLink"][::std::mem::size_of::<_xmlSchemaAttributeLink>() - 16usize];
+  ["Alignment of _xmlSchemaAttributeLink"]
+    [::std::mem::align_of::<_xmlSchemaAttributeLink>() - 8usize];
+  ["Offset of field: _xmlSchemaAttributeLink::next"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeLink, next) - 0usize];
+  ["Offset of field: _xmlSchemaAttributeLink::attr"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeLink, attr) - 8usize];
+};
+#[doc = " xmlSchemaCharValueLink:\n Used to build a list of namespaces on wildcards."]
+pub type xmlSchemaWildcardNs = _xmlSchemaWildcardNs;
+pub type xmlSchemaWildcardNsPtr = *mut xmlSchemaWildcardNs;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaWildcardNs {
+  pub next: *mut _xmlSchemaWildcardNs,
+  pub value: *const xmlChar,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaWildcardNs"][::std::mem::size_of::<_xmlSchemaWildcardNs>() - 16usize];
+  ["Alignment of _xmlSchemaWildcardNs"][::std::mem::align_of::<_xmlSchemaWildcardNs>() - 8usize];
+  ["Offset of field: _xmlSchemaWildcardNs::next"]
+    [::std::mem::offset_of!(_xmlSchemaWildcardNs, next) - 0usize];
+  ["Offset of field: _xmlSchemaWildcardNs::value"]
+    [::std::mem::offset_of!(_xmlSchemaWildcardNs, value) - 8usize];
+};
+#[doc = " xmlSchemaWildcard.\n A wildcard."]
+pub type xmlSchemaWildcard = _xmlSchemaWildcard;
+pub type xmlSchemaWildcardPtr = *mut xmlSchemaWildcard;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaWildcard {
+  pub type_: xmlSchemaTypeType,
+  pub id: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub node: xmlNodePtr,
+  pub minOccurs: ::std::os::raw::c_int,
+  pub maxOccurs: ::std::os::raw::c_int,
+  pub processContents: ::std::os::raw::c_int,
+  pub any: ::std::os::raw::c_int,
+  pub nsSet: xmlSchemaWildcardNsPtr,
+  pub negNsSet: xmlSchemaWildcardNsPtr,
+  pub flags: ::std::os::raw::c_int,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaWildcard"][::std::mem::size_of::<_xmlSchemaWildcard>() - 72usize];
+  ["Alignment of _xmlSchemaWildcard"][::std::mem::align_of::<_xmlSchemaWildcard>() - 8usize];
+  ["Offset of field: _xmlSchemaWildcard::type_"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, type_) - 0usize];
+  ["Offset of field: _xmlSchemaWildcard::id"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, id) - 8usize];
+  ["Offset of field: _xmlSchemaWildcard::annot"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, annot) - 16usize];
+  ["Offset of field: _xmlSchemaWildcard::node"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, node) - 24usize];
+  ["Offset of field: _xmlSchemaWildcard::minOccurs"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, minOccurs) - 32usize];
+  ["Offset of field: _xmlSchemaWildcard::maxOccurs"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, maxOccurs) - 36usize];
+  ["Offset of field: _xmlSchemaWildcard::processContents"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, processContents) - 40usize];
+  ["Offset of field: _xmlSchemaWildcard::any"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, any) - 44usize];
+  ["Offset of field: _xmlSchemaWildcard::nsSet"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, nsSet) - 48usize];
+  ["Offset of field: _xmlSchemaWildcard::negNsSet"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, negNsSet) - 56usize];
+  ["Offset of field: _xmlSchemaWildcard::flags"]
+    [::std::mem::offset_of!(_xmlSchemaWildcard, flags) - 64usize];
+};
+#[doc = " An attribute group definition.\n\n xmlSchemaAttribute and xmlSchemaAttributeGroup start of structures\n must be kept similar"]
+pub type xmlSchemaAttributeGroup = _xmlSchemaAttributeGroup;
+pub type xmlSchemaAttributeGroupPtr = *mut xmlSchemaAttributeGroup;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaAttributeGroup {
+  pub type_: xmlSchemaTypeType,
+  pub next: *mut _xmlSchemaAttribute,
+  pub name: *const xmlChar,
+  pub id: *const xmlChar,
+  pub ref_: *const xmlChar,
+  pub refNs: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub attributes: xmlSchemaAttributePtr,
+  pub node: xmlNodePtr,
+  pub flags: ::std::os::raw::c_int,
+  pub attributeWildcard: xmlSchemaWildcardPtr,
+  pub refPrefix: *const xmlChar,
+  pub refItem: xmlSchemaAttributeGroupPtr,
+  pub targetNamespace: *const xmlChar,
+  pub attrUses: *mut ::std::os::raw::c_void,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaAttributeGroup"]
+    [::std::mem::size_of::<_xmlSchemaAttributeGroup>() - 120usize];
+  ["Alignment of _xmlSchemaAttributeGroup"]
+    [::std::mem::align_of::<_xmlSchemaAttributeGroup>() - 8usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::type_"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, type_) - 0usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::next"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, next) - 8usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::name"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, name) - 16usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::id"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, id) - 24usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::ref_"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, ref_) - 32usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::refNs"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, refNs) - 40usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::annot"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, annot) - 48usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::attributes"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, attributes) - 56usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::node"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, node) - 64usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::flags"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, flags) - 72usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::attributeWildcard"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, attributeWildcard) - 80usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::refPrefix"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, refPrefix) - 88usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::refItem"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, refItem) - 96usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::targetNamespace"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, targetNamespace) - 104usize];
+  ["Offset of field: _xmlSchemaAttributeGroup::attrUses"]
+    [::std::mem::offset_of!(_xmlSchemaAttributeGroup, attrUses) - 112usize];
+};
+#[doc = " xmlSchemaTypeLink:\n Used to build a list of types (e.g. member types of\n simpleType with variety \"union\")."]
+pub type xmlSchemaTypeLink = _xmlSchemaTypeLink;
+pub type xmlSchemaTypeLinkPtr = *mut xmlSchemaTypeLink;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaTypeLink {
+  pub next: *mut _xmlSchemaTypeLink,
+  pub type_: xmlSchemaTypePtr,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaTypeLink"][::std::mem::size_of::<_xmlSchemaTypeLink>() - 16usize];
+  ["Alignment of _xmlSchemaTypeLink"][::std::mem::align_of::<_xmlSchemaTypeLink>() - 8usize];
+  ["Offset of field: _xmlSchemaTypeLink::next"]
+    [::std::mem::offset_of!(_xmlSchemaTypeLink, next) - 0usize];
+  ["Offset of field: _xmlSchemaTypeLink::type_"]
+    [::std::mem::offset_of!(_xmlSchemaTypeLink, type_) - 8usize];
+};
+#[doc = " xmlSchemaFacetLink:\n Used to build a list of facets."]
+pub type xmlSchemaFacetLink = _xmlSchemaFacetLink;
+pub type xmlSchemaFacetLinkPtr = *mut xmlSchemaFacetLink;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaFacetLink {
+  pub next: *mut _xmlSchemaFacetLink,
+  pub facet: xmlSchemaFacetPtr,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaFacetLink"][::std::mem::size_of::<_xmlSchemaFacetLink>() - 16usize];
+  ["Alignment of _xmlSchemaFacetLink"][::std::mem::align_of::<_xmlSchemaFacetLink>() - 8usize];
+  ["Offset of field: _xmlSchemaFacetLink::next"]
+    [::std::mem::offset_of!(_xmlSchemaFacetLink, next) - 0usize];
+  ["Offset of field: _xmlSchemaFacetLink::facet"]
+    [::std::mem::offset_of!(_xmlSchemaFacetLink, facet) - 8usize];
+};
+#[doc = " _xmlSchemaType:\n\n Schemas type definition."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaType {
+  pub type_: xmlSchemaTypeType,
+  pub next: *mut _xmlSchemaType,
+  pub name: *const xmlChar,
+  pub id: *const xmlChar,
+  pub ref_: *const xmlChar,
+  pub refNs: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub subtypes: xmlSchemaTypePtr,
+  pub attributes: xmlSchemaAttributePtr,
+  pub node: xmlNodePtr,
+  pub minOccurs: ::std::os::raw::c_int,
+  pub maxOccurs: ::std::os::raw::c_int,
+  pub flags: ::std::os::raw::c_int,
+  pub contentType: xmlSchemaContentType,
+  pub base: *const xmlChar,
+  pub baseNs: *const xmlChar,
+  pub baseType: xmlSchemaTypePtr,
+  pub facets: xmlSchemaFacetPtr,
+  pub redef: *mut _xmlSchemaType,
+  pub recurse: ::std::os::raw::c_int,
+  pub attributeUses: *mut xmlSchemaAttributeLinkPtr,
+  pub attributeWildcard: xmlSchemaWildcardPtr,
+  pub builtInType: ::std::os::raw::c_int,
+  pub memberTypes: xmlSchemaTypeLinkPtr,
+  pub facetSet: xmlSchemaFacetLinkPtr,
+  pub refPrefix: *const xmlChar,
+  pub contentTypeDef: xmlSchemaTypePtr,
+  pub contModel: xmlRegexpPtr,
+  pub targetNamespace: *const xmlChar,
+  pub attrUses: *mut ::std::os::raw::c_void,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaType"][::std::mem::size_of::<_xmlSchemaType>() - 224usize];
+  ["Alignment of _xmlSchemaType"][::std::mem::align_of::<_xmlSchemaType>() - 8usize];
+  ["Offset of field: _xmlSchemaType::type_"]
+    [::std::mem::offset_of!(_xmlSchemaType, type_) - 0usize];
+  ["Offset of field: _xmlSchemaType::next"][::std::mem::offset_of!(_xmlSchemaType, next) - 8usize];
+  ["Offset of field: _xmlSchemaType::name"][::std::mem::offset_of!(_xmlSchemaType, name) - 16usize];
+  ["Offset of field: _xmlSchemaType::id"][::std::mem::offset_of!(_xmlSchemaType, id) - 24usize];
+  ["Offset of field: _xmlSchemaType::ref_"][::std::mem::offset_of!(_xmlSchemaType, ref_) - 32usize];
+  ["Offset of field: _xmlSchemaType::refNs"]
+    [::std::mem::offset_of!(_xmlSchemaType, refNs) - 40usize];
+  ["Offset of field: _xmlSchemaType::annot"]
+    [::std::mem::offset_of!(_xmlSchemaType, annot) - 48usize];
+  ["Offset of field: _xmlSchemaType::subtypes"]
+    [::std::mem::offset_of!(_xmlSchemaType, subtypes) - 56usize];
+  ["Offset of field: _xmlSchemaType::attributes"]
+    [::std::mem::offset_of!(_xmlSchemaType, attributes) - 64usize];
+  ["Offset of field: _xmlSchemaType::node"][::std::mem::offset_of!(_xmlSchemaType, node) - 72usize];
+  ["Offset of field: _xmlSchemaType::minOccurs"]
+    [::std::mem::offset_of!(_xmlSchemaType, minOccurs) - 80usize];
+  ["Offset of field: _xmlSchemaType::maxOccurs"]
+    [::std::mem::offset_of!(_xmlSchemaType, maxOccurs) - 84usize];
+  ["Offset of field: _xmlSchemaType::flags"]
+    [::std::mem::offset_of!(_xmlSchemaType, flags) - 88usize];
+  ["Offset of field: _xmlSchemaType::contentType"]
+    [::std::mem::offset_of!(_xmlSchemaType, contentType) - 92usize];
+  ["Offset of field: _xmlSchemaType::base"][::std::mem::offset_of!(_xmlSchemaType, base) - 96usize];
+  ["Offset of field: _xmlSchemaType::baseNs"]
+    [::std::mem::offset_of!(_xmlSchemaType, baseNs) - 104usize];
+  ["Offset of field: _xmlSchemaType::baseType"]
+    [::std::mem::offset_of!(_xmlSchemaType, baseType) - 112usize];
+  ["Offset of field: _xmlSchemaType::facets"]
+    [::std::mem::offset_of!(_xmlSchemaType, facets) - 120usize];
+  ["Offset of field: _xmlSchemaType::redef"]
+    [::std::mem::offset_of!(_xmlSchemaType, redef) - 128usize];
+  ["Offset of field: _xmlSchemaType::recurse"]
+    [::std::mem::offset_of!(_xmlSchemaType, recurse) - 136usize];
+  ["Offset of field: _xmlSchemaType::attributeUses"]
+    [::std::mem::offset_of!(_xmlSchemaType, attributeUses) - 144usize];
+  ["Offset of field: _xmlSchemaType::attributeWildcard"]
+    [::std::mem::offset_of!(_xmlSchemaType, attributeWildcard) - 152usize];
+  ["Offset of field: _xmlSchemaType::builtInType"]
+    [::std::mem::offset_of!(_xmlSchemaType, builtInType) - 160usize];
+  ["Offset of field: _xmlSchemaType::memberTypes"]
+    [::std::mem::offset_of!(_xmlSchemaType, memberTypes) - 168usize];
+  ["Offset of field: _xmlSchemaType::facetSet"]
+    [::std::mem::offset_of!(_xmlSchemaType, facetSet) - 176usize];
+  ["Offset of field: _xmlSchemaType::refPrefix"]
+    [::std::mem::offset_of!(_xmlSchemaType, refPrefix) - 184usize];
+  ["Offset of field: _xmlSchemaType::contentTypeDef"]
+    [::std::mem::offset_of!(_xmlSchemaType, contentTypeDef) - 192usize];
+  ["Offset of field: _xmlSchemaType::contModel"]
+    [::std::mem::offset_of!(_xmlSchemaType, contModel) - 200usize];
+  ["Offset of field: _xmlSchemaType::targetNamespace"]
+    [::std::mem::offset_of!(_xmlSchemaType, targetNamespace) - 208usize];
+  ["Offset of field: _xmlSchemaType::attrUses"]
+    [::std::mem::offset_of!(_xmlSchemaType, attrUses) - 216usize];
+};
+pub type xmlSchemaElement = _xmlSchemaElement;
+pub type xmlSchemaElementPtr = *mut xmlSchemaElement;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaElement {
+  pub type_: xmlSchemaTypeType,
+  pub next: *mut _xmlSchemaType,
+  pub name: *const xmlChar,
+  pub id: *const xmlChar,
+  pub ref_: *const xmlChar,
+  pub refNs: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub subtypes: xmlSchemaTypePtr,
+  pub attributes: xmlSchemaAttributePtr,
+  pub node: xmlNodePtr,
+  pub minOccurs: ::std::os::raw::c_int,
+  pub maxOccurs: ::std::os::raw::c_int,
+  pub flags: ::std::os::raw::c_int,
+  pub targetNamespace: *const xmlChar,
+  pub namedType: *const xmlChar,
+  pub namedTypeNs: *const xmlChar,
+  pub substGroup: *const xmlChar,
+  pub substGroupNs: *const xmlChar,
+  pub scope: *const xmlChar,
+  pub value: *const xmlChar,
+  pub refDecl: *mut _xmlSchemaElement,
+  pub contModel: xmlRegexpPtr,
+  pub contentType: xmlSchemaContentType,
+  pub refPrefix: *const xmlChar,
+  pub defVal: xmlSchemaValPtr,
+  pub idcs: *mut ::std::os::raw::c_void,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaElement"][::std::mem::size_of::<_xmlSchemaElement>() - 200usize];
+  ["Alignment of _xmlSchemaElement"][::std::mem::align_of::<_xmlSchemaElement>() - 8usize];
+  ["Offset of field: _xmlSchemaElement::type_"]
+    [::std::mem::offset_of!(_xmlSchemaElement, type_) - 0usize];
+  ["Offset of field: _xmlSchemaElement::next"]
+    [::std::mem::offset_of!(_xmlSchemaElement, next) - 8usize];
+  ["Offset of field: _xmlSchemaElement::name"]
+    [::std::mem::offset_of!(_xmlSchemaElement, name) - 16usize];
+  ["Offset of field: _xmlSchemaElement::id"]
+    [::std::mem::offset_of!(_xmlSchemaElement, id) - 24usize];
+  ["Offset of field: _xmlSchemaElement::ref_"]
+    [::std::mem::offset_of!(_xmlSchemaElement, ref_) - 32usize];
+  ["Offset of field: _xmlSchemaElement::refNs"]
+    [::std::mem::offset_of!(_xmlSchemaElement, refNs) - 40usize];
+  ["Offset of field: _xmlSchemaElement::annot"]
+    [::std::mem::offset_of!(_xmlSchemaElement, annot) - 48usize];
+  ["Offset of field: _xmlSchemaElement::subtypes"]
+    [::std::mem::offset_of!(_xmlSchemaElement, subtypes) - 56usize];
+  ["Offset of field: _xmlSchemaElement::attributes"]
+    [::std::mem::offset_of!(_xmlSchemaElement, attributes) - 64usize];
+  ["Offset of field: _xmlSchemaElement::node"]
+    [::std::mem::offset_of!(_xmlSchemaElement, node) - 72usize];
+  ["Offset of field: _xmlSchemaElement::minOccurs"]
+    [::std::mem::offset_of!(_xmlSchemaElement, minOccurs) - 80usize];
+  ["Offset of field: _xmlSchemaElement::maxOccurs"]
+    [::std::mem::offset_of!(_xmlSchemaElement, maxOccurs) - 84usize];
+  ["Offset of field: _xmlSchemaElement::flags"]
+    [::std::mem::offset_of!(_xmlSchemaElement, flags) - 88usize];
+  ["Offset of field: _xmlSchemaElement::targetNamespace"]
+    [::std::mem::offset_of!(_xmlSchemaElement, targetNamespace) - 96usize];
+  ["Offset of field: _xmlSchemaElement::namedType"]
+    [::std::mem::offset_of!(_xmlSchemaElement, namedType) - 104usize];
+  ["Offset of field: _xmlSchemaElement::namedTypeNs"]
+    [::std::mem::offset_of!(_xmlSchemaElement, namedTypeNs) - 112usize];
+  ["Offset of field: _xmlSchemaElement::substGroup"]
+    [::std::mem::offset_of!(_xmlSchemaElement, substGroup) - 120usize];
+  ["Offset of field: _xmlSchemaElement::substGroupNs"]
+    [::std::mem::offset_of!(_xmlSchemaElement, substGroupNs) - 128usize];
+  ["Offset of field: _xmlSchemaElement::scope"]
+    [::std::mem::offset_of!(_xmlSchemaElement, scope) - 136usize];
+  ["Offset of field: _xmlSchemaElement::value"]
+    [::std::mem::offset_of!(_xmlSchemaElement, value) - 144usize];
+  ["Offset of field: _xmlSchemaElement::refDecl"]
+    [::std::mem::offset_of!(_xmlSchemaElement, refDecl) - 152usize];
+  ["Offset of field: _xmlSchemaElement::contModel"]
+    [::std::mem::offset_of!(_xmlSchemaElement, contModel) - 160usize];
+  ["Offset of field: _xmlSchemaElement::contentType"]
+    [::std::mem::offset_of!(_xmlSchemaElement, contentType) - 168usize];
+  ["Offset of field: _xmlSchemaElement::refPrefix"]
+    [::std::mem::offset_of!(_xmlSchemaElement, refPrefix) - 176usize];
+  ["Offset of field: _xmlSchemaElement::defVal"]
+    [::std::mem::offset_of!(_xmlSchemaElement, defVal) - 184usize];
+  ["Offset of field: _xmlSchemaElement::idcs"]
+    [::std::mem::offset_of!(_xmlSchemaElement, idcs) - 192usize];
+};
+#[doc = " A facet definition."]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaFacet {
+  pub type_: xmlSchemaTypeType,
+  pub next: *mut _xmlSchemaFacet,
+  pub value: *const xmlChar,
+  pub id: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub node: xmlNodePtr,
+  pub fixed: ::std::os::raw::c_int,
+  pub whitespace: ::std::os::raw::c_int,
+  pub val: xmlSchemaValPtr,
+  pub regexp: xmlRegexpPtr,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaFacet"][::std::mem::size_of::<_xmlSchemaFacet>() - 72usize];
+  ["Alignment of _xmlSchemaFacet"][::std::mem::align_of::<_xmlSchemaFacet>() - 8usize];
+  ["Offset of field: _xmlSchemaFacet::type_"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, type_) - 0usize];
+  ["Offset of field: _xmlSchemaFacet::next"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, next) - 8usize];
+  ["Offset of field: _xmlSchemaFacet::value"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, value) - 16usize];
+  ["Offset of field: _xmlSchemaFacet::id"][::std::mem::offset_of!(_xmlSchemaFacet, id) - 24usize];
+  ["Offset of field: _xmlSchemaFacet::annot"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, annot) - 32usize];
+  ["Offset of field: _xmlSchemaFacet::node"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, node) - 40usize];
+  ["Offset of field: _xmlSchemaFacet::fixed"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, fixed) - 48usize];
+  ["Offset of field: _xmlSchemaFacet::whitespace"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, whitespace) - 52usize];
+  ["Offset of field: _xmlSchemaFacet::val"][::std::mem::offset_of!(_xmlSchemaFacet, val) - 56usize];
+  ["Offset of field: _xmlSchemaFacet::regexp"]
+    [::std::mem::offset_of!(_xmlSchemaFacet, regexp) - 64usize];
+};
+#[doc = " A notation definition."]
+pub type xmlSchemaNotation = _xmlSchemaNotation;
+pub type xmlSchemaNotationPtr = *mut xmlSchemaNotation;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaNotation {
+  pub type_: xmlSchemaTypeType,
+  pub name: *const xmlChar,
+  pub annot: xmlSchemaAnnotPtr,
+  pub identifier: *const xmlChar,
+  pub targetNamespace: *const xmlChar,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchemaNotation"][::std::mem::size_of::<_xmlSchemaNotation>() - 40usize];
+  ["Alignment of _xmlSchemaNotation"][::std::mem::align_of::<_xmlSchemaNotation>() - 8usize];
+  ["Offset of field: _xmlSchemaNotation::type_"]
+    [::std::mem::offset_of!(_xmlSchemaNotation, type_) - 0usize];
+  ["Offset of field: _xmlSchemaNotation::name"]
+    [::std::mem::offset_of!(_xmlSchemaNotation, name) - 8usize];
+  ["Offset of field: _xmlSchemaNotation::annot"]
+    [::std::mem::offset_of!(_xmlSchemaNotation, annot) - 16usize];
+  ["Offset of field: _xmlSchemaNotation::identifier"]
+    [::std::mem::offset_of!(_xmlSchemaNotation, identifier) - 24usize];
+  ["Offset of field: _xmlSchemaNotation::targetNamespace"]
+    [::std::mem::offset_of!(_xmlSchemaNotation, targetNamespace) - 32usize];
+};
+#[doc = " _xmlSchema:\n\n A Schemas definition"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchema {
+  pub name: *const xmlChar,
+  pub targetNamespace: *const xmlChar,
+  pub version: *const xmlChar,
+  pub id: *const xmlChar,
+  pub doc: xmlDocPtr,
+  pub annot: xmlSchemaAnnotPtr,
+  pub flags: ::std::os::raw::c_int,
+  pub typeDecl: xmlHashTablePtr,
+  pub attrDecl: xmlHashTablePtr,
+  pub attrgrpDecl: xmlHashTablePtr,
+  pub elemDecl: xmlHashTablePtr,
+  pub notaDecl: xmlHashTablePtr,
+  pub schemasImports: xmlHashTablePtr,
+  pub _private: *mut ::std::os::raw::c_void,
+  pub groupDecl: xmlHashTablePtr,
+  pub dict: xmlDictPtr,
+  pub includes: *mut ::std::os::raw::c_void,
+  pub preserve: ::std::os::raw::c_int,
+  pub counter: ::std::os::raw::c_int,
+  pub idcDef: xmlHashTablePtr,
+  pub volatiles: *mut ::std::os::raw::c_void,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlSchema"][::std::mem::size_of::<_xmlSchema>() - 160usize];
+  ["Alignment of _xmlSchema"][::std::mem::align_of::<_xmlSchema>() - 8usize];
+  ["Offset of field: _xmlSchema::name"][::std::mem::offset_of!(_xmlSchema, name) - 0usize];
+  ["Offset of field: _xmlSchema::targetNamespace"]
+    [::std::mem::offset_of!(_xmlSchema, targetNamespace) - 8usize];
+  ["Offset of field: _xmlSchema::version"][::std::mem::offset_of!(_xmlSchema, version) - 16usize];
+  ["Offset of field: _xmlSchema::id"][::std::mem::offset_of!(_xmlSchema, id) - 24usize];
+  ["Offset of field: _xmlSchema::doc"][::std::mem::offset_of!(_xmlSchema, doc) - 32usize];
+  ["Offset of field: _xmlSchema::annot"][::std::mem::offset_of!(_xmlSchema, annot) - 40usize];
+  ["Offset of field: _xmlSchema::flags"][::std::mem::offset_of!(_xmlSchema, flags) - 48usize];
+  ["Offset of field: _xmlSchema::typeDecl"][::std::mem::offset_of!(_xmlSchema, typeDecl) - 56usize];
+  ["Offset of field: _xmlSchema::attrDecl"][::std::mem::offset_of!(_xmlSchema, attrDecl) - 64usize];
+  ["Offset of field: _xmlSchema::attrgrpDecl"]
+    [::std::mem::offset_of!(_xmlSchema, attrgrpDecl) - 72usize];
+  ["Offset of field: _xmlSchema::elemDecl"][::std::mem::offset_of!(_xmlSchema, elemDecl) - 80usize];
+  ["Offset of field: _xmlSchema::notaDecl"][::std::mem::offset_of!(_xmlSchema, notaDecl) - 88usize];
+  ["Offset of field: _xmlSchema::schemasImports"]
+    [::std::mem::offset_of!(_xmlSchema, schemasImports) - 96usize];
+  ["Offset of field: _xmlSchema::_private"]
+    [::std::mem::offset_of!(_xmlSchema, _private) - 104usize];
+  ["Offset of field: _xmlSchema::groupDecl"]
+    [::std::mem::offset_of!(_xmlSchema, groupDecl) - 112usize];
+  ["Offset of field: _xmlSchema::dict"][::std::mem::offset_of!(_xmlSchema, dict) - 120usize];
+  ["Offset of field: _xmlSchema::includes"]
+    [::std::mem::offset_of!(_xmlSchema, includes) - 128usize];
+  ["Offset of field: _xmlSchema::preserve"]
+    [::std::mem::offset_of!(_xmlSchema, preserve) - 136usize];
+  ["Offset of field: _xmlSchema::counter"][::std::mem::offset_of!(_xmlSchema, counter) - 140usize];
+  ["Offset of field: _xmlSchema::idcDef"][::std::mem::offset_of!(_xmlSchema, idcDef) - 144usize];
+  ["Offset of field: _xmlSchema::volatiles"]
+    [::std::mem::offset_of!(_xmlSchema, volatiles) - 152usize];
+};
+unsafe extern "C" {
+  pub fn xmlSchemaFreeType(type_: xmlSchemaTypePtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaFreeWildcard(wildcard: xmlSchemaWildcardPtr);
+}
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_QUIET: xmlSchematronValidOptions = 1;
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_TEXT: xmlSchematronValidOptions = 2;
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_XML: xmlSchematronValidOptions = 4;
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_ERROR: xmlSchematronValidOptions = 8;
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_FILE: xmlSchematronValidOptions = 256;
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_BUFFER: xmlSchematronValidOptions = 512;
+pub const xmlSchematronValidOptions_XML_SCHEMATRON_OUT_IO: xmlSchematronValidOptions = 1024;
+pub type xmlSchematronValidOptions = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchematron {
+  _unused: [u8; 0],
+}
+#[doc = " The schemas related types are kept internal"]
+pub type xmlSchematron = _xmlSchematron;
+pub type xmlSchematronPtr = *mut xmlSchematron;
+#[doc = " xmlSchematronValidityErrorFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of an error callback from a Schematron validation"]
+pub type xmlSchematronValidityErrorFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
+>;
+#[doc = " xmlSchematronValidityWarningFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of a warning callback from a Schematron validation"]
+pub type xmlSchematronValidityWarningFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchematronParserCtxt {
+  _unused: [u8; 0],
+}
+#[doc = " A schemas validation context"]
+pub type xmlSchematronParserCtxt = _xmlSchematronParserCtxt;
+pub type xmlSchematronParserCtxtPtr = *mut xmlSchematronParserCtxt;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchematronValidCtxt {
+  _unused: [u8; 0],
+}
+pub type xmlSchematronValidCtxt = _xmlSchematronValidCtxt;
+pub type xmlSchematronValidCtxtPtr = *mut xmlSchematronValidCtxt;
+unsafe extern "C" {
+  pub fn xmlSchematronNewParserCtxt(
+    URL: *const ::std::os::raw::c_char,
+  ) -> xmlSchematronParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchematronNewMemParserCtxt(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> xmlSchematronParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchematronNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchematronParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchematronFreeParserCtxt(ctxt: xmlSchematronParserCtxtPtr);
+}
+unsafe extern "C" {
+  #[doc = "XMLPUBFUN void XMLCALL\nxmlSchematronSetParserErrors(xmlSchematronParserCtxtPtr ctxt,\nxmlSchematronValidityErrorFunc err,\nxmlSchematronValidityWarningFunc warn,\nvoid *ctx);\nXMLPUBFUN int XMLCALL\nxmlSchematronGetParserErrors(xmlSchematronParserCtxtPtr ctxt,\nxmlSchematronValidityErrorFunc * err,\nxmlSchematronValidityWarningFunc * warn,\nvoid **ctx);\nXMLPUBFUN int XMLCALL\nxmlSchematronIsValid\t(xmlSchematronValidCtxtPtr ctxt);"]
+  pub fn xmlSchematronParse(ctxt: xmlSchematronParserCtxtPtr) -> xmlSchematronPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchematronFree(schema: xmlSchematronPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchematronSetValidStructuredErrors(
+    ctxt: xmlSchematronValidCtxtPtr,
+    serror: xmlStructuredErrorFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  #[doc = "XMLPUBFUN void XMLCALL\nxmlSchematronSetValidErrors\t(xmlSchematronValidCtxtPtr ctxt,\nxmlSchematronValidityErrorFunc err,\nxmlSchematronValidityWarningFunc warn,\nvoid *ctx);\nXMLPUBFUN int XMLCALL\nxmlSchematronGetValidErrors\t(xmlSchematronValidCtxtPtr ctxt,\nxmlSchematronValidityErrorFunc *err,\nxmlSchematronValidityWarningFunc *warn,\nvoid **ctx);\nXMLPUBFUN int XMLCALL\nxmlSchematronSetValidOptions(xmlSchematronValidCtxtPtr ctxt,\nint options);\nXMLPUBFUN int XMLCALL\nxmlSchematronValidCtxtGetOptions(xmlSchematronValidCtxtPtr ctxt);\nXMLPUBFUN int XMLCALL\nxmlSchematronValidateOneElement (xmlSchematronValidCtxtPtr ctxt,\nxmlNodePtr elem);"]
+  pub fn xmlSchematronNewValidCtxt(
+    schema: xmlSchematronPtr,
+    options: ::std::os::raw::c_int,
+  ) -> xmlSchematronValidCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchematronFreeValidCtxt(ctxt: xmlSchematronValidCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchematronValidateDoc(
+    ctxt: xmlSchematronValidCtxtPtr,
+    instance: xmlDocPtr,
+  ) -> ::std::os::raw::c_int;
+}
+#[doc = " xmlURI:\n\n A parsed URI reference. This is a struct containing the various fields\n as described in RFC 2396 but separated for further processing.\n\n Note: query is a deprecated field which is incorrectly unescaped.\n query_raw takes precedence over query if the former is set.\n See: http://mail.gnome.org/archives/xml/2007-April/thread.html#00127"]
+pub type xmlURI = _xmlURI;
+pub type xmlURIPtr = *mut xmlURI;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlURI {
+  pub scheme: *mut ::std::os::raw::c_char,
+  pub opaque: *mut ::std::os::raw::c_char,
+  pub authority: *mut ::std::os::raw::c_char,
+  pub server: *mut ::std::os::raw::c_char,
+  pub user: *mut ::std::os::raw::c_char,
+  pub port: ::std::os::raw::c_int,
+  pub path: *mut ::std::os::raw::c_char,
+  pub query: *mut ::std::os::raw::c_char,
+  pub fragment: *mut ::std::os::raw::c_char,
+  pub cleanup: ::std::os::raw::c_int,
+  pub query_raw: *mut ::std::os::raw::c_char,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+  ["Size of _xmlURI"][::std::mem::size_of::<_xmlURI>() - 88usize];
+  ["Alignment of _xmlURI"][::std::mem::align_of::<_xmlURI>() - 8usize];
+  ["Offset of field: _xmlURI::scheme"][::std::mem::offset_of!(_xmlURI, scheme) - 0usize];
+  ["Offset of field: _xmlURI::opaque"][::std::mem::offset_of!(_xmlURI, opaque) - 8usize];
+  ["Offset of field: _xmlURI::authority"][::std::mem::offset_of!(_xmlURI, authority) - 16usize];
+  ["Offset of field: _xmlURI::server"][::std::mem::offset_of!(_xmlURI, server) - 24usize];
+  ["Offset of field: _xmlURI::user"][::std::mem::offset_of!(_xmlURI, user) - 32usize];
+  ["Offset of field: _xmlURI::port"][::std::mem::offset_of!(_xmlURI, port) - 40usize];
+  ["Offset of field: _xmlURI::path"][::std::mem::offset_of!(_xmlURI, path) - 48usize];
+  ["Offset of field: _xmlURI::query"][::std::mem::offset_of!(_xmlURI, query) - 56usize];
+  ["Offset of field: _xmlURI::fragment"][::std::mem::offset_of!(_xmlURI, fragment) - 64usize];
+  ["Offset of field: _xmlURI::cleanup"][::std::mem::offset_of!(_xmlURI, cleanup) - 72usize];
+  ["Offset of field: _xmlURI::query_raw"][::std::mem::offset_of!(_xmlURI, query_raw) - 80usize];
+};
+unsafe extern "C" {
+  pub fn xmlCreateURI() -> xmlURIPtr;
+}
+unsafe extern "C" {
+  pub fn xmlBuildURI(URI: *const xmlChar, base: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlBuildRelativeURI(URI: *const xmlChar, base: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlParseURI(str_: *const ::std::os::raw::c_char) -> xmlURIPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseURIRaw(
+    str_: *const ::std::os::raw::c_char,
+    raw: ::std::os::raw::c_int,
+  ) -> xmlURIPtr;
+}
+unsafe extern "C" {
+  pub fn xmlParseURIReference(
+    uri: xmlURIPtr,
+    str_: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSaveUri(uri: xmlURIPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlPrintURI(stream: *mut FILE, uri: xmlURIPtr);
+}
+unsafe extern "C" {
+  pub fn xmlURIEscapeStr(str_: *const xmlChar, list: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlURIUnescapeString(
+    str_: *const ::std::os::raw::c_char,
+    len: ::std::os::raw::c_int,
+    target: *mut ::std::os::raw::c_char,
+  ) -> *mut ::std::os::raw::c_char;
+}
+unsafe extern "C" {
+  pub fn xmlNormalizeURIPath(path: *mut ::std::os::raw::c_char) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlURIEscape(str_: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlFreeURI(uri: xmlURIPtr);
+}
+unsafe extern "C" {
+  pub fn xmlCanonicPath(path: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlPathToURI(path: *const xmlChar) -> *mut xmlChar;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlXIncludeCtxt {
+  _unused: [u8; 0],
+}
+pub type xmlXIncludeCtxt = _xmlXIncludeCtxt;
+pub type xmlXIncludeCtxtPtr = *mut xmlXIncludeCtxt;
+unsafe extern "C" {
+  pub fn xmlXIncludeProcess(doc: xmlDocPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeProcessFlags(
+    doc: xmlDocPtr,
+    flags: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeProcessFlagsData(
+    doc: xmlDocPtr,
+    flags: ::std::os::raw::c_int,
+    data: *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeProcessTreeFlagsData(
+    tree: xmlNodePtr,
+    flags: ::std::os::raw::c_int,
+    data: *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeProcessTree(tree: xmlNodePtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeProcessTreeFlags(
+    tree: xmlNodePtr,
+    flags: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeNewContext(doc: xmlDocPtr) -> xmlXIncludeCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeSetFlags(
+    ctxt: xmlXIncludeCtxtPtr,
+    flags: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeFreeContext(ctxt: xmlXIncludeCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlXIncludeProcessNode(
+    ctxt: xmlXIncludeCtxtPtr,
+    tree: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlModule {
+  _unused: [u8; 0],
+}
+#[doc = " xmlModulePtr:\n\n A handle to a dynamically loaded module"]
+pub type xmlModule = _xmlModule;
+pub type xmlModulePtr = *mut xmlModule;
+pub const xmlModuleOption_XML_MODULE_LAZY: xmlModuleOption = 1;
+pub const xmlModuleOption_XML_MODULE_LOCAL: xmlModuleOption = 2;
+#[doc = " xmlModuleOption:\n\n enumeration of options that can be passed down to xmlModuleOpen()"]
+pub type xmlModuleOption = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlModuleOpen(
+    filename: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlModulePtr;
+}
+unsafe extern "C" {
+  pub fn xmlModuleSymbol(
+    module: xmlModulePtr,
+    name: *const ::std::os::raw::c_char,
+    result: *mut *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlModuleClose(module: xmlModulePtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlModuleFree(module: xmlModulePtr) -> ::std::os::raw::c_int;
+}
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_OK: xmlSchemaValidError = 0;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOROOT: xmlSchemaValidError = 1;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_UNDECLAREDELEM: xmlSchemaValidError = 2;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTTOPLEVEL: xmlSchemaValidError = 3;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_MISSING: xmlSchemaValidError = 4;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_WRONGELEM: xmlSchemaValidError = 5;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTYPE: xmlSchemaValidError = 6;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOROLLBACK: xmlSchemaValidError = 7;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ISABSTRACT: xmlSchemaValidError = 8;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTEMPTY: xmlSchemaValidError = 9;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ELEMCONT: xmlSchemaValidError = 10;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_HAVEDEFAULT: xmlSchemaValidError = 11;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTNILLABLE: xmlSchemaValidError = 12;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_EXTRACONTENT: xmlSchemaValidError = 13;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_INVALIDATTR: xmlSchemaValidError = 14;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_INVALIDELEM: xmlSchemaValidError = 15;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTDETERMINIST: xmlSchemaValidError = 16;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_CONSTRUCT: xmlSchemaValidError = 17;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_INTERNAL: xmlSchemaValidError = 18;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTSIMPLE: xmlSchemaValidError = 19;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ATTRUNKNOWN: xmlSchemaValidError = 20;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ATTRINVALID: xmlSchemaValidError = 21;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_VALUE: xmlSchemaValidError = 22;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_FACET: xmlSchemaValidError = 23;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_: xmlSchemaValidError = 24;
+pub const xmlSchemaValidError_XML_SCHEMAS_ERR_XXX: xmlSchemaValidError = 25;
+#[doc = " This error codes are obsolete; not used any more."]
+pub type xmlSchemaValidError = ::std::os::raw::c_uint;
+pub const xmlSchemaValidOption_XML_SCHEMA_VAL_VC_I_CREATE: xmlSchemaValidOption = 1;
+#[doc = " xmlSchemaValidOption:\n\n This is the set of XML Schema validation options."]
+pub type xmlSchemaValidOption = ::std::os::raw::c_uint;
+#[doc = " The schemas related types are kept internal"]
+pub type xmlSchema = _xmlSchema;
+pub type xmlSchemaPtr = *mut xmlSchema;
+#[doc = " xmlSchemaValidityErrorFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of an error callback from an XSD validation"]
+pub type xmlSchemaValidityErrorFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
+>;
+#[doc = " xmlSchemaValidityWarningFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of a warning callback from an XSD validation"]
+pub type xmlSchemaValidityWarningFunc = ::std::option::Option<
+  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaParserCtxt {
+  _unused: [u8; 0],
+}
+#[doc = " A schemas validation context"]
+pub type xmlSchemaParserCtxt = _xmlSchemaParserCtxt;
+pub type xmlSchemaParserCtxtPtr = *mut xmlSchemaParserCtxt;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaValidCtxt {
+  _unused: [u8; 0],
+}
+pub type xmlSchemaValidCtxt = _xmlSchemaValidCtxt;
+pub type xmlSchemaValidCtxtPtr = *mut xmlSchemaValidCtxt;
+#[doc = " xmlSchemaValidityLocatorFunc:\n @ctx: user provided context\n @file: returned file information\n @line: returned line information\n\n A schemas validation locator, a callback called by the validator.\n This is used when file or node information are not available\n to find out what file and line number are affected\n\n Returns: 0 in case of success and -1 in case of error"]
+pub type xmlSchemaValidityLocatorFunc = ::std::option::Option<
+  unsafe extern "C" fn(
+    ctx: *mut ::std::os::raw::c_void,
+    file: *mut *const ::std::os::raw::c_char,
+    line: *mut ::std::os::raw::c_ulong,
+  ) -> ::std::os::raw::c_int,
+>;
+unsafe extern "C" {
+  pub fn xmlSchemaNewParserCtxt(URL: *const ::std::os::raw::c_char) -> xmlSchemaParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewMemParserCtxt(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+  ) -> xmlSchemaParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchemaParserCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaFreeParserCtxt(ctxt: xmlSchemaParserCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaSetParserErrors(
+    ctxt: xmlSchemaParserCtxtPtr,
+    err: xmlSchemaValidityErrorFunc,
+    warn: xmlSchemaValidityWarningFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlSchemaSetParserStructuredErrors(
+    ctxt: xmlSchemaParserCtxtPtr,
+    serror: xmlStructuredErrorFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetParserErrors(
+    ctxt: xmlSchemaParserCtxtPtr,
+    err: *mut xmlSchemaValidityErrorFunc,
+    warn: *mut xmlSchemaValidityWarningFunc,
+    ctx: *mut *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaIsValid(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaParse(ctxt: xmlSchemaParserCtxtPtr) -> xmlSchemaPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaFree(schema: xmlSchemaPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaDump(output: *mut FILE, schema: xmlSchemaPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaSetValidErrors(
+    ctxt: xmlSchemaValidCtxtPtr,
+    err: xmlSchemaValidityErrorFunc,
+    warn: xmlSchemaValidityWarningFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlSchemaSetValidStructuredErrors(
+    ctxt: xmlSchemaValidCtxtPtr,
+    serror: xmlStructuredErrorFunc,
+    ctx: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetValidErrors(
+    ctxt: xmlSchemaValidCtxtPtr,
+    err: *mut xmlSchemaValidityErrorFunc,
+    warn: *mut xmlSchemaValidityWarningFunc,
+    ctx: *mut *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaSetValidOptions(
+    ctxt: xmlSchemaValidCtxtPtr,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateSetFilename(
+    vctxt: xmlSchemaValidCtxtPtr,
+    filename: *const ::std::os::raw::c_char,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidCtxtGetOptions(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewValidCtxt(schema: xmlSchemaPtr) -> xmlSchemaValidCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaFreeValidCtxt(ctxt: xmlSchemaValidCtxtPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateDoc(
+    ctxt: xmlSchemaValidCtxtPtr,
+    instance: xmlDocPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateOneElement(
+    ctxt: xmlSchemaValidCtxtPtr,
+    elem: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateStream(
+    ctxt: xmlSchemaValidCtxtPtr,
+    input: xmlParserInputBufferPtr,
+    enc: xmlCharEncoding,
+    sax: xmlSAXHandlerPtr,
+    user_data: *mut ::std::os::raw::c_void,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateFile(
+    ctxt: xmlSchemaValidCtxtPtr,
+    filename: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidCtxtGetParserCtxt(ctxt: xmlSchemaValidCtxtPtr) -> xmlParserCtxtPtr;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSchemaSAXPlug {
+  _unused: [u8; 0],
+}
+pub type xmlSchemaSAXPlugStruct = _xmlSchemaSAXPlug;
+pub type xmlSchemaSAXPlugPtr = *mut xmlSchemaSAXPlugStruct;
+unsafe extern "C" {
+  pub fn xmlSchemaSAXPlug(
+    ctxt: xmlSchemaValidCtxtPtr,
+    sax: *mut xmlSAXHandlerPtr,
+    user_data: *mut *mut ::std::os::raw::c_void,
+  ) -> xmlSchemaSAXPlugPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaSAXUnplug(plug: xmlSchemaSAXPlugPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateSetLocator(
+    vctxt: xmlSchemaValidCtxtPtr,
+    f: xmlSchemaValidityLocatorFunc,
+    ctxt: *mut ::std::os::raw::c_void,
+  );
+}
+pub const xmlParserSeverities_XML_PARSER_SEVERITY_VALIDITY_WARNING: xmlParserSeverities = 1;
+pub const xmlParserSeverities_XML_PARSER_SEVERITY_VALIDITY_ERROR: xmlParserSeverities = 2;
+pub const xmlParserSeverities_XML_PARSER_SEVERITY_WARNING: xmlParserSeverities = 3;
+pub const xmlParserSeverities_XML_PARSER_SEVERITY_ERROR: xmlParserSeverities = 4;
+#[doc = " xmlParserSeverities:\n\n How severe an error callback is when the per-reader error callback API\n is used."]
+pub type xmlParserSeverities = ::std::os::raw::c_uint;
+pub const xmlTextReaderMode_XML_TEXTREADER_MODE_INITIAL: xmlTextReaderMode = 0;
+pub const xmlTextReaderMode_XML_TEXTREADER_MODE_INTERACTIVE: xmlTextReaderMode = 1;
+pub const xmlTextReaderMode_XML_TEXTREADER_MODE_ERROR: xmlTextReaderMode = 2;
+pub const xmlTextReaderMode_XML_TEXTREADER_MODE_EOF: xmlTextReaderMode = 3;
+pub const xmlTextReaderMode_XML_TEXTREADER_MODE_CLOSED: xmlTextReaderMode = 4;
+pub const xmlTextReaderMode_XML_TEXTREADER_MODE_READING: xmlTextReaderMode = 5;
+#[doc = " xmlTextReaderMode:\n\n Internal state values for the reader."]
+pub type xmlTextReaderMode = ::std::os::raw::c_uint;
+pub const xmlParserProperties_XML_PARSER_LOADDTD: xmlParserProperties = 1;
+pub const xmlParserProperties_XML_PARSER_DEFAULTATTRS: xmlParserProperties = 2;
+pub const xmlParserProperties_XML_PARSER_VALIDATE: xmlParserProperties = 3;
+pub const xmlParserProperties_XML_PARSER_SUBST_ENTITIES: xmlParserProperties = 4;
+#[doc = " xmlParserProperties:\n\n Some common options to use with xmlTextReaderSetParserProp, but it\n is better to use xmlParserOption and the xmlReaderNewxxx and\n xmlReaderForxxx APIs now."]
+pub type xmlParserProperties = ::std::os::raw::c_uint;
+pub const xmlReaderTypes_XML_READER_TYPE_NONE: xmlReaderTypes = 0;
+pub const xmlReaderTypes_XML_READER_TYPE_ELEMENT: xmlReaderTypes = 1;
+pub const xmlReaderTypes_XML_READER_TYPE_ATTRIBUTE: xmlReaderTypes = 2;
+pub const xmlReaderTypes_XML_READER_TYPE_TEXT: xmlReaderTypes = 3;
+pub const xmlReaderTypes_XML_READER_TYPE_CDATA: xmlReaderTypes = 4;
+pub const xmlReaderTypes_XML_READER_TYPE_ENTITY_REFERENCE: xmlReaderTypes = 5;
+pub const xmlReaderTypes_XML_READER_TYPE_ENTITY: xmlReaderTypes = 6;
+pub const xmlReaderTypes_XML_READER_TYPE_PROCESSING_INSTRUCTION: xmlReaderTypes = 7;
+pub const xmlReaderTypes_XML_READER_TYPE_COMMENT: xmlReaderTypes = 8;
+pub const xmlReaderTypes_XML_READER_TYPE_DOCUMENT: xmlReaderTypes = 9;
+pub const xmlReaderTypes_XML_READER_TYPE_DOCUMENT_TYPE: xmlReaderTypes = 10;
+pub const xmlReaderTypes_XML_READER_TYPE_DOCUMENT_FRAGMENT: xmlReaderTypes = 11;
+pub const xmlReaderTypes_XML_READER_TYPE_NOTATION: xmlReaderTypes = 12;
+pub const xmlReaderTypes_XML_READER_TYPE_WHITESPACE: xmlReaderTypes = 13;
+pub const xmlReaderTypes_XML_READER_TYPE_SIGNIFICANT_WHITESPACE: xmlReaderTypes = 14;
+pub const xmlReaderTypes_XML_READER_TYPE_END_ELEMENT: xmlReaderTypes = 15;
+pub const xmlReaderTypes_XML_READER_TYPE_END_ENTITY: xmlReaderTypes = 16;
+pub const xmlReaderTypes_XML_READER_TYPE_XML_DECLARATION: xmlReaderTypes = 17;
+#[doc = " xmlReaderTypes:\n\n Predefined constants for the different types of nodes."]
+pub type xmlReaderTypes = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlTextReader {
+  _unused: [u8; 0],
+}
+#[doc = " xmlTextReader:\n\n Structure for an xmlReader context."]
+pub type xmlTextReader = _xmlTextReader;
+#[doc = " xmlTextReaderPtr:\n\n Pointer to an xmlReader context."]
+pub type xmlTextReaderPtr = *mut xmlTextReader;
+unsafe extern "C" {
+  pub fn xmlNewTextReader(
+    input: xmlParserInputBufferPtr,
+    URI: *const ::std::os::raw::c_char,
+  ) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewTextReaderFilename(URI: *const ::std::os::raw::c_char) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlFreeTextReader(reader: xmlTextReaderPtr);
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSetup(
+    reader: xmlTextReaderPtr,
+    input: xmlParserInputBufferPtr,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderRead(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderReadInnerXml(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderReadOuterXml(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderReadString(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderReadAttributeValue(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderAttributeCount(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderDepth(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderHasAttributes(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderHasValue(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderIsDefault(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderIsEmptyElement(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderNodeType(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderQuoteChar(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderReadState(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderIsNamespaceDecl(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstBaseUri(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstLocalName(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstName(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstNamespaceUri(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstPrefix(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstXmlLang(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstString(reader: xmlTextReaderPtr, str_: *const xmlChar)
+    -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstValue(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderBaseUri(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderLocalName(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderName(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderNamespaceUri(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderPrefix(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderXmlLang(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderValue(reader: xmlTextReaderPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderClose(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetAttributeNo(
+    reader: xmlTextReaderPtr,
+    no: ::std::os::raw::c_int,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetAttribute(reader: xmlTextReaderPtr, name: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetAttributeNs(
+    reader: xmlTextReaderPtr,
+    localName: *const xmlChar,
+    namespaceURI: *const xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetRemainder(reader: xmlTextReaderPtr) -> xmlParserInputBufferPtr;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderLookupNamespace(
+    reader: xmlTextReaderPtr,
+    prefix: *const xmlChar,
+  ) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderMoveToAttributeNo(
+    reader: xmlTextReaderPtr,
+    no: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderMoveToAttribute(
+    reader: xmlTextReaderPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderMoveToAttributeNs(
+    reader: xmlTextReaderPtr,
+    localName: *const xmlChar,
+    namespaceURI: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderMoveToFirstAttribute(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderMoveToNextAttribute(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderMoveToElement(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderNormalization(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstEncoding(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSetParserProp(
+    reader: xmlTextReaderPtr,
+    prop: ::std::os::raw::c_int,
+    value: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetParserProp(
+    reader: xmlTextReaderPtr,
+    prop: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderCurrentNode(reader: xmlTextReaderPtr) -> xmlNodePtr;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetParserLineNumber(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetParserColumnNumber(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderPreserve(reader: xmlTextReaderPtr) -> xmlNodePtr;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderPreservePattern(
+    reader: xmlTextReaderPtr,
+    pattern: *const xmlChar,
+    namespaces: *mut *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderCurrentDoc(reader: xmlTextReaderPtr) -> xmlDocPtr;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderExpand(reader: xmlTextReaderPtr) -> xmlNodePtr;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderNext(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderNextSibling(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderIsValid(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderRelaxNGValidate(
+    reader: xmlTextReaderPtr,
+    rng: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderRelaxNGValidateCtxt(
+    reader: xmlTextReaderPtr,
+    ctxt: xmlRelaxNGValidCtxtPtr,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderRelaxNGSetSchema(
+    reader: xmlTextReaderPtr,
+    schema: xmlRelaxNGPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSchemaValidate(
+    reader: xmlTextReaderPtr,
+    xsd: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSchemaValidateCtxt(
+    reader: xmlTextReaderPtr,
+    ctxt: xmlSchemaValidCtxtPtr,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSetSchema(
+    reader: xmlTextReaderPtr,
+    schema: xmlSchemaPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderConstXmlVersion(reader: xmlTextReaderPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderStandalone(reader: xmlTextReaderPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderByteConsumed(reader: xmlTextReaderPtr) -> ::std::os::raw::c_long;
+}
+unsafe extern "C" {
+  pub fn xmlReaderWalker(doc: xmlDocPtr) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReaderForDoc(
+    cur: *const xmlChar,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReaderForFile(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReaderForMemory(
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReaderForFd(
+    fd: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReaderForIO(
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlTextReaderPtr;
+}
+unsafe extern "C" {
+  pub fn xmlReaderNewWalker(reader: xmlTextReaderPtr, doc: xmlDocPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlReaderNewDoc(
+    reader: xmlTextReaderPtr,
+    cur: *const xmlChar,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlReaderNewFile(
+    reader: xmlTextReaderPtr,
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlReaderNewMemory(
+    reader: xmlTextReaderPtr,
+    buffer: *const ::std::os::raw::c_char,
+    size: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlReaderNewFd(
+    reader: xmlTextReaderPtr,
+    fd: ::std::os::raw::c_int,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlReaderNewIO(
+    reader: xmlTextReaderPtr,
+    ioread: xmlInputReadCallback,
+    ioclose: xmlInputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    URL: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+pub type xmlTextReaderLocatorPtr = *mut ::std::os::raw::c_void;
+#[doc = " xmlTextReaderErrorFunc:\n @arg: the user argument\n @msg: the message\n @severity: the severity of the error\n @locator: a locator indicating where the error occurred\n\n Signature of an error callback from a reader parser"]
+pub type xmlTextReaderErrorFunc = ::std::option::Option<
+  unsafe extern "C" fn(
+    arg: *mut ::std::os::raw::c_void,
+    msg: *const ::std::os::raw::c_char,
+    severity: xmlParserSeverities,
+    locator: xmlTextReaderLocatorPtr,
+  ),
+>;
+unsafe extern "C" {
+  pub fn xmlTextReaderLocatorLineNumber(locator: xmlTextReaderLocatorPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderLocatorBaseURI(locator: xmlTextReaderLocatorPtr) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSetErrorHandler(
+    reader: xmlTextReaderPtr,
+    f: xmlTextReaderErrorFunc,
+    arg: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderSetStructuredErrorHandler(
+    reader: xmlTextReaderPtr,
+    f: xmlStructuredErrorFunc,
+    arg: *mut ::std::os::raw::c_void,
+  );
+}
+unsafe extern "C" {
+  pub fn xmlTextReaderGetErrorHandler(
+    reader: xmlTextReaderPtr,
+    f: *mut xmlTextReaderErrorFunc,
+    arg: *mut *mut ::std::os::raw::c_void,
+  );
+}
+pub const xmlSaveOption_XML_SAVE_FORMAT: xmlSaveOption = 1;
+pub const xmlSaveOption_XML_SAVE_NO_DECL: xmlSaveOption = 2;
+pub const xmlSaveOption_XML_SAVE_NO_EMPTY: xmlSaveOption = 4;
+pub const xmlSaveOption_XML_SAVE_NO_XHTML: xmlSaveOption = 8;
+pub const xmlSaveOption_XML_SAVE_XHTML: xmlSaveOption = 16;
+pub const xmlSaveOption_XML_SAVE_AS_XML: xmlSaveOption = 32;
+pub const xmlSaveOption_XML_SAVE_AS_HTML: xmlSaveOption = 64;
+pub const xmlSaveOption_XML_SAVE_WSNONSIG: xmlSaveOption = 128;
+#[doc = " xmlSaveOption:\n\n This is the set of XML save options that can be passed down\n to the xmlSaveToFd() and similar calls."]
+pub type xmlSaveOption = ::std::os::raw::c_uint;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlSaveCtxt {
+  _unused: [u8; 0],
+}
+pub type xmlSaveCtxt = _xmlSaveCtxt;
+pub type xmlSaveCtxtPtr = *mut xmlSaveCtxt;
+unsafe extern "C" {
+  pub fn xmlSaveToFd(
+    fd: ::std::os::raw::c_int,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlSaveCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSaveToFilename(
+    filename: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlSaveCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSaveToBuffer(
+    buffer: xmlBufferPtr,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlSaveCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSaveToIO(
+    iowrite: xmlOutputWriteCallback,
+    ioclose: xmlOutputCloseCallback,
+    ioctx: *mut ::std::os::raw::c_void,
+    encoding: *const ::std::os::raw::c_char,
+    options: ::std::os::raw::c_int,
+  ) -> xmlSaveCtxtPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSaveDoc(ctxt: xmlSaveCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_long;
+}
+unsafe extern "C" {
+  pub fn xmlSaveTree(ctxt: xmlSaveCtxtPtr, node: xmlNodePtr) -> ::std::os::raw::c_long;
+}
+unsafe extern "C" {
+  pub fn xmlSaveFlush(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSaveClose(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSaveSetEscape(
+    ctxt: xmlSaveCtxtPtr,
+    escape: xmlCharEncodingOutputFunc,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSaveSetAttrEscape(
+    ctxt: xmlSaveCtxtPtr,
+    escape: xmlCharEncodingOutputFunc,
+  ) -> ::std::os::raw::c_int;
+}
+pub const xmlSchemaWhitespaceValueType_XML_SCHEMA_WHITESPACE_UNKNOWN: xmlSchemaWhitespaceValueType =
+  0;
+pub const xmlSchemaWhitespaceValueType_XML_SCHEMA_WHITESPACE_PRESERVE:
+  xmlSchemaWhitespaceValueType = 1;
+pub const xmlSchemaWhitespaceValueType_XML_SCHEMA_WHITESPACE_REPLACE: xmlSchemaWhitespaceValueType =
+  2;
+pub const xmlSchemaWhitespaceValueType_XML_SCHEMA_WHITESPACE_COLLAPSE:
+  xmlSchemaWhitespaceValueType = 3;
+pub type xmlSchemaWhitespaceValueType = ::std::os::raw::c_uint;
+unsafe extern "C" {
+  pub fn xmlSchemaInitTypes();
+}
+unsafe extern "C" {
+  pub fn xmlSchemaCleanupTypes();
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetPredefinedType(name: *const xmlChar, ns: *const xmlChar) -> xmlSchemaTypePtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidatePredefinedType(
+    type_: xmlSchemaTypePtr,
+    value: *const xmlChar,
+    val: *mut xmlSchemaValPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValPredefTypeNode(
+    type_: xmlSchemaTypePtr,
+    value: *const xmlChar,
+    val: *mut xmlSchemaValPtr,
+    node: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateFacet(
+    base: xmlSchemaTypePtr,
+    facet: xmlSchemaFacetPtr,
+    value: *const xmlChar,
+    val: xmlSchemaValPtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateFacetWhtsp(
+    facet: xmlSchemaFacetPtr,
+    fws: xmlSchemaWhitespaceValueType,
+    valType: xmlSchemaValType,
+    value: *const xmlChar,
+    val: xmlSchemaValPtr,
+    ws: xmlSchemaWhitespaceValueType,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaFreeValue(val: xmlSchemaValPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewFacet() -> xmlSchemaFacetPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaCheckFacet(
+    facet: xmlSchemaFacetPtr,
+    typeDecl: xmlSchemaTypePtr,
+    ctxt: xmlSchemaParserCtxtPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaFreeFacet(facet: xmlSchemaFacetPtr);
+}
+unsafe extern "C" {
+  pub fn xmlSchemaCompareValues(x: xmlSchemaValPtr, y: xmlSchemaValPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetBuiltInListSimpleTypeItemType(type_: xmlSchemaTypePtr) -> xmlSchemaTypePtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateListSimpleTypeFacet(
+    facet: xmlSchemaFacetPtr,
+    value: *const xmlChar,
+    actualLen: ::std::os::raw::c_ulong,
+    expectedLen: *mut ::std::os::raw::c_ulong,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetBuiltInType(type_: xmlSchemaValType) -> xmlSchemaTypePtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaIsBuiltInTypeFacet(
+    type_: xmlSchemaTypePtr,
+    facetType: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaCollapseString(value: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaWhiteSpaceReplace(value: *const xmlChar) -> *mut xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetFacetValueAsULong(facet: xmlSchemaFacetPtr) -> ::std::os::raw::c_ulong;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateLengthFacet(
+    type_: xmlSchemaTypePtr,
+    facet: xmlSchemaFacetPtr,
+    value: *const xmlChar,
+    val: xmlSchemaValPtr,
+    length: *mut ::std::os::raw::c_ulong,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValidateLengthFacetWhtsp(
+    facet: xmlSchemaFacetPtr,
+    valType: xmlSchemaValType,
+    value: *const xmlChar,
+    val: xmlSchemaValPtr,
+    length: *mut ::std::os::raw::c_ulong,
+    ws: xmlSchemaWhitespaceValueType,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValPredefTypeNodeNoNorm(
+    type_: xmlSchemaTypePtr,
+    value: *const xmlChar,
+    val: *mut xmlSchemaValPtr,
+    node: xmlNodePtr,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetCanonValue(
+    val: xmlSchemaValPtr,
+    retValue: *mut *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetCanonValueWhtsp(
+    val: xmlSchemaValPtr,
+    retValue: *mut *const xmlChar,
+    ws: xmlSchemaWhitespaceValueType,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValueAppend(prev: xmlSchemaValPtr, cur: xmlSchemaValPtr)
+    -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValueGetNext(cur: xmlSchemaValPtr) -> xmlSchemaValPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValueGetAsString(val: xmlSchemaValPtr) -> *const xmlChar;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaValueGetAsBoolean(val: xmlSchemaValPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewStringValue(type_: xmlSchemaValType, value: *const xmlChar)
+    -> xmlSchemaValPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewNOTATIONValue(name: *const xmlChar, ns: *const xmlChar) -> xmlSchemaValPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaNewQNameValue(
+    namespaceName: *const xmlChar,
+    localName: *const xmlChar,
+  ) -> xmlSchemaValPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaCompareValuesWhtsp(
+    x: xmlSchemaValPtr,
+    xws: xmlSchemaWhitespaceValueType,
+    y: xmlSchemaValPtr,
+    yws: xmlSchemaWhitespaceValueType,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaCopyValue(val: xmlSchemaValPtr) -> xmlSchemaValPtr;
+}
+unsafe extern "C" {
+  pub fn xmlSchemaGetValType(val: xmlSchemaValPtr) -> xmlSchemaValType;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsAegeanNumbers(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsAlphabeticPresentationForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsArabic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsArabicPresentationFormsA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsArabicPresentationFormsB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsArmenian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsArrows(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBasicLatin(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBengali(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBlockElements(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBopomofo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBopomofoExtended(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBoxDrawing(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBraillePatterns(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBuhid(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsByzantineMusicalSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKCompatibility(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKCompatibilityForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKCompatibilityIdeographs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKCompatibilityIdeographsSupplement(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKRadicalsSupplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKSymbolsandPunctuation(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKUnifiedIdeographs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKUnifiedIdeographsExtensionA(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCJKUnifiedIdeographsExtensionB(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCherokee(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCombiningDiacriticalMarks(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCombiningDiacriticalMarksforSymbols(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCombiningHalfMarks(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCombiningMarksforSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsControlPictures(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCurrencySymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCypriotSyllabary(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCyrillic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCyrillicSupplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsDeseret(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsDevanagari(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsDingbats(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsEnclosedAlphanumerics(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsEnclosedCJKLettersandMonths(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsEthiopic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGeneralPunctuation(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGeometricShapes(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGeorgian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGothic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGreek(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGreekExtended(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGreekandCoptic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGujarati(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsGurmukhi(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHalfwidthandFullwidthForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHangulCompatibilityJamo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHangulJamo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHangulSyllables(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHanunoo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHebrew(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHighPrivateUseSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHighSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsHiragana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsIPAExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsIdeographicDescriptionCharacters(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKanbun(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKangxiRadicals(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKannada(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKatakana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKatakanaPhoneticExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKhmer(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsKhmerSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLao(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLatin1Supplement(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLatinExtendedA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLatinExtendedB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLatinExtendedAdditional(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLetterlikeSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLimbu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLinearBIdeograms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLinearBSyllabary(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsLowSurrogates(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMalayalam(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMathematicalAlphanumericSymbols(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMathematicalOperators(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMiscellaneousMathematicalSymbolsA(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMiscellaneousMathematicalSymbolsB(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMiscellaneousSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMiscellaneousSymbolsandArrows(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMiscellaneousTechnical(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMongolian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMusicalSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsMyanmar(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsNumberForms(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsOgham(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsOldItalic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsOpticalCharacterRecognition(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsOriya(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsOsmanya(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsPhoneticExtensions(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsPrivateUse(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsPrivateUseArea(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsRunic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsShavian(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSinhala(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSmallFormVariants(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSpacingModifierLetters(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSpecials(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSuperscriptsandSubscripts(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSupplementalArrowsA(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSupplementalArrowsB(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSupplementalMathematicalOperators(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSupplementaryPrivateUseAreaA(code: ::std::os::raw::c_int)
+    -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSupplementaryPrivateUseAreaB(code: ::std::os::raw::c_int)
+    -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsSyriac(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTagalog(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTagbanwa(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTags(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTaiLe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTaiXuanJingSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTamil(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTelugu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsThaana(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsThai(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsTibetan(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsUgaritic(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsUnifiedCanadianAboriginalSyllabics(
+    code: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsVariationSelectors(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsVariationSelectorsSupplement(code: ::std::os::raw::c_int)
+    -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsYiRadicals(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsYiSyllables(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsYijingHexagramSymbols(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsBlock(
+    code: ::std::os::raw::c_int,
+    block: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatC(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatCc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatCf(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatCo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatCs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatL(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatLl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatLm(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatLo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatLt(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatLu(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatM(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatMc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatMe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatMn(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatN(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatNd(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatNl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatNo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatP(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPd(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPe(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPf(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPi(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatPs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatS(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatSc(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatSk(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatSm(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatSo(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatZ(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatZl(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatZp(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCatZs(code: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlUCSIsCat(
+    code: ::std::os::raw::c_int,
+    cat: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _xmlTextWriter {
+  _unused: [u8; 0],
+}
+pub type xmlTextWriter = _xmlTextWriter;
+pub type xmlTextWriterPtr = *mut xmlTextWriter;
+unsafe extern "C" {
+  pub fn xmlNewTextWriter(out: xmlOutputBufferPtr) -> xmlTextWriterPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewTextWriterFilename(
+    uri: *const ::std::os::raw::c_char,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlTextWriterPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewTextWriterMemory(
+    buf: xmlBufferPtr,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlTextWriterPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewTextWriterPushParser(
+    ctxt: xmlParserCtxtPtr,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlTextWriterPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewTextWriterDoc(
+    doc: *mut xmlDocPtr,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlTextWriterPtr;
+}
+unsafe extern "C" {
+  pub fn xmlNewTextWriterTree(
+    doc: xmlDocPtr,
+    node: xmlNodePtr,
+    compression: ::std::os::raw::c_int,
+  ) -> xmlTextWriterPtr;
+}
+unsafe extern "C" {
+  pub fn xmlFreeTextWriter(writer: xmlTextWriterPtr);
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartDocument(
+    writer: xmlTextWriterPtr,
+    version: *const ::std::os::raw::c_char,
+    encoding: *const ::std::os::raw::c_char,
+    standalone: *const ::std::os::raw::c_char,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndDocument(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartComment(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndComment(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatComment(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatComment(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteComment(
+    writer: xmlTextWriterPtr,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartElementNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterFullEndElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatElementNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatElementNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteElementNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatRaw(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatRaw(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteRawLen(
+    writer: xmlTextWriterPtr,
+    content: *const xmlChar,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteRaw(
+    writer: xmlTextWriterPtr,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatString(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatString(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteString(
+    writer: xmlTextWriterPtr,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteBase64(
+    writer: xmlTextWriterPtr,
+    data: *const ::std::os::raw::c_char,
+    start: ::std::os::raw::c_int,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteBinHex(
+    writer: xmlTextWriterPtr,
+    data: *const ::std::os::raw::c_char,
+    start: ::std::os::raw::c_int,
+    len: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartAttribute(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartAttributeNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndAttribute(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatAttribute(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatAttribute(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteAttribute(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatAttributeNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatAttributeNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteAttributeNS(
+    writer: xmlTextWriterPtr,
+    prefix: *const xmlChar,
+    name: *const xmlChar,
+    namespaceURI: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartPI(
+    writer: xmlTextWriterPtr,
+    target: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndPI(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatPI(
+    writer: xmlTextWriterPtr,
+    target: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatPI(
+    writer: xmlTextWriterPtr,
+    target: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWritePI(
+    writer: xmlTextWriterPtr,
+    target: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartCDATA(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndCDATA(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatCDATA(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatCDATA(
+    writer: xmlTextWriterPtr,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteCDATA(
+    writer: xmlTextWriterPtr,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartDTD(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndDTD(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatDTD(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatDTD(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTD(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+    subset: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartDTDElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndDTDElement(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatDTDElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatDTDElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDElement(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndDTDAttlist(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDAttlist(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterStartDTDEntity(
+    writer: xmlTextWriterPtr,
+    pe: ::std::os::raw::c_int,
+    name: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterEndDTDEntity(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteFormatDTDInternalEntity(
+    writer: xmlTextWriterPtr,
+    pe: ::std::os::raw::c_int,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    ...
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteVFormatDTDInternalEntity(
+    writer: xmlTextWriterPtr,
+    pe: ::std::os::raw::c_int,
+    name: *const xmlChar,
+    format: *const ::std::os::raw::c_char,
+    argptr: *mut __va_list_tag,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDInternalEntity(
+    writer: xmlTextWriterPtr,
+    pe: ::std::os::raw::c_int,
+    name: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDExternalEntity(
+    writer: xmlTextWriterPtr,
+    pe: ::std::os::raw::c_int,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+    ndataid: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDExternalEntityContents(
+    writer: xmlTextWriterPtr,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+    ndataid: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDEntity(
+    writer: xmlTextWriterPtr,
+    pe: ::std::os::raw::c_int,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+    ndataid: *const xmlChar,
+    content: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterWriteDTDNotation(
+    writer: xmlTextWriterPtr,
+    name: *const xmlChar,
+    pubid: *const xmlChar,
+    sysid: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterSetIndent(
+    writer: xmlTextWriterPtr,
+    indent: ::std::os::raw::c_int,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterSetIndentString(
+    writer: xmlTextWriterPtr,
+    str_: *const xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterSetQuoteChar(
+    writer: xmlTextWriterPtr,
+    quotechar: xmlChar,
+  ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+  pub fn xmlTextWriterFlush(writer: xmlTextWriterPtr) -> ::std::os::raw::c_int;
+}
 unsafe extern "C" {
   pub fn xmlXPathPopBoolean(ctxt: xmlXPathParserContextPtr) -> ::std::os::raw::c_int;
 }
@@ -10286,624 +15372,103 @@ unsafe extern "C" {
   #[doc = " Really internal functions"]
   pub fn xmlXPathNodeSetFreeNs(ns: xmlNsPtr);
 }
-pub const xmlSaveOption_XML_SAVE_FORMAT: xmlSaveOption = 1;
-pub const xmlSaveOption_XML_SAVE_NO_DECL: xmlSaveOption = 2;
-pub const xmlSaveOption_XML_SAVE_NO_EMPTY: xmlSaveOption = 4;
-pub const xmlSaveOption_XML_SAVE_NO_XHTML: xmlSaveOption = 8;
-pub const xmlSaveOption_XML_SAVE_XHTML: xmlSaveOption = 16;
-pub const xmlSaveOption_XML_SAVE_AS_XML: xmlSaveOption = 32;
-pub const xmlSaveOption_XML_SAVE_AS_HTML: xmlSaveOption = 64;
-pub const xmlSaveOption_XML_SAVE_WSNONSIG: xmlSaveOption = 128;
-#[doc = " xmlSaveOption:\n\n This is the set of XML save options that can be passed down\n to the xmlSaveToFd() and similar calls."]
-pub type xmlSaveOption = ::std::os::raw::c_uint;
+pub type xmlLocationSet = _xmlLocationSet;
+pub type xmlLocationSetPtr = *mut xmlLocationSet;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct _xmlSaveCtxt {
-  _unused: [u8; 0],
-}
-pub type xmlSaveCtxt = _xmlSaveCtxt;
-pub type xmlSaveCtxtPtr = *mut xmlSaveCtxt;
-unsafe extern "C" {
-  pub fn xmlSaveToFd(
-    fd: ::std::os::raw::c_int,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlSaveCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSaveToFilename(
-    filename: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlSaveCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSaveToBuffer(
-    buffer: xmlBufferPtr,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlSaveCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSaveToIO(
-    iowrite: xmlOutputWriteCallback,
-    ioclose: xmlOutputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> xmlSaveCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSaveDoc(ctxt: xmlSaveCtxtPtr, doc: xmlDocPtr) -> ::std::os::raw::c_long;
-}
-unsafe extern "C" {
-  pub fn xmlSaveTree(ctxt: xmlSaveCtxtPtr, node: xmlNodePtr) -> ::std::os::raw::c_long;
-}
-unsafe extern "C" {
-  pub fn xmlSaveFlush(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSaveClose(ctxt: xmlSaveCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSaveSetEscape(
-    ctxt: xmlSaveCtxtPtr,
-    escape: xmlCharEncodingOutputFunc,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSaveSetAttrEscape(
-    ctxt: xmlSaveCtxtPtr,
-    escape: xmlCharEncodingOutputFunc,
-  ) -> ::std::os::raw::c_int;
-}
-#[doc = " xmlParserCtxt:\n\n The parser context.\n NOTE This doesn't completely define the parser state, the (current ?)\n      design of the parser uses recursive function calls since this allow\n      and easy mapping from the production rules of the specification\n      to the actual code. The drawback is that the actual function call\n      also reflect the parser state. However most of the parsing routines\n      takes as the only argument the parser context pointer, so migrating\n      to a state based parser for progressive parsing shouldn't be too hard."]
-pub type htmlParserCtxt = xmlParserCtxt;
-pub type htmlParserCtxtPtr = xmlParserCtxtPtr;
-pub type htmlParserNodeInfo = xmlParserNodeInfo;
-pub type htmlSAXHandler = xmlSAXHandler;
-pub type htmlSAXHandlerPtr = xmlSAXHandlerPtr;
-pub type htmlParserInput = xmlParserInput;
-pub type htmlParserInputPtr = xmlParserInputPtr;
-pub type htmlDocPtr = xmlDocPtr;
-pub type htmlNodePtr = xmlNodePtr;
-pub type htmlElemDesc = _htmlElemDesc;
-pub type htmlElemDescPtr = *mut htmlElemDesc;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _htmlElemDesc {
-  pub name: *const ::std::os::raw::c_char,
-  pub startTag: ::std::os::raw::c_char,
-  pub endTag: ::std::os::raw::c_char,
-  pub saveEndTag: ::std::os::raw::c_char,
-  pub empty: ::std::os::raw::c_char,
-  pub depr: ::std::os::raw::c_char,
-  pub dtd: ::std::os::raw::c_char,
-  pub isinline: ::std::os::raw::c_char,
-  pub desc: *const ::std::os::raw::c_char,
-  pub subelts: *mut *const ::std::os::raw::c_char,
-  pub defaultsubelt: *const ::std::os::raw::c_char,
-  pub attrs_opt: *mut *const ::std::os::raw::c_char,
-  pub attrs_depr: *mut *const ::std::os::raw::c_char,
-  pub attrs_req: *mut *const ::std::os::raw::c_char,
+pub struct _xmlLocationSet {
+  pub locNr: ::std::os::raw::c_int,
+  pub locMax: ::std::os::raw::c_int,
+  pub locTab: *mut xmlXPathObjectPtr,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-  ["Size of _htmlElemDesc"][::std::mem::size_of::<_htmlElemDesc>() - 64usize];
-  ["Alignment of _htmlElemDesc"][::std::mem::align_of::<_htmlElemDesc>() - 8usize];
-  ["Offset of field: _htmlElemDesc::name"][::std::mem::offset_of!(_htmlElemDesc, name) - 0usize];
-  ["Offset of field: _htmlElemDesc::startTag"]
-    [::std::mem::offset_of!(_htmlElemDesc, startTag) - 8usize];
-  ["Offset of field: _htmlElemDesc::endTag"]
-    [::std::mem::offset_of!(_htmlElemDesc, endTag) - 9usize];
-  ["Offset of field: _htmlElemDesc::saveEndTag"]
-    [::std::mem::offset_of!(_htmlElemDesc, saveEndTag) - 10usize];
-  ["Offset of field: _htmlElemDesc::empty"][::std::mem::offset_of!(_htmlElemDesc, empty) - 11usize];
-  ["Offset of field: _htmlElemDesc::depr"][::std::mem::offset_of!(_htmlElemDesc, depr) - 12usize];
-  ["Offset of field: _htmlElemDesc::dtd"][::std::mem::offset_of!(_htmlElemDesc, dtd) - 13usize];
-  ["Offset of field: _htmlElemDesc::isinline"]
-    [::std::mem::offset_of!(_htmlElemDesc, isinline) - 14usize];
-  ["Offset of field: _htmlElemDesc::desc"][::std::mem::offset_of!(_htmlElemDesc, desc) - 16usize];
-  ["Offset of field: _htmlElemDesc::subelts"]
-    [::std::mem::offset_of!(_htmlElemDesc, subelts) - 24usize];
-  ["Offset of field: _htmlElemDesc::defaultsubelt"]
-    [::std::mem::offset_of!(_htmlElemDesc, defaultsubelt) - 32usize];
-  ["Offset of field: _htmlElemDesc::attrs_opt"]
-    [::std::mem::offset_of!(_htmlElemDesc, attrs_opt) - 40usize];
-  ["Offset of field: _htmlElemDesc::attrs_depr"]
-    [::std::mem::offset_of!(_htmlElemDesc, attrs_depr) - 48usize];
-  ["Offset of field: _htmlElemDesc::attrs_req"]
-    [::std::mem::offset_of!(_htmlElemDesc, attrs_req) - 56usize];
-};
-pub type htmlEntityDesc = _htmlEntityDesc;
-pub type htmlEntityDescPtr = *mut htmlEntityDesc;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _htmlEntityDesc {
-  pub value: ::std::os::raw::c_uint,
-  pub name: *const ::std::os::raw::c_char,
-  pub desc: *const ::std::os::raw::c_char,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-  ["Size of _htmlEntityDesc"][::std::mem::size_of::<_htmlEntityDesc>() - 24usize];
-  ["Alignment of _htmlEntityDesc"][::std::mem::align_of::<_htmlEntityDesc>() - 8usize];
-  ["Offset of field: _htmlEntityDesc::value"]
-    [::std::mem::offset_of!(_htmlEntityDesc, value) - 0usize];
-  ["Offset of field: _htmlEntityDesc::name"]
-    [::std::mem::offset_of!(_htmlEntityDesc, name) - 8usize];
-  ["Offset of field: _htmlEntityDesc::desc"]
-    [::std::mem::offset_of!(_htmlEntityDesc, desc) - 16usize];
+  ["Size of _xmlLocationSet"][::std::mem::size_of::<_xmlLocationSet>() - 16usize];
+  ["Alignment of _xmlLocationSet"][::std::mem::align_of::<_xmlLocationSet>() - 8usize];
+  ["Offset of field: _xmlLocationSet::locNr"]
+    [::std::mem::offset_of!(_xmlLocationSet, locNr) - 0usize];
+  ["Offset of field: _xmlLocationSet::locMax"]
+    [::std::mem::offset_of!(_xmlLocationSet, locMax) - 4usize];
+  ["Offset of field: _xmlLocationSet::locTab"]
+    [::std::mem::offset_of!(_xmlLocationSet, locTab) - 8usize];
 };
 unsafe extern "C" {
-  pub fn htmlTagLookup(tag: *const xmlChar) -> *const htmlElemDesc;
+  pub fn xmlXPtrLocationSetCreate(val: xmlXPathObjectPtr) -> xmlLocationSetPtr;
 }
 unsafe extern "C" {
-  pub fn htmlEntityLookup(name: *const xmlChar) -> *const htmlEntityDesc;
+  pub fn xmlXPtrFreeLocationSet(obj: xmlLocationSetPtr);
 }
 unsafe extern "C" {
-  pub fn htmlEntityValueLookup(value: ::std::os::raw::c_uint) -> *const htmlEntityDesc;
+  pub fn xmlXPtrLocationSetMerge(
+    val1: xmlLocationSetPtr,
+    val2: xmlLocationSetPtr,
+  ) -> xmlLocationSetPtr;
 }
 unsafe extern "C" {
-  pub fn htmlIsAutoClosed(doc: htmlDocPtr, elem: htmlNodePtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrNewRange(
+    start: xmlNodePtr,
+    startindex: ::std::os::raw::c_int,
+    end: xmlNodePtr,
+    endindex: ::std::os::raw::c_int,
+  ) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlAutoCloseTag(
-    doc: htmlDocPtr,
-    name: *const xmlChar,
-    elem: htmlNodePtr,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrNewRangePoints(
+    start: xmlXPathObjectPtr,
+    end: xmlXPathObjectPtr,
+  ) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseEntityRef(
-    ctxt: htmlParserCtxtPtr,
-    str_: *mut *const xmlChar,
-  ) -> *const htmlEntityDesc;
+  pub fn xmlXPtrNewRangeNodePoint(start: xmlNodePtr, end: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseCharRef(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrNewRangePointNode(start: xmlXPathObjectPtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseElement(ctxt: htmlParserCtxtPtr);
+  pub fn xmlXPtrNewRangeNodes(start: xmlNodePtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlNewParserCtxt() -> htmlParserCtxtPtr;
+  pub fn xmlXPtrNewLocationSetNodes(start: xmlNodePtr, end: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlCreateMemoryParserCtxt(
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-  ) -> htmlParserCtxtPtr;
+  pub fn xmlXPtrNewLocationSetNodeSet(set: xmlNodeSetPtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseDocument(ctxt: htmlParserCtxtPtr) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrNewRangeNodeObject(start: xmlNodePtr, end: xmlXPathObjectPtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlSAXParseDoc(
-    cur: *const xmlChar,
-    encoding: *const ::std::os::raw::c_char,
-    sax: htmlSAXHandlerPtr,
-    userData: *mut ::std::os::raw::c_void,
-  ) -> htmlDocPtr;
+  pub fn xmlXPtrNewCollapsedRange(start: xmlNodePtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseDoc(cur: *const xmlChar, encoding: *const ::std::os::raw::c_char) -> htmlDocPtr;
+  pub fn xmlXPtrLocationSetAdd(cur: xmlLocationSetPtr, val: xmlXPathObjectPtr);
 }
 unsafe extern "C" {
-  pub fn htmlSAXParseFile(
-    filename: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    sax: htmlSAXHandlerPtr,
-    userData: *mut ::std::os::raw::c_void,
-  ) -> htmlDocPtr;
+  pub fn xmlXPtrWrapLocationSet(val: xmlLocationSetPtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseFile(
-    filename: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-  ) -> htmlDocPtr;
+  pub fn xmlXPtrLocationSetDel(cur: xmlLocationSetPtr, val: xmlXPathObjectPtr);
 }
 unsafe extern "C" {
-  pub fn UTF8ToHtml(
-    out: *mut ::std::os::raw::c_uchar,
-    outlen: *mut ::std::os::raw::c_int,
-    in_: *const ::std::os::raw::c_uchar,
-    inlen: *mut ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrLocationSetRemove(cur: xmlLocationSetPtr, val: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
-  pub fn htmlEncodeEntities(
-    out: *mut ::std::os::raw::c_uchar,
-    outlen: *mut ::std::os::raw::c_int,
-    in_: *const ::std::os::raw::c_uchar,
-    inlen: *mut ::std::os::raw::c_int,
-    quoteChar: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrNewContext(
+    doc: xmlDocPtr,
+    here: xmlNodePtr,
+    origin: xmlNodePtr,
+  ) -> xmlXPathContextPtr;
 }
 unsafe extern "C" {
-  pub fn htmlIsScriptAttribute(name: *const xmlChar) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrEval(str_: *const xmlChar, ctx: xmlXPathContextPtr) -> xmlXPathObjectPtr;
 }
 unsafe extern "C" {
-  pub fn htmlHandleOmittedElem(val: ::std::os::raw::c_int) -> ::std::os::raw::c_int;
+  pub fn xmlXPtrRangeToFunction(ctxt: xmlXPathParserContextPtr, nargs: ::std::os::raw::c_int);
 }
 unsafe extern "C" {
-  #[doc = " Interfaces for the Push mode."]
-  pub fn htmlCreatePushParserCtxt(
-    sax: htmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-    chunk: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    filename: *const ::std::os::raw::c_char,
-    enc: xmlCharEncoding,
-  ) -> htmlParserCtxtPtr;
+  pub fn xmlXPtrBuildNodeList(obj: xmlXPathObjectPtr) -> xmlNodePtr;
 }
 unsafe extern "C" {
-  pub fn htmlParseChunk(
-    ctxt: htmlParserCtxtPtr,
-    chunk: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    terminate: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn htmlFreeParserCtxt(ctxt: htmlParserCtxtPtr);
-}
-pub const htmlParserOption_HTML_PARSE_RECOVER: htmlParserOption = 1;
-pub const htmlParserOption_HTML_PARSE_NODEFDTD: htmlParserOption = 4;
-pub const htmlParserOption_HTML_PARSE_NOERROR: htmlParserOption = 32;
-pub const htmlParserOption_HTML_PARSE_NOWARNING: htmlParserOption = 64;
-pub const htmlParserOption_HTML_PARSE_PEDANTIC: htmlParserOption = 128;
-pub const htmlParserOption_HTML_PARSE_NOBLANKS: htmlParserOption = 256;
-pub const htmlParserOption_HTML_PARSE_NONET: htmlParserOption = 2048;
-pub const htmlParserOption_HTML_PARSE_NOIMPLIED: htmlParserOption = 8192;
-pub const htmlParserOption_HTML_PARSE_COMPACT: htmlParserOption = 65536;
-pub const htmlParserOption_HTML_PARSE_IGNORE_ENC: htmlParserOption = 2097152;
-#[doc = " xmlParserOption:\n\n This is the set of XML parser options that can be passed down\n to the xmlReadDoc() and similar calls."]
-pub type htmlParserOption = ::std::os::raw::c_uint;
-unsafe extern "C" {
-  pub fn htmlCtxtReset(ctxt: htmlParserCtxtPtr);
-}
-unsafe extern "C" {
-  pub fn htmlCtxtUseOptions(
-    ctxt: htmlParserCtxtPtr,
-    options: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn htmlReadDoc(
-    cur: *const xmlChar,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlReadFile(
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlReadMemory(
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlReadFd(
-    fd: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlReadIO(
-    ioread: xmlInputReadCallback,
-    ioclose: xmlInputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlCtxtReadDoc(
-    ctxt: xmlParserCtxtPtr,
-    cur: *const xmlChar,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlCtxtReadFile(
-    ctxt: xmlParserCtxtPtr,
-    filename: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlCtxtReadMemory(
-    ctxt: xmlParserCtxtPtr,
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlCtxtReadFd(
-    ctxt: xmlParserCtxtPtr,
-    fd: ::std::os::raw::c_int,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-unsafe extern "C" {
-  pub fn htmlCtxtReadIO(
-    ctxt: xmlParserCtxtPtr,
-    ioread: xmlInputReadCallback,
-    ioclose: xmlInputCloseCallback,
-    ioctx: *mut ::std::os::raw::c_void,
-    URL: *const ::std::os::raw::c_char,
-    encoding: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> htmlDocPtr;
-}
-pub const htmlStatus_HTML_NA: htmlStatus = 0;
-pub const htmlStatus_HTML_INVALID: htmlStatus = 1;
-pub const htmlStatus_HTML_DEPRECATED: htmlStatus = 2;
-pub const htmlStatus_HTML_VALID: htmlStatus = 4;
-pub const htmlStatus_HTML_REQUIRED: htmlStatus = 12;
-pub type htmlStatus = ::std::os::raw::c_uint;
-unsafe extern "C" {
-  pub fn htmlAttrAllowed(
-    arg1: *const htmlElemDesc,
-    arg2: *const xmlChar,
-    arg3: ::std::os::raw::c_int,
-  ) -> htmlStatus;
-}
-unsafe extern "C" {
-  pub fn htmlElementAllowedHere(
-    arg1: *const htmlElemDesc,
-    arg2: *const xmlChar,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn htmlElementStatusHere(arg1: *const htmlElemDesc, arg2: *const htmlElemDesc) -> htmlStatus;
-}
-unsafe extern "C" {
-  pub fn htmlNodeStatus(arg1: htmlNodePtr, arg2: ::std::os::raw::c_int) -> htmlStatus;
-}
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_OK: xmlSchemaValidError = 0;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOROOT: xmlSchemaValidError = 1;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_UNDECLAREDELEM: xmlSchemaValidError = 2;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTTOPLEVEL: xmlSchemaValidError = 3;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_MISSING: xmlSchemaValidError = 4;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_WRONGELEM: xmlSchemaValidError = 5;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTYPE: xmlSchemaValidError = 6;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOROLLBACK: xmlSchemaValidError = 7;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ISABSTRACT: xmlSchemaValidError = 8;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTEMPTY: xmlSchemaValidError = 9;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ELEMCONT: xmlSchemaValidError = 10;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_HAVEDEFAULT: xmlSchemaValidError = 11;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTNILLABLE: xmlSchemaValidError = 12;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_EXTRACONTENT: xmlSchemaValidError = 13;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_INVALIDATTR: xmlSchemaValidError = 14;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_INVALIDELEM: xmlSchemaValidError = 15;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTDETERMINIST: xmlSchemaValidError = 16;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_CONSTRUCT: xmlSchemaValidError = 17;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_INTERNAL: xmlSchemaValidError = 18;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_NOTSIMPLE: xmlSchemaValidError = 19;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ATTRUNKNOWN: xmlSchemaValidError = 20;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_ATTRINVALID: xmlSchemaValidError = 21;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_VALUE: xmlSchemaValidError = 22;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_FACET: xmlSchemaValidError = 23;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_: xmlSchemaValidError = 24;
-pub const xmlSchemaValidError_XML_SCHEMAS_ERR_XXX: xmlSchemaValidError = 25;
-#[doc = " This error codes are obsolete; not used any more."]
-pub type xmlSchemaValidError = ::std::os::raw::c_uint;
-pub const xmlSchemaValidOption_XML_SCHEMA_VAL_VC_I_CREATE: xmlSchemaValidOption = 1;
-#[doc = " xmlSchemaValidOption:\n\n This is the set of XML Schema validation options."]
-pub type xmlSchemaValidOption = ::std::os::raw::c_uint;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlSchema {
-  _unused: [u8; 0],
-}
-#[doc = " The schemas related types are kept internal"]
-pub type xmlSchema = _xmlSchema;
-pub type xmlSchemaPtr = *mut xmlSchema;
-#[doc = " xmlSchemaValidityErrorFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of an error callback from an XSD validation"]
-pub type xmlSchemaValidityErrorFunc = ::std::option::Option<
-  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
->;
-#[doc = " xmlSchemaValidityWarningFunc:\n @ctx: the validation context\n @msg: the message\n @...: extra arguments\n\n Signature of a warning callback from an XSD validation"]
-pub type xmlSchemaValidityWarningFunc = ::std::option::Option<
-  unsafe extern "C" fn(ctx: *mut ::std::os::raw::c_void, msg: *const ::std::os::raw::c_char, ...),
->;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlSchemaParserCtxt {
-  _unused: [u8; 0],
-}
-#[doc = " A schemas validation context"]
-pub type xmlSchemaParserCtxt = _xmlSchemaParserCtxt;
-pub type xmlSchemaParserCtxtPtr = *mut xmlSchemaParserCtxt;
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlSchemaValidCtxt {
-  _unused: [u8; 0],
-}
-pub type xmlSchemaValidCtxt = _xmlSchemaValidCtxt;
-pub type xmlSchemaValidCtxtPtr = *mut xmlSchemaValidCtxt;
-#[doc = " xmlSchemaValidityLocatorFunc:\n @ctx: user provided context\n @file: returned file information\n @line: returned line information\n\n A schemas validation locator, a callback called by the validator.\n This is used when file or node information are not available\n to find out what file and line number are affected\n\n Returns: 0 in case of success and -1 in case of error"]
-pub type xmlSchemaValidityLocatorFunc = ::std::option::Option<
-  unsafe extern "C" fn(
-    ctx: *mut ::std::os::raw::c_void,
-    file: *mut *const ::std::os::raw::c_char,
-    line: *mut ::std::os::raw::c_ulong,
-  ) -> ::std::os::raw::c_int,
->;
-unsafe extern "C" {
-  pub fn xmlSchemaNewParserCtxt(URL: *const ::std::os::raw::c_char) -> xmlSchemaParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaNewMemParserCtxt(
-    buffer: *const ::std::os::raw::c_char,
-    size: ::std::os::raw::c_int,
-  ) -> xmlSchemaParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaNewDocParserCtxt(doc: xmlDocPtr) -> xmlSchemaParserCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaFreeParserCtxt(ctxt: xmlSchemaParserCtxtPtr);
-}
-unsafe extern "C" {
-  pub fn xmlSchemaSetParserErrors(
-    ctxt: xmlSchemaParserCtxtPtr,
-    err: xmlSchemaValidityErrorFunc,
-    warn: xmlSchemaValidityWarningFunc,
-    ctx: *mut ::std::os::raw::c_void,
-  );
-}
-unsafe extern "C" {
-  pub fn xmlSchemaSetParserStructuredErrors(
-    ctxt: xmlSchemaParserCtxtPtr,
-    serror: xmlStructuredErrorFunc,
-    ctx: *mut ::std::os::raw::c_void,
-  );
-}
-unsafe extern "C" {
-  pub fn xmlSchemaGetParserErrors(
-    ctxt: xmlSchemaParserCtxtPtr,
-    err: *mut xmlSchemaValidityErrorFunc,
-    warn: *mut xmlSchemaValidityWarningFunc,
-    ctx: *mut *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaIsValid(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaInitTypes();
-}
-unsafe extern "C" {
-  pub fn xmlSchemaParse(ctxt: xmlSchemaParserCtxtPtr) -> xmlSchemaPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaFree(schema: xmlSchemaPtr);
-}
-unsafe extern "C" {
-  pub fn xmlSchemaDump(output: *mut FILE, schema: xmlSchemaPtr);
-}
-unsafe extern "C" {
-  pub fn xmlSchemaSetValidErrors(
-    ctxt: xmlSchemaValidCtxtPtr,
-    err: xmlSchemaValidityErrorFunc,
-    warn: xmlSchemaValidityWarningFunc,
-    ctx: *mut ::std::os::raw::c_void,
-  );
-}
-unsafe extern "C" {
-  pub fn xmlSchemaSetValidStructuredErrors(
-    ctxt: xmlSchemaValidCtxtPtr,
-    serror: xmlStructuredErrorFunc,
-    ctx: *mut ::std::os::raw::c_void,
-  );
-}
-unsafe extern "C" {
-  pub fn xmlSchemaGetValidErrors(
-    ctxt: xmlSchemaValidCtxtPtr,
-    err: *mut xmlSchemaValidityErrorFunc,
-    warn: *mut xmlSchemaValidityWarningFunc,
-    ctx: *mut *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaSetValidOptions(
-    ctxt: xmlSchemaValidCtxtPtr,
-    options: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidateSetFilename(
-    vctxt: xmlSchemaValidCtxtPtr,
-    filename: *const ::std::os::raw::c_char,
-  );
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidCtxtGetOptions(ctxt: xmlSchemaValidCtxtPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaNewValidCtxt(schema: xmlSchemaPtr) -> xmlSchemaValidCtxtPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaFreeValidCtxt(ctxt: xmlSchemaValidCtxtPtr);
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidateDoc(
-    ctxt: xmlSchemaValidCtxtPtr,
-    instance: xmlDocPtr,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidateOneElement(
-    ctxt: xmlSchemaValidCtxtPtr,
-    elem: xmlNodePtr,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidateStream(
-    ctxt: xmlSchemaValidCtxtPtr,
-    input: xmlParserInputBufferPtr,
-    enc: xmlCharEncoding,
-    sax: xmlSAXHandlerPtr,
-    user_data: *mut ::std::os::raw::c_void,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidateFile(
-    ctxt: xmlSchemaValidCtxtPtr,
-    filename: *const ::std::os::raw::c_char,
-    options: ::std::os::raw::c_int,
-  ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidCtxtGetParserCtxt(ctxt: xmlSchemaValidCtxtPtr) -> xmlParserCtxtPtr;
-}
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct _xmlSchemaSAXPlug {
-  _unused: [u8; 0],
-}
-pub type xmlSchemaSAXPlugStruct = _xmlSchemaSAXPlug;
-pub type xmlSchemaSAXPlugPtr = *mut xmlSchemaSAXPlugStruct;
-unsafe extern "C" {
-  pub fn xmlSchemaSAXPlug(
-    ctxt: xmlSchemaValidCtxtPtr,
-    sax: *mut xmlSAXHandlerPtr,
-    user_data: *mut *mut ::std::os::raw::c_void,
-  ) -> xmlSchemaSAXPlugPtr;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaSAXUnplug(plug: xmlSchemaSAXPlugPtr) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-  pub fn xmlSchemaValidateSetLocator(
-    vctxt: xmlSchemaValidCtxtPtr,
-    f: xmlSchemaValidityLocatorFunc,
-    ctxt: *mut ::std::os::raw::c_void,
-  );
+  pub fn xmlXPtrEvalRangePredicate(ctxt: xmlXPathParserContextPtr);
 }
 pub type __builtin_va_list = [__va_list_tag; 1usize];
 #[repr(C)]
