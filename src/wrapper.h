@@ -3,7 +3,7 @@
 #include <libxml/chvalid.h>
 // #include <libxml/debugXML.h>
 #include <libxml/dict.h>
-#include <libxml/DOCBparser.h>
+// #include <libxml/DOCBparser.h>
 #include <libxml/encoding.h>
 #include <libxml/entities.h>
 #include <libxml/globals.h>
