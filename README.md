@@ -26,6 +26,14 @@ Before performing the usual cargo build/install steps, you need to have the rele
 
 On linux systems you'd need the development headers of libxml2 (e.g. `libxml2-dev` in Debian), as well as `pkg-config`.
 
+Starting with `0.3.4`, build requires `bindgen` (see [`bindgen` requirements](https://rust-lang.github.io/rust-bindgen/requirements.html#clang)).
+So you have to install CLang 9.0 or greater:
+
+- Alpine: `$ apk add clang-dev`
+- Arch Linux: `$ pacman -S clang`
+- Debian / Ubuntu: `$ apt install libclang-dev`
+- Fedora: `$ dnf install clang-devel`
+
 ### MacOS
 [Community contributed](https://github.com/KWARC/rust-libxml/issues/88#issuecomment-890876895):
 
