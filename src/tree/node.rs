@@ -1039,6 +1039,34 @@ impl Node {
     context.findnodes(xpath, Some(self))
   }
 
+  /// Search this node for XPath `path`, and return only the first match.
+  pub fn at_xpath(&self, path: &str, ns_binlings: &[(&str, &str)]) -> Result<Option<Node>, ()> {
+    let mut context = Context::from_node(self)?;
+    for (prefix, href) in ns_binlings {
+      context.register_namespace(prefix, href)?;
+    }
+    let nodes = context.findnodes(path, Some(self))?;
+
+    Ok(nodes.first().cloned())
+  }
+
+  /// Get a list of ancestor Node for this Node.
+  pub fn ancestors(&self) -> Vec<Node> {
+    let node_ptr = self.node_ptr();
+
+    let mut res = Vec::new();
+
+    let ancestor_ptrs = node_ancestors(node_ptr);
+
+    for ptr in ancestor_ptrs {
+      if let Some(node) = self.ptr_as_option(ptr) {
+        res.push(node)
+      }
+    }
+
+    res
+  }
+
   /// find String values via xpath, at a specified node or the document root
   pub fn findvalues(&self, xpath: &str) -> Result<Vec<String>, ()> {
     let mut context = Context::from_node(self)?;
@@ -1085,3 +1113,26 @@ impl Node {
     }
   }
 }
+
+fn node_ancestors(node_ptr: xmlNodePtr) -> Vec<xmlNodePtr> {
+  if node_ptr.is_null() {
+    return Vec::new();
+  }
+
+  let mut parent_ptr = xmlGetParent(node_ptr);
+
+  if parent_ptr.is_null() {
+    Vec::new()
+  } else {
+    let mut parents = vec![parent_ptr];
+
+    while !xmlGetParent(parent_ptr).is_null() {
+      parent_ptr = xmlGetParent(parent_ptr);
+      parents.push(parent_ptr);
+    }
+
+    parents
+  }
+}
+
+mod c14n;
