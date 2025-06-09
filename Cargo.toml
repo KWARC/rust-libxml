@@ -33,7 +33,7 @@ pkg-config = "0.3.2"
 pkg-config = "0.3.2"
 
 [build-dependencies.bindgen]
-version = "0.71"
+version = "0.72"
 features = [
     "runtime",
     "which-rustfmt",
