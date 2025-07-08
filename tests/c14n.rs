@@ -1,6 +1,16 @@
 use libxml::parser::Parser;
 use libxml::tree::c14n::{CanonicalizationMode, CanonicalizationOptions};
 
+fn assert_eq_lines(seen: &str, expected: &str) {
+    let lines_iter = seen.lines().zip(expected.lines());
+
+    for (seen_line, expected_line) in lines_iter {
+      assert_eq!(seen_line, expected_line);
+    }
+
+    assert_eq!(seen.lines().count(), expected.lines().count());
+}
+
 fn canonicalize_xml(input: &str, opts: CanonicalizationOptions) -> String {
   let parser = Parser::default();
   let doc = parser.parse_string(input).unwrap();
@@ -21,7 +31,8 @@ fn canonical_1_1_example_3_1_no_comment() {
       inclusive_ns_prefixes: vec![],
     },
   );
-  assert_eq!(canonicalized, expected)
+
+  assert_eq_lines(&canonicalized, expected);
 }
 
 #[test]
@@ -39,7 +50,7 @@ fn canonical_1_1_example_3_2() {
   );
 
   // for some reason, we get a stray \n at end of file :/
-  assert_eq!(canonicalized, expected.trim())
+  assert_eq_lines(&canonicalized, expected.trim())
 }
 
 #[test]
@@ -57,7 +68,7 @@ fn canonical_exclusive_example_1() {
   );
 
   // for some reason, we get a stray \n at end of file :/
-  assert_eq!(canonicalized, expected.trim())
+  assert_eq_lines(&canonicalized, expected.trim())
 }
 
 #[test]
@@ -75,7 +86,7 @@ fn canonical_exclusive_example_2() {
   );
 
   // for some reason, we get a stray \n at end of file :/
-  assert_eq!(canonicalized, expected.trim())
+  assert_eq_lines(&canonicalized, expected.trim())
 }
 
 #[test]
@@ -140,7 +151,7 @@ fn test_c14n_modes() {
             </n1:elem2>
   "#.trim();
   let c14n = node1.canonicalize(opts()).unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 
   let expected = r#"
     <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en" xml:space="retain">
@@ -149,14 +160,14 @@ fn test_c14n_modes() {
       </n1:elem2>
   "#.trim();
   let c14n = node2.canonicalize(opts()).unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(&expected, &c14n);
 
   let opts = CanonicalizationOptions {
     mode: CanonicalizationMode::Canonical1_0,
     ..Default::default()
   };
   let c14n = node2.canonicalize(opts).unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 
   let expected = r#"
     <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
@@ -171,7 +182,7 @@ fn test_c14n_modes() {
     })
     .unwrap();
 
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 
   let expected = r#"
     <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
@@ -186,7 +197,7 @@ fn test_c14n_modes() {
       ..Default::default()
     })
     .unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 
   let expected = r#"
     <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xml:lang="en">
@@ -202,7 +213,7 @@ fn test_c14n_modes() {
       ..Default::default()
     })
     .unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 
   let expected = r#"
     <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en">
@@ -217,7 +228,7 @@ fn test_c14n_modes() {
       ..Default::default()
     })
     .unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 
   let expected = r#"
     <n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xmlns:n4="http://foo.example" xml:lang="en" xml:space="retain">
@@ -231,7 +242,7 @@ fn test_c14n_modes() {
       ..Default::default()
     })
     .unwrap();
-  assert_eq!(expected, c14n);
+  assert_eq_lines(expected, &c14n);
 }
 
 fn opts() -> CanonicalizationOptions {
