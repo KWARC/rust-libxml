@@ -3,7 +3,7 @@
 use std::ffi::c_void;
 
 use crate::{
-  bindings::{xmlC14NIsVisibleCallback, xmlNodePtr},
+  bindings::{xmlC14NIsVisibleCallback, xmlElementType, xmlNodePtr},
   c_helpers::xmlGetNodeType,
   tree::{c14n::*, Node},
 };
@@ -31,7 +31,7 @@ unsafe extern "C" fn callback_wrapper(
   let c14n_root_ptr = c14n_root_ptr as xmlNodePtr;
   let node_type = xmlGetNodeType(node_ptr);
 
-  let tn_ptr = if NODE_TYPES.contains(&node_type) {
+  let tn_ptr = if C14_NODE_TYPES.contains(&node_type) {
     node_ptr
   } else {
     parent_ptr
@@ -47,7 +47,7 @@ unsafe extern "C" fn callback_wrapper(
   }
 }
 
-const NODE_TYPES: [u32; 7] = [
+const C14_NODE_TYPES: [xmlElementType; 7] = [
   super::xmlElementType_XML_ELEMENT_NODE,
   super::xmlElementType_XML_ATTRIBUTE_NODE,
   super::xmlElementType_XML_DOCUMENT_TYPE_NODE,
