@@ -39,6 +39,7 @@ jobs:
         git fetch origin ${PUBLISH_BRANCH}
         git checkout ${PUBLISH_BRANCH}
         find "${GITHUB_WORKSPACE}/${PUBLISH_DIR}" -maxdepth 1 | tail -n +2 | xargs -I % cp -rf % "."
+        cd ${GITHUB_WORKSPACE}
         git add --all
         git commit --allow-empty -m "Automated deployment: $(date -u) ${GITHUB_SHA}"
         git push origin ${PUBLISH_BRANCH}
