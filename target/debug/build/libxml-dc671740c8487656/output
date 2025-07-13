@@ -1,0 +1,4 @@
+cargo::rustc-check-cfg=cfg(libxml_older_than_2_12)
+cargo:rustc-link-lib=xml2
+cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu
+cargo::rustc-cfg=libxml_older_than_2_12
