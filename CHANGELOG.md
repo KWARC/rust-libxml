@@ -1,6 +1,26 @@
 # Change Log
 
-## [0.3.6] (in development)
+## [0.3.7] (in development)
+
+## [0.3.6] (2025-13-07)
+
+### Added
+
+* c14n, thanks to @saks and @tstenner
+    * add `canonicalize` method for `Node` and `Document`
+    * see `tests/c14n.rs` for examples
+* Utility node methods, thanks to @saks (nokogiri inspired)
+    * add `Node::ancestors` method
+    * add `Node::at_xpath` method. Similar to `findnodes` but nokogiri inspired.
+
+This work still hasn't been extended to `RoNode`, contributions welcome.
+
+### Changes
+
+* Added more low-level headers from bindgen for wrapper uses interested in unsafe low-level libxml2 calls.
+  The bindgen coverage has been in flux since the v0.3.4 release, as we stabilize the new build approach.
+
+### Removed
 
 ## [0.3.5] (2025-28-04)
 
@@ -35,7 +55,7 @@ Thanks go to @wetneb, @anwaralameddin, @rudolphfroger, @jcamiel, @imcsk8 for con
 ### Added
 
 * Node methods: `get_property_no_ns` (alias: `get_attribute_no_ns`), `get_properties_ns` (alias: `get_attributes_ns`), `has_property_no_ns` (alias: `has_attribute_no_ns`), `remove_property_no_ns` (alias: `remove_attribute_no_ns`), `get_property_node_ns` (alias: `get_attribute_node_ns`), `get_property_node_no_ns` (alias: `get_attribute_node_no_ns`)
-* Added implementations of `Hash`, `PartialEq` and `Eq` traits for `Namespace` 
+* Added implementations of `Hash`, `PartialEq` and `Eq` traits for `Namespace`
 
 ### Changed
 

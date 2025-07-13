@@ -1,6 +1,3 @@
-//! The tree functionality
-//!
-
 pub mod c14n;
 pub mod document;
 pub mod namespace;
