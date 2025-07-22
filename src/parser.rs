@@ -170,7 +170,7 @@ fn xml_open(filename: &str) -> io::Result<*mut c_void> {
 }
 
 /// Read callback for an FS file.
-unsafe extern "C" fn xml_read(context: *mut c_void, buffer: *mut c_char, len: c_int) -> c_int {
+unsafe extern "C" fn xml_read(context: *mut c_void, buffer: *mut c_char, len: c_int) -> c_int { unsafe {
   // Len is always positive, typically 40-4000 bytes.
   let file = context as *mut fs::File;
   let buf = slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
@@ -178,17 +178,17 @@ unsafe extern "C" fn xml_read(context: *mut c_void, buffer: *mut c_char, len: c_
     Ok(v) => v as c_int,
     Err(_) => -1,
   }
-}
+}}
 
 type XmlReadCallback = unsafe extern "C" fn(*mut c_void, *mut c_char, c_int) -> c_int;
 
 /// Close callback for an FS file.
-unsafe extern "C" fn xml_close(context: *mut c_void) -> c_int {
+unsafe extern "C" fn xml_close(context: *mut c_void) -> c_int { unsafe {
   // Take rust ownership of the context and then drop it.
   let file = context as *mut fs::File;
   let _ = Box::from_raw(file);
   0
-}
+}}
 
 type XmlCloseCallback = unsafe extern "C" fn(*mut c_void) -> c_int;
 

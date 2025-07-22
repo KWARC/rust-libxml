@@ -221,11 +221,11 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          if let Some(sibling) = current_node.get_next_sibling() {
+          match current_node.get_next_sibling() { Some(sibling) => {
             current_node = sibling;
-          } else {
+          } _ => {
             break;
-          }
+          }}
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -243,11 +243,11 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          if let Some(sibling) = current_node.get_prev_sibling() {
+          match current_node.get_prev_sibling() { Some(sibling) => {
             current_node = sibling;
-          } else {
+          } _ => {
             break;
-          }
+          }}
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -265,11 +265,11 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          if let Some(sibling) = current_node.get_next_sibling() {
+          match current_node.get_next_sibling() { Some(sibling) => {
             current_node = sibling;
-          } else {
+          } _ => {
             break;
-          }
+          }}
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -287,11 +287,11 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          if let Some(sibling) = current_node.get_prev_sibling() {
+          match current_node.get_prev_sibling() { Some(sibling) => {
             current_node = sibling;
-          } else {
+          } _ => {
             break;
-          }
+          }}
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -1085,7 +1085,7 @@ impl Node {
       // nothing to do here, already in place
       Ok(old)
     } else if self.get_type() == Some(NodeType::ElementNode) {
-      if let Some(old_parent) = old.get_parent() {
+      match old.get_parent() { Some(old_parent) => {
         if &old_parent == self {
           // unlink new to be available for insertion
           new.unlink();
@@ -1100,12 +1100,12 @@ impl Node {
             old_parent.get_name()
           )))
         }
-      } else {
+      } _ => {
         Err(From::from(format!(
           "Old node was not a child of {:?} parent. No registered parent exists.",
           self.get_name()
         )))
-      }
+      }}
     } else {
       Err(From::from(
         "Can only call replace_child_node an a NodeType::Element type parent.",

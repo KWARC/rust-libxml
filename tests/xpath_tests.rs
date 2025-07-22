@@ -200,7 +200,7 @@ fn xpath_find_string_values() {
   assert!(doc_result.is_ok());
   let doc = doc_result.unwrap();
   let mut xpath = libxml::xpath::Context::new(&doc).unwrap();
-  if let Some(root) = doc.get_root_element() {
+  match doc.get_root_element() { Some(root) => {
     let tests = root.get_child_elements();
     let empty_test = &tests[0];
     let ids_test = &tests[1];
@@ -211,9 +211,9 @@ fn xpath_find_string_values() {
     assert_eq!(ids_values, expected_ids);
     let node_ids_values = ids_test.findvalues(".//@xml:id");
     assert_eq!(node_ids_values, expected_ids);
-  } else {
+  } _ => {
     panic!("Document fails to obtain root!");
-  }
+  }}
 }
 
 /// Tests for checking xpath well-formedness

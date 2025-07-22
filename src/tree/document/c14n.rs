@@ -55,7 +55,7 @@ impl Document {
   }
 }
 
-unsafe fn c_obuf_into_output(c_obuf: xmlOutputBufferPtr) -> String {
+unsafe fn c_obuf_into_output(c_obuf: xmlOutputBufferPtr) -> String { unsafe {
   let ctx_ptr = (*c_obuf).context;
   let output = Box::from_raw(ctx_ptr as *mut String);
 
@@ -64,9 +64,9 @@ unsafe fn c_obuf_into_output(c_obuf: xmlOutputBufferPtr) -> String {
   xmlOutputBufferClose(c_obuf);
 
   *output
-}
+}}
 
-unsafe fn create_output_buffer() -> xmlOutputBufferPtr {
+unsafe fn create_output_buffer() -> xmlOutputBufferPtr { unsafe {
   let output = String::new();
   let ctx_ptr = Box::into_raw(Box::new(output));
   let encoder = std::ptr::null_mut();
@@ -78,7 +78,7 @@ unsafe fn create_output_buffer() -> xmlOutputBufferPtr {
   (*buf).context = ctx_ptr as _;
 
   buf
-}
+}}
 
 unsafe extern "C" fn xml_close_io(_context: *mut raw::c_void) -> raw::c_int {
   0
@@ -88,7 +88,7 @@ unsafe extern "C" fn xml_write_io(
   io_ptr: *mut raw::c_void,
   buffer: *const raw::c_char,
   len: raw::c_int,
-) -> raw::c_int {
+) -> raw::c_int { unsafe {
   if io_ptr.is_null() {
     0
   } else {
@@ -99,7 +99,7 @@ unsafe extern "C" fn xml_write_io(
 
     len
   }
-}
+}}
 
 /// Create a [Vec] of null-terminated [*mut xmlChar] strings
 fn to_xml_string_vec(vec: Vec<String>) -> Vec<*mut xmlChar> {
