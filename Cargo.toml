@@ -1,7 +1,7 @@
 [package]
 name = "libxml"
 version = "0.3.6"
-edition = "2021"
+edition = "2024"
 authors = ["Andreas Franzén <andreas@devil.se>", "Deyan Ginev <deyan.ginev@gmail.com>","Jan Frederik Schaefer <j.schaefer@jacobs-university.de>"]
 description = "A Rust wrapper for libxml2 - the XML C parser and toolkit developed for the Gnome project"
 repository = "https://github.com/KWARC/rust-libxml"
@@ -33,10 +33,9 @@ pkg-config = "0.3.2"
 pkg-config = "0.3.2"
 
 [build-dependencies.bindgen]
-version = "0.71"
+version = "0.72"
 features = [
     "runtime",
-    "which-rustfmt",
 ]
 default-features = false
 

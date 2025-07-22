@@ -66,7 +66,7 @@ impl StructuredError {
   /// This function copies data from the memory `error_ptr` but does not deallocate
   /// the error. Depending on the context in which this function is used, you may
   /// need to take additional steps to avoid a memory leak.
-  pub unsafe fn from_raw(error_ptr: *const bindings::xmlError) -> Self {
+  pub unsafe fn from_raw(error_ptr: *const bindings::xmlError) -> Self { unsafe {
     let error = *error_ptr;
     let message = StructuredError::ptr_to_string(error.message);
     let level = XmlErrorLevel::from_raw(error.level);
@@ -92,7 +92,7 @@ impl StructuredError {
       domain: error.domain,
       code: error.code,
     }
-  }
+  }}
 
   /// Human-readable informative error message.
   /// 

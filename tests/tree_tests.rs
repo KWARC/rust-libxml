@@ -15,17 +15,17 @@ fn child_of_root_has_different_hash() {
     let doc = doc_result.unwrap();
     let root = doc.get_root_element().unwrap();
     assert!(!root.is_text_node());
-    if let Some(child) = root.get_first_child() {
+    match root.get_first_child() { Some(child) => {
       assert!(root != child);
-    } else {
+    } _ => {
       assert!(false); //test failed - child doesn't exist
-    }
+    }}
     // same check with last child
-    if let Some(child) = root.get_last_child() {
+    match root.get_last_child() { Some(child) => {
       assert!(root != child);
-    } else {
+    } _ => {
       assert!(false); //test failed - child doesn't exist
-    }
+    }}
   }
 }
 
