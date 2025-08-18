@@ -71,7 +71,7 @@ fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
     // invalidate build as soon as the wrapper changes
     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
     .layout_tests(true)
-    .clang_args(&["-DPKG-CONFIG"])
+    .clang_args(&["-DPKG-CONFIG", "-DLIBXML_C14N_ENABLED", "-DLIBXML_OUTPUT_ENABLED"])
     .clang_args(
       header_dirs.iter()
         .map(|dir| format!("-I{}", dir.display()))
