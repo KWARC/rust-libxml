@@ -1,6 +1,12 @@
 # Change Log
 
-## [0.3.7] (in development)
+## [0.3.8] (in development)
+
+## [0.3.7] (2025-18-08)
+
+### Changes
+
+* Corrected the bindgen configuration for c14n, thanks to @Qubitza
 
 ## [0.3.6] (2025-13-07)
 
