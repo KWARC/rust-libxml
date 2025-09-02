@@ -124,17 +124,19 @@ fn main() {
 mod vcpkg_dep {
   use crate::ProbedLib;
   pub fn vcpkg_find_libxml2() -> Option<ProbedLib> {
-    if let Ok(mut metadata) = vcpkg::Config::new().find_package("libxml2") {
-      if let Some(mut include_path) = metadata.include_paths.pop() {
-        if include_path.join("libxml2").exists() {
-          // libxml2 >= 2.14.5 is in a 'libxml2' subdirectory
-          include_path = include_path.join("libxml2");
-        }
-        return Some(ProbedLib {
-          version: vcpkg_version(),
-          include_paths: vec![include_path],
+    if let Ok(metadata) = vcpkg::Config::new().find_package("libxml2") {
+      let include_paths = metadata
+        .include_paths
+        .into_iter()
+        .fold(Vec::new(), |mut acc, p| {
+          acc.push(p.join("libxml2"));
+          acc.push(p);
+          acc
         });
-      }
+      return Some(ProbedLib {
+        version: vcpkg_version(),
+        include_paths,
+      });
     }
     None
   }
