@@ -1,6 +1,12 @@
 # Change Log
 
-## [0.3.8] (in development)
+## [0.3.9] (in development)
+
+## [0.3.8] (2025-25-09)
+
+### Changes
+
+* Corrected the vcpkg include directories used during build  
 
 ## [0.3.7] (2025-18-08)
 
