@@ -263,7 +263,12 @@ fn serialization_as_html() {
   assert!(source_result.is_ok());
   let source_file = source_result.unwrap();
 
-  let result = std::fs::read_to_string("tests/resources/as_html_result.xml");
+  let result_legacy = std::fs::read_to_string("tests/resources/as_html_result.xml");
+  assert!(result_legacy.is_ok());
+  let result_file_legacy = result_legacy.unwrap();
+
+  // From libxml2 2.15 on, the result is different:
+  let result = std::fs::read_to_string("tests/resources/as_html_result_2.15.xml");
   assert!(result.is_ok());
   let result_file = result.unwrap();
 
@@ -279,5 +284,10 @@ fn serialization_as_html() {
 
   let doc_str = doc.to_string_with_options(options);
 
-  assert_eq!(strip_whitespace(&result_file), strip_whitespace(&doc_str));
+  let doc_without_whitespace = strip_whitespace(&doc_str);
+  assert!(
+    doc_without_whitespace != strip_whitespace(&result_file)
+      || doc_without_whitespace != strip_whitespace(&result_file_legacy),
+    "Serialization as HTML of the source XML document is:\n\n{doc_str}\n\nExpected one of:\n\n{result_file}\n\nor\n\n{result_file_legacy}\n"
+  );
 }
