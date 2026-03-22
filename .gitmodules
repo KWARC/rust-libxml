@@ -1,0 +1,4 @@
+[submodule "libxml-sys/libxml2"]
+	path = libxml-sys/libxml2
+	url = https://github.com/GNOME/libxml2.git
+	branch = 2.15

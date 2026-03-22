@@ -6,10 +6,4 @@
 #![allow(improper_ctypes)]
 #![allow(missing_docs)]
 
-/*
- * helper var until we figure out well-formedness checks
- */
-
-pub static mut HACKY_WELL_FORMED: bool = false;
-
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+pub use libxml_sys::*;

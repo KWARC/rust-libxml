@@ -1,0 +1,28 @@
+[package]
+name = "libxml-sys"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+description.workspace = true
+repository.workspace = true
+readme.workspace = true
+license.workspace = true
+keywords.workspace = true
+
+[features]
+iconv = []
+zlib = []
+
+[dependencies]
+
+
+[build-dependencies]
+cmake = "0.1.57"
+bindgen = "0.72.1"
+
+
+[package.metadata.cross.target.x86_64-pc-windows-gnu]
+pre-build = [
+    "apt-get update",
+    "apt-get install -y win-iconv-mingw-w64-dev libz-mingw-w64-dev",
+]
