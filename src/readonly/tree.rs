@@ -523,7 +523,13 @@ impl RoNode {
   pub fn findnodes_readonly(self, xpath: &str, owner: &RoDocument) -> Result<Vec<RoNode>, ()> {
     let context = RoContext::new(owner)?;
     let evaluated = context.node_evaluate_readonly(xpath, self)?;
-    Ok(evaluated.get_readonly_nodes_as_vec())
+    Ok(evaluated.get_nodes_as_vec())
+  }
+
+  /// find String values via xpath, at a specified node and a given document
+  pub fn findvalues_readonly(&self, xpath: &str, owner: &RoDocument) -> Result<Vec<String>, ()> {
+    let context = RoContext::new(owner)?;
+    context.findvalues(xpath, Some(self))
   }
 
   /// Read-only nodes are always linked

@@ -9,8 +9,8 @@ unsafe impl Sync for RoDocument {}
 unsafe impl Send for RoDocument {}
 
 impl RoDocument {
-  /// Get the root element of the document (read-only)
-  pub fn get_root_readonly(&self) -> Option<RoNode> {
+  /// Get the root element of the document
+  pub fn get_root_element(&self) -> Option<RoNode> {
     self.0.get_root_readonly()
   }
 }
