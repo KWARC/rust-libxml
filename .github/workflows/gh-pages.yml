@@ -23,6 +23,8 @@ jobs:
           override: true
     - name: Checkout sources
       uses: actions/checkout@v4
+      with:
+        submodules: 'true'
     - name: Build Documentation
       uses: actions-rs/cargo@v1
       with:

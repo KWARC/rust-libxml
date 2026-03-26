@@ -18,6 +18,8 @@ jobs:
         run: echo "LIBXML2=$(pkg-config libxml-2.0 --variable=libdir)/libxml2.so" >> "$GITHUB_ENV"
         if: ${{ matrix.with_default_bindings }}
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -40,6 +42,8 @@ jobs:
         with:
           packages: "libpython3-dev"
       - uses: actions/checkout@v2
+        with:
+          submodules: 'true'
       - name: Install libxml ${{ matrix.libxml_version }} by hand
         run: |
           wget https://download.gnome.org/sources/libxml2/$(echo ${{ matrix.libxml_version }} | sed -e 's/\.[0-9]*$//')/libxml2-${{ matrix.libxml_version }}.tar.xz

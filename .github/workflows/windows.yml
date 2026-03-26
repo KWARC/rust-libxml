@@ -12,6 +12,8 @@ jobs:
       VCPKG_ROOT: C:\vcpkg
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: Setup vcpkg libxml2 Cache
         uses: actions/cache@v4
         id: vcpkg-cache
@@ -35,6 +37,8 @@ jobs:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - uses: msys2/setup-msys2@v2
         with:
           path-type: minimal
