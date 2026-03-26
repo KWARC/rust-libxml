@@ -19,7 +19,7 @@ zlib = []
 [build-dependencies]
 cmake = "0.1.57"
 bindgen = "0.72.1"
-
+regex = "1.12.3"
 
 [package.metadata.cross.target.x86_64-pc-windows-gnu]
 pre-build = [
