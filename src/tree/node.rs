@@ -168,6 +168,24 @@ impl Node {
       }
     }
   }
+
+  /// Create a new comment node, bound to a given document. The returned
+  /// node is unlinked — attach it via `add_child`, `add_prev_sibling` or
+  /// `add_next_sibling`.
+  ///
+  /// Returns `Err(())` if the C string cannot be constructed (the comment
+  /// contains an embedded NUL), or if libxml2 returns NULL.
+  pub fn new_comment(content: &str, doc: &Document) -> Result<Self, ()> {
+    let c_content = CString::new(content).map_err(|_| ())?;
+    unsafe {
+      let node = xmlNewDocComment(doc.doc_ptr(), c_content.as_bytes().as_ptr());
+      if node.is_null() {
+        Err(())
+      } else {
+        Ok(Node::wrap_new(node, &doc.0))
+      }
+    }
+  }
   /// Create a mock node, used for a placeholder argument
   pub fn mock(doc: &Document) -> Self {
     Node::new("mock", None, doc).unwrap()

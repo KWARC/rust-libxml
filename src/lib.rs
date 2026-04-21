@@ -26,3 +26,19 @@ pub mod schemas;
 
 /// Read-only parallel primitives
 pub mod readonly;
+
+/// Ensure libxml2's global parser state is initialised. Safe to call from
+/// any number of threads — internally guarded by `std::sync::Once` so the
+/// underlying `xmlInitParser()` runs exactly once. Call this before
+/// performing any libxml2 operations from application code that does
+/// *not* go through the `parser::Parser` API (which initialises lazily).
+///
+/// See libxml2's own thread-safety guidance:
+/// <https://dev.w3.org/XInclude-Test-Suite/libxml2-2.4.24/doc/threads.html>
+pub fn init_parser() {
+  use std::sync::Once;
+  static INIT: Once = Once::new();
+  INIT.call_once(|| unsafe {
+    bindings::xmlInitParser();
+  });
+}
