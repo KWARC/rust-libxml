@@ -43,6 +43,27 @@ fn node_sibling_accessors() {
 }
 
 #[test]
+/// Constructing a comment node, attaching it, and serializing it
+fn node_new_comment() {
+  let mut doc = Document::new().unwrap();
+  let mut root = Node::new("root", None, &doc).unwrap();
+  doc.set_root_element(&root);
+
+  let mut comment = Node::new_comment(" hello ", &doc).unwrap();
+  assert_eq!(comment.get_type(), Some(NodeType::CommentNode));
+  assert!(root.add_child(&mut comment).is_ok());
+
+  let serialized = doc.to_string();
+  assert!(
+    serialized.contains("<!-- hello -->"),
+    "expected comment in serialized doc, got: {serialized}"
+  );
+
+  // Embedded NUL should return Err rather than panic.
+  assert!(Node::new_comment("bad\0content", &doc).is_err());
+}
+
+#[test]
 fn node_children_accessors() {
   // Setup
   let parser = Parser::default();
