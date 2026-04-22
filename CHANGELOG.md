@@ -1,6 +1,23 @@
 # Change Log
 
-## [0.3.9] (in development)
+## [0.3.10] (in development)
+
+## [0.3.9] (2026-04-22)
+
+### Added
+
+* `Node::new_comment` constructor, wrapping `xmlNewDocComment`. Returns an
+  unlinked comment node bound to the given document; propagates an error
+  rather than panicking on embedded NULs.
+* `libxml::init_parser()`, a top-level safe wrapper around
+  `xmlInitParser()` guarded by `std::sync::Once`. Useful for application
+  code that touches libxml2 directly without going through `parser::Parser`.
+
+### Changes
+
+* `Parser::default()` and `Parser::default_html()` now route through
+  `libxml::init_parser()` instead of their own private `Once`, giving a
+  single source of truth for libxml2 parser initialisation.
 
 ## [0.3.8] (2025-25-09)
 
