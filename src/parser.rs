@@ -15,9 +15,6 @@ use std::os::raw::{c_char, c_int};
 use std::ptr;
 use std::slice;
 use std::str;
-use std::sync::Once;
-
-static INIT_LIBXML_PARSER: Once = Once::new();
 
 enum XmlParserOption {
   Recover = 1,
@@ -221,9 +218,7 @@ impl Default for Parser {
   /// Create a parser for XML documents
   fn default() -> Self {
     // avoid deadlocks from using multiple parsers
-    INIT_LIBXML_PARSER.call_once(|| unsafe {
-      crate::bindings::xmlInitParser();
-    });
+    crate::init_parser();
     Parser {
       format: ParseFormat::XML,
     }
@@ -233,9 +228,7 @@ impl Parser {
   /// Create a parser for HTML documents
   pub fn default_html() -> Self {
     // avoid deadlocks from using multiple parsers
-    INIT_LIBXML_PARSER.call_once(|| unsafe {
-      crate::bindings::xmlInitParser();
-    });
+    crate::init_parser();
     Parser {
       format: ParseFormat::HTML,
     }
