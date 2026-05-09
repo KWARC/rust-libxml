@@ -160,7 +160,7 @@ fn test_c14n_modes() {
       </n1:elem2>
   "#.trim();
   let c14n = node2.canonicalize(opts()).unwrap();
-  assert_eq_lines(&expected, &c14n);
+  assert_eq_lines(expected, &c14n);
 
   let opts = CanonicalizationOptions {
     mode: CanonicalizationMode::Canonical1_0,

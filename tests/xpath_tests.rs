@@ -190,7 +190,7 @@ fn cleanup_safely_unlinked_xpath_nodes() {
   }
   drop(xpath);
   drop(doc);
-  assert!(true, "Drops went OK.");
+  // No assertion — reaching this point means the drops did not crash.
 }
 
 #[test]
@@ -223,12 +223,12 @@ mod compile_tests {
   #[test]
   fn can_compile_an_xpath() {
     let compiles = is_well_formed_xpath("//a");
-    assert_eq!(compiles, true);
+    assert!(compiles);
   }
 
   #[test]
   fn invalid_xpath_does_not_compile() {
     let compiles = is_well_formed_xpath("//a[but invalid]");
-    assert_eq!(compiles, false);
+    assert!(!compiles);
   }
 }

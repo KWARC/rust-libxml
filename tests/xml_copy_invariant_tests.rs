@@ -410,7 +410,7 @@ fn xml_copy_node_pair_full_oxide_style() {
     let sub: Document = unsafe {
       let copy = xmlCopyNode(s.node_ptr(), 1);
       assert!(!copy.is_null(), "dup #{i} xmlCopyNode returned NULL");
-      let doc_ptr = xmlNewDoc(b"1.0\0".as_ptr());
+      let doc_ptr = xmlNewDoc(c"1.0".as_ptr() as *const u8);
       xmlDocSetRootElement(doc_ptr, copy);
       xmlSetTreeDoc(copy, doc_ptr);
       let _ = xmlReconciliateNs(doc_ptr, copy);
@@ -455,7 +455,7 @@ fn xml_copy_node_pair_nodict_parse() {
     let doc_ptr = xmlReadMemory(
       xml_bytes.as_ptr() as *const i8,
       xml_bytes.len() as i32,
-      b"file.xml\0".as_ptr() as *const i8,
+      c"file.xml".as_ptr(),
       std::ptr::null(),
       xmlParserOption_XML_PARSE_NODICT as i32,
     );
@@ -473,7 +473,7 @@ fn xml_copy_node_pair_nodict_parse() {
           .unwrap_or(false)
       })
       .collect();
-    let mut detached: Vec<Node> = sections.iter().cloned().collect();
+    let mut detached: Vec<Node> = sections.to_vec();
     for s in detached.iter_mut() {
       s.unlink_node();
     }
