@@ -83,6 +83,7 @@ fn rust_owned_flag_visible_through_clones() {
 ///   3. mark source-side detached nodes `set_rust_owned`
 ///   4. drop them (frees their C subtree)
 ///   5. drop source doc
+///
 /// This test exercises that order.
 fn rust_owned_drops_before_source_doc() {
   let parser = Parser::default();

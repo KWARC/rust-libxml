@@ -94,6 +94,7 @@ impl Drop for _Node {
   ///     source xmlDoc and that xmlDoc still owns the allocation), and
   ///   * Rust-owned (no document references the node; the wrapper
   ///     itself must call xmlFreeNode or memory leaks).
+  ///
   /// Detaching a node from its parent (xmlUnlinkNode) does NOT clear
   /// node->doc — the document still owns the underlying memory and its
   /// xmlFreeDoc will reclaim it. When the wrapper drops, firing
