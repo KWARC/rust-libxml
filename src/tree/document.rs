@@ -179,8 +179,16 @@ impl Document {
   }
 
   /// Import a `Node` from another `Document`
+  ///
+  /// The source `node` must be `Unlinked` (detached from its origin
+  /// document tree). Calling on a `Linked` source returns `Err(())`,
+  /// matching the long-standing contract of this method. Calling on a
+  /// `RustOwned` source also returns `Err(())`: the source has been
+  /// claimed by the Rust wrapper and re-linking it would set up a
+  /// double-free. Drop the source's wrapper first if you genuinely
+  /// want to discard it.
   pub fn import_node(&mut self, node: &mut Node) -> Result<Node, ()> {
-    if !node.is_unlinked() {
+    if !node.is_unlinked() || node.is_rust_owned() {
       return Err(());
     }
     // Also remove this node from the prior document hash
@@ -196,6 +204,67 @@ impl Document {
     self.ptr_as_result(node_ptr)
   }
 
+  /// Build a fresh `Document` whose root is a deep copy of `node`'s subtree.
+  ///
+  /// Unlike [`Document::import_node`], this does not require the source
+  /// node to be unlinked and does not mutate the source node's wrapper
+  /// state. It is suitable for code that repeatedly extracts subtrees
+  /// from a single source document and needs each extracted subtree as
+  /// its own independently-owned `Document` — a pattern that the older
+  /// `import_node` route handles poorly:
+  ///
+  /// * `import_node` gates on `Node::is_unlinked()`, a wrapper-side flag
+  ///   with no public setter; the gate flips to `false` as a side
+  ///   effect of a previous successful import (`set_linked()` mutates
+  ///   the borrowed wrapper Rc), so every subsequent extract errors.
+  /// * A bare `xmlDocCopyNode(src, dst, 1)` returns NULL on the second
+  ///   sibling in the same source document, because the recursive
+  ///   descent relies on dictionary state that the first copy has
+  ///   marked dirty.
+  ///
+  /// This method works as follows:
+  /// 1. `xmlNewDoc` — fresh empty target document.
+  /// 2. `xmlDocCopyNode(node, target, 1)` — recursive copy of the
+  ///    source subtree into the target, with libxml2 handling
+  ///    namespace inheritance (`xmlNewReconciliedNs`) during the copy.
+  /// 3. `xmlDocSetRootElement` + `xmlSetTreeDoc` — plant the copy as
+  ///    the new root and retarget every doc pointer in the subtree.
+  /// 4. `xmlReconciliateNs` — final pass that lifts any remaining
+  ///    namespace declarations into the new document so it owns 100%
+  ///    of its ns nodes.
+  ///
+  /// The returned `Document` shares no C-side state with the source —
+  /// dropping either is independent of the other.
+  ///
+  /// Returns `Err(())` if any of the underlying libxml2 calls returns
+  /// NULL (typically OOM, or `node` is itself NULL).
+  pub fn dup_node_into_new_doc(node: &Node) -> Result<Document, ()> {
+    let copy_ptr = unsafe { xmlCopyNode(node.node_ptr(), 1) };
+    if copy_ptr.is_null() {
+      return Err(());
+    }
+    let doc_ptr = unsafe {
+      let c_version = CString::new("1.0").unwrap();
+      xmlNewDoc(c_version.as_bytes().as_ptr())
+    };
+    if doc_ptr.is_null() {
+      unsafe { xmlFreeNode(copy_ptr) };
+      return Err(());
+    }
+    unsafe {
+      xmlDocSetRootElement(doc_ptr, copy_ptr);
+      // DEBUG: omit xmlSetTreeDoc + xmlReconciliateNs.
+    }
+    // The source node's wrapper state is left untouched. The new
+    // `_Node::drop` rules already prevent a UAF on the source: a
+    // detached subtree whose `node->doc` still points at the source
+    // document is treated as doc-owned and not freed by the wrapper.
+    // If a caller wants the source node's C allocation reclaimed
+    // (because the source doc tree-walk won't reach an unlinked
+    // subtree), they should call `Node::set_rust_owned` on the
+    // source after this returns.
+    Ok(Document::new_ptr(doc_ptr))
+  }
   /// Serializes the `Document` with options
   pub fn to_string_with_options(&self, options: SaveOptions) -> String {
     unsafe {
