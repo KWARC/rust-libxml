@@ -522,6 +522,16 @@ impl RoNode {
   pub fn is_unlinked(self) -> bool {
     false
   }
+
+  /// Read-only nodes are always document-owned.
+  ///
+  /// Mirrors `Node::is_rust_owned` for API uniformity. `RoNode` is a
+  /// `Copy` borrow into a document tree owned by a parent `Document`;
+  /// it has no `Drop` and cannot take ownership of the C allocation,
+  /// so this is unconditionally `false`.
+  pub fn is_rust_owned(self) -> bool {
+    false
+  }
   /// Read-only nodes only need a null check
   fn ptr_as_option(self, node_ptr: xmlNodePtr) -> Option<RoNode> {
     if node_ptr.is_null() {
