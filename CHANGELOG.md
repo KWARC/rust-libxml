@@ -1,6 +1,22 @@
 # Change Log
 
-## [0.3.10] (in development)
+## [0.3.10] (2026-05-09)
+
+### Added
+
+* `Node::set_rust_owned` / `Node::is_rust_owned` (and `RoNode::is_rust_owned`)
+  for explicit ownership transfer of detached subtrees. Lets callers reclaim
+  unlinked nodes that would otherwise leak.
+* `Document::dup_node_into_new_doc` — deep-copy a subtree into a fresh
+  independent document. Works around `xmlDocCopyNode` returning NULL on
+  repeated extraction within one source document.
+
+### Fixed
+
+* `_Node::Drop` no longer fires `xmlFreeNode` against memory the source
+  document still owns. Internally backed by a 3-variant `Linkage` enum
+  (`Linked` / `Unlinked` / `RustOwned`) replacing the prior `unlinked: bool`.
+* `Document::import_node` now rejects `RustOwned` source nodes.
 
 ## [0.3.9] (2026-04-22)
 
