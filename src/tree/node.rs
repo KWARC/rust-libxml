@@ -30,14 +30,40 @@ pub fn set_node_rc_guard(value: usize) {
 
 type NodeRef = Rc<RefCell<_Node>>;
 
+/// Lifecycle state of a wrapped libxml2 node.
+///
+/// The three variants correspond to disjoint lifetime-ownership regimes
+/// that drive `_Node`'s `Drop` behavior:
+///
+/// * `Linked` — the node is attached to its document tree. The owning
+///   document's `xmlFreeDoc` will reclaim it; the wrapper must not free.
+/// * `Unlinked` — `xmlUnlinkNode` has detached the node from its
+///   parent/siblings, but `node->doc` still points at the source xmlDoc.
+///   The source still owns the C allocation. The wrapper must not free
+///   unless `node->doc` itself is NULL (a true C-level orphan).
+/// * `RustOwned` — the caller has explicitly transferred ownership to
+///   the Rust wrapper via `Node::set_rust_owned`. The C allocation will
+///   be freed via `xmlFreeNode` when the last `Node` clone drops,
+///   regardless of `node->doc`.
+///
+/// The state-space is intentionally smaller than `(unlinked: bool,
+/// rust_owned: bool)`: `(Linked, RustOwned)` is meaningless, so we make
+/// it unrepresentable.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Linkage {
+  Linked,
+  Unlinked,
+  RustOwned,
+}
+
 #[derive(Debug)]
 struct _Node {
   /// libxml's xmlNodePtr
   node_ptr: xmlNodePtr,
   /// Reference to parent `Document`
   document: DocumentWeak,
-  /// Bookkeep removal from a parent
-  unlinked: bool,
+  /// Lifecycle state — see `Linkage` for the semantics of each variant.
+  linkage: Linkage,
 }
 
 /// An xml node
@@ -61,16 +87,59 @@ impl PartialEq for Node {
 impl Eq for Node {}
 
 impl Drop for _Node {
-  /// Free node if it isn't bound in some document
-  /// Warning: xmlFreeNode is RECURSIVE into the node's children, so this may lead to segfaults if used carelessly
+  /// Free the C node if and only if it has been detached from any
+  /// libxml2 document. The historical heuristic — "free if the wrapper
+  /// is `unlinked`" — conflates two distinct states:
+  ///   * tree-detached (parent==NULL, but doc still points at the
+  ///     source xmlDoc and that xmlDoc still owns the allocation), and
+  ///   * Rust-owned (no document references the node; the wrapper
+  ///     itself must call xmlFreeNode or memory leaks).
+  /// Detaching a node from its parent (xmlUnlinkNode) does NOT clear
+  /// node->doc — the document still owns the underlying memory and its
+  /// xmlFreeDoc will reclaim it. When the wrapper drops, firing
+  /// xmlFreeNode in that situation is a use-after-free in waiting:
+  /// any other Rust wrapper or C-side reference to the same xmlNodePtr
+  /// (a sibling's prev/next, the document's idtable, an ID lookup that
+  /// hasn't run yet) sees freed memory.
+  ///
+  /// We now key the free on the C-level node->doc field: if it's NULL
+  /// the node is truly orphan and we own it; otherwise the source
+  /// document is the lifetime owner. This matches what xmlAddChild /
+  /// xmlDocSetRootElement / xmlSetTreeDoc actually do — they install a
+  /// doc pointer to claim ownership, and xmlUnlinkNode preserves that
+  /// pointer because it only severs sibling/parent links.
+  ///
+  /// Real-world driver: a host application that detaches sibling
+  /// subtrees from a still-live source document, copies them out via
+  /// xmlCopyNode, and then drops the wrapper for each detached
+  /// subtree. Under the old `unlinked`-based rule, every wrapper drop
+  /// fired xmlFreeNode against memory that the source doc still
+  /// considered live, corrupting its dictionary and causing the next
+  /// xmlCopyNode against a sibling to return NULL.
   fn drop(&mut self) {
-    if self.unlinked {
-      let node_ptr = self.node_ptr;
-      if !node_ptr.is_null() {
-        unsafe {
-          xmlFreeNode(node_ptr);
+    let node_ptr = self.node_ptr;
+    if node_ptr.is_null() {
+      return;
+    }
+    match self.linkage {
+      // Source document owns the allocation; `xmlFreeDoc` will reclaim
+      // it. Firing `xmlFreeNode` here would be a use-after-free in
+      // waiting (sibling/parent links, ID table, prev clones).
+      Linkage::Linked => {}
+      // Detached, but `node->doc` still points at the source. Free only
+      // if `node->doc` is NULL — a true C-level orphan no document will
+      // reach via tree walks.
+      Linkage::Unlinked => {
+        let still_doc_owned = unsafe {
+          let n: *const crate::bindings::_xmlNode = node_ptr as *const _;
+          !(*n).doc.is_null()
+        };
+        if !still_doc_owned {
+          unsafe { xmlFreeNode(node_ptr) };
         }
       }
+      // Caller took ownership; the wrapper is the sole lifetime owner.
+      Linkage::RustOwned => unsafe { xmlFreeNode(node_ptr) },
     }
   }
 }
@@ -138,7 +207,11 @@ impl Node {
     let node = _Node {
       node_ptr,
       document: Rc::downgrade(document),
-      unlinked,
+      linkage: if unlinked {
+        Linkage::Unlinked
+      } else {
+        Linkage::Linked
+      },
     };
     let wrapped_node = Node(Rc::new(RefCell::new(node)));
     document
@@ -196,7 +269,7 @@ impl Node {
     Node(Rc::new(RefCell::new(_Node {
       node_ptr: ptr::null_mut(),
       document: Rc::downgrade(&Document::null_ref()),
-      unlinked: true,
+      linkage: Linkage::Unlinked,
     })))
   }
 
@@ -991,9 +1064,29 @@ impl Node {
   }
 
   /// Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
-  ///   If the node is not inserted into the DOM afterwards, it will be lost after the program terminates.
-  ///   From a low level view, the unbound node is stripped
-  ///   from the context it is and inserted into a (hidden) document-fragment.
+  ///
+  /// At the libxml2 level, `xmlUnlinkNode` severs `parent`/`prev`/`next`
+  /// links but **leaves `node->doc` set** — the source document is
+  /// still recorded as the lifetime owner of the underlying allocation.
+  /// Consequences for subsequent handling:
+  ///
+  /// * **Re-attach** the node into a tree (via `add_child`,
+  ///   `add_prev_sibling`, `add_next_sibling`, or
+  ///   `Document::set_root_element`). Lifetime stays with the source
+  ///   document; nothing more to do.
+  /// * **Copy it out** into a new document via
+  ///   [`Document::dup_node_into_new_doc`] (or a comparable libxml2
+  ///   path). The copy is independent; the original is still detached.
+  /// * **Discard the original**: call [`Node::set_rust_owned`] on it.
+  ///   The wrapper's `Drop` will then `xmlFreeNode` the C subtree when
+  ///   the last clone drops. Without this call, the detached subtree
+  ///   leaks: the wrapper's `Drop` is a no-op (it must be, to avoid
+  ///   freeing memory the source document still considers live), and
+  ///   the source document's eventual `xmlFreeDoc` walks the tree
+  ///   topology, so it never reaches a parent==NULL subtree.
+  ///
+  /// In short: an unlinked node that is *neither* re-attached *nor*
+  /// marked `set_rust_owned` is a leak until process exit.
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
     if node_type != Some(NodeType::DocumentNode)
@@ -1021,8 +1114,53 @@ impl Node {
   }
 
   /// Checks if node is marked as unlinked
+  ///
+  /// Returns `true` for both `Unlinked` and `RustOwned` states — both
+  /// are detached from any document tree.
   pub fn is_unlinked(&self) -> bool {
-    self.0.borrow().unlinked
+    !matches!(self.0.borrow().linkage, Linkage::Linked)
+  }
+
+  /// Take ownership of this detached node's C allocation.
+  ///
+  /// After this call, the C node will be freed via `xmlFreeNode` when the
+  /// last `Node` clone drops, regardless of whether `node->doc` is still
+  /// set. The flag is sticky and propagates to every clone (they share
+  /// the same `_Node`), so transferring ownership once is sufficient.
+  ///
+  /// Use this on a subtree that has been:
+  ///   1. detached from its parent via `unlink_node`, AND
+  ///   2. either copied out into another document (e.g. via
+  ///      `Document::dup_node_into_new_doc`) or otherwise will not be
+  ///      re-attached to any tree.
+  ///
+  /// Without this call, detached nodes are *not* freed by the wrapper —
+  /// they remain attributed to `node->doc` for safety, and `xmlFreeDoc`
+  /// reclaims them only if they're still reachable from the doc root.
+  /// A subtree that has been unlinked but not re-attached and not marked
+  /// rust-owned will leak until process exit.
+  ///
+  /// # Safety preconditions
+  ///
+  /// Calling this on a node that is still `Linked` (part of a document
+  /// tree) is **undefined behavior**: the node's later free will leave
+  /// dangling pointers in its former parent / siblings / ID table. The
+  /// wrapper cannot cheaply verify this, so the caller must guarantee
+  /// it. In debug builds we panic if the precondition is obviously
+  /// violated.
+  pub fn set_rust_owned(&self) {
+    let mut inner = self.0.borrow_mut();
+    debug_assert!(
+      !matches!(inner.linkage, Linkage::Linked),
+      "set_rust_owned called on a Linked node — call unlink_node first"
+    );
+    inner.linkage = Linkage::RustOwned;
+  }
+
+  /// Returns whether the C allocation is owned by the Rust wrapper.
+  /// See `set_rust_owned`.
+  pub fn is_rust_owned(&self) -> bool {
+    matches!(self.0.borrow().linkage, Linkage::RustOwned)
   }
 
   fn ptr_as_option(&self, node_ptr: xmlNodePtr) -> Option<Node> {
@@ -1035,14 +1173,39 @@ impl Node {
     }
   }
 
-  /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree
+  /// internal helper to ensure the node is marked as linked/imported/adopted in the main document tree.
+  ///
+  /// Transitions from `Unlinked` to `Linked`. If the node is already
+  /// `RustOwned`, this is a no-op in release builds and a debug-assert
+  /// failure in debug builds: the caller has explicitly taken ownership
+  /// and re-linking it would set up a guaranteed double-free
+  /// (the new parent's `xmlFreeDoc` will free the subtree, then this
+  /// wrapper's `Drop` will free it again). There is no public path to
+  /// untake ownership; the right fix is for the caller to never re-link
+  /// a `RustOwned` node.
   pub(crate) fn set_linked(&self) {
-    self.0.borrow_mut().unlinked = false;
+    let mut inner = self.0.borrow_mut();
+    debug_assert!(
+      !matches!(inner.linkage, Linkage::RustOwned),
+      "set_linked called on a RustOwned node — re-linking would set up a double free; \
+       drop the wrapper before re-attaching, or do not call set_rust_owned"
+    );
+    if matches!(inner.linkage, Linkage::Unlinked) {
+      inner.linkage = Linkage::Linked;
+    }
   }
 
-  /// internal helper to ensure the node is marked as unlinked/removed from the main document tree
+  /// internal helper to ensure the node is marked as unlinked/removed from the main document tree.
+  ///
+  /// Transitions from `Linked` to `Unlinked`. Leaves `RustOwned`
+  /// untouched — that variant already implies "detached".
   pub(crate) fn set_unlinked(&self) {
-    self.0.borrow_mut().unlinked = true;
+    {
+      let mut inner = self.0.borrow_mut();
+      if matches!(inner.linkage, Linkage::Linked) {
+        inner.linkage = Linkage::Unlinked;
+      }
+    }
     self
       .get_docref()
       .upgrade()
