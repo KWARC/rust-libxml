@@ -453,11 +453,11 @@ fn xml_copy_node_pair_nodict_parse() {
   let xml_bytes = xml.as_bytes();
   unsafe {
     let doc_ptr = xmlReadMemory(
-      xml_bytes.as_ptr() as *const i8,
-      xml_bytes.len() as i32,
+      xml_bytes.as_ptr() as *const ::std::os::raw::c_char,
+      xml_bytes.len() as ::std::os::raw::c_int,
       c"file.xml".as_ptr(),
       std::ptr::null(),
-      xmlParserOption_XML_PARSE_NODICT as i32,
+      xmlParserOption_XML_PARSE_NODICT as ::std::os::raw::c_int,
     );
     assert!(!doc_ptr.is_null(), "xmlReadMemory returned NULL");
     let doc = Document::new_ptr(doc_ptr);
