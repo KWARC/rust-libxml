@@ -3,8 +3,8 @@ on: [push, pull_request]
 name: CI Linux
 
 jobs:
-  test:
-    name: rust-libxml CI
+  test-amd64:
+    name: rust-libxml amd64 CI
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,6 +17,25 @@ jobs:
       - name: Set up LIBXML2 env var if compiling with the default bindings
         run: echo "LIBXML2=$(pkg-config libxml-2.0 --variable=libdir)/libxml2.so" >> "$GITHUB_ENV"
         if: ${{ matrix.with_default_bindings }}
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+  test-arm64:
+    name: rust-libxml arm64 CI
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: install dependencies
+        uses: ryankurte/action-apt@v0.2.0
+        with:
+          packages: "libxml2-dev"
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
