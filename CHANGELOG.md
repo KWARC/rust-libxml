@@ -18,16 +18,14 @@
 * Whole-crate clippy pass: `cargo clippy --fix --all-targets` plus
   manual touch-ups so the workspace builds warning-free on the
   current stable.
+* Added an arm64 build/test job to `.github/workflows/CI.yml`
+  (thanks @wetneb).
 
 ### Fixed
 
 * Test suite portability on ARM64 — switched to portable types in
   `tests/xml_copy_invariant_tests.rs` so the cross-platform CI run
-  (new arm64 GitHub Actions job) passes alongside x86_64.
-
-### CI
-
-* Added an arm64 build/test job to `.github/workflows/CI.yml`.
+  passes alongside x86_64 (thanks @wetneb).
 
 ## [0.3.10] (2026-05-09)
 
