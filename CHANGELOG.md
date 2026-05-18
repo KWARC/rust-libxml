@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.3.11] (in development)
+
+### Added
+
+* `Document::remove_internal_subset`, a safe wrapper around
+  `xmlGetIntSubset` + `xmlUnlinkNode` + `xmlFreeDtd`. Mirrors
+  XML::LibXML's `Document::removeInternalSubset` (Perl): drops the
+  internal DTD node so subsequent serialisation no longer emits the
+  `<!DOCTYPE …>` preamble. Idempotent, safe on doctype-less
+  documents.
+
 ## [0.3.10] (2026-05-09)
 
 ### Added
