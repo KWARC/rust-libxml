@@ -64,6 +64,54 @@ fn node_new_comment() {
 }
 
 #[test]
+/// `Document::remove_internal_subset` strips the DOCTYPE preamble
+/// from a parsed document, mirroring XML::LibXML's
+/// `removeInternalSubset`.
+fn document_remove_internal_subset() {
+  let parser = Parser::default();
+  let xml = r#"<?xml version="1.0"?>
+<!DOCTYPE root SYSTEM "example.dtd">
+<root><child>hi</child></root>"#;
+  let mut doc = parser.parse_string(xml).expect("parse");
+
+  // Before removal: serialisation includes the DOCTYPE.
+  let before = doc.to_string();
+  assert!(
+    before.contains("<!DOCTYPE"),
+    "expected DOCTYPE in serialized doc before remove, got: {before}"
+  );
+
+  doc.remove_internal_subset();
+
+  // After: no DOCTYPE preamble, root element untouched.
+  let after = doc.to_string();
+  assert!(
+    !after.contains("<!DOCTYPE"),
+    "DOCTYPE still present after remove_internal_subset: {after}"
+  );
+  assert!(after.contains("<root>"));
+  assert!(after.contains("<child>hi</child>"));
+
+  // Idempotent: second call on a subset-less doc is a no-op.
+  doc.remove_internal_subset();
+  let after2 = doc.to_string();
+  assert_eq!(after, after2);
+}
+
+#[test]
+/// `Document::remove_internal_subset` on a doc without a DTD is a no-op.
+fn document_remove_internal_subset_no_doctype_noop() {
+  let parser = Parser::default();
+  let mut doc = parser
+    .parse_string(r#"<?xml version="1.0"?><root/>"#)
+    .expect("parse");
+  let before = doc.to_string();
+  doc.remove_internal_subset();
+  let after = doc.to_string();
+  assert_eq!(before, after);
+}
+
+#[test]
 fn node_children_accessors() {
   // Setup
   let parser = Parser::default();

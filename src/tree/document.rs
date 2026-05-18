@@ -169,6 +169,25 @@ impl Document {
     root.set_linked();
   }
 
+  /// Remove the internal DTD subset (the `<!DOCTYPE …>` declaration)
+  /// from this document, if any. Mirrors XML::LibXML's
+  /// `Document::removeInternalSubset` (Perl) and the effect of
+  /// libxml2's `xmlSetIntSubset(doc, NULL)` — subsequent
+  /// serialisation no longer emits the DOCTYPE preamble.
+  ///
+  /// Safe to call on a document with no internal subset (no-op).
+  /// Unlinks the DTD node from the document and frees it via
+  /// `xmlFreeDtd`.
+  pub fn remove_internal_subset(&mut self) {
+    unsafe {
+      let dtd = xmlGetIntSubset(self.doc_ptr());
+      if !dtd.is_null() {
+        xmlUnlinkNode(dtd as xmlNodePtr);
+        xmlFreeDtd(dtd);
+      }
+    }
+  }
+
   fn ptr_as_result(&mut self, node_ptr: xmlNodePtr) -> Result<Node, ()> {
     if node_ptr.is_null() {
       Err(())
