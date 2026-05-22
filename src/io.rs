@@ -37,8 +37,17 @@
 //! has no concept of "unregister single handler" (only
 //! `xmlCleanupInputCallbacks` which wipes everything including the
 //! defaults). The trampolines look up the Rust closures through a
-//! `Mutex<Vec<Callback>>`; libxml2 may invoke them from any thread,
-//! hence the `Send + Sync` bound.
+//! process-static `Mutex<Vec<Arc<Callback>>>`; libxml2 may invoke
+//! them from any thread, hence the `Send + Sync` bound.
+//!
+//! Trampolines snapshot the registry (cheap `Arc` clone) and drop
+//! the lock *before* invoking the user closure, so a closure that
+//! re-enters libxml2 (e.g. parses a manifest to decide what to
+//! serve) won't self-deadlock against the non-reentrant `Mutex`.
+//!
+//! Closures **must not panic**. A panic unwinding across the
+//! `extern "C"` trampoline aborts the process on Rust 2024+. If
+//! your `open` may fail, return `None` rather than panicking.
 //!
 //! ## Order
 //!
@@ -50,12 +59,12 @@
 //! callbacks claim via their match function.
 
 use std::ffi::{CStr, c_char, c_int, c_void};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 
-use crate::bindings::{
-  xmlInputCloseCallback, xmlInputMatchCallback, xmlInputOpenCallback, xmlInputReadCallback,
-  xmlRegisterInputCallbacks,
-};
+use crate::bindings::xmlRegisterInputCallbacks;
+
+type MatchFn = Box<dyn Fn(&str) -> bool + Send + Sync + 'static>;
+type OpenFn = Box<dyn Fn(&str) -> Option<Vec<u8>> + Send + Sync + 'static>;
 
 /// One Rust-side callback pair: a URL filter and a byte-fetcher.
 ///
@@ -64,14 +73,30 @@ use crate::bindings::{
 /// `match_url` returned `true`; in that case the trampoline keeps
 /// walking — the next registered callback gets a chance.
 struct Callback {
-  match_url: Box<dyn Fn(&str) -> bool + Send + Sync + 'static>,
-  open:      Box<dyn Fn(&str) -> Option<Vec<u8>> + Send + Sync + 'static>,
+  match_url: MatchFn,
+  open:      OpenFn,
 }
 
 /// Registry of Rust callbacks. Initialised on first registration.
-fn callbacks() -> &'static Mutex<Vec<Callback>> {
-  static CALLBACKS: OnceLock<Mutex<Vec<Callback>>> = OnceLock::new();
+/// Stored as `Arc<Callback>` so the trampolines can snapshot the
+/// list under the lock and drop the guard before invoking a
+/// closure — see `snapshot`.
+fn callbacks() -> &'static Mutex<Vec<Arc<Callback>>> {
+  static CALLBACKS: OnceLock<Mutex<Vec<Arc<Callback>>>> = OnceLock::new();
   CALLBACKS.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+/// Atomic view of the registry. Each entry is an `Arc`, so cloning
+/// the `Vec` is just refcount bumps. Returned by value with the
+/// lock already dropped, so callers can iterate without holding the
+/// mutex across user-closure invocations (which could otherwise
+/// re-enter libxml2 → trampoline → `callbacks().lock()` and
+/// self-deadlock).
+fn snapshot() -> Vec<Arc<Callback>> {
+  match callbacks().lock() {
+    Ok(g) => g.clone(),
+    Err(_) => Vec::new(),
+  }
 }
 
 /// Register a custom input callback with libxml2.
@@ -125,10 +150,10 @@ where
   M: Fn(&str) -> bool + Send + Sync + 'static,
   O: Fn(&str) -> Option<Vec<u8>> + Send + Sync + 'static,
 {
-  callbacks().lock().unwrap().push(Callback {
+  callbacks().lock().unwrap().push(Arc::new(Callback {
     match_url: Box::new(match_url),
     open:      Box::new(open),
-  });
+  }));
 
   // Install the C trampolines exactly once. libxml2 records the
   // function pointers in a static table; calling
@@ -138,34 +163,19 @@ where
   static REGISTERED: OnceLock<()> = OnceLock::new();
   REGISTERED.get_or_init(|| {
     crate::init_parser();
+    // `Some(trampoline_*)` coerces to the matching bindgen
+    // `Option<unsafe extern "C" fn(...)>` alias. If bindgen ever
+    // regenerates the signatures differently, this fails to compile.
     unsafe {
       xmlRegisterInputCallbacks(
-        Some(trampoline_match as xmlInputMatchCallback_t),
-        Some(trampoline_open as xmlInputOpenCallback_t),
-        Some(trampoline_read as xmlInputReadCallback_t),
-        Some(trampoline_close as xmlInputCloseCallback_t),
+        Some(trampoline_match),
+        Some(trampoline_open),
+        Some(trampoline_read),
+        Some(trampoline_close),
       );
     }
   });
 }
-
-// Type aliases for the inner `Option`-wrapped function pointers
-// libxml2 expects. Keeps the unsafe-cast site at `register_input_callback`
-// concise and self-documenting.
-type xmlInputMatchCallback_t = unsafe extern "C" fn(*const c_char) -> c_int;
-type xmlInputOpenCallback_t = unsafe extern "C" fn(*const c_char) -> *mut c_void;
-type xmlInputReadCallback_t = unsafe extern "C" fn(*mut c_void, *mut c_char, c_int) -> c_int;
-type xmlInputCloseCallback_t = unsafe extern "C" fn(*mut c_void) -> c_int;
-
-// Compile-time sanity: the function-pointer type aliases above must
-// be ABI-compatible with the libxml2 callback signatures from the
-// generated bindings. If bindgen ever regenerates them differently
-// (e.g. switches to a different `*const`/`*mut` flavour), this
-// assertion fires at compile time.
-const _: xmlInputMatchCallback = Some(trampoline_match);
-const _: xmlInputOpenCallback = Some(trampoline_open);
-const _: xmlInputReadCallback = Some(trampoline_read);
-const _: xmlInputCloseCallback = Some(trampoline_close);
 
 /// Per-open state: a byte buffer + read cursor. Owned by libxml2 via
 /// a `*mut c_void` handle until `trampoline_close` reclaims and drops it.
@@ -187,11 +197,7 @@ unsafe extern "C" fn trampoline_match(filename: *const c_char) -> c_int {
     Ok(s) => s,
     Err(_) => return 0,
   };
-  let cbs = match callbacks().lock() {
-    Ok(g) => g,
-    Err(_) => return 0,
-  };
-  for cb in cbs.iter() {
+  for cb in snapshot() {
     if (cb.match_url)(url) {
       return 1;
     }
@@ -211,11 +217,10 @@ unsafe extern "C" fn trampoline_open(filename: *const c_char) -> *mut c_void {
     Ok(s) => s,
     Err(_) => return std::ptr::null_mut(),
   };
-  let cbs = match callbacks().lock() {
-    Ok(g) => g,
-    Err(_) => return std::ptr::null_mut(),
-  };
-  for cb in cbs.iter() {
+  // Walk newest-first so the most recent registration wins —
+  // matches libxml2's own callback-table semantics and the
+  // module-level docs.
+  for cb in snapshot().iter().rev() {
     if !(cb.match_url)(url) {
       continue;
     }
@@ -277,34 +282,11 @@ mod tests {
   use super::*;
   use crate::bindings::{xmlFreeDoc, xmlReadFile};
   use std::ffi::CString;
-  use std::sync::OnceLock;
 
   static SAMPLE_XML: &[u8] = br#"<?xml version="1.0"?>
 <root attr="ok"><child/></root>"#;
 
-  /// Install the test callback exactly once per process. The libxml2
-  /// callback table is process-global; stacking the same callback
-  /// across `#[test]` runs would still work (last registered wins via
-  /// the registry walk) but adds noise — keep the registry to one
-  /// entry for determinism.
-  fn install_once() {
-    static ONCE: OnceLock<()> = OnceLock::new();
-    ONCE.get_or_init(|| {
-      register_input_callback(
-        |url| url.starts_with("embed:///"),
-        |url| {
-          if url == "embed:///sample.xml" {
-            Some(SAMPLE_XML.to_vec())
-          } else {
-            None
-          }
-        },
-      );
-    });
-  }
-
-  /// Call libxml2's `xmlReadFile` directly. Used by the tests to
-  /// exercise the URL-routed parser path — `Parser::parse_file`
+  /// Call libxml2's `xmlReadFile` directly. `Parser::parse_file`
   /// short-circuits through Rust file I/O so our callbacks aren't
   /// involved there. Production use is identical to what `libxslt`
   /// does internally when resolving `xsl:import` against a base URI:
@@ -323,34 +305,64 @@ mod tests {
     }
   }
 
+  /// Three scenarios bundled into one `#[test]` so they execute
+  /// sequentially. libxml2 prior to 2.13 has a thread-safety bug in
+  /// the input-callback / global-error path that deadlocks concurrent
+  /// `xmlReadFile` calls — under cargo's default parallel test runner
+  /// the three scenarios would hang the process on a 2.12.x build.
+  /// Bundling sidesteps that without forcing every contributor to
+  /// remember `--test-threads=1`. (2.13+ runs them concurrently fine,
+  /// but we keep the bundling for portability.)
   #[test]
-  fn callback_serves_registered_url() {
-    install_once();
+  fn input_callback_scenarios() {
+    register_input_callback(
+      |url| url.starts_with("embed:///"),
+      |url| {
+        if url == "embed:///sample.xml" {
+          Some(SAMPLE_XML.to_vec())
+        } else {
+          None
+        }
+      },
+    );
+
+    // 1. Registered URL parses via the callback.
     assert!(
       read_file_via_libxml2("embed:///sample.xml"),
       "registered URL should parse via the callback",
     );
-  }
 
-  #[test]
-  fn callback_can_decline_via_none() {
-    install_once();
+    // 2. `open` returning `None` declines the load (rather than
+    //    producing phantom data).
     assert!(
       !read_file_via_libxml2("embed:///unknown.xml"),
       "decline (open returning None) should fail the load, not return phantom data",
     );
-  }
 
-  #[test]
-  fn non_matching_url_defers_to_default_handlers() {
-    install_once();
-    // A file:// URL that doesn't exist must fall through to libxml2's
-    // built-in file handler and fail there — confirms our match
-    // callback returns 0 for unrelated URLs (otherwise we'd intercept
-    // and break every default load).
+    // 3. An unrelated absolute path falls through to libxml2's
+    //    built-in file handler and fails there — confirms our match
+    //    callback returns 0 for non-`embed:///` URLs, otherwise we'd
+    //    intercept and break every default load.
     assert!(
       !read_file_via_libxml2("/nonexistent/definitely/missing.xml"),
       "non-embed URL should fail through the default loader",
+    );
+
+    // 4. A re-entrant closure: `open` calls back into libxml2 via
+    //    `xmlReadFile` for a *different* URL, which itself routes
+    //    through the trampolines. Without the snapshot-then-drop-lock
+    //    pattern in the trampolines, this would self-deadlock on the
+    //    non-reentrant registry `Mutex`.
+    register_input_callback(
+      |url| url == "reentrant:///outer",
+      |_url| {
+        let _inner_ok = read_file_via_libxml2("embed:///sample.xml");
+        Some(SAMPLE_XML.to_vec())
+      },
+    );
+    assert!(
+      read_file_via_libxml2("reentrant:///outer"),
+      "callback should be able to re-enter libxml2 without deadlocking on the registry mutex",
     );
   }
 }

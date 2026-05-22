@@ -14,8 +14,11 @@
   resolution can reach into the embedded byte tables without ever
   touching the disk. Closures run on whatever thread libxml2 invokes
   the callbacks from; the `Send + Sync + 'static` bound reflects that.
-  Three unit tests cover the happy path, opt-out via `None`, and
-  defer-to-default behaviour for unmatched URLs.
+  A single unit test bundles three scenarios (happy path, opt-out
+  via `None`, defer-to-default for unmatched URLs); the scenarios
+  share one `#[test]` so they execute sequentially, sidestepping a
+  thread-safety bug in libxml2's input-callback path on versions
+  prior to 2.13.
 
 ## [0.3.11] (2026-05-18)
 
