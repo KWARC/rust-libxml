@@ -27,6 +27,11 @@ pub mod schemas;
 /// Read-only parallel primitives
 pub mod readonly;
 
+/// Custom input callbacks for `xmlRegisterInputCallbacks` — bundle
+/// XSLT stylesheets / RNG schemas inside the binary and serve them
+/// through a user-defined URL scheme (e.g. `embed:///foo.xsl`).
+pub mod io;
+
 /// Ensure libxml2's global parser state is initialised. Safe to call from
 /// any number of threads — internally guarded by `std::sync::Once` so the
 /// underlying `xmlInitParser()` runs exactly once. Call this before

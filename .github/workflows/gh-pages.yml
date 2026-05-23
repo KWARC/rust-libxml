@@ -4,6 +4,11 @@ on:
             - master
 
 name: Publish Docs
+
+# Deploy step pushes the rendered docs to the gh-pages branch.
+permissions:
+  contents: write
+
 jobs:
   publish_docs:
     if: github.repository == 'KWARC/rust-libxml'
@@ -11,23 +16,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: install dependencies
-      uses: ryankurte/action-apt@v0.2.0
-      with:
-        packages: "libxml2-dev"
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libxml2-dev
     - name: Set up LIBXML2 env var if compiling with the default bindings
       run: echo "LIBXML2=$(pkg-config libxml-2.0 --variable=libdir)/libxml2.so" >> "$GITHUB_ENV"
-    - uses: actions-rs/toolchain@v1
-      with:
-          profile: minimal
-          toolchain: stable
-          override: true
     - name: Checkout sources
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
+    - uses: dtolnay/rust-toolchain@stable
     - name: Build Documentation
-      uses: actions-rs/cargo@v1
-      with:
-        command: doc
-        args: --all --no-deps
+      run: cargo doc --all --no-deps
 
     - name: Deploy Documentation
       env:

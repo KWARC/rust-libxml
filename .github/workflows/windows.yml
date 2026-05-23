@@ -2,16 +2,20 @@ on: [push, pull_request]
 
 name: CI Windows
 
+# Least privilege: this workflow only reads the repo and runs tests.
+permissions:
+  contents: read
+
 jobs:
   test-default-windows:
     name: Windows vcpkg (default)
     runs-on: windows-latest
-    env: 
+    env:
       VCPKGRS_DYNAMIC: 1
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKG_ROOT: C:\vcpkg
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup vcpkg libxml2 Cache
         uses: actions/cache@v4
         id: vcpkg-cache
@@ -23,9 +27,7 @@ jobs:
           vcpkg install libxml2:x64-windows
           vcpkg integrate install
       - name: run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: cargo test
 
   test-mingw64-windows:
     name: Windows (mingw64)
@@ -34,7 +36,7 @@ jobs:
       run:
         shell: msys2 {0}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: msys2/setup-msys2@v2
         with:
           path-type: minimal
@@ -45,14 +47,18 @@ jobs:
             mingw64/mingw-w64-x86_64-pkg-config
             mingw64/mingw-w64-x86_64-libxml2
       - name: Install stable windows-gnu Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable-x86_64-pc-windows-gnu
-          target: x86_64-pc-windows-gnu
-          override: true
+          targets: x86_64-pc-windows-gnu
       - name: Ensure mingw64 pkg-config is in path
         run: echo "C:\msys64\mingw64\bin" >> "$GITHUB_PATH"
+      # Run cargo in the default Windows shell, not the job's msys2 shell:
+      # rustup installs cargo to the Windows user profile, which
+      # `path-type: minimal` strips from the msys2 PATH (exit 127). The old
+      # actions-rs/cargo step ran in the runner's Windows context too, never
+      # msys2. mingw64/bin is on PATH via the step above, so pkg-config, gcc,
+      # and the libxml2 DLLs still resolve for the windows-gnu build.
       - name: run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        shell: pwsh
+        run: cargo test

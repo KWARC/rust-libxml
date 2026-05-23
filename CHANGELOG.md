@@ -1,6 +1,20 @@
 # Change Log
 
-## [0.3.12] (in development)
+## [0.3.13] (in development)
+
+## [0.3.12] (2026-05-23)
+
+### Added
+
+* New `io` module: `io::register_input_callback(match_url, open)` is
+  a safe wrapper around `xmlRegisterInputCallbacks`. Accepts two
+  closures (`&str -> bool`, `&str -> Option<Vec<u8>>`) and installs
+  them as a custom URL-scheme handler. The intended use is bundling
+  XSLT stylesheets / RNG schemas via `include_bytes!` and serving
+  them through a synthetic scheme (e.g. `embed:///foo.xsl`), so
+  libxslt's `xsl:import` resolution can reach the embedded bytes
+  without touching the disk. Closures may run on any thread libxml2
+  calls them from (`Send + Sync + 'static`).
 
 ## [0.3.11] (2026-05-18)
 
