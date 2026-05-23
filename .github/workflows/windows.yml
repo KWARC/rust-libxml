@@ -53,5 +53,12 @@ jobs:
           targets: x86_64-pc-windows-gnu
       - name: Ensure mingw64 pkg-config is in path
         run: echo "C:\msys64\mingw64\bin" >> "$GITHUB_PATH"
+      # Run cargo in the default Windows shell, not the job's msys2 shell:
+      # rustup installs cargo to the Windows user profile, which
+      # `path-type: minimal` strips from the msys2 PATH (exit 127). The old
+      # actions-rs/cargo step ran in the runner's Windows context too, never
+      # msys2. mingw64/bin is on PATH via the step above, so pkg-config, gcc,
+      # and the libxml2 DLLs still resolve for the windows-gnu build.
       - name: run tests
+        shell: pwsh
         run: cargo test
