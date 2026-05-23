@@ -4,21 +4,15 @@
 
 ### Added
 
-* New `io` module exposing a safe Rust wrapper around libxml2's
-  `xmlRegisterInputCallbacks`: `io::register_input_callback(match_url,
-  open)` accepts two closures (`&str -> bool` and `&str -> Option<Vec<u8>>`)
-  and registers them as a custom URL-scheme handler. Useful for
-  single-binary distributions that bundle XSLT stylesheets / RelaxNG
-  schemas via `include_bytes!` and serve them through a synthetic
-  URL scheme (e.g. `embed:///foo.xsl`), so `libxslt`'s `xsl:import`
-  resolution can reach into the embedded byte tables without ever
-  touching the disk. Closures run on whatever thread libxml2 invokes
-  the callbacks from; the `Send + Sync + 'static` bound reflects that.
-  A single unit test bundles three scenarios (happy path, opt-out
-  via `None`, defer-to-default for unmatched URLs); the scenarios
-  share one `#[test]` so they execute sequentially, sidestepping a
-  thread-safety bug in libxml2's input-callback path on versions
-  prior to 2.13.
+* New `io` module: `io::register_input_callback(match_url, open)` is
+  a safe wrapper around `xmlRegisterInputCallbacks`. Accepts two
+  closures (`&str -> bool`, `&str -> Option<Vec<u8>>`) and installs
+  them as a custom URL-scheme handler. The intended use is bundling
+  XSLT stylesheets / RNG schemas via `include_bytes!` and serving
+  them through a synthetic scheme (e.g. `embed:///foo.xsl`), so
+  libxslt's `xsl:import` resolution can reach the embedded bytes
+  without touching the disk. Closures may run on any thread libxml2
+  calls them from (`Send + Sync + 'static`).
 
 ## [0.3.11] (2026-05-18)
 
