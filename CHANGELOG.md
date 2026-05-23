@@ -1,6 +1,8 @@
 # Change Log
 
-## [0.3.12] (in development)
+## [0.3.13] (in development)
+
+## [0.3.12] (2026-05-23)
 
 ### Added
 

@@ -2,6 +2,10 @@ on: [push, pull_request]
 
 name: CI Linux
 
+# Least privilege: this workflow only reads the repo and runs tests.
+permissions:
+  contents: read
+
 jobs:
   test-amd64:
     name: rust-libxml amd64 CI
@@ -11,41 +15,29 @@ jobs:
         with_default_bindings: [false, true]
     steps:
       - name: install dependencies
-        uses: ryankurte/action-apt@v0.2.0
-        with:
-          packages: "libxml2-dev"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev
       - name: Set up LIBXML2 env var if compiling with the default bindings
         run: echo "LIBXML2=$(pkg-config libxml-2.0 --variable=libdir)/libxml2.so" >> "$GITHUB_ENV"
         if: ${{ matrix.with_default_bindings }}
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
       - name: run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: cargo test
 
   test-arm64:
     name: rust-libxml arm64 CI
     runs-on: ubuntu-24.04-arm
     steps:
       - name: install dependencies
-        uses: ryankurte/action-apt@v0.2.0
-        with:
-          packages: "libxml2-dev"
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
       - name: run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: cargo test
 
   test-newer-libxml2:
     strategy:
@@ -55,10 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: install dependencies
-        uses: ryankurte/action-apt@v0.2.0
-        with:
-          packages: "libpython3-dev"
-      - uses: actions/checkout@v2
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpython3-dev
+      - uses: actions/checkout@v6
       - name: Install libxml ${{ matrix.libxml_version }} by hand
         run: |
           wget https://download.gnome.org/sources/libxml2/$(echo ${{ matrix.libxml_version }} | sed -e 's/\.[0-9]*$//')/libxml2-${{ matrix.libxml_version }}.tar.xz
@@ -67,14 +59,8 @@ jobs:
           ./configure
           make
           sudo make install
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+      - uses: dtolnay/rust-toolchain@stable
       - name: run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+        run: cargo test
         env:
           LD_LIBRARY_PATH: /usr/local/lib
