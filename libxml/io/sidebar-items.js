@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["register_input_callback"]};
