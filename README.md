@@ -34,6 +34,25 @@ So you have to install CLang 9.0 or greater:
 - Debian / Ubuntu: `$ apt install libclang-dev`
 - Fedora: `$ dnf install clang-devel`
 
+### Static linking (musl / Alpine / fully static binaries)
+
+Two independent knobs build a binary with no runtime libxml2 / libclang
+dependency (see [#110](https://github.com/KWARC/rust-libxml/issues/110)):
+
+* **`static` cargo feature** — selects how `bindgen` finds libclang at build
+  time. The default `runtime` feature `dlopen`s libclang, which is unavailable
+  in fully static / musl environments; `static` links it via `clang-sys/static`
+  instead:
+
+  ```
+  cargo build --no-default-features --features static
+  ```
+
+* **`LIBXML2_STATIC` env var** — statically links libxml2 *itself*. Point
+  `PKG_CONFIG_PATH` at a prefix holding a PIC `libxml2.a` and set
+  `LIBXML2_STATIC=1`; `build.rs` then emits `cargo:rustc-link-lib=static=xml2`,
+  so the binary carries no `libxml2.so` SONAME dependency.
+
 ### MacOS
 [Community contributed](https://github.com/KWARC/rust-libxml/issues/88#issuecomment-890876895):
 

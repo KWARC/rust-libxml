@@ -12,6 +12,12 @@
   the host's libxml2 SONAME, which bumped `.so.2` → `.so.16` at libxml2 2.14.
   Unset (the default) is unchanged: a normal dynamic link against the host
   libxml2.
+* New cargo features **`runtime`** (default) and **`static`** that select how
+  bindgen locates libclang to generate the FFI bindings at build time.
+  `cargo build --no-default-features --features static` routes bindgen to
+  `clang-sys/static`, enabling fully static / musl / Alpine builds where a
+  runtime `dlopen` of libclang is unavailable. Together with `LIBXML2_STATIC`,
+  this resolves [#110](https://github.com/KWARC/rust-libxml/issues/110).
 
 ## [0.3.12] (2026-05-23)
 
