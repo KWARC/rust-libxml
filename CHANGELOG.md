@@ -1,6 +1,17 @@
 # Change Log
 
-## [0.3.13] (in development)
+## [0.3.13] (2026-06-11)
+
+### Added
+
+* Opt-in **static linking** of libxml2. Set the `LIBXML2_STATIC` environment
+  variable and `build.rs` probes via pkg-config with `.statik(true)`,
+  emitting `cargo:rustc-link-lib=static=xml2` (plus the transitive `-lm`).
+  Point `PKG_CONFIG_PATH` at a non-system prefix holding a PIC `libxml2.a`
+  to get a binary with no runtime `libxml2.so` dependency — independent of
+  the host's libxml2 SONAME, which bumped `.so.2` → `.so.16` at libxml2 2.14.
+  Unset (the default) is unchanged: a normal dynamic link against the host
+  libxml2.
 
 ## [0.3.12] (2026-05-23)
 
