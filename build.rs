@@ -49,7 +49,18 @@ fn find_libxml2() -> Option<ProbedLib> {
       all(target_family = "windows", target_env = "gnu")
     ))]
     {
-      let lib = pkg_config::Config::new()
+      // Opt-in static link: when LIBXML2_STATIC is set and PKG_CONFIG_PATH points
+      // at a non-system prefix carrying a PIC `libxml2.a`, `.statik(true)` makes
+      // pkg-config emit `cargo:rustc-link-lib=static=xml2` plus the transitive
+      // `-lm` (which stays dynamic). pkg-config's static guard refuses a `static=`
+      // for a /usr/lib system path, so the non-system prefix is what enables this.
+      // Unset (the default) is unchanged: a normal dynamic link against the host
+      // libxml2. Used for the self-contained, SONAME-independent release binary.
+      let mut cfg = pkg_config::Config::new();
+      if std::env::var_os("LIBXML2_STATIC").is_some() {
+        cfg.statik(true);
+      }
+      let lib = cfg
         .probe("libxml-2.0")
         .expect("Couldn't find libxml2 via pkg-config");
       return Some(ProbedLib {
@@ -92,6 +103,8 @@ fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
 }
 
 fn main() {
+  // Re-run if the opt-in static toggle flips (see find_libxml2's static branch).
+  println!("cargo:rerun-if-env-changed=LIBXML2_STATIC");
   let bindings_path = PathBuf::from(env::var_os("OUT_DIR").unwrap()).join("bindings.rs");
   // declare availability of config variable (without setting it)
   println!("cargo::rustc-check-cfg=cfg(libxml_older_than_2_12)");
