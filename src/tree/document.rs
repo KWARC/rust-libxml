@@ -16,6 +16,86 @@ use crate::tree::node::Node;
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
 
+/// Fast, dependency-free hasher for the pointer-keyed `nodes` cache. libxml node
+/// pointers are unique and well-distributed, so SipHash's `RandomState` (the std
+/// default) is wasted work on a map that is probed on EVERY `Node::wrap` /
+/// lookup. This FxHash-style multiply-rotate mixes the address in a couple of
+/// instructions. Internal to the node bookkeeping map; not public API.
+#[derive(Default, Clone, Copy)]
+pub(crate) struct BuildNodePtrHasher;
+impl std::hash::BuildHasher for BuildNodePtrHasher {
+  type Hasher = NodePtrHasher;
+  #[inline]
+  fn build_hasher(&self) -> NodePtrHasher {
+    NodePtrHasher(0)
+  }
+}
+#[doc(hidden)]
+pub(crate) struct NodePtrHasher(u64);
+impl NodePtrHasher {
+  #[inline]
+  fn add(&mut self, i: u64) {
+    self.0 = (self.0.rotate_left(5) ^ i).wrapping_mul(0x517c_c1b7_2722_0a95);
+  }
+}
+impl std::hash::Hasher for NodePtrHasher {
+  #[inline]
+  fn finish(&self) -> u64 {
+    self.0
+  }
+  #[inline]
+  fn write_usize(&mut self, i: usize) {
+    self.add(i as u64);
+  }
+  #[inline]
+  fn write_u64(&mut self, i: u64) {
+    self.add(i);
+  }
+  fn write(&mut self, bytes: &[u8]) {
+    for chunk in bytes.chunks(8) {
+      let mut buf = [0u8; 8];
+      buf[..chunk.len()].copy_from_slice(chunk);
+      self.add(u64::from_le_bytes(buf));
+    }
+  }
+}
+
+/// The `_Document::nodes` bookkeeping map: `xmlNodePtr` → wrapped `Node`, hashed
+/// with [`BuildNodePtrHasher`] rather than the std SipHash default.
+pub(crate) type NodeMap = HashMap<xmlNodePtr, Node, BuildNodePtrHasher>;
+
+#[cfg(test)]
+mod node_ptr_hasher_tests {
+  use super::BuildNodePtrHasher;
+  use std::collections::HashSet;
+  use std::hash::{BuildHasher, Hasher};
+
+  fn hash_ptr(addr: usize) -> u64 {
+    // Mirrors the key path: a thin raw pointer's `Hash` calls `write_usize`.
+    let mut h = BuildNodePtrHasher.build_hasher();
+    h.write_usize(addr);
+    h.finish()
+  }
+
+  #[test]
+  fn deterministic() {
+    assert_eq!(hash_ptr(0x7f00_1234_5000), hash_ptr(0x7f00_1234_5000));
+  }
+
+  #[test]
+  fn no_collisions_on_aligned_allocator_run() {
+    // libxml node structs are large + aligned, so real addresses come in
+    // aligned runs — the case a weak hash would clump. Assert the FxHash
+    // mix keeps 10k such keys collision-free (guards against a degenerate
+    // edit to the algorithm/constant).
+    let base = 0x7f00_0000_0000usize;
+    let mut seen = HashSet::new();
+    for i in 0..10_000usize {
+      assert!(seen.insert(hash_ptr(base + i * 160)), "collision at i={i}");
+    }
+  }
+}
+
 #[derive(Debug, Copy, Clone, Default)]
 /// Save Options for Document
 pub struct SaveOptions {
@@ -42,7 +122,7 @@ pub(crate) struct _Document {
   /// pointer to a libxml document
   pub(crate) doc_ptr: xmlDocPtr,
   /// hashed pointer-to-Node bookkeeping table
-  nodes: HashMap<xmlNodePtr, Node>,
+  nodes: NodeMap,
 }
 
 impl _Document {
@@ -93,7 +173,7 @@ impl Document {
       } else {
         let doc = _Document {
           doc_ptr,
-          nodes: HashMap::new(),
+          nodes: NodeMap::default(),
         };
         Ok(Document(Rc::new(RefCell::new(doc))))
       }
@@ -109,7 +189,7 @@ impl Document {
   pub fn new_ptr(doc_ptr: xmlDocPtr) -> Self {
     let doc = _Document {
       doc_ptr,
-      nodes: HashMap::new(),
+      nodes: NodeMap::default(),
     };
     Document(Rc::new(RefCell::new(doc)))
   }
@@ -117,7 +197,7 @@ impl Document {
   pub(crate) fn null_ref() -> DocumentRef {
     Rc::new(RefCell::new(_Document {
       doc_ptr: ptr::null_mut(),
-      nodes: HashMap::new(),
+      nodes: NodeMap::default(),
     }))
   }
 
@@ -414,7 +494,7 @@ impl Document {
     } else {
       let doc = _Document {
         doc_ptr,
-        nodes: HashMap::new(),
+        nodes: NodeMap::default(),
       };
       Ok(Document(Rc::new(RefCell::new(doc))))
     }
