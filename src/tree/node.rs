@@ -325,11 +325,14 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          match current_node.get_next_sibling() { Some(sibling) => {
-            current_node = sibling;
-          } _ => {
-            break;
-          }}
+          match current_node.get_next_sibling() {
+            Some(sibling) => {
+              current_node = sibling;
+            }
+            _ => {
+              break;
+            }
+          }
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -347,11 +350,14 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          match current_node.get_prev_sibling() { Some(sibling) => {
-            current_node = sibling;
-          } _ => {
-            break;
-          }}
+          match current_node.get_prev_sibling() {
+            Some(sibling) => {
+              current_node = sibling;
+            }
+            _ => {
+              break;
+            }
+          }
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -369,11 +375,14 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          match current_node.get_next_sibling() { Some(sibling) => {
-            current_node = sibling;
-          } _ => {
-            break;
-          }}
+          match current_node.get_next_sibling() {
+            Some(sibling) => {
+              current_node = sibling;
+            }
+            _ => {
+              break;
+            }
+          }
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -391,11 +400,14 @@ impl Node {
       Some(child) => {
         let mut current_node = child;
         while !current_node.is_element_node() {
-          match current_node.get_prev_sibling() { Some(sibling) => {
-            current_node = sibling;
-          } _ => {
-            break;
-          }}
+          match current_node.get_prev_sibling() {
+            Some(sibling) => {
+              current_node = sibling;
+            }
+            _ => {
+              break;
+            }
+          }
         }
         if current_node.is_element_node() {
           Some(current_node)
@@ -517,7 +529,9 @@ impl Node {
   /// Sets the text content of this `Node`
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_content = CString::new(content).unwrap();
-    unsafe { xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_bytes().as_ptr()); }
+    unsafe {
+      xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_bytes().as_ptr());
+    }
     Ok(())
   }
 
@@ -690,7 +704,8 @@ impl Node {
         } else {
           // Propagate libxml2 failure to remove
           Err(From::from(format!(
-            "libxml2 failed to remove property with status: {remove_prop_status:?}")))
+            "libxml2 failed to remove property with status: {remove_prop_status:?}"
+          )))
         }
       } else {
         // silently no-op if asked to remove a property which is not present
@@ -720,7 +735,8 @@ impl Node {
         } else {
           // Propagate libxml2 failure to remove
           Err(From::from(format!(
-            "libxml2 failed to remove property with status: {remove_prop_status:?}")))
+            "libxml2 failed to remove property with status: {remove_prop_status:?}"
+          )))
         }
       } else {
         // silently no-op if asked to remove a property which is not present
@@ -746,7 +762,8 @@ impl Node {
       } else {
         // Propagate libxml2 failure to remove
         Err(From::from(format!(
-          "libxml2 failed to remove property with status: {remove_prop_status:?}")))
+          "libxml2 failed to remove property with status: {remove_prop_status:?}"
+        )))
       }
     } else {
       // silently no-op if asked to remove a property which is not present
@@ -830,7 +847,12 @@ impl Node {
       let name_ptr = xmlAttrName(current_prop);
       let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
       let name = c_name_string.to_string_lossy().into_owned();
-      let value = self.get_property(&name).unwrap_or_default();
+      // Read the value straight from the attribute node we already hold, rather
+      // than re-resolving it by name: `get_property` calls `xmlGetProp`, which
+      // re-scans the whole attribute list with `xmlStrEqual` and allocates a
+      // fresh `CString` for the name on every call — quadratic over the
+      // attribute count, and a hot path during document build / math parsing.
+      let value = attr_node_value(current_prop);
       attributes.insert(name, value);
       current_prop = xmlNextPropertySibling(current_prop);
     }
@@ -847,15 +869,15 @@ impl Node {
       let name_ptr = xmlAttrName(current_prop);
       let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
       let name = c_name_string.to_string_lossy().into_owned();
+      // Same direct-read optimization as `get_properties`: the value is read
+      // from the attribute node itself, avoiding a by-name `xmlGetNsProp`
+      // re-scan (and a per-attribute `CString` allocation).
+      let value = attr_node_value(current_prop);
       let ns_ptr = xmlAttrNs(current_prop);
       if ns_ptr.is_null() {
-        let value = self.get_property_no_ns(&name).unwrap_or_default();
         attributes.insert((name, None), value);
       } else {
         let ns = Namespace { ns_ptr };
-        let value = self
-          .get_property_ns(&name, &ns.get_href())
-          .unwrap_or_default();
         attributes.insert((name, Some(ns)), value);
       }
       current_prop = xmlNextPropertySibling(current_prop);
@@ -1279,27 +1301,28 @@ impl Node {
       // nothing to do here, already in place
       Ok(old)
     } else if self.get_type() == Some(NodeType::ElementNode) {
-      match old.get_parent() { Some(old_parent) => {
-        if &old_parent == self {
-          // unlink new to be available for insertion
-          new.unlink();
-          // mid-child case
-          old.add_next_sibling(&mut new)?;
-          old.unlink();
-          Ok(old)
-        } else {
-          Err(From::from(format!(
-            "Old node was not a child of {:?} parent. Registered parent is {:?} instead.",
-            self.get_name(),
-            old_parent.get_name()
-          )))
+      match old.get_parent() {
+        Some(old_parent) => {
+          if &old_parent == self {
+            // unlink new to be available for insertion
+            new.unlink();
+            // mid-child case
+            old.add_next_sibling(&mut new)?;
+            old.unlink();
+            Ok(old)
+          } else {
+            Err(From::from(format!(
+              "Old node was not a child of {:?} parent. Registered parent is {:?} instead.",
+              self.get_name(),
+              old_parent.get_name()
+            )))
+          }
         }
-      } _ => {
-        Err(From::from(format!(
+        _ => Err(From::from(format!(
           "Old node was not a child of {:?} parent. No registered parent exists.",
           self.get_name()
-        )))
-      }}
+        ))),
+      }
     } else {
       Err(From::from(
         "Can only call replace_child_node an a NodeType::Element type parent.",
@@ -1327,6 +1350,21 @@ fn node_ancestors(node_ptr: xmlNodePtr) -> Vec<xmlNodePtr> {
 
     parents
   }
+}
+
+/// Read an attribute node's value directly via `xmlNodeGetContent`, freeing the
+/// libxml2-allocated buffer. Equivalent to resolving the attribute by name with
+/// `xmlGetProp`, but without the list re-scan and name `CString` allocation —
+/// the caller already holds the attribute pointer.
+fn attr_node_value(attr: xmlAttrPtr) -> String {
+  let content_ptr = unsafe { xmlNodeGetContent(attr as xmlNodePtr) };
+  if content_ptr.is_null() {
+    return String::new();
+  }
+  let c_string = unsafe { CStr::from_ptr(content_ptr as *const c_char) };
+  let value = c_string.to_string_lossy().into_owned();
+  bindgenFree(content_ptr as *mut c_void);
+  value
 }
 
 mod c14n;
