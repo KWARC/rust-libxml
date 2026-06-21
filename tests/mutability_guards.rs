@@ -1,57 +1,54 @@
 //! Enforce Rust ownership pragmatics for the underlying libxml2 objects
 
 use libxml::parser::Parser;
-use libxml::tree::set_node_rc_guard;
 
+/// Mutating a node that merely has several live `Node` CLONES must SUCCEED.
+///
+/// Clones are the normal state of affairs — the owning document keeps one per
+/// node in its cache, and callers hold their own handles — so a high
+/// `Rc::strong_count` is NOT an aliasing conflict. `Node::node_ptr_mut` now
+/// fails only on an *active* re-entrant borrow (via `RefCell::try_borrow_mut`).
+/// This is the regression guard for the former `strong_count <= guard`
+/// heuristic, which spuriously returned `Err` ("shared Node") for these benign
+/// clones and corrupted otherwise-valid mutations.
 #[test]
-fn ownership_guards() {
-  // Setup
+fn clones_do_not_block_mutation() {
   let parser = Parser::default();
-  let doc_result = parser.parse_file("tests/resources/file01.xml");
-  assert!(doc_result.is_ok());
-  let doc = doc_result.unwrap();
+  let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
   let root = doc.get_root_element().unwrap();
 
+  // Two live clones of the SAME node (Rc strong count >= 3: cache + a + b).
   let mut first_a = root.get_first_element_child().unwrap();
   let first_b = root.get_first_element_child().unwrap();
 
-  assert_eq!(
-    first_a.get_attribute("attribute"),
-    Some(String::from("value"))
-  );
-  assert_eq!(
-    first_b.get_attribute("attribute"),
-    Some(String::from("value"))
-  );
+  assert_eq!(first_a.get_attribute("attribute"), Some(String::from("value")));
+  assert_eq!(first_b.get_attribute("attribute"), Some(String::from("value")));
 
-  // Setting an attribute will fail and return an error, as there are too many Rc references
-  // to the same node (Rc strong count of 3)
-  // see `Node::node_ptr_mut` for details
-  assert!(first_a.set_attribute("attribute", "newa").is_err());
-
-  assert_eq!(
-    first_a.get_attribute("attribute"),
-    Some(String::from("value"))
-  );
-  assert_eq!(
-    first_b.get_attribute("attribute"),
-    Some(String::from("value"))
-  );
-
-  // Try again with guard boosted, which allows the change
-  set_node_rc_guard(3);
-
-  // Setting an attribute will fail and return an error, as there are too many Rc references
-  // to the same node (Rc strong count of 3)
-  // see `Node::node_ptr_mut` for details
+  // Previously this returned Err purely from the clone count; it must now succeed.
   assert!(first_a.set_attribute("attribute", "newa").is_ok());
 
-  assert_eq!(
-    first_a.get_attribute("attribute"),
-    Some(String::from("newa"))
-  );
-  assert_eq!(
-    first_b.get_attribute("attribute"),
-    Some(String::from("newa"))
-  );
+  // Both handles alias the same underlying C node, so both observe the change.
+  assert_eq!(first_a.get_attribute("attribute"), Some(String::from("newa")));
+  assert_eq!(first_b.get_attribute("attribute"), Some(String::from("newa")));
+}
+
+/// The former tuning knob `set_node_rc_guard` is now a deprecated no-op, retained
+/// only for API compatibility. Setting it to a tiny value must NOT re-introduce
+/// the old false-positive (which would have blocked the write below).
+#[test]
+#[allow(deprecated)]
+fn set_node_rc_guard_is_a_noop() {
+  use libxml::tree::set_node_rc_guard;
+
+  let parser = Parser::default();
+  let doc = parser.parse_file("tests/resources/file01.xml").unwrap();
+  let mut node = doc
+    .get_root_element()
+    .unwrap()
+    .get_first_element_child()
+    .unwrap();
+  let _alias = node.clone(); // bump the strong count
+
+  set_node_rc_guard(1); // no effect under the try_borrow_mut regime
+  assert!(node.set_attribute("k", "v").is_ok());
 }
