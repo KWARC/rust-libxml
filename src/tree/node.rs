@@ -17,16 +17,19 @@ use crate::tree::nodetype::NodeType;
 use crate::tree::{Document, DocumentRef, DocumentWeak};
 use crate::xpath::Context;
 
-/// Guard treshold for enforcing runtime mutability checks for Nodes
+/// Deprecated, unused. Formerly the `Rc::strong_count` threshold consulted by
+/// [`Node::node_ptr_mut`]. That heuristic was replaced by a
+/// `RefCell::try_borrow_mut` check (a high clone count is not an aliasing
+/// conflict), so this value is no longer read. Retained only for API
+/// compatibility.
+#[deprecated(note = "no longer used; node_ptr_mut now relies on RefCell::try_borrow_mut")]
 pub static mut NODE_RC_MAX_GUARD: usize = 2;
 
-/// Set the guard value for the max Rc "strong count" allowed for mutable use of a Node
-/// Default is 2
-pub fn set_node_rc_guard(value: usize) {
-  unsafe {
-    NODE_RC_MAX_GUARD = value;
-  }
-}
+/// Deprecated no-op. The strong-count guard it tuned was removed in favor of a
+/// `RefCell::try_borrow_mut` check in [`Node::node_ptr_mut`]; calling this has
+/// no effect. Retained so existing callers continue to compile.
+#[deprecated(note = "no-op: node_ptr_mut now relies on RefCell::try_borrow_mut")]
+pub fn set_node_rc_guard(_value: usize) {}
 
 type NodeRef = Rc<RefCell<_Node>>;
 
@@ -175,26 +178,35 @@ impl Node {
     self.0.borrow().node_ptr
   }
 
-  /// Mutably borrows the underlying libxml2 `xmlNodePtr` pointer
-  /// Also protects against mutability conflicts at runtime.
+  /// Mutably borrows the underlying libxml2 `xmlNodePtr`.
+  ///
+  /// Returns `Err` only when this node's `RefCell` is *actively* borrowed — a
+  /// genuine re-entrant aliasing conflict on the same wrapped node. A high
+  /// `Rc::strong_count` is not a conflict and does not block the borrow: clones
+  /// are normal (the owning document caches one wrapper per node, and callers
+  /// hold their own), and all clones share a single `RefCell`, so
+  /// `try_borrow_mut` is the exact per-node exclusion check. This replaces the
+  /// former `Rc::strong_count <= NODE_RC_MAX_GUARD` heuristic, which rejected
+  /// benign clones and could panic (via `borrow_mut`) on the very conflict it
+  /// was meant to catch.
+  ///
+  /// The shared-`RefCell` invariant holds across clones and repeated accessor
+  /// calls for a node that is **linked** in the tree (both resolve to the cached
+  /// wrapper). It does not extend to an unlinked or imported node: `set_unlinked`
+  /// / `import_node` drop the pointer from the cache (its C node may be freed and
+  /// the address reused), so re-wrapping it afterwards yields an independent
+  /// `RefCell`.
+  ///
+  /// This guards the Rust wrapper, not the C node: mutations through the returned
+  /// raw pointer, and the C node's lifetime, remain the caller's responsibility.
   pub fn node_ptr_mut(&mut self) -> Result<xmlNodePtr, String> {
-    let weak_count = Rc::weak_count(&self.0);
-    let strong_count = Rc::strong_count(&self.0);
-
-    // The basic idea would be to use `Rc::get_mut` to guard against multiple borrows.
-    // However, our approach to bookkeeping nodes implies there is *always* a second Rc reference
-    // in the document.nodes Hash. So rather than use `get_mut` directly, the
-    // correct check would be to have a weak count of 0 and a strong count <=2 (one for self, one for .nodes)
-    let guard_ok = unsafe { weak_count == 0 && strong_count <= NODE_RC_MAX_GUARD };
-    if guard_ok {
-      Ok(self.0.borrow_mut().node_ptr)
-    } else {
-      Err(format!(
-        "Can not mutably reference a shared Node {:?}! Rc: weak count: {:?}; strong count: {:?}",
-        self.get_name(),
-        weak_count,
-        strong_count,
-      ))
+    match self.0.try_borrow_mut() {
+      Ok(inner) => Ok(inner.node_ptr),
+      // Do not touch `self.0` here (e.g. `get_name`): it is actively borrowed,
+      // so any further borrow would panic.
+      Err(_) => {
+        Err("Can not mutably reference a Node that is already actively borrowed".to_string())
+      }
     }
   }
 

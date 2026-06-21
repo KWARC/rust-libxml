@@ -1,5 +1,33 @@
 # Change Log
 
+## [0.3.14] (2026-06-21)
+
+### Changed
+
+* `Node::node_ptr_mut` now guards mutable access with
+  `RefCell::try_borrow_mut` instead of the
+  `Rc::strong_count <= NODE_RC_MAX_GUARD` heuristic. It returns `Err` **only**
+  when the node's cell is *actively* borrowed (a genuine re-entrant aliasing
+  conflict on the same wrapped node); a high `Rc::strong_count` from benign
+  `Node` clones — the owning document's node cache plus caller-held handles —
+  no longer blocks mutation. All clones share one `RefCell`, so
+  `try_borrow_mut` is exactly the per-node exclusion check; the old proxy both
+  false-positived on benign clones and could panic via `borrow_mut` on the very
+  conflict it was meant to catch.
+
+### Fixed
+
+* Spurious `Can not mutably reference a shared Node` errors when mutating a node
+  that merely has several live clones (e.g. large or heavily-shared trees, or
+  any node also held in a caller-side cache). Such mutations now succeed; the
+  error is reserved for real active-borrow re-entrancy.
+
+### Deprecated
+
+* `NODE_RC_MAX_GUARD` and `set_node_rc_guard` are now no-ops, retained only for
+  API compatibility. The strong-count threshold they tuned is no longer
+  consulted by `node_ptr_mut`.
+
 ## [0.3.13] (2026-06-11)
 
 ### Added
