@@ -10,7 +10,7 @@ use std::rc::{Rc, Weak};
 use std::str;
 
 use crate::bindings::*;
-use crate::readonly::RoNode;
+use crate::readonly::{RoDocument, RoNode};
 use crate::tree::node::Node;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
@@ -98,6 +98,11 @@ impl Document {
         Ok(Document(Rc::new(RefCell::new(doc))))
       }
     }
+  }
+
+  /// Create a readonly version of this document.
+  pub fn into_readonly(self) -> RoDocument {
+    RoDocument(self)
   }
 
   /// Obtain the underlying libxml2 `xmlDocPtr` for this Document

@@ -6,9 +6,10 @@ use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::readonly::{RoContext, RoDocument};
+use crate::tree::Document;
 use crate::tree::namespace::Namespace;
 use crate::tree::nodetype::NodeType;
-use crate::tree::Document;
 use crate::xpath::Context;
 
 /// Lightweight struct for read-only parallel processing
@@ -516,6 +517,19 @@ impl RoNode {
     let context = Context::new(owner)?;
     let evaluated = context.node_evaluate_readonly(xpath, self)?;
     Ok(evaluated.get_readonly_nodes_as_vec())
+  }
+
+  /// find read-only nodes via xpath, at the specified node and a given document
+  pub fn findnodes_readonly(self, xpath: &str, owner: &RoDocument) -> Result<Vec<RoNode>, ()> {
+    let context = RoContext::new(owner)?;
+    let evaluated = context.node_evaluate_readonly(xpath, self)?;
+    Ok(evaluated.get_nodes_as_vec())
+  }
+
+  /// find String values via xpath, at a specified node and a given document
+  pub fn findvalues_readonly(&self, xpath: &str, owner: &RoDocument) -> Result<Vec<String>, ()> {
+    let context = RoContext::new(owner)?;
+    context.findvalues(xpath, Some(self))
   }
 
   /// Read-only nodes are always linked
