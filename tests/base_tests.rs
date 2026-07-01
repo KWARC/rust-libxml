@@ -122,11 +122,13 @@ fn document_can_import_node() {
   let mut node = elements.pop().unwrap();
   node.unlink();
   let mut imported = doc2.import_node(&mut node).unwrap();
-  assert!(doc2
-    .get_root_element()
-    .unwrap()
-    .add_child(&mut imported)
-    .is_ok());
+  assert!(
+    doc2
+      .get_root_element()
+      .unwrap()
+      .add_child(&mut imported)
+      .is_ok()
+  );
 
   assert_eq!(
     doc2.get_root_element().unwrap().get_child_elements().len(),
@@ -212,9 +214,7 @@ fn serialization_roundtrip(file_name: &str) {
 }
 
 fn strip_whitespace(string: &str) -> String {
-  string.replace("\r","")
-    .replace("\n", "")
-    .replace(" ", "")
+  string.replace("\r", "").replace("\n", "").replace(" ", "")
 }
 
 #[test]

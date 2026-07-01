@@ -3,7 +3,7 @@
 //!
 use super::bindings;
 
-use std::ffi::{c_char, c_int, CStr};
+use std::ffi::{CStr, c_char, c_int};
 
 /// Rust enum variant of libxml2's xmlErrorLevel
 #[derive(Debug)]
@@ -57,49 +57,54 @@ pub struct StructuredError {
 
 impl StructuredError {
   /// Copies the error information stored at `error_ptr` into a new `StructuredError`
-  /// 
+  ///
   /// # Safety
   /// This function must be given a pointer to a valid `xmlError` struct. Typically, you
   /// will acquire such a pointer by implementing one of a number of callbacks
   /// defined in libXml which are provided an `xmlError` as an argument.
-  /// 
+  ///
   /// This function copies data from the memory `error_ptr` but does not deallocate
   /// the error. Depending on the context in which this function is used, you may
   /// need to take additional steps to avoid a memory leak.
-  pub unsafe fn from_raw(error_ptr: *const bindings::xmlError) -> Self { unsafe {
-    let error = *error_ptr;
-    let message = StructuredError::ptr_to_string(error.message);
-    let level = XmlErrorLevel::from_raw(error.level);
-    let filename = StructuredError::ptr_to_string(error.file);
+  pub unsafe fn from_raw(error_ptr: *const bindings::xmlError) -> Self {
+    unsafe {
+      let error = *error_ptr;
+      let message = StructuredError::ptr_to_string(error.message);
+      let level = XmlErrorLevel::from_raw(error.level);
+      let filename = StructuredError::ptr_to_string(error.file);
 
-    let line = if error.line == 0 {
-      None
-    } else {
-      Some(error.line)
-    };
-    let col = if error.int2 == 0 {
-      None
-    } else {
-      Some(error.int2)
-    };
+      let line = if error.line == 0 {
+        None
+      } else {
+        Some(error.line)
+      };
+      let col = if error.int2 == 0 {
+        None
+      } else {
+        Some(error.int2)
+      };
 
-    StructuredError {
-      message,
-      level,
-      filename,
-      line,
-      col,
-      domain: error.domain,
-      code: error.code,
+      StructuredError {
+        message,
+        level,
+        filename,
+        line,
+        col,
+        domain: error.domain,
+        code: error.code,
+      }
     }
-  }}
+  }
 
   /// Human-readable informative error message.
-  /// 
+  ///
   /// This function is a hold-over from the original bindings to libxml's error
-  /// reporting mechanism. Instead of calling this method, you can access the 
+  /// reporting mechanism. Instead of calling this method, you can access the
   /// StructuredError `message` field directly.
-  #[deprecated(since="0.3.3", note="Please use the `message` field directly instead.")]
+  #[deprecated(
+    since = "0.3.3",
+    note = "Please use the `message` field directly instead."
+  )]
   pub fn message(&self) -> &str {
     self.message.as_deref().unwrap_or("")
   }

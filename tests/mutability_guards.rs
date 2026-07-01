@@ -21,15 +21,27 @@ fn clones_do_not_block_mutation() {
   let mut first_a = root.get_first_element_child().unwrap();
   let first_b = root.get_first_element_child().unwrap();
 
-  assert_eq!(first_a.get_attribute("attribute"), Some(String::from("value")));
-  assert_eq!(first_b.get_attribute("attribute"), Some(String::from("value")));
+  assert_eq!(
+    first_a.get_attribute("attribute"),
+    Some(String::from("value"))
+  );
+  assert_eq!(
+    first_b.get_attribute("attribute"),
+    Some(String::from("value"))
+  );
 
   // Previously this returned Err purely from the clone count; it must now succeed.
   assert!(first_a.set_attribute("attribute", "newa").is_ok());
 
   // Both handles alias the same underlying C node, so both observe the change.
-  assert_eq!(first_a.get_attribute("attribute"), Some(String::from("newa")));
-  assert_eq!(first_b.get_attribute("attribute"), Some(String::from("newa")));
+  assert_eq!(
+    first_a.get_attribute("attribute"),
+    Some(String::from("newa"))
+  );
+  assert_eq!(
+    first_b.get_attribute("attribute"),
+    Some(String::from("newa"))
+  );
 }
 
 /// The former tuning knob `set_node_rc_guard` is now a deprecated no-op, retained

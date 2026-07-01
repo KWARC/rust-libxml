@@ -90,11 +90,7 @@ impl Context {
         c_prefix.as_bytes().as_ptr(),
         c_href.as_bytes().as_ptr(),
       );
-      if result != 0 {
-        Err(())
-      } else {
-        Ok(())
-      }
+      if result != 0 { Err(()) } else { Ok(()) }
     }
   }
 
@@ -267,7 +263,6 @@ impl Object {
     }
     vec
   }
-
 }
 
 impl fmt::Display for Object {

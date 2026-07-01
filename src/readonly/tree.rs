@@ -6,9 +6,9 @@ use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::tree::Document;
 use crate::tree::namespace::Namespace;
 use crate::tree::nodetype::NodeType;
-use crate::tree::Document;
 use crate::xpath::Context;
 
 /// Lightweight struct for read-only parallel processing

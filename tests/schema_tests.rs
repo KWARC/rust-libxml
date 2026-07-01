@@ -77,7 +77,6 @@ static INVALID_STOCK_XML: &str = r#"<?xml version="1.0"?>
 </stock
 "#;
 
-
 // TODO: This test has revealed SchemaParserContext+SchemaValidationContext are not safe for
 //       multi-threaded use in libxml >=2.12, at least not as currently implemented.
 //       while it still reliably succeeds single-threaded, new implementation is needed to use
@@ -146,7 +145,7 @@ fn schema_from_string_reports_unique_errors() {
   let xml = Parser::default()
     .parse_string(INVALID_STOCK_XML)
     .expect("Expected to be able to parse XML Document from string");
-  
+
   let mut xsdparser = SchemaParserContext::from_buffer(STOCK_SCHEMA);
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
@@ -167,10 +166,16 @@ fn schema_from_string_reports_unique_errors() {
         "Element 'stock': The attribute 'ticker' is required but missing.\n",
         "Element 'stock': The attribute 'exchange' is required but missing.\n",
         "Element 'price': 'NOT A NUMBER' is not a valid value of the atomic type 'xs:float'.\n",
-        "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n"
+        "Element 'date': 'NOT A DATE' is not a valid value of the atomic type 'xs:date'.\n",
       ];
       for err_msg in expected_errors {
-        assert!(errors.iter().any(|err| err.message.as_ref().unwrap() == err_msg), "Expected error message {} was not found", err_msg);
+        assert!(
+          errors
+            .iter()
+            .any(|err| err.message.as_ref().unwrap() == err_msg),
+          "Expected error message {} was not found",
+          err_msg
+        );
       }
     }
   }

@@ -173,10 +173,7 @@ fn rust_owned_split_extract_stress() {
   for (i, sub) in subdocs.iter().enumerate() {
     let sub_root = sub.get_root_element().expect("sub root");
     assert_eq!(sub_root.get_name(), "section");
-    assert_eq!(
-      sub_root.get_attribute("id"),
-      Some(format!("s{}", i))
-    );
+    assert_eq!(sub_root.get_attribute("id"), Some(format!("s{}", i)));
   }
 
   drop(subdocs);

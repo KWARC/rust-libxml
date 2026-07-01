@@ -11,9 +11,7 @@ use libxml::tree::{Document, Node};
 fn dup_node_into_new_doc_basic() {
   let parser = Parser::default();
   let src = parser
-    .parse_string(
-      "<root xmlns=\"http://example.com/ns\"><a id=\"x\"><b/></a><c/></root>",
-    )
+    .parse_string("<root xmlns=\"http://example.com/ns\"><a id=\"x\"><b/></a><c/></root>")
     .expect("parse src");
   let root = src.get_root_element().expect("src root");
   // pick the <a> child
@@ -257,8 +255,8 @@ fn dup_node_into_new_doc_many_ns_repeated() {
 
   let mut subdocs = Vec::new();
   for (i, p) in pages.iter().enumerate() {
-    let sub = Document::dup_node_into_new_doc(p)
-      .unwrap_or_else(|_| panic!("ns-stress dup #{i} failed"));
+    let sub =
+      Document::dup_node_into_new_doc(p).unwrap_or_else(|_| panic!("ns-stress dup #{i} failed"));
     subdocs.push(sub);
   }
   assert_eq!(subdocs.len(), 5);
@@ -295,7 +293,10 @@ fn dup_node_into_new_doc_large_doc_siblings() {
         .unwrap_or(false)
     })
     .collect();
-  assert!(pages.len() >= 2, "need at least 2 section siblings to repro");
+  assert!(
+    pages.len() >= 2,
+    "need at least 2 section siblings to repro"
+  );
   // Detach each page from its parent before duping (mirrors a
   // document-splitter that pops siblings from the parent first).
   for p in pages.iter_mut() {
@@ -325,9 +326,7 @@ fn dup_node_into_new_doc_large_doc_siblings() {
 fn dup_node_into_new_doc_xpath_then_dup_at_scale() {
   // Build a doc with 5 sibling sections, each carrying ~200 xml:id'd
   // descendants. Total: ~1000 ids on the source.
-  let mut xml = String::from(
-    "<root xmlns=\"http://example.com/ns\">",
-  );
+  let mut xml = String::from("<root xmlns=\"http://example.com/ns\">");
   for i in 0..5 {
     xml.push_str(&format!("<s xml:id=\"s{i}\">"));
     for j in 0..200 {
@@ -362,7 +361,11 @@ fn dup_node_into_new_doc_xpath_then_dup_at_scale() {
     let hits = p
       .findnodes("descendant-or-self::*[@*[local-name()='id']]")
       .unwrap_or_default();
-    assert!(hits.len() > 100, "expected many xml:id hits, got {}", hits.len());
+    assert!(
+      hits.len() > 100,
+      "expected many xml:id hits, got {}",
+      hits.len()
+    );
     let sub = Document::dup_node_into_new_doc(p)
       .unwrap_or_else(|_| panic!("dup #{i} returned NULL after XPath descent"));
     subdocs.push(sub);
