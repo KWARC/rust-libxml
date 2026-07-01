@@ -319,6 +319,12 @@ impl RoNode {
     let mut current_prop = xmlGetFirstProperty(self.0);
     while !current_prop.is_null() {
       let name_ptr = xmlAttrName(current_prop);
+      if name_ptr.is_null() {
+        // A property with a NULL name can't be keyed; skip it rather than
+        // `strlen(NULL)` inside `CStr::from_ptr`.
+        current_prop = xmlNextPropertySibling(current_prop);
+        continue;
+      }
       let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
       let name = c_name_string.to_string_lossy().into_owned();
       let value = self.get_property(&name).unwrap_or_default();
@@ -336,6 +342,12 @@ impl RoNode {
     let mut current_prop = xmlGetFirstProperty(self.0);
     while !current_prop.is_null() {
       let name_ptr = xmlAttrName(current_prop);
+      if name_ptr.is_null() {
+        // A property with a NULL name can't be keyed; skip it rather than
+        // `strlen(NULL)` inside `CStr::from_ptr`.
+        current_prop = xmlNextPropertySibling(current_prop);
+        continue;
+      }
       let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
       let name = c_name_string.to_string_lossy().into_owned();
       let ns_ptr = xmlAttrNs(current_prop);

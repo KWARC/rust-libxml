@@ -845,6 +845,12 @@ impl Node {
     let mut current_prop = xmlGetFirstProperty(self.node_ptr());
     while !current_prop.is_null() {
       let name_ptr = xmlAttrName(current_prop);
+      if name_ptr.is_null() {
+        // A property with a NULL name can't be keyed; skip it rather than
+        // `strlen(NULL)` inside `CStr::from_ptr`.
+        current_prop = xmlNextPropertySibling(current_prop);
+        continue;
+      }
       let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
       let name = c_name_string.to_string_lossy().into_owned();
       // Read the value straight from the attribute node we already hold, rather
@@ -867,6 +873,12 @@ impl Node {
     let mut current_prop = xmlGetFirstProperty(self.node_ptr());
     while !current_prop.is_null() {
       let name_ptr = xmlAttrName(current_prop);
+      if name_ptr.is_null() {
+        // A property with a NULL name can't be keyed; skip it rather than
+        // `strlen(NULL)` inside `CStr::from_ptr`.
+        current_prop = xmlNextPropertySibling(current_prop);
+        continue;
+      }
       let c_name_string = unsafe { CStr::from_ptr(name_ptr) };
       let name = c_name_string.to_string_lossy().into_owned();
       // Same direct-read optimization as `get_properties`: the value is read

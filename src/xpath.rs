@@ -256,6 +256,11 @@ impl Object {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
       let value_ptr = unsafe { xmlXPathCastNodeToString(ptr) };
+      if value_ptr.is_null() {
+        // OOM in the cast; record an empty string rather than `strlen(NULL)`.
+        vec.push(String::new());
+        continue;
+      }
       let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
       let ready_str = c_value_string.to_string_lossy().into_owned();
       bindgenFree(value_ptr as *mut c_void);
@@ -270,6 +275,10 @@ impl fmt::Display for Object {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     unsafe {
       let receiver = xmlXPathCastToString(self.ptr);
+      if receiver.is_null() {
+        // OOM in the cast; write nothing rather than `strlen(NULL)`.
+        return Ok(());
+      }
       let c_string = CStr::from_ptr(receiver as *const c_char);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       bindgenFree(receiver as *mut c_void);
