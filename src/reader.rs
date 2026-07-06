@@ -58,6 +58,16 @@ fn const_xmlchar_to_string(ptr: *const xmlChar) -> Option<String> {
   )
 }
 
+/// Map libxml2's reader-advance status (`1` = positioned on a node, `0` = end
+/// of input, negative = parse error) to a `Result`.
+fn read_status(rc: i32) -> Result<bool, ()> {
+  match rc {
+    1 => Ok(true),
+    0 => Ok(false),
+    _ => Err(()),
+  }
+}
+
 impl TextReader {
   /// Open `path` for streaming. `options` is the libxml2 parser-option bitmask
   /// (`0` for defaults). Fails if the reader could not be created (e.g. the
@@ -77,11 +87,7 @@ impl TextReader {
   /// `Ok(true)` = positioned on a node, `Ok(false)` = end of input,
   /// `Err(())` = a parse error occurred.
   pub fn read(&mut self) -> Result<bool, ()> {
-    match unsafe { xmlTextReaderRead(self.ptr) } {
-      1 => Ok(true),
-      0 => Ok(false),
-      _ => Err(()),
-    }
+    read_status(unsafe { xmlTextReaderRead(self.ptr) })
   }
 
   /// Advance to the next node that is **not** a descendant of the current node
@@ -89,11 +95,7 @@ impl TextReader {
   /// past it without walking its children. Same `Ok(true/false)`/`Err`
   /// semantics as [`read`](Self::read).
   pub fn read_next(&mut self) -> Result<bool, ()> {
-    match unsafe { xmlTextReaderNext(self.ptr) } {
-      1 => Ok(true),
-      0 => Ok(false),
-      _ => Err(()),
-    }
+    read_status(unsafe { xmlTextReaderNext(self.ptr) })
   }
 
   /// The current node's type. Returns `None` for reader events that have no
@@ -108,10 +110,14 @@ impl TextReader {
   }
 
   /// True when positioned on an element *start* tag.
-  pub fn is_element(&self) -> bool { self.node_type() == Some(NodeType::ElementNode) }
+  pub fn is_element(&self) -> bool {
+    self.node_type() == Some(NodeType::ElementNode)
+  }
 
   /// The current node's depth in the tree (root element = 0).
-  pub fn depth(&self) -> i32 { unsafe { xmlTextReaderDepth(self.ptr) } }
+  pub fn depth(&self) -> i32 {
+    unsafe { xmlTextReaderDepth(self.ptr) }
+  }
 
   /// The current node's local name (no namespace prefix), if any.
   pub fn local_name(&self) -> Option<String> {
@@ -131,12 +137,16 @@ impl TextReader {
   /// [`expand_to_document`](Self::expand_to_document). Returns `None` at end of
   /// input or on error.
   pub fn expand(&self) -> Option<RoNode> {
+    self.current_subtree().map(RoNode)
+  }
+
+  /// The current node's fully-built subtree as a raw pointer, or `None` at end
+  /// of input / on error. Borrowed from the reader — invalidated by the next
+  /// advance; callers must copy (see [`expand_to_document`](Self::expand_to_document))
+  /// to outlive it.
+  fn current_subtree(&self) -> Option<xmlNodePtr> {
     let node = unsafe { xmlTextReaderExpand(self.ptr) };
-    if node.is_null() {
-      None
-    } else {
-      Some(RoNode(node))
-    }
+    (!node.is_null()).then_some(node)
   }
 
   /// Copy the current node's subtree into a fresh, independently-owned
@@ -148,27 +158,26 @@ impl TextReader {
   /// mutate, transform and serialize after the reader has advanced and freed
   /// its own copy of the subtree. Returns `None` at end of input or on error.
   pub fn expand_to_document(&self) -> Option<Document> {
-    let node = unsafe { xmlTextReaderExpand(self.ptr) };
-    if node.is_null() {
-      return None;
-    }
+    let node = self.current_subtree()?;
     unsafe {
       let newdoc = xmlNewDoc(c"1.0".as_ptr() as *const xmlChar);
       if newdoc.is_null() {
         return None;
       }
-      // xmlDOMWrapCloneNode (unlike xmlDocCopyNode) reconciles namespaces from
-      // the source ancestors onto the clone, so the detached subtree does not
-      // dangle into the source document once the reader frees it. A wrap
-      // context is required for the reconciliation to actually *declare* the
-      // in-scope namespaces on the clone (with a NULL context the clone keeps
-      // an ns pointer but the `xmlns=` decl is not materialized, so
-      // serialization silently drops it).
+      // xmlDOMWrapCloneNode (unlike xmlDocCopyNode) reconciles the source
+      // ancestors' in-scope namespaces onto the clone, so it doesn't dangle
+      // into the source once the reader frees it. The wrap context is
+      // required: with a NULL context the clone keeps an ns *pointer* but the
+      // `xmlns=` decl is never materialized, so serialization silently drops it.
       let ctxt = xmlDOMWrapNewCtxt();
       let mut cloned: xmlNodePtr = ptr::null_mut();
       let src_doc = (*node).doc;
       let rc = xmlDOMWrapCloneNode(
-        ctxt, src_doc, node, &mut cloned, newdoc,
+        ctxt,
+        src_doc,
+        node,
+        &mut cloned,
+        newdoc,
         ptr::null_mut(), // no destination parent — it becomes the root
         1,               // deep
         0,               // options
@@ -220,7 +229,10 @@ mod tests {
   const NS: &str = "http://example.org/ns";
 
   fn write_temp(name: &str, xml: &str) -> String {
-    let path = std::env::temp_dir().join(format!("rust-libxml-reader-{}-{name}.xml", std::process::id()));
+    let path = std::env::temp_dir().join(format!(
+      "rust-libxml-reader-{}-{name}.xml",
+      std::process::id()
+    ));
     std::fs::write(&path, xml).unwrap();
     path.to_string_lossy().into_owned()
   }
@@ -265,13 +277,22 @@ mod tests {
 
     // Serialization is intact and namespace-declared (no dangling ns → no UAF).
     let s0 = sections[0].to_string();
-    assert!(s0.contains("http://example.org/ns"), "ns decl missing: {s0}");
-    assert!(s0.contains("Alpha") && s0.contains("one"), "content lost: {s0}");
+    assert!(
+      s0.contains("http://example.org/ns"),
+      "ns decl missing: {s0}"
+    );
+    assert!(
+      s0.contains("Alpha") && s0.contains("one"),
+      "content lost: {s0}"
+    );
 
     // The second section keeps its prefixed namespace too.
     let s1 = sections[1].to_string();
     assert!(s1.contains("Beta"), "content lost: {s1}");
-    assert!(s1.contains("http://example.org/x"), "prefixed ns lost: {s1}");
+    assert!(
+      s1.contains("http://example.org/x"),
+      "prefixed ns lost: {s1}"
+    );
 
     std::fs::remove_file(&path).ok();
   }

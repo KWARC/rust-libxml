@@ -44,31 +44,27 @@ pub struct Object {
   document: DocumentWeak,
 }
 
-/// A structured error raised while evaluating an XPath expression.
+/// A structured error from an XPath evaluation.
 ///
-/// libxml2 aborts an evaluation (returning a NULL result object) for several
-/// reasons — most notably when a `//X[predicate]` query has to materialize
-/// more than `XPATH_MAX_NODESET_LENGTH` (10,000,000) intermediate nodes and
-/// hits the internal *"growing nodeset hit limit"*. The thinly-wrapped
-/// [`Context::evaluate`] / [`Context::node_evaluate`] collapse every such
-/// failure into a bare `Err(())`, which hides the cause from callers. The
-/// `*_checked` variants instead snapshot libxml2's last recorded error into
-/// this struct so the real message can be logged or propagated.
+/// libxml2 returns a NULL result — which the bare [`Context::evaluate`] family
+/// collapses to `Err(())` — for several reasons, most importantly the
+/// *"growing nodeset hit limit"* when a `//X[predicate]` query materializes
+/// more than `XPATH_MAX_NODESET_LENGTH` (10M) nodes on a huge document. The
+/// `*_checked` variants snapshot libxml2's last error here so the cause is
+/// recoverable; see [`is_nodeset_limit`](Self::is_nodeset_limit).
 #[derive(Debug, Clone)]
 pub struct XPathError {
-  /// Human-readable message from libxml2 (e.g. `"growing nodeset hit limit"`),
-  /// if one was recorded.
+  /// libxml2's message (e.g. `"growing nodeset hit limit"`), if recorded.
   pub message: Option<String>,
-  /// libxml2 error code (`xmlParserErrors` enum). `0` when unknown.
+  /// libxml2 error code (`xmlParserErrors`). `0` when unknown.
   pub code: i32,
-  /// libxml2 error domain (`xmlErrorDomain` enum). `0` when unknown.
+  /// libxml2 error domain (`xmlErrorDomain`). `0` when unknown.
   pub domain: i32,
 }
 
 impl XPathError {
-  /// Snapshot the current thread's last libxml2 error — set by libxml2 when an
-  /// evaluation returns NULL. Falls back to an empty message when libxml2 did
-  /// not record structured detail.
+  /// Snapshot the thread's last libxml2 error (set when an evaluation returns
+  /// NULL); empty message when libxml2 recorded no structured detail.
   fn from_last_error() -> Self {
     let err_ptr = unsafe { xmlGetLastError() };
     if err_ptr.is_null() {
@@ -167,22 +163,18 @@ impl Context {
     }
   }
 
-  ///evaluate an xpath
-  pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
-    self.evaluate_checked(xpath).map_err(|_| ())
-  }
-
-  /// Evaluate an XPath expression, returning libxml2's structured error on
-  /// failure instead of a bare `()`. This surfaces causes that the thin
-  /// [`Context::evaluate`] hides — most importantly the *"growing nodeset hit
-  /// limit"* raised when a `//X[predicate]` query materializes more than
-  /// `XPATH_MAX_NODESET_LENGTH` intermediate nodes on a very large document.
-  pub fn evaluate_checked(&self, xpath: &str) -> Result<Object, XPathError> {
+  /// Shared body of the `*_checked` evaluators: reset the thread's last error
+  /// (so [`XPathError::from_last_error`] reads THIS call's failure, not a stale
+  /// one), run `eval`, and wrap the raw object — surfacing the structured error
+  /// when libxml2 returns NULL. `eval` receives the NUL-terminated expression.
+  fn eval_checked(
+    &self,
+    xpath: &str,
+    eval: impl FnOnce(*const u8) -> xmlXPathObjectPtr,
+  ) -> Result<Object, XPathError> {
     let c_xpath = CString::new(xpath).unwrap();
-    // Reset first so `from_last_error` reads THIS evaluation's error, not a
-    // stale one left by an earlier operation on this thread.
     unsafe { xmlResetLastError() };
-    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
+    let ptr = eval(c_xpath.as_bytes().as_ptr());
     if ptr.is_null() {
       Err(XPathError::from_last_error())
     } else {
@@ -191,6 +183,19 @@ impl Context {
         document: self.document.clone(),
       })
     }
+  }
+
+  ///evaluate an xpath
+  pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
+    self.evaluate_checked(xpath).map_err(|_| ())
+  }
+
+  /// Evaluate `xpath`, returning libxml2's structured [`XPathError`] on failure
+  /// instead of the bare `()` that [`Context::evaluate`] yields.
+  pub fn evaluate_checked(&self, xpath: &str) -> Result<Object, XPathError> {
+    self.eval_checked(xpath, |s| unsafe {
+      xmlXPathEvalExpression(s, self.as_ptr())
+    })
   }
 
   ///evaluate an xpath on a context Node
@@ -198,46 +203,30 @@ impl Context {
     self.node_evaluate_checked(xpath, node).map_err(|_| ())
   }
 
-  /// Evaluate an XPath expression relative to `node`, returning libxml2's
-  /// structured error on failure. See [`Context::evaluate_checked`].
+  /// Evaluate `xpath` relative to `node`. See [`Context::evaluate_checked`].
   pub fn node_evaluate_checked(&self, xpath: &str, node: &Node) -> Result<Object, XPathError> {
-    let c_xpath = CString::new(xpath).unwrap();
-    unsafe { xmlResetLastError() };
-    let ptr =
-      unsafe { xmlXPathNodeEval(node.node_ptr(), c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
-    if ptr.is_null() {
-      Err(XPathError::from_last_error())
-    } else {
-      Ok(Object {
-        ptr,
-        document: self.document.clone(),
-      })
-    }
+    self.eval_checked(xpath, |s| unsafe {
+      xmlXPathNodeEval(node.node_ptr(), s, self.as_ptr())
+    })
   }
 
   ///evaluate an xpath on a context RoNode
   pub fn node_evaluate_readonly(&self, xpath: &str, node: RoNode) -> Result<Object, ()> {
-    self.node_evaluate_readonly_checked(xpath, node).map_err(|_| ())
+    self
+      .node_evaluate_readonly_checked(xpath, node)
+      .map_err(|_| ())
   }
 
-  /// Evaluate an XPath expression relative to a read-only `node`, returning
-  /// libxml2's structured error on failure. See [`Context::evaluate_checked`].
+  /// Evaluate `xpath` relative to a read-only `node`. See
+  /// [`Context::evaluate_checked`].
   pub fn node_evaluate_readonly_checked(
     &self,
     xpath: &str,
     node: RoNode,
   ) -> Result<Object, XPathError> {
-    let c_xpath = CString::new(xpath).unwrap();
-    unsafe { xmlResetLastError() };
-    let ptr = unsafe { xmlXPathNodeEval(node.0, c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
-    if ptr.is_null() {
-      Err(XPathError::from_last_error())
-    } else {
-      Ok(Object {
-        ptr,
-        document: self.document.clone(),
-      })
-    }
+    self.eval_checked(xpath, |s| unsafe {
+      xmlXPathNodeEval(node.0, s, self.as_ptr())
+    })
   }
 
   /// localize xpath context to a specific Node
