@@ -2,6 +2,7 @@
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::error::StructuredError;
 use crate::readonly::RoNode;
 use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
 use libc::{c_char, c_void, size_t};
@@ -42,6 +43,78 @@ pub struct Object {
   pub ptr: xmlXPathObjectPtr,
   document: DocumentWeak,
 }
+
+/// A structured error raised while evaluating an XPath expression.
+///
+/// libxml2 aborts an evaluation (returning a NULL result object) for several
+/// reasons — most notably when a `//X[predicate]` query has to materialize
+/// more than `XPATH_MAX_NODESET_LENGTH` (10,000,000) intermediate nodes and
+/// hits the internal *"growing nodeset hit limit"*. The thinly-wrapped
+/// [`Context::evaluate`] / [`Context::node_evaluate`] collapse every such
+/// failure into a bare `Err(())`, which hides the cause from callers. The
+/// `*_checked` variants instead snapshot libxml2's last recorded error into
+/// this struct so the real message can be logged or propagated.
+#[derive(Debug, Clone)]
+pub struct XPathError {
+  /// Human-readable message from libxml2 (e.g. `"growing nodeset hit limit"`),
+  /// if one was recorded.
+  pub message: Option<String>,
+  /// libxml2 error code (`xmlParserErrors` enum). `0` when unknown.
+  pub code: i32,
+  /// libxml2 error domain (`xmlErrorDomain` enum). `0` when unknown.
+  pub domain: i32,
+}
+
+impl XPathError {
+  /// Snapshot the current thread's last libxml2 error — set by libxml2 when an
+  /// evaluation returns NULL. Falls back to an empty message when libxml2 did
+  /// not record structured detail.
+  fn from_last_error() -> Self {
+    let err_ptr = unsafe { xmlGetLastError() };
+    if err_ptr.is_null() {
+      XPathError {
+        message: None,
+        code: 0,
+        domain: 0,
+      }
+    } else {
+      let se = unsafe { StructuredError::from_raw(err_ptr) };
+      XPathError {
+        message: se.message,
+        code: se.code,
+        domain: se.domain,
+      }
+    }
+  }
+
+  /// True when this is libxml2's XPath nodeset-length ceiling — the signal that
+  /// a `//`-materializing query grew past the 10M-node internal limit (rather
+  /// than a syntax error or a missing namespace). The message text is the
+  /// reliable discriminator; the underlying code is a generic memory error.
+  pub fn is_nodeset_limit(&self) -> bool {
+    self
+      .message
+      .as_deref()
+      .is_some_and(|m| m.contains("nodeset") || m.contains("Memory allocation failed"))
+  }
+}
+
+impl fmt::Display for XPathError {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match &self.message {
+      Some(m) => write!(
+        f,
+        "XPath evaluation error: {} (code {}, domain {})",
+        m.trim(),
+        self.code,
+        self.domain
+      ),
+      None => write!(f, "XPath evaluation failed (no libxml2 error detail)"),
+    }
+  }
+}
+
+impl std::error::Error for XPathError {}
 
 impl Context {
   ///create the xpath context for a document
@@ -96,10 +169,22 @@ impl Context {
 
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
+    self.evaluate_checked(xpath).map_err(|_| ())
+  }
+
+  /// Evaluate an XPath expression, returning libxml2's structured error on
+  /// failure instead of a bare `()`. This surfaces causes that the thin
+  /// [`Context::evaluate`] hides — most importantly the *"growing nodeset hit
+  /// limit"* raised when a `//X[predicate]` query materializes more than
+  /// `XPATH_MAX_NODESET_LENGTH` intermediate nodes on a very large document.
+  pub fn evaluate_checked(&self, xpath: &str) -> Result<Object, XPathError> {
     let c_xpath = CString::new(xpath).unwrap();
+    // Reset first so `from_last_error` reads THIS evaluation's error, not a
+    // stale one left by an earlier operation on this thread.
+    unsafe { xmlResetLastError() };
     let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
     if ptr.is_null() {
-      Err(())
+      Err(XPathError::from_last_error())
     } else {
       Ok(Object {
         ptr,
@@ -110,11 +195,18 @@ impl Context {
 
   ///evaluate an xpath on a context Node
   pub fn node_evaluate(&self, xpath: &str, node: &Node) -> Result<Object, ()> {
+    self.node_evaluate_checked(xpath, node).map_err(|_| ())
+  }
+
+  /// Evaluate an XPath expression relative to `node`, returning libxml2's
+  /// structured error on failure. See [`Context::evaluate_checked`].
+  pub fn node_evaluate_checked(&self, xpath: &str, node: &Node) -> Result<Object, XPathError> {
     let c_xpath = CString::new(xpath).unwrap();
+    unsafe { xmlResetLastError() };
     let ptr =
       unsafe { xmlXPathNodeEval(node.node_ptr(), c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
     if ptr.is_null() {
-      Err(())
+      Err(XPathError::from_last_error())
     } else {
       Ok(Object {
         ptr,
@@ -125,10 +217,21 @@ impl Context {
 
   ///evaluate an xpath on a context RoNode
   pub fn node_evaluate_readonly(&self, xpath: &str, node: RoNode) -> Result<Object, ()> {
+    self.node_evaluate_readonly_checked(xpath, node).map_err(|_| ())
+  }
+
+  /// Evaluate an XPath expression relative to a read-only `node`, returning
+  /// libxml2's structured error on failure. See [`Context::evaluate_checked`].
+  pub fn node_evaluate_readonly_checked(
+    &self,
+    xpath: &str,
+    node: RoNode,
+  ) -> Result<Object, XPathError> {
     let c_xpath = CString::new(xpath).unwrap();
+    unsafe { xmlResetLastError() };
     let ptr = unsafe { xmlXPathNodeEval(node.0, c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
     if ptr.is_null() {
-      Err(())
+      Err(XPathError::from_last_error())
     } else {
       Ok(Object {
         ptr,
