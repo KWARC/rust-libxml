@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+### Added
+
+* `reader::TextReader` — a safe wrapper over libxml2's `xmlTextReader` pull
+  parser, for processing very large documents one subtree at a time instead of
+  building the whole DOM (a 600 MB file becomes a ~7 GB tree). Methods:
+  `from_file`, `read` / `read_next` (advance / skip-subtree),
+  `node_type` / `is_element` / `depth` / `local_name` / `namespace_uri`,
+  `read_to_next(pred)` (the streamable downward-name XPath subset), and two
+  subtree accessors — `expand()` (borrowed `RoNode`, zero-copy, valid until the
+  next advance) and `expand_to_document()` (an owned, self-contained `Document`
+  copy with namespaces reconciled onto the detached root via
+  `xmlDOMWrapCloneNode` + `xmlReconciliateNs`, so serialization keeps the
+  `xmlns=` declarations and nothing dangles into the source once the reader
+  advances).
+* `xpath::XPathError` and the checked evaluators `Context::evaluate_checked`,
+  `node_evaluate_checked`, `node_evaluate_readonly_checked`, returning
+  `Result<Object, XPathError>`. libxml2 aborts a `//X[predicate]` evaluation
+  (returning NULL) when it materializes more than `XPATH_MAX_NODESET_LENGTH`
+  (10M) intermediate nodes and hits the internal *"growing nodeset hit limit"*
+  on very large documents; the existing thin wrappers collapsed that into a bare
+  `Err(())`. The checked variants snapshot libxml2's structured error (message /
+  code / domain, with `is_nodeset_limit()`) so callers can log or branch on the
+  real cause. The existing `evaluate` / `node_evaluate` / `node_evaluate_readonly`
+  are unchanged (reimplemented as `*_checked(..).map_err(|_| ())`).
+
 ### Changed
 
 * `Node::_wrap`'s per-document `xmlNodePtr -> Node` cache now hashes pointer keys
@@ -22,6 +47,16 @@
   (`xmlStrEqual` per entry) and allocated a fresh `CString` for the name on every
   attribute — quadratic in the attribute count. Same returned map; no behavior
   change.
+
+* Null-guarded the raw-pointer field accessors in `c_helpers` (e.g.
+  `xmlNodeType` reading `.type_` at offset 8): a NULL `xmlNodePtr` reaching an
+  accessor produced a `segfault at 8` that bypassed `catch_unwind`. The
+  accessors now return a benign default for a NULL pointer.
+* Hardened the `CStr::from_ptr` surface in `tree::document` (`to_string` /
+  node / properties / xpath serialization) against `strlen(NULL)`: when
+  libxml2 returns a NULL buffer (e.g. OOM during XSLT serialization of a huge
+  document), the wrappers now yield an empty string instead of dereferencing
+  NULL (`segfault at 0 in libc`).
 
 ## [0.3.14] (2026-06-21)
 

@@ -48,7 +48,7 @@ type OpenFn = Box<dyn Fn(&str) -> Option<Vec<u8>> + Send + Sync + 'static>;
 
 struct Callback {
   match_url: MatchFn,
-  open:      OpenFn,
+  open: OpenFn,
 }
 
 fn callbacks() -> &'static Mutex<Vec<Arc<Callback>>> {
@@ -102,7 +102,7 @@ where
 {
   callbacks().lock().unwrap().push(Arc::new(Callback {
     match_url: Box::new(match_url),
-    open:      Box::new(open),
+    open: Box::new(open),
   }));
 
   // libxml2 records the trampoline pointers in a static table;
@@ -125,7 +125,7 @@ where
 /// Per-open state owned by libxml2 via `*mut c_void` until
 /// `trampoline_close` reclaims and drops it.
 struct OpenState {
-  bytes:    Vec<u8>,
+  bytes: Vec<u8>,
   position: usize,
 }
 
@@ -251,7 +251,9 @@ mod tests {
 
     // 3. Unrelated URLs aren't claimed by our match — they reach the
     //    default file handler and fail there.
-    assert!(!read_file_via_libxml2("/nonexistent/definitely/missing.xml"));
+    assert!(!read_file_via_libxml2(
+      "/nonexistent/definitely/missing.xml"
+    ));
 
     // 4. Re-entrancy: an `open` closure that calls into libxml2 must
     //    not self-deadlock on the registry mutex.

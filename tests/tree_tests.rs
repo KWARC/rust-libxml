@@ -15,17 +15,23 @@ fn child_of_root_has_different_hash() {
     let doc = doc_result.unwrap();
     let root = doc.get_root_element().unwrap();
     assert!(!root.is_text_node());
-    match root.get_first_child() { Some(child) => {
-      assert!(root != child);
-    } _ => {
-      unreachable!("test failed - first child doesn't exist");
-    }}
+    match root.get_first_child() {
+      Some(child) => {
+        assert!(root != child);
+      }
+      _ => {
+        unreachable!("test failed - first child doesn't exist");
+      }
+    }
     // same check with last child
-    match root.get_last_child() { Some(child) => {
-      assert!(root != child);
-    } _ => {
-      unreachable!("test failed - last child doesn't exist");
-    }}
+    match root.get_last_child() {
+      Some(child) => {
+        assert!(root != child);
+      }
+      _ => {
+        unreachable!("test failed - last child doesn't exist");
+      }
+    }
   }
 }
 
@@ -254,9 +260,11 @@ fn node_attributes_ns_accessor() {
     child.get_attribute_no_ns("attribute"),
     Some("setter_value".to_string())
   );
-  assert!(child
-    .set_attribute_ns("attribute", "foo_value", &foo_ns)
-    .is_ok());
+  assert!(
+    child
+      .set_attribute_ns("attribute", "foo_value", &foo_ns)
+      .is_ok()
+  );
   assert_eq!(
     child.get_attribute_no_ns("attribute"),
     Some("setter_value".to_string())
@@ -350,9 +358,11 @@ fn attribute_namespace_accessors() {
     element.get_attribute_ns("fb", "http://www.foobar.org"),
     Some("fb".to_string())
   );
-  assert!(element
-    .remove_attribute_ns("fb", "http://www.foobar.org")
-    .is_ok());
+  assert!(
+    element
+      .remove_attribute_ns("fb", "http://www.foobar.org")
+      .is_ok()
+  );
   assert_eq!(
     element.get_attribute_ns("fb", "http://www.foobar.org"),
     None
@@ -642,9 +652,11 @@ fn can_replace_child() {
 
   // fail to replace a, as it is already removed.
   let none = Node::new("none", None, &doc).unwrap();
-  assert!(root_node
-    .replace_child_node(none, a_result.unwrap())
-    .is_err());
+  assert!(
+    root_node
+      .replace_child_node(none, a_result.unwrap())
+      .is_err()
+  );
   // no change.
   assert_eq!(
     doc.to_string(),

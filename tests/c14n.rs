@@ -2,13 +2,13 @@ use libxml::parser::Parser;
 use libxml::tree::c14n::{CanonicalizationMode, CanonicalizationOptions};
 
 fn assert_eq_lines(seen: &str, expected: &str) {
-    let lines_iter = seen.lines().zip(expected.lines());
+  let lines_iter = seen.lines().zip(expected.lines());
 
-    for (seen_line, expected_line) in lines_iter {
-      assert_eq!(seen_line, expected_line);
-    }
+  for (seen_line, expected_line) in lines_iter {
+    assert_eq!(seen_line, expected_line);
+  }
 
-    assert_eq!(seen.lines().count(), expected.lines().count());
+  assert_eq!(seen.lines().count(), expected.lines().count());
 }
 
 fn canonicalize_xml(input: &str, opts: CanonicalizationOptions) -> String {

@@ -1,14 +1,14 @@
 //! Document canonicalization logic
 //!
-use std::ffi::{c_int, c_void, CString};
+use std::ffi::{CString, c_int, c_void};
 use std::os::raw;
 use std::ptr::null_mut;
 
 use crate::tree::c14n::*;
 
 use super::{
-  xmlAllocOutputBuffer, xmlC14NExecute, xmlC14NIsVisibleCallback, xmlChar, xmlNodePtr,
-  xmlOutputBufferClose, xmlOutputBufferPtr, Document,
+  Document, xmlAllocOutputBuffer, xmlC14NExecute, xmlC14NIsVisibleCallback, xmlChar, xmlNodePtr,
+  xmlOutputBufferClose, xmlOutputBufferPtr,
 };
 
 impl Document {
@@ -46,39 +46,53 @@ impl Document {
 
       let res = c_obuf_into_output(c_obuf);
 
-      if status < 0 {
-        Err(())
-      } else {
-        Ok(res)
-      }
+      if status < 0 { Err(()) } else { Ok(res) }
     }
   }
 }
 
-unsafe fn c_obuf_into_output(c_obuf: xmlOutputBufferPtr) -> String { unsafe {
-  let ctx_ptr = (*c_obuf).context;
-  let output = Box::from_raw(ctx_ptr as *mut String);
+unsafe fn c_obuf_into_output(c_obuf: xmlOutputBufferPtr) -> String {
+  unsafe {
+    // A NULL buffer (allocation failed in `create_output_buffer`) has no
+    // captured context to recover — yield an empty canonicalization rather
+    // than dereferencing address 0.
+    if c_obuf.is_null() {
+      return String::new();
+    }
+    let ctx_ptr = (*c_obuf).context;
+    let output = Box::from_raw(ctx_ptr as *mut String);
 
-  (*c_obuf).context = std::ptr::null_mut::<c_void>();
+    (*c_obuf).context = std::ptr::null_mut::<c_void>();
 
-  xmlOutputBufferClose(c_obuf);
+    xmlOutputBufferClose(c_obuf);
 
-  *output
-}}
+    *output
+  }
+}
 
-unsafe fn create_output_buffer() -> xmlOutputBufferPtr { unsafe {
-  let output = String::new();
-  let ctx_ptr = Box::into_raw(Box::new(output));
-  let encoder = std::ptr::null_mut();
+unsafe fn create_output_buffer() -> xmlOutputBufferPtr {
+  unsafe {
+    let output = String::new();
+    let ctx_ptr = Box::into_raw(Box::new(output));
+    let encoder = std::ptr::null_mut();
 
-  let buf = xmlAllocOutputBuffer(encoder);
+    let buf = xmlAllocOutputBuffer(encoder);
+    // libxml2 returns NULL on allocation failure; reclaim the context box we
+    // just leaked and propagate NULL rather than dereferencing address 0.
+    // `xmlC14NExecute` treats a NULL buffer as an error (< 0), so the caller
+    // surfaces `Err(())`.
+    if buf.is_null() {
+      drop(Box::from_raw(ctx_ptr));
+      return buf;
+    }
 
-  (*buf).writecallback = Some(xml_write_io);
-  (*buf).closecallback = Some(xml_close_io);
-  (*buf).context = ctx_ptr as _;
+    (*buf).writecallback = Some(xml_write_io);
+    (*buf).closecallback = Some(xml_close_io);
+    (*buf).context = ctx_ptr as _;
 
-  buf
-}}
+    buf
+  }
+}
 
 unsafe extern "C" fn xml_close_io(_context: *mut raw::c_void) -> raw::c_int {
   0
@@ -88,18 +102,20 @@ unsafe extern "C" fn xml_write_io(
   io_ptr: *mut raw::c_void,
   buffer: *const raw::c_char,
   len: raw::c_int,
-) -> raw::c_int { unsafe {
-  if io_ptr.is_null() {
-    0
-  } else {
-    let buf = std::slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
-    let buf = String::from_utf8_lossy(buf);
-    let s2_ptr = io_ptr as *mut String;
-    String::push_str(&mut *s2_ptr, &buf);
+) -> raw::c_int {
+  unsafe {
+    if io_ptr.is_null() {
+      0
+    } else {
+      let buf = std::slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
+      let buf = String::from_utf8_lossy(buf);
+      let s2_ptr = io_ptr as *mut String;
+      String::push_str(&mut *s2_ptr, &buf);
 
-    len
+      len
+    }
   }
-}}
+}
 
 /// Create a [Vec] of null-terminated [*mut xmlChar] strings
 fn to_xml_string_vec(vec: Vec<String>) -> Vec<*mut xmlChar> {

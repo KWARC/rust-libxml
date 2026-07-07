@@ -2,6 +2,7 @@
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::error::StructuredError;
 use crate::readonly::RoNode;
 use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
 use libc::{c_char, c_void, size_t};
@@ -42,6 +43,74 @@ pub struct Object {
   pub ptr: xmlXPathObjectPtr,
   document: DocumentWeak,
 }
+
+/// A structured error from an XPath evaluation.
+///
+/// libxml2 returns a NULL result — which the bare [`Context::evaluate`] family
+/// collapses to `Err(())` — for several reasons, most importantly the
+/// *"growing nodeset hit limit"* when a `//X[predicate]` query materializes
+/// more than `XPATH_MAX_NODESET_LENGTH` (10M) nodes on a huge document. The
+/// `*_checked` variants snapshot libxml2's last error here so the cause is
+/// recoverable; see [`is_nodeset_limit`](Self::is_nodeset_limit).
+#[derive(Debug, Clone)]
+pub struct XPathError {
+  /// libxml2's message (e.g. `"growing nodeset hit limit"`), if recorded.
+  pub message: Option<String>,
+  /// libxml2 error code (`xmlParserErrors`). `0` when unknown.
+  pub code: i32,
+  /// libxml2 error domain (`xmlErrorDomain`). `0` when unknown.
+  pub domain: i32,
+}
+
+impl XPathError {
+  /// Snapshot the thread's last libxml2 error (set when an evaluation returns
+  /// NULL); empty message when libxml2 recorded no structured detail.
+  fn from_last_error() -> Self {
+    let err_ptr = unsafe { xmlGetLastError() };
+    if err_ptr.is_null() {
+      XPathError {
+        message: None,
+        code: 0,
+        domain: 0,
+      }
+    } else {
+      let se = unsafe { StructuredError::from_raw(err_ptr) };
+      XPathError {
+        message: se.message,
+        code: se.code,
+        domain: se.domain,
+      }
+    }
+  }
+
+  /// True when this is libxml2's XPath nodeset-length ceiling — the signal that
+  /// a `//`-materializing query grew past the 10M-node internal limit (rather
+  /// than a syntax error or a missing namespace). The message text is the
+  /// reliable discriminator; the underlying code is a generic memory error.
+  pub fn is_nodeset_limit(&self) -> bool {
+    self
+      .message
+      .as_deref()
+      .is_some_and(|m| m.contains("nodeset") || m.contains("Memory allocation failed"))
+  }
+}
+
+impl fmt::Display for XPathError {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match &self.message {
+      Some(m) => write!(
+        f,
+        "XPath evaluation error: {} (code {}, domain {})",
+        m.trim(),
+        self.code,
+        self.domain
+      ),
+      None => write!(f, "XPath evaluation failed (no libxml2 error detail)"),
+    }
+  }
+}
+
+impl std::error::Error for XPathError {}
 
 impl Context {
   ///create the xpath context for a document
@@ -90,55 +159,74 @@ impl Context {
         c_prefix.as_bytes().as_ptr(),
         c_href.as_bytes().as_ptr(),
       );
-      if result != 0 {
-        Err(())
-      } else {
-        Ok(())
-      }
+      if result != 0 { Err(()) } else { Ok(()) }
+    }
+  }
+
+  /// Shared body of the `*_checked` evaluators: reset the thread's last error
+  /// (so [`XPathError::from_last_error`] reads THIS call's failure, not a stale
+  /// one), run `eval`, and wrap the raw object — surfacing the structured error
+  /// when libxml2 returns NULL. `eval` receives the NUL-terminated expression.
+  fn eval_checked(
+    &self,
+    xpath: &str,
+    eval: impl FnOnce(*const u8) -> xmlXPathObjectPtr,
+  ) -> Result<Object, XPathError> {
+    let c_xpath = CString::new(xpath).unwrap();
+    unsafe { xmlResetLastError() };
+    let ptr = eval(c_xpath.as_bytes().as_ptr());
+    if ptr.is_null() {
+      Err(XPathError::from_last_error())
+    } else {
+      Ok(Object {
+        ptr,
+        document: self.document.clone(),
+      })
     }
   }
 
   ///evaluate an xpath
   pub fn evaluate(&self, xpath: &str) -> Result<Object, ()> {
-    let c_xpath = CString::new(xpath).unwrap();
-    let ptr = unsafe { xmlXPathEvalExpression(c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
-    if ptr.is_null() {
-      Err(())
-    } else {
-      Ok(Object {
-        ptr,
-        document: self.document.clone(),
-      })
-    }
+    self.evaluate_checked(xpath).map_err(|_| ())
+  }
+
+  /// Evaluate `xpath`, returning libxml2's structured [`XPathError`] on failure
+  /// instead of the bare `()` that [`Context::evaluate`] yields.
+  pub fn evaluate_checked(&self, xpath: &str) -> Result<Object, XPathError> {
+    self.eval_checked(xpath, |s| unsafe {
+      xmlXPathEvalExpression(s, self.as_ptr())
+    })
   }
 
   ///evaluate an xpath on a context Node
   pub fn node_evaluate(&self, xpath: &str, node: &Node) -> Result<Object, ()> {
-    let c_xpath = CString::new(xpath).unwrap();
-    let ptr =
-      unsafe { xmlXPathNodeEval(node.node_ptr(), c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
-    if ptr.is_null() {
-      Err(())
-    } else {
-      Ok(Object {
-        ptr,
-        document: self.document.clone(),
-      })
-    }
+    self.node_evaluate_checked(xpath, node).map_err(|_| ())
+  }
+
+  /// Evaluate `xpath` relative to `node`. See [`Context::evaluate_checked`].
+  pub fn node_evaluate_checked(&self, xpath: &str, node: &Node) -> Result<Object, XPathError> {
+    self.eval_checked(xpath, |s| unsafe {
+      xmlXPathNodeEval(node.node_ptr(), s, self.as_ptr())
+    })
   }
 
   ///evaluate an xpath on a context RoNode
   pub fn node_evaluate_readonly(&self, xpath: &str, node: RoNode) -> Result<Object, ()> {
-    let c_xpath = CString::new(xpath).unwrap();
-    let ptr = unsafe { xmlXPathNodeEval(node.0, c_xpath.as_bytes().as_ptr(), self.as_ptr()) };
-    if ptr.is_null() {
-      Err(())
-    } else {
-      Ok(Object {
-        ptr,
-        document: self.document.clone(),
-      })
-    }
+    self
+      .node_evaluate_readonly_checked(xpath, node)
+      .map_err(|_| ())
+  }
+
+  /// Evaluate `xpath` relative to a read-only `node`. See
+  /// [`Context::evaluate_checked`].
+  pub fn node_evaluate_readonly_checked(
+    &self,
+    xpath: &str,
+    node: RoNode,
+  ) -> Result<Object, XPathError> {
+    self.eval_checked(xpath, |s| unsafe {
+      xmlXPathNodeEval(node.0, s, self.as_ptr())
+    })
   }
 
   /// localize xpath context to a specific Node
@@ -260,6 +348,11 @@ impl Object {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
       let value_ptr = unsafe { xmlXPathCastNodeToString(ptr) };
+      if value_ptr.is_null() {
+        // OOM in the cast; record an empty string rather than `strlen(NULL)`.
+        vec.push(String::new());
+        continue;
+      }
       let c_value_string = unsafe { CStr::from_ptr(value_ptr as *const c_char) };
       let ready_str = c_value_string.to_string_lossy().into_owned();
       bindgenFree(value_ptr as *mut c_void);
@@ -267,7 +360,6 @@ impl Object {
     }
     vec
   }
-
 }
 
 impl fmt::Display for Object {
@@ -275,6 +367,10 @@ impl fmt::Display for Object {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     unsafe {
       let receiver = xmlXPathCastToString(self.ptr);
+      if receiver.is_null() {
+        // OOM in the cast; write nothing rather than `strlen(NULL)`.
+        return Ok(());
+      }
       let c_string = CStr::from_ptr(receiver as *const c_char);
       let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
       bindgenFree(receiver as *mut c_void);

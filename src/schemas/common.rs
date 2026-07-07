@@ -20,7 +20,10 @@ pub unsafe extern "C" fn structured_error_handler(ctx: *mut c_void, error: bindi
 }
 
 #[cfg(not(libxml_older_than_2_12))]
-pub unsafe extern "C" fn structured_error_handler(ctx: *mut c_void, error: *const bindings::xmlError) {
+pub unsafe extern "C" fn structured_error_handler(
+  ctx: *mut c_void,
+  error: *const bindings::xmlError,
+) {
   assert!(!ctx.is_null());
   let errlog = unsafe { &mut *{ ctx as *mut Vec<StructuredError> } };
 

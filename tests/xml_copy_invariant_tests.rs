@@ -5,7 +5,6 @@
 use libxml::parser::Parser;
 use libxml::tree::{Document, Node};
 
-
 #[test]
 /// Source-doc corruption test: after a single xmlCopyDoc + xmlFreeDoc
 /// of the copy, can we still read xml:id attributes off the source?
@@ -44,7 +43,10 @@ fn xml_copy_doc_does_not_corrupt_source() {
   // After the copy round-trip, source xml:ids must still be readable.
   let post: Vec<Option<String>> = sections.iter().map(|s| s.get_attribute("xml:id")).collect();
   for (i, (p, q)) in pre.iter().zip(post.iter()).enumerate() {
-    assert_eq!(p, q, "section {i} xml:id changed across xmlCopyDoc round-trip: {p:?} -> {q:?}");
+    assert_eq!(
+      p, q,
+      "section {i} xml:id changed across xmlCopyDoc round-trip: {p:?} -> {q:?}"
+    );
   }
 }
 
@@ -90,7 +92,10 @@ fn xml_copy_doc_does_not_corrupt_source_after_init_walks() {
 
   let post: Vec<Option<String>> = sections.iter().map(|s| s.get_attribute("xml:id")).collect();
   for (i, (p, q)) in pre.iter().zip(post.iter()).enumerate() {
-    assert_eq!(p, q, "section {i} xml:id changed across copy/free: {p:?} -> {q:?}");
+    assert_eq!(
+      p, q,
+      "section {i} xml:id changed across copy/free: {p:?} -> {q:?}"
+    );
   }
 }
 
@@ -145,7 +150,10 @@ fn xml_copy_doc_no_corrupt_after_unlink() {
 
   let post: Vec<Option<String>> = sections.iter().map(|s| s.get_attribute("xml:id")).collect();
   for (i, (p, q)) in pre.iter().zip(post.iter()).enumerate() {
-    assert_eq!(p, q, "section {i} xml:id changed AFTER copy/free: {p:?} -> {q:?}");
+    assert_eq!(
+      p, q,
+      "section {i} xml:id changed AFTER copy/free: {p:?} -> {q:?}"
+    );
   }
 }
 
@@ -303,7 +311,10 @@ fn xml_copy_node_pair_with_split_preamble() {
     let c1 = xmlCopyNode(sections[0].node_ptr(), 1);
     assert!(!c1.is_null(), "first copy returned NULL");
     let c2 = xmlCopyNode(sections[1].node_ptr(), 1);
-    assert!(!c2.is_null(), "SECOND copy returned NULL — repro of oxide bug");
+    assert!(
+      !c2.is_null(),
+      "SECOND copy returned NULL — repro of oxide bug"
+    );
     xmlFreeNode(c1);
     xmlFreeNode(c2);
   }
@@ -356,9 +367,7 @@ fn xml_copy_node_pair_with_intermediate_xpath_on_source() {
   let _p = root
     .findnodes(".//processing-instruction('latexml')")
     .unwrap_or_default();
-  let _i = root
-    .findnodes("//*[@xml:id]")
-    .unwrap_or_default();
+  let _i = root.findnodes("//*[@xml:id]").unwrap_or_default();
 
   unsafe {
     let c2 = xmlCopyNode(sections[1].node_ptr(), 1);
@@ -376,7 +385,9 @@ fn xml_copy_node_pair_with_intermediate_xpath_on_source() {
 /// Document via Document::new_ptr (mirroring what libxml-rs's higher-
 /// level callers do) + run XPath on the subdoc + run XPath on source.
 fn xml_copy_node_pair_full_oxide_style() {
-  use libxml::bindings::{xmlCopyNode, xmlNewDoc, xmlDocSetRootElement, xmlSetTreeDoc, xmlReconciliateNs};
+  use libxml::bindings::{
+    xmlCopyNode, xmlDocSetRootElement, xmlNewDoc, xmlReconciliateNs, xmlSetTreeDoc,
+  };
   let path = "tests/resources/large_doc.xml";
   if std::fs::metadata(path).is_err() {
     return;
@@ -417,7 +428,9 @@ fn xml_copy_node_pair_full_oxide_style() {
       Document::new_ptr(doc_ptr)
     };
     // Mirror PostDocument::new_document post-dup work:
-    let _id_walk = sub.get_root_element().unwrap()
+    let _id_walk = sub
+      .get_root_element()
+      .unwrap()
       .findnodes("//*[@xml:id]")
       .unwrap_or_default();
     let _src_pis = root
@@ -442,8 +455,7 @@ fn xml_copy_node_pair_full_oxide_style() {
 /// document shape.
 fn xml_copy_node_pair_nodict_parse() {
   use libxml::bindings::{
-    xmlCopyNode, xmlFreeDoc, xmlFreeNode, xmlReadMemory,
-    xmlParserOption_XML_PARSE_NODICT,
+    xmlCopyNode, xmlFreeDoc, xmlFreeNode, xmlParserOption_XML_PARSE_NODICT, xmlReadMemory,
   };
   let path = "tests/resources/large_doc.xml";
   if std::fs::metadata(path).is_err() {

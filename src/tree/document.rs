@@ -402,6 +402,15 @@ impl Document {
       let _size = xmlSaveClose(save_ctx);
 
       let result = xmlBufferContent(buf);
+      // `xmlBufferContent` returns NULL when the buffer never allocated its
+      // backing store — e.g. `xmlBufferCreate` returned NULL under memory
+      // pressure, a real event on a many-worker fleet. `CStr::from_ptr(NULL)`
+      // would then `strlen(NULL)` → SIGSEGV inside libc; degrade to an empty
+      // serialization instead (the buffer handle is still safe to free).
+      if result.is_null() {
+        xmlBufferFree(buf);
+        return String::new();
+      }
       let c_string = CStr::from_ptr(result as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
       xmlBufferFree(buf);
@@ -425,6 +434,15 @@ impl Document {
         0, /* disable formatting */
       );
       let result = xmlBufferContent(buf);
+      // `xmlBufferContent` returns NULL when the buffer never allocated its
+      // backing store — e.g. `xmlBufferCreate` returned NULL under memory
+      // pressure, a real event on a many-worker fleet. `CStr::from_ptr(NULL)`
+      // would then `strlen(NULL)` → SIGSEGV inside libc; degrade to an empty
+      // serialization instead (the buffer handle is still safe to free).
+      if result.is_null() {
+        xmlBufferFree(buf);
+        return String::new();
+      }
       let c_string = CStr::from_ptr(result as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
       xmlBufferFree(buf);
@@ -447,6 +465,15 @@ impl Document {
         0, /* disable formatting */
       );
       let result = xmlBufferContent(buf);
+      // `xmlBufferContent` returns NULL when the buffer never allocated its
+      // backing store — e.g. `xmlBufferCreate` returned NULL under memory
+      // pressure, a real event on a many-worker fleet. `CStr::from_ptr(NULL)`
+      // would then `strlen(NULL)` → SIGSEGV inside libc; degrade to an empty
+      // serialization instead (the buffer handle is still safe to free).
+      if result.is_null() {
+        xmlBufferFree(buf);
+        return String::new();
+      }
       let c_string = CStr::from_ptr(result as *const c_char);
       let node_string = c_string.to_string_lossy().into_owned();
       xmlBufferFree(buf);

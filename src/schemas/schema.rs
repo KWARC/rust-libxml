@@ -17,7 +17,6 @@ pub struct Schema(*mut bindings::_xmlSchema);
 impl Schema {
   /// Create schema by having a SchemaParserContext do the actual parsing of the schema it was provided
   pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<StructuredError>> {
-
     // `xmlSchemaParse` calls `xmlSchemaInitTypes`.
     // `xmlSchemaInitTypes` is a lazy function which is only intended to be
     // called once for optimization purposes - but libxml2 doesn't do this
