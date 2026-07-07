@@ -1,5 +1,28 @@
 # Change Log
 
+## [Unreleased]
+
+### Changed
+
+* `Node::_wrap`'s per-document `xmlNodePtr -> Node` cache now hashes pointer keys
+  with a small FxHash-style hasher instead of the default SipHash `RandomState`.
+  The cache is probed on every `Node` wrap (child/sibling walks, XPath results,
+  attribute-node access), and its keys are non-adversarial allocator pointers, so
+  SipHash's DoS resistance buys nothing here. Dependency-free (std `Hasher` only),
+  the map is never iterated so ordering is irrelevant, and behavior is identical.
+  Measured ~28-30% wall reduction on node-heavy XML workloads (large math
+  documents).
+
+### Fixed
+
+* `Node::get_properties` / `get_properties_ns` (and their `get_attributes`
+  aliases) now read each attribute's value directly from the attribute node
+  already in hand (`xmlNodeGetContent`), instead of re-resolving it by name with
+  `xmlGetProp` / `xmlGetNsProp`. The old path re-scanned the whole attribute list
+  (`xmlStrEqual` per entry) and allocated a fresh `CString` for the name on every
+  attribute — quadratic in the attribute count. Same returned map; no behavior
+  change.
+
 ## [0.3.14] (2026-06-21)
 
 ### Changed
