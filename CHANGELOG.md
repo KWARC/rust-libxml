@@ -31,6 +31,9 @@
 
 ### Changed
 
+* **Minimum supported Rust version is now 1.88** (declared via `rust-version`).
+  The streaming `reader` uses a let-chain (stabilized in 1.88); the edition is
+  already 2024. Consumers on 1.85–1.87 that built 0.3.14 will need to update.
 * `Node::_wrap`'s per-document `xmlNodePtr -> Node` cache now hashes pointer keys
   with a small FxHash-style hasher instead of the default SipHash `RandomState`.
   The cache is probed on every `Node` wrap (child/sibling walks, XPath results,
