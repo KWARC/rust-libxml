@@ -82,7 +82,7 @@ unsafe fn create_output_buffer() -> xmlOutputBufferPtr {
     // `xmlC14NExecute` treats a NULL buffer as an error (< 0), so the caller
     // surfaces `Err(())`.
     if buf.is_null() {
-      drop(Box::from_raw(ctx_ptr as *mut String));
+      drop(Box::from_raw(ctx_ptr));
       return buf;
     }
 
