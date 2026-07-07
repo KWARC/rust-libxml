@@ -245,3 +245,85 @@ mod compile_tests {
     assert!(!compiles);
   }
 }
+
+/// Coverage for the `*_checked` evaluators and `XPathError` — the error-surfacing
+/// API added for very large documents. The `Ok` path is exercised throughout the
+/// tests above (the thin `evaluate`/`node_evaluate` wrappers delegate to their
+/// `_checked` variant); these pin the previously-untested `Err`/classification path.
+mod checked_evaluators {
+  use libxml::parser::Parser;
+  use libxml::xpath::{Context, XPathError};
+
+  /// An invalid expression makes libxml2 return NULL; `evaluate_checked` turns
+  /// that into a populated `XPathError` (message + non-zero code), while the thin
+  /// `evaluate` still collapses it to `Err(())`.
+  #[test]
+  fn evaluate_checked_surfaces_invalid_expression() {
+    let doc = Parser::default().parse_string("<r><c/></r>").unwrap();
+    let ctx = Context::new(&doc).unwrap();
+
+    let err = ctx
+      .evaluate_checked("///")
+      .expect_err("`///` is not a valid XPath expression");
+    assert!(err.message.is_some(), "expected a libxml2 error message");
+    assert_ne!(err.code, 0, "expected a non-zero libxml2 error code");
+    assert!(
+      !err.is_nodeset_limit(),
+      "a syntax error is not the nodeset ceiling"
+    );
+
+    assert!(ctx.evaluate("///").is_err(), "thin wrapper still errors");
+    // A valid expression still succeeds through the checked path.
+    assert_eq!(
+      ctx.evaluate_checked("//c").unwrap().get_number_of_nodes(),
+      1
+    );
+  }
+
+  /// `is_nodeset_limit` recognizes exactly libxml2's growing-nodeset / OOM
+  /// messages and nothing else. Constructed directly (the fields are public)
+  /// because materializing a real >10M node-set in a unit test is impractical.
+  #[test]
+  fn is_nodeset_limit_classifies_libxml2_messages() {
+    let mk = |m: Option<&str>| XPathError {
+      message: m.map(str::to_string),
+      code: 0,
+      domain: 0,
+    };
+    assert!(mk(Some("XPath error : growing nodeset hit limit")).is_nodeset_limit());
+    assert!(mk(Some("Memory allocation failed : growing nodeset")).is_nodeset_limit());
+    assert!(!mk(Some("Invalid expression\n")).is_nodeset_limit());
+    assert!(!mk(None).is_nodeset_limit());
+  }
+
+  /// The node-relative checked evaluators resolve against the given context node
+  /// (both the `&Node` and `RoNode` entry points) and surface errors the same way.
+  #[test]
+  fn node_checked_evaluators_ok_and_err() {
+    let doc = Parser::default()
+      .parse_file("tests/resources/file01.xml")
+      .unwrap();
+    let ctx = Context::new(&doc).unwrap();
+
+    let root = doc.get_root_element().unwrap();
+    assert_eq!(
+      ctx
+        .node_evaluate_checked("child", &root)
+        .unwrap()
+        .get_number_of_nodes(),
+      2,
+      "two <child> nodes are reachable from the root"
+    );
+    assert!(ctx.node_evaluate_checked("///", &root).is_err());
+
+    let ro_root = doc.get_root_readonly().unwrap();
+    assert_eq!(
+      ctx
+        .node_evaluate_readonly_checked("child", ro_root)
+        .unwrap()
+        .get_number_of_nodes(),
+      2
+    );
+    assert!(ctx.node_evaluate_readonly_checked("///", ro_root).is_err());
+  }
+}

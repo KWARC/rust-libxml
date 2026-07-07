@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.3.15] (2026-07-06)
+
 ### Added
 
 * `reader::TextReader` — a safe wrapper over libxml2's `xmlTextReader` pull

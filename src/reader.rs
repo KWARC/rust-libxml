@@ -101,12 +101,23 @@ impl TextReader {
   /// The current node's type. Returns `None` for reader events that have no
   /// [`NodeType`] equivalent — most usefully the *end-of-element* event, which
   /// lets a caller distinguish an opening `<x>` (`Some(ElementNode)`) from a
-  /// closing `</x>`.
+  /// closing `</x>` (`None`).
   pub fn node_type(&self) -> Option<NodeType> {
-    // xmlTextReaderNodeType returns an xmlReaderTypes value; for the shared
-    // cases (element/text/PI/comment/cdata) it is numerically identical to the
-    // xmlElementType NodeType::from_int expects.
-    NodeType::from_int(unsafe { xmlTextReaderNodeType(self.ptr) } as xmlElementType)
+    // `xmlTextReaderNodeType` returns an `xmlReaderTypes` value, which coincides
+    // numerically with `xmlElementType` ONLY for `1..=12` (element, attribute,
+    // text, cdata, entity-ref, entity, PI, comment, document, doctype,
+    // fragment, notation). The reader-only events collide with UNRELATED
+    // element types — end-element `15 == XML_ELEMENT_DECL`, whitespace
+    // `13 == XML_HTML_DOCUMENT_NODE`, significant-whitespace `14 == XML_DTD_NODE`,
+    // end-entity `16`, xml-declaration `17` — so passing them through
+    // `NodeType::from_int` would mislabel them (e.g. a closing `</x>` as an
+    // `ElementDecl`). Those have no `NodeType` equivalent, hence `None`.
+    let t = unsafe { xmlTextReaderNodeType(self.ptr) };
+    if (1..=12).contains(&t) {
+      NodeType::from_int(t as xmlElementType)
+    } else {
+      None
+    }
   }
 
   /// True when positioned on an element *start* tag.
@@ -315,6 +326,85 @@ mod tests {
     // read_next() skips <a>'s subtree (the <deep/>) → lands on <b>.
     assert!(reader.read_next().unwrap());
     assert_eq!(reader.local_name().as_deref(), Some("b"));
+
+    std::fs::remove_file(&path).ok();
+  }
+
+  /// Opening a reader on a path that does not exist fails at construction
+  /// (`xmlReaderForFile` returns NULL), rather than deferring to the first read.
+  #[test]
+  fn from_file_on_missing_path_is_err() {
+    assert!(TextReader::from_file("/no/such/rust-libxml-reader-missing.xml", 0).is_err());
+  }
+
+  /// A well-formedness violation surfaces as `Err(())` from `read`, not a silent
+  /// early `Ok(false)` — so a caller streaming a truncated/corrupt file can tell
+  /// "document ended" apart from "document is broken".
+  #[test]
+  fn read_surfaces_parse_error_on_malformed_xml() {
+    // </a> closes before the still-open <b> — not well-formed.
+    let path = write_temp("malformed", "<a><b></a>");
+    let mut reader = TextReader::from_file(&path, 0).unwrap();
+    let mut saw_err = false;
+    loop {
+      match reader.read() {
+        Ok(true) => continue,
+        Ok(false) => break,
+        Err(()) => {
+          saw_err = true;
+          break;
+        }
+      }
+    }
+    assert!(
+      saw_err,
+      "malformed XML must surface a read error, not Ok(false)"
+    );
+    std::fs::remove_file(&path).ok();
+  }
+
+  /// `read_to_next` that never matches consumes the whole document and returns
+  /// `Ok(false)` at end of input (the streaming analogue of an empty node-set).
+  #[test]
+  fn read_to_next_returns_false_when_pattern_absent() {
+    let path = write_temp("nomatch", r#"<doc><a/><b/></doc>"#);
+    let mut reader = TextReader::from_file(&path, 0).unwrap();
+    let found = reader.read_to_next(|_ns, name| name == "zzz").unwrap();
+    assert!(
+      !found,
+      "no <zzz> exists → read_to_next must reach EOF and return false"
+    );
+    std::fs::remove_file(&path).ok();
+  }
+
+  /// The documented contract: an opening `<x>` is `Some(ElementNode)` but a
+  /// closing `</x>` is `None` — NOT a bogus `ElementDecl`. `xmlReaderTypes`
+  /// END_ELEMENT (15) collides numerically with `XML_ELEMENT_DECL`, so this
+  /// pins the `node_type` guard that keeps the two apart.
+  #[test]
+  fn node_type_distinguishes_open_from_close_tag() {
+    let path = write_temp("openclose", r#"<r><a>x</a></r>"#);
+    let mut reader = TextReader::from_file(&path, 0).unwrap();
+
+    assert!(reader.read().unwrap()); // <r> open
+    assert_eq!(reader.node_type(), Some(NodeType::ElementNode));
+    assert!(reader.is_element());
+
+    assert!(reader.read().unwrap()); // <a> open
+    assert_eq!(reader.node_type(), Some(NodeType::ElementNode));
+
+    assert!(reader.read().unwrap()); // text "x"
+    assert_eq!(reader.node_type(), Some(NodeType::TextNode));
+    assert!(!reader.is_element());
+
+    assert!(reader.read().unwrap()); // </a> close
+    assert_eq!(reader.local_name().as_deref(), Some("a"));
+    assert_eq!(
+      reader.node_type(),
+      None,
+      "a closing tag has no NodeType equivalent — must be None, not ElementDecl"
+    );
+    assert!(!reader.is_element());
 
     std::fs::remove_file(&path).ok();
   }
