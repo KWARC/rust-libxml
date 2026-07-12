@@ -1,6 +1,6 @@
 [package]
 name = "libxml"
-version = "0.3.15"
+version = "0.3.16"
 edition = "2024"
 rust-version = "1.88"
 authors = ["Andreas Franzén <andreas@devil.se>", "Deyan Ginev <deyan.ginev@gmail.com>","Jan Frederik Schaefer <j.schaefer@jacobs-university.de>"]

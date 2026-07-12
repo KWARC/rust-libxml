@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.3.16] (2026-07-12)
+
+### Fixed
+
+* Windows/MSVC vcpkg builds: emit `cargo:rustc-link-lib=bcrypt` and `ws2_32`
+  alongside the vcpkg-resolved libraries. vcpkg emits link directives for the
+  port's libraries and port dependencies but not for Windows SDK system
+  libraries (`Libs.private` in `libxml-2.0.pc`); libxml2 >= 2.12 calls
+  `BCryptGenRandom` from `xmlInitRandom`, so linking a static `libxml2.lib`
+  into any real target (proc-macro dylib, bin, test) failed with LNK2019.
+  Both import libraries ship with every MSVC/Windows SDK toolchain.
+
 ## [0.3.15] (2026-07-06)
 
 ### Added
