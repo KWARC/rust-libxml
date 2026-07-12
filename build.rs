@@ -138,6 +138,17 @@ mod vcpkg_dep {
   use crate::ProbedLib;
   pub fn vcpkg_find_libxml2() -> Option<ProbedLib> {
     if let Ok(metadata) = vcpkg::Config::new().find_package("libxml2") {
+      // vcpkg emits link directives for the port's own libraries and its
+      // port dependencies (iconv, zlib, ...), but NOT for Windows SDK
+      // system libraries, which are Libs.private in libxml-2.0.pc:
+      // libxml2 >= 2.12 calls BCryptGenRandom (xmlInitRandom, dict.c), so
+      // a static libxml2.lib leaves that symbol unresolved unless we link
+      // bcrypt ourselves. ws2_32 likewise backs the (default-on) nanohttp
+      // code. Both import libraries ship with every MSVC/Windows SDK
+      // toolchain, so linking them unconditionally here is safe even for
+      // vcpkg builds configured without those features.
+      println!("cargo:rustc-link-lib=bcrypt");
+      println!("cargo:rustc-link-lib=ws2_32");
       let include_paths = metadata
         .include_paths
         .into_iter()
