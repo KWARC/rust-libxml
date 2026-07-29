@@ -56,7 +56,7 @@ fn free_subtree_frees_detached_tree() {
 #[test]
 fn free_subtree_frees_built_tree() {
   let mut doc = Document::new().expect("new doc");
-  let mut root = Node::new("r", None, &doc).expect("root");
+  let root = Node::new("r", None, &doc).expect("root");
   doc.set_root_element(&root);
   let mut shell = Node::new("shell", None, &doc).expect("shell");
   let mut inner = Node::new("inner", None, &doc).expect("inner");
