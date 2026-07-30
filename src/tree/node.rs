@@ -1210,6 +1210,81 @@ impl Node {
     matches!(self.0.borrow().linkage, Linkage::RustOwned)
   }
 
+  /// Detach this node and free its entire C subtree IMMEDIATELY.
+  ///
+  /// This is the discard operation `unlink_node` alone does not provide: an
+  /// unlinked doc-owned node is freed by nobody (see `unlink_node`), so a
+  /// caller discarding a subtree for good must transfer ownership somewhere.
+  /// `set_rust_owned` defers the free to the last wrapper drop — but a stray
+  /// clone parked in a long-lived collection postpones that free past the
+  /// owning document's `xmlFreeDoc`, and the eventual `xmlFreeNode` then
+  /// reads the freed document (its dictionary) — a use-after-free.
+  ///
+  /// `free_subtree` instead frees NOW, after *neutralizing* every registered
+  /// Rust wrapper into the subtree: each wrapper's shared inner `node_ptr`
+  /// is nulled — clones held anywhere become inert (`Drop` is a no-op, the
+  /// null-guarded accessors return their empty defaults) — and the
+  /// bookkeeping entries are cleared, so a future allocation reusing one of
+  /// the freed addresses cannot collide with a stale wrapper. Attribute
+  /// nodes are neutralized along with elements and texts; namespace
+  /// declarations and attribute values are owned by their nodes and freed by
+  /// `xmlFreeNode` itself.
+  ///
+  /// Documents (and document-fragment shells) are refused — tearing a whole
+  /// document down belongs to `Document`'s `Drop`.
+  ///
+  /// # Safety contract (mirrors C `xmlFreeNode`)
+  ///
+  /// The subtree must be garbage to the caller. Wrappers created in an
+  /// earlier bookkeeping epoch (re-wrapped after an unlink cleared their
+  /// entry) cannot be found and neutralized here; using one after this call
+  /// is undefined behavior, exactly as using a freed `xmlNodePtr` in C.
+  pub fn free_subtree(mut self) {
+    if matches!(
+      self.get_type(),
+      Some(NodeType::DocumentNode) | Some(NodeType::DocumentFragNode)
+    ) {
+      return;
+    }
+    // Sever from parent/siblings (and clear self's bookkeeping entry).
+    self.unlink_node();
+    let top = self.0.borrow().node_ptr;
+    if top.is_null() {
+      return; // already freed/neutralized through another handle
+    }
+    if let Some(doc) = self.get_docref().upgrade() {
+      // Walk the subtree iteratively (an explicit stack — recursion would
+      // risk the call stack on deep trees), neutralizing wrappers.
+      let mut stack: Vec<xmlNodePtr> = vec![top];
+      while let Some(ptr) = stack.pop() {
+        let mut child = xmlGetFirstChild(ptr);
+        while !child.is_null() {
+          stack.push(child);
+          child = xmlNextSibling(child);
+        }
+        // Attribute structs share the xmlNode prefix layout through `ns`,
+        // but only ELEMENTS have a `properties` field — reading it through
+        // an attribute or text pointer would be out of bounds.
+        if NodeType::from_int(xmlGetNodeType(ptr)) == Some(NodeType::ElementNode) {
+          let mut attr = xmlGetFirstProperty(ptr);
+          while !attr.is_null() {
+            stack.push(attr as xmlNodePtr);
+            attr = xmlNextPropertySibling(attr);
+          }
+        }
+        let mut doc_borrowed = doc.borrow_mut();
+        if let Some(wrapper) = doc_borrowed.get_node(ptr) {
+          wrapper.0.borrow_mut().node_ptr = ptr::null_mut();
+        }
+        doc_borrowed.forget_node(ptr);
+      }
+    }
+    // Neutralize this handle itself (its registry entry went away with
+    // unlink_node, so the walk above could not reach it), then free.
+    self.0.borrow_mut().node_ptr = ptr::null_mut();
+    unsafe { xmlFreeNode(top) };
+  }
+
   fn ptr_as_option(&self, node_ptr: xmlNodePtr) -> Option<Node> {
     if node_ptr.is_null() {
       None

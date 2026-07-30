@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.3.17] (2026-07-29)
+
+### Added
+
+* `Node::free_subtree`: detach and free an entire C subtree IMMEDIATELY,
+  neutralizing every registered Rust wrapper into it (shared `node_ptr`
+  nulled — stray clones become inert no-ops; bookkeeping entries cleared so
+  address reuse cannot collide with a stale wrapper). This is the discard
+  operation `unlink_node` + `set_rust_owned` cannot provide safely when
+  clones survive in long-lived collections: their deferred drop can fire
+  `xmlFreeNode` after the owning document's `xmlFreeDoc` (use-after-free in
+  `xmlDictOwns`). Driver: consumers that discard thousands of replaced
+  subtrees per document (latexml-oxide's math parser) leaked them all.
+
 ## [0.3.16] (2026-07-12)
 
 ### Fixed
