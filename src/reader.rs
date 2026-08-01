@@ -39,6 +39,78 @@ pub struct TextReader {
   ptr: xmlTextReaderPtr,
 }
 
+/// The reader's own event vocabulary (`xmlReaderTypes`), exposed losslessly.
+///
+/// [`TextReader::node_type`] maps events `1..=12` onto [`NodeType`] and
+/// everything else to `None` — which conflates *end-element* with the two
+/// *whitespace* events (13/14). A streaming caller that reconstructs document
+/// structure needs all three distinguished; [`TextReader::event`] returns this
+/// enum instead.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReaderEvent {
+  /// No node (before the first read / after the last).
+  None,
+  /// An element start tag (`<x>` or `<x/>` — see [`TextReader::is_empty_element`]).
+  Element,
+  /// An attribute node (only when navigating attributes explicitly).
+  Attribute,
+  /// A text node with non-whitespace content.
+  Text,
+  /// A CDATA section.
+  CData,
+  /// An entity reference (unresolved).
+  EntityReference,
+  /// An entity declaration.
+  Entity,
+  /// A processing instruction.
+  ProcessingInstruction,
+  /// A comment.
+  Comment,
+  /// The document node.
+  Document,
+  /// A DOCTYPE declaration.
+  DocumentType,
+  /// A document fragment.
+  DocumentFragment,
+  /// A notation declaration.
+  Notation,
+  /// Ignorable inter-element whitespace.
+  Whitespace,
+  /// Whitespace in mixed content (significant per the reader).
+  SignificantWhitespace,
+  /// An element end tag (`</x>`).
+  EndElement,
+  /// The end of an expanded entity.
+  EndEntity,
+  /// The `<?xml …?>` declaration.
+  XmlDeclaration,
+}
+
+impl ReaderEvent {
+  fn from_int(t: i32) -> Self {
+    match t {
+      1 => ReaderEvent::Element,
+      2 => ReaderEvent::Attribute,
+      3 => ReaderEvent::Text,
+      4 => ReaderEvent::CData,
+      5 => ReaderEvent::EntityReference,
+      6 => ReaderEvent::Entity,
+      7 => ReaderEvent::ProcessingInstruction,
+      8 => ReaderEvent::Comment,
+      9 => ReaderEvent::Document,
+      10 => ReaderEvent::DocumentType,
+      11 => ReaderEvent::DocumentFragment,
+      12 => ReaderEvent::Notation,
+      13 => ReaderEvent::Whitespace,
+      14 => ReaderEvent::SignificantWhitespace,
+      15 => ReaderEvent::EndElement,
+      16 => ReaderEvent::EndEntity,
+      17 => ReaderEvent::XmlDeclaration,
+      _ => ReaderEvent::None,
+    }
+  }
+}
+
 impl Drop for TextReader {
   fn drop(&mut self) {
     unsafe { xmlFreeTextReader(self.ptr) };
@@ -125,6 +197,14 @@ impl TextReader {
     self.node_type() == Some(NodeType::ElementNode)
   }
 
+  /// The current reader event, losslessly (see [`ReaderEvent`]). Unlike
+  /// [`node_type`](Self::node_type), this distinguishes a closing `</x>`
+  /// (`EndElement`) from inter-element whitespace (`Whitespace` /
+  /// `SignificantWhitespace`).
+  pub fn event(&self) -> ReaderEvent {
+    ReaderEvent::from_int(unsafe { xmlTextReaderNodeType(self.ptr) })
+  }
+
   /// The current node's depth in the tree (root element = 0).
   pub fn depth(&self) -> i32 {
     unsafe { xmlTextReaderDepth(self.ptr) }
@@ -202,7 +282,133 @@ impl TextReader {
       // Belt-and-suspenders: ensure every namespace used in the detached tree
       // is declared within it (self-contained serialization, no dangling ns).
       xmlReconciliateNs(newdoc, cloned);
+      // …but undo `xmlNewReconciledNs`'s prefix minting: a *default* (NULL
+      // prefix) namespace declared on an un-copied ancestor comes back as
+      // `xmlns:default="…"` (then `default1`, …), so every element serializes
+      // as `<default:x>` — the classic "annoying default prefix" trap, and a
+      // real corruption for callers that re-serialize subtrees (a fragment
+      // using `default:` never re-parses into the right namespace unless that
+      // fabricated declaration travels with it). Restore each minted
+      // declaration's prefix to the SOURCE element's prefix for the same href
+      // (usually NULL), unless that prefix is already taken on the clone.
+      let mut decl = (*cloned).nsDef;
+      while !decl.is_null() {
+        let prefix = (*decl).prefix;
+        if !prefix.is_null()
+          && xmlStrncmp(prefix, c"default".as_ptr() as *const xmlChar, 7) == 0
+        {
+          let src_ns = xmlSearchNsByHref(src_doc, node, (*decl).href);
+          if !src_ns.is_null() {
+            let want = (*src_ns).prefix;
+            let mut clash = false;
+            let mut other = (*cloned).nsDef;
+            while !other.is_null() {
+              if other != decl && xmlStrEqual((*other).prefix, want) == 1 {
+                clash = true;
+                break;
+              }
+              other = (*other).next;
+            }
+            if !clash && xmlStrEqual(prefix, want) == 0 {
+              let old = (*decl).prefix as *mut ::std::os::raw::c_void;
+              (*decl).prefix = if want.is_null() {
+                ptr::null()
+              } else {
+                xmlStrdup(want)
+              };
+              if let Some(xml_free_fn) = xmlFree {
+                xml_free_fn(old);
+              }
+            }
+          }
+        }
+        decl = (*decl).next;
+      }
       Some(Document::new_ptr(newdoc))
+    }
+  }
+
+  /// The current element's attributes as `(qualified-name, value)` pairs in
+  /// document order, **including namespace declarations** (`xmlns`,
+  /// `xmlns:pfx`), without expanding the subtree.
+  ///
+  /// This is the streaming way to inspect an element *before* deciding whether
+  /// to materialize it — [`expand`](Self::expand) would build the whole
+  /// subtree, which for a large container element defeats the point of
+  /// streaming. Returns an empty vec on non-element nodes.
+  ///
+  /// Values are fully entity/charref-decoded (libxml2 reader semantics); a
+  /// caller re-serializing them must re-escape.
+  pub fn attributes_qname(&mut self) -> Vec<(String, String)> {
+    let mut out = Vec::new();
+    if unsafe { xmlTextReaderMoveToFirstAttribute(self.ptr) } != 1 {
+      return out;
+    }
+    loop {
+      let name = const_xmlchar_to_string(unsafe { xmlTextReaderConstName(self.ptr) });
+      let value = const_xmlchar_to_string(unsafe { xmlTextReaderConstValue(self.ptr) });
+      if let (Some(n), Some(v)) = (name, value) {
+        out.push((n, v));
+      }
+      if unsafe { xmlTextReaderMoveToNextAttribute(self.ptr) } != 1 {
+        break;
+      }
+    }
+    // Restore the reader to the element node so subsequent
+    // `local_name`/`expand`/`read` calls see the element, not its last
+    // attribute.
+    unsafe { xmlTextReaderMoveToElement(self.ptr) };
+    out
+  }
+
+  /// The current node's text value (text/CDATA content, comment text, or
+  /// processing-instruction body). `None` for valueless nodes (e.g. an
+  /// element start).
+  pub fn value(&self) -> Option<String> {
+    const_xmlchar_to_string(unsafe { xmlTextReaderConstValue(self.ptr) })
+  }
+
+  /// True when positioned on an empty element tag (`<x/>`), which the reader
+  /// reports as a *start* event with no matching end-element event.
+  pub fn is_empty_element(&self) -> bool {
+    (unsafe { xmlTextReaderIsEmptyElement(self.ptr) }) == 1
+  }
+
+  /// Serialize the current node's subtree exactly as it appears in the input
+  /// (no XML declaration, no added namespace declarations, attribute order
+  /// preserved). Position is unchanged; call [`read_next`](Self::read_next) to
+  /// move past the subtree. Returns `None` at end of input or on error.
+  ///
+  /// Deliberately NOT `xmlTextReaderReadOuterXml`: that API deep-copies the
+  /// expanded node *parentless* first, and for content in a *default*
+  /// namespace declared on an un-copied ancestor the copy's namespace fixup
+  /// (`xmlNewReconciledNs`) then **mints a `default:` prefix** onto every
+  /// element — `<para>` serializes as `<default:para
+  /// xmlns:default="…">`. Dumping the reader-owned node directly keeps its
+  /// ancestors (and their namespace declarations) reachable, so elements
+  /// serialize with their original prefixes and no fabricated declarations —
+  /// the fragment re-parses correctly inside any wrapper that re-declares the
+  /// same namespaces.
+  pub fn outer_xml(&self) -> Option<String> {
+    let node = self.current_subtree()?;
+    unsafe {
+      let buf = xmlBufferCreate();
+      if buf.is_null() {
+        return None;
+      }
+      let rc = xmlNodeDump(buf, (*node).doc, node, 0, 0);
+      let content = xmlBufferContent(buf);
+      let result = if rc < 0 || content.is_null() {
+        None
+      } else {
+        Some(
+          CStr::from_ptr(content as *const c_char)
+            .to_string_lossy()
+            .into_owned(),
+        )
+      };
+      xmlBufferFree(buf);
+      result
     }
   }
 
@@ -292,6 +498,17 @@ mod tests {
       s0.contains("http://example.org/ns"),
       "ns decl missing: {s0}"
     );
+    // The reconciliation must NOT have minted a `default:` prefix for the
+    // inherited default namespace: the copy serializes with `xmlns=`, exactly
+    // as a standalone parse of the same subtree would.
+    assert!(
+      !s0.contains("default:"),
+      "default-namespace content must keep a NULL prefix, not a minted default: — {s0}"
+    );
+    assert!(
+      s0.contains(r#"<section xmlns="http://example.org/ns""#),
+      "the default declaration must materialize on the copy root: {s0}"
+    );
     assert!(
       s0.contains("Alpha") && s0.contains("one"),
       "content lost: {s0}"
@@ -374,6 +591,108 @@ mod tests {
       !found,
       "no <zzz> exists → read_to_next must reach EOF and return false"
     );
+    std::fs::remove_file(&path).ok();
+  }
+
+  /// `attributes_qname` reports qualified names + namespace declarations in
+  /// document order, without expanding, and leaves the reader positioned on
+  /// the element.
+  #[test]
+  fn attributes_qname_in_order_without_expand() {
+    let xml = r#"<doc xmlns="http://example.org/ns" xmlns:x="http://example.org/x">
+  <section xml:id="s1" class="c" x:extra="e"><p>body</p></section>
+</doc>"#;
+    let path = write_temp("attrs", xml);
+    let mut reader = TextReader::from_file(&path, 0).unwrap();
+
+    assert!(reader.read().unwrap()); // <doc>
+    let root_attrs = reader.attributes_qname();
+    assert_eq!(
+      root_attrs,
+      vec![
+        ("xmlns".to_string(), "http://example.org/ns".to_string()),
+        ("xmlns:x".to_string(), "http://example.org/x".to_string()),
+      ],
+      "namespace declarations must be reported as ordinary attributes"
+    );
+    // Reader restored to the element: name still <doc>, and streaming resumes.
+    assert_eq!(reader.local_name().as_deref(), Some("doc"));
+
+    assert!(
+      reader
+        .read_to_next(|_, name| name == "section")
+        .unwrap()
+    );
+    assert_eq!(
+      reader.attributes_qname(),
+      vec![
+        ("xml:id".to_string(), "s1".to_string()),
+        ("class".to_string(), "c".to_string()),
+        ("x:extra".to_string(), "e".to_string()),
+      ],
+      "attribute order must be document order, names fully qualified"
+    );
+    std::fs::remove_file(&path).ok();
+  }
+
+  /// `outer_xml` on default-namespace content must NOT invent a `default:`
+  /// prefix (the `xmlTextReaderReadOuterXml` + parentless-copy trap) and must
+  /// not add namespace declarations the input element does not carry.
+  #[test]
+  fn outer_xml_preserves_default_namespace_content() {
+    let xml = r#"<doc xmlns="http://example.org/ns" xmlns:x="http://example.org/x">
+  <section a="1" b="&lt;2&gt;"><p>t&amp;t</p><x:note>hi</x:note></section>
+</doc>"#;
+    let path = write_temp("outerxml", xml);
+    let mut reader = TextReader::from_file(&path, 0).unwrap();
+    assert!(
+      reader
+        .read_to_next(|_, name| name == "section")
+        .unwrap()
+    );
+    let outer = reader.outer_xml().unwrap();
+    assert_eq!(
+      outer,
+      r#"<section a="1" b="&lt;2&gt;"><p>t&amp;t</p><x:note>hi</x:note></section>"#,
+      "no default: prefix, no added xmlns decls, escaping and attr order intact"
+    );
+    // Position unchanged: the same subtree can still be skipped as a unit.
+    assert_eq!(reader.local_name().as_deref(), Some("section"));
+    assert!(reader.read_next().unwrap()); // past </section> → </doc> close
+    std::fs::remove_file(&path).ok();
+  }
+
+  /// `value` returns text/comment/PI content; `is_empty_element` distinguishes
+  /// `<x/>` from `<x></x>`.
+  #[test]
+  fn value_and_is_empty_element() {
+    let xml = r#"<r><?pi data?><!--note--><a/><b></b>text</r>"#;
+    let path = write_temp("value", xml);
+    let mut reader = TextReader::from_file(&path, 0).unwrap();
+
+    assert!(reader.read().unwrap()); // <r>
+    assert!(!reader.is_empty_element());
+
+    assert!(reader.read().unwrap()); // <?pi data?>
+    assert_eq!(reader.node_type(), Some(NodeType::PiNode));
+    assert_eq!(reader.local_name().as_deref(), Some("pi"));
+    assert_eq!(reader.value().as_deref(), Some("data"));
+
+    assert!(reader.read().unwrap()); // <!--note-->
+    assert_eq!(reader.node_type(), Some(NodeType::CommentNode));
+    assert_eq!(reader.value().as_deref(), Some("note"));
+
+    assert!(reader.read().unwrap()); // <a/>
+    assert!(reader.is_empty_element());
+
+    assert!(reader.read().unwrap()); // <b>
+    assert!(!reader.is_empty_element());
+    assert!(reader.read().unwrap()); // </b> close
+
+    assert!(reader.read().unwrap()); // text
+    assert_eq!(reader.node_type(), Some(NodeType::TextNode));
+    assert_eq!(reader.value().as_deref(), Some("text"));
+
     std::fs::remove_file(&path).ok();
   }
 

@@ -2,6 +2,39 @@
 
 ## [Unreleased]
 
+## [0.3.18] (2026-07-31)
+
+### Fixed
+
+* `TextReader::expand_to_document` no longer serializes default-namespace
+  content with a minted `default:` prefix. `xmlReconciliateNs` turns a
+  NULL-prefix namespace inherited from an un-copied ancestor into
+  `xmlns:default="…"`, so every element re-serialized as `<default:x>` — and a
+  dumped *subtree* of the copy never re-parsed into the right namespace. The
+  minted declarations' prefixes are restored to the source element's prefixes
+  (clash-checked), so the copy serializes exactly as a standalone parse of the
+  same subtree would.
+
+### Added
+
+* `TextReader` streaming-split support — the four calls a caller needs to
+  partition a huge document into subdocuments without ever materializing a
+  large subtree:
+  * `attributes_qname()`: the current element's attributes as
+    `(qualified-name, value)` pairs in document order, **including namespace
+    declarations**, without expanding the subtree (reader restored to the
+    element afterwards).
+  * `value()`: text/CDATA/comment/PI content of the current node.
+  * `is_empty_element()`: distinguishes `<x/>` from `<x></x>`.
+  * `event()`: the lossless `xmlReaderTypes` event (`ReaderEvent`), distinguishing
+    end-element from whitespace events (both `None` under `node_type()`).
+  * `outer_xml()`: serialize the current subtree exactly as input (attribute
+    order preserved, no added namespace declarations). Deliberately NOT
+    `xmlTextReaderReadOuterXml`, whose parentless deep copy makes
+    `xmlNewReconciledNs` mint a `default:` prefix onto default-namespace
+    content; dumping the reader-owned node directly keeps ancestor namespace
+    declarations reachable so nothing is fabricated.
+
 ## [0.3.17] (2026-07-29)
 
 ### Added
