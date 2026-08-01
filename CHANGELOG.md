@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.3.19] (2026-08-01)
+
+### Fixed
+
+* Windows/MSVC link failure in 0.3.18 (`LNK2019: unresolved external symbol
+  xmlFree`): the `expand_to_document` prefix-restoration freed the minted
+  prefix through the `xmlFree` global, which is not a linkable data symbol on
+  MSVC builds. It now goes through `c_helpers::bindgenFree`, the crate's
+  existing per-target free shim. Any consumer LINKING 0.3.18 on
+  `windows-msvc` fails; `cargo check` passes (no link step), which is how it
+  escaped. 0.3.18 is yanked.
+
 ## [0.3.18] (2026-07-31)
 
 ### Fixed
