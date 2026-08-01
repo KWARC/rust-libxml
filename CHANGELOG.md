@@ -15,6 +15,8 @@
     element afterwards).
   * `value()`: text/CDATA/comment/PI content of the current node.
   * `is_empty_element()`: distinguishes `<x/>` from `<x></x>`.
+  * `event()`: the lossless `xmlReaderTypes` event (`ReaderEvent`), distinguishing
+    end-element from whitespace events (both `None` under `node_type()`).
   * `outer_xml()`: serialize the current subtree exactly as input (attribute
     order preserved, no added namespace declarations). Deliberately NOT
     `xmlTextReaderReadOuterXml`, whose parentless deep copy makes

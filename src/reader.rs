@@ -39,6 +39,78 @@ pub struct TextReader {
   ptr: xmlTextReaderPtr,
 }
 
+/// The reader's own event vocabulary (`xmlReaderTypes`), exposed losslessly.
+///
+/// [`TextReader::node_type`] maps events `1..=12` onto [`NodeType`] and
+/// everything else to `None` — which conflates *end-element* with the two
+/// *whitespace* events (13/14). A streaming caller that reconstructs document
+/// structure needs all three distinguished; [`TextReader::event`] returns this
+/// enum instead.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReaderEvent {
+  /// No node (before the first read / after the last).
+  None,
+  /// An element start tag (`<x>` or `<x/>` — see [`TextReader::is_empty_element`]).
+  Element,
+  /// An attribute node (only when navigating attributes explicitly).
+  Attribute,
+  /// A text node with non-whitespace content.
+  Text,
+  /// A CDATA section.
+  CData,
+  /// An entity reference (unresolved).
+  EntityReference,
+  /// An entity declaration.
+  Entity,
+  /// A processing instruction.
+  ProcessingInstruction,
+  /// A comment.
+  Comment,
+  /// The document node.
+  Document,
+  /// A DOCTYPE declaration.
+  DocumentType,
+  /// A document fragment.
+  DocumentFragment,
+  /// A notation declaration.
+  Notation,
+  /// Ignorable inter-element whitespace.
+  Whitespace,
+  /// Whitespace in mixed content (significant per the reader).
+  SignificantWhitespace,
+  /// An element end tag (`</x>`).
+  EndElement,
+  /// The end of an expanded entity.
+  EndEntity,
+  /// The `<?xml …?>` declaration.
+  XmlDeclaration,
+}
+
+impl ReaderEvent {
+  fn from_int(t: i32) -> Self {
+    match t {
+      1 => ReaderEvent::Element,
+      2 => ReaderEvent::Attribute,
+      3 => ReaderEvent::Text,
+      4 => ReaderEvent::CData,
+      5 => ReaderEvent::EntityReference,
+      6 => ReaderEvent::Entity,
+      7 => ReaderEvent::ProcessingInstruction,
+      8 => ReaderEvent::Comment,
+      9 => ReaderEvent::Document,
+      10 => ReaderEvent::DocumentType,
+      11 => ReaderEvent::DocumentFragment,
+      12 => ReaderEvent::Notation,
+      13 => ReaderEvent::Whitespace,
+      14 => ReaderEvent::SignificantWhitespace,
+      15 => ReaderEvent::EndElement,
+      16 => ReaderEvent::EndEntity,
+      17 => ReaderEvent::XmlDeclaration,
+      _ => ReaderEvent::None,
+    }
+  }
+}
+
 impl Drop for TextReader {
   fn drop(&mut self) {
     unsafe { xmlFreeTextReader(self.ptr) };
@@ -123,6 +195,14 @@ impl TextReader {
   /// True when positioned on an element *start* tag.
   pub fn is_element(&self) -> bool {
     self.node_type() == Some(NodeType::ElementNode)
+  }
+
+  /// The current reader event, losslessly (see [`ReaderEvent`]). Unlike
+  /// [`node_type`](Self::node_type), this distinguishes a closing `</x>`
+  /// (`EndElement`) from inter-element whitespace (`Whitespace` /
+  /// `SignificantWhitespace`).
+  pub fn event(&self) -> ReaderEvent {
+    ReaderEvent::from_int(unsafe { xmlTextReaderNodeType(self.ptr) })
   }
 
   /// The current node's depth in the tree (root element = 0).
