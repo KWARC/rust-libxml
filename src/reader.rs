@@ -282,6 +282,48 @@ impl TextReader {
       // Belt-and-suspenders: ensure every namespace used in the detached tree
       // is declared within it (self-contained serialization, no dangling ns).
       xmlReconciliateNs(newdoc, cloned);
+      // …but undo `xmlNewReconciledNs`'s prefix minting: a *default* (NULL
+      // prefix) namespace declared on an un-copied ancestor comes back as
+      // `xmlns:default="…"` (then `default1`, …), so every element serializes
+      // as `<default:x>` — the classic "annoying default prefix" trap, and a
+      // real corruption for callers that re-serialize subtrees (a fragment
+      // using `default:` never re-parses into the right namespace unless that
+      // fabricated declaration travels with it). Restore each minted
+      // declaration's prefix to the SOURCE element's prefix for the same href
+      // (usually NULL), unless that prefix is already taken on the clone.
+      let mut decl = (*cloned).nsDef;
+      while !decl.is_null() {
+        let prefix = (*decl).prefix;
+        if !prefix.is_null()
+          && xmlStrncmp(prefix, c"default".as_ptr() as *const xmlChar, 7) == 0
+        {
+          let src_ns = xmlSearchNsByHref(src_doc, node, (*decl).href);
+          if !src_ns.is_null() {
+            let want = (*src_ns).prefix;
+            let mut clash = false;
+            let mut other = (*cloned).nsDef;
+            while !other.is_null() {
+              if other != decl && xmlStrEqual((*other).prefix, want) == 1 {
+                clash = true;
+                break;
+              }
+              other = (*other).next;
+            }
+            if !clash && xmlStrEqual(prefix, want) == 0 {
+              let old = (*decl).prefix as *mut ::std::os::raw::c_void;
+              (*decl).prefix = if want.is_null() {
+                ptr::null()
+              } else {
+                xmlStrdup(want)
+              };
+              if let Some(xml_free_fn) = xmlFree {
+                xml_free_fn(old);
+              }
+            }
+          }
+        }
+        decl = (*decl).next;
+      }
       Some(Document::new_ptr(newdoc))
     }
   }
@@ -455,6 +497,17 @@ mod tests {
     assert!(
       s0.contains("http://example.org/ns"),
       "ns decl missing: {s0}"
+    );
+    // The reconciliation must NOT have minted a `default:` prefix for the
+    // inherited default namespace: the copy serializes with `xmlns=`, exactly
+    // as a standalone parse of the same subtree would.
+    assert!(
+      !s0.contains("default:"),
+      "default-namespace content must keep a NULL prefix, not a minted default: — {s0}"
+    );
+    assert!(
+      s0.contains(r#"<section xmlns="http://example.org/ns""#),
+      "the default declaration must materialize on the copy root: {s0}"
     );
     assert!(
       s0.contains("Alpha") && s0.contains("one"),

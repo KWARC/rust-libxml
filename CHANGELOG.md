@@ -4,6 +4,17 @@
 
 ## [0.3.18] (2026-07-31)
 
+### Fixed
+
+* `TextReader::expand_to_document` no longer serializes default-namespace
+  content with a minted `default:` prefix. `xmlReconciliateNs` turns a
+  NULL-prefix namespace inherited from an un-copied ancestor into
+  `xmlns:default="…"`, so every element re-serialized as `<default:x>` — and a
+  dumped *subtree* of the copy never re-parsed into the right namespace. The
+  minted declarations' prefixes are restored to the source element's prefixes
+  (clash-checked), so the copy serializes exactly as a standalone parse of the
+  same subtree would.
+
 ### Added
 
 * `TextReader` streaming-split support — the four calls a caller needs to
