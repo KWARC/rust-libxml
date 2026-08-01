@@ -2,6 +2,26 @@
 
 ## [Unreleased]
 
+## [0.3.18] (2026-07-31)
+
+### Added
+
+* `TextReader` streaming-split support — the four calls a caller needs to
+  partition a huge document into subdocuments without ever materializing a
+  large subtree:
+  * `attributes_qname()`: the current element's attributes as
+    `(qualified-name, value)` pairs in document order, **including namespace
+    declarations**, without expanding the subtree (reader restored to the
+    element afterwards).
+  * `value()`: text/CDATA/comment/PI content of the current node.
+  * `is_empty_element()`: distinguishes `<x/>` from `<x></x>`.
+  * `outer_xml()`: serialize the current subtree exactly as input (attribute
+    order preserved, no added namespace declarations). Deliberately NOT
+    `xmlTextReaderReadOuterXml`, whose parentless deep copy makes
+    `xmlNewReconciledNs` mint a `default:` prefix onto default-namespace
+    content; dumping the reader-owned node directly keeps ancestor namespace
+    declarations reachable so nothing is fabricated.
+
 ## [0.3.17] (2026-07-29)
 
 ### Added
