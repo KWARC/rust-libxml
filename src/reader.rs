@@ -316,9 +316,10 @@ impl TextReader {
               } else {
                 xmlStrdup(want)
               };
-              if let Some(xml_free_fn) = xmlFree {
-                xml_free_fn(old);
-              }
+              // Portable free: on MSVC `xmlFree` is not a linkable data
+              // symbol (LNK2019 in 0.3.18); `bindgenFree` carries the
+              // per-target arm the crate already uses elsewhere.
+              crate::c_helpers::bindgenFree(old);
             }
           }
         }
