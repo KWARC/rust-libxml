@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+## [0.3.21] (2026-08-02)
+
+### Fixed
+
+* `Node::get_namespaces` leaked the `xmlGetNsList` result array on every
+  call, since the crate's beginning: the list is a caller-freed malloc'd
+  array of `xmlNsPtr` (the namespaces belong to the document); the
+  historical attempt freed it with `xmlFreeNs` — the first namespace struct
+  — segfaulted, and was commented out. Measured downstream: 2,429 lost
+  blocks over 30 documents, a leading term of a ~150 KB/page RSS climb
+  across a 115,000-page render. Freed with the per-target allocator shim
+  (MSVC-safe).
+
 ## [0.3.20] (2026-08-02)
 
 ### Changed
