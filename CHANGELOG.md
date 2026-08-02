@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [0.3.20] (2026-08-02)
+
+### Changed
+
+* `Node::set_linked` is now public. A consumer holding long-lived `Node`
+  handles into a document (id caches) needs to declare "the document owns
+  this memory" before dropping handles that intermediate processing may have
+  `unlink_node`ed — without it, the only safe teardown was to leak each
+  wrapper's allocation (~100+ bytes per handle per document; a leading
+  retention term across a 115,000-page render downstream).
+
 ## [0.3.19] (2026-08-01)
 
 ### Fixed

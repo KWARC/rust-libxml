@@ -1305,7 +1305,15 @@ impl Node {
   /// wrapper's `Drop` will free it again). There is no public path to
   /// untake ownership; the right fix is for the caller to never re-link
   /// a `RustOwned` node.
-  pub(crate) fn set_linked(&self) {
+  ///
+  /// Public since 0.3.20: a consumer holding long-lived `Node` handles into a
+  /// document (id caches and the like) needs to declare "the document owns
+  /// this memory" before dropping the handles — some of which may have been
+  /// `unlink_node`ed by intermediate processing. Without this, the only safe
+  /// teardown was to leak each wrapper's allocation (latexml-oxide's
+  /// `DocOwnedNode`, ~100+ bytes per id-cache entry per document — measured
+  /// as a leading retention term at ~150 KB/page across a 115k-page render).
+  pub fn set_linked(&self) {
     let mut inner = self.0.borrow_mut();
     debug_assert!(
       !matches!(inner.linkage, Linkage::RustOwned),
