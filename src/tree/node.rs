@@ -918,7 +918,18 @@ impl Node {
     }
   }
 
-  /// Gets a list of namespaces associated with this node
+  /// Gets a list of namespaces associated with this node.
+  ///
+  /// `xmlGetNsList` mallocs an ARRAY of `xmlNsPtr` that the CALLER must
+  /// free — the namespaces it points at belong to the document and must NOT
+  /// be freed. The historical TODO here tried `xmlFreeNs(list)` (frees the
+  /// first namespace struct — hence the remembered segfault) and gave up,
+  /// leaking the array on EVERY call: measured downstream at 2,429 lost
+  /// blocks over 30 documents (valgrind), a leading term of a ~150 KB/page
+  /// RSS climb across a 115,000-page render whose materialization path calls
+  /// this per node. The array is freed with the crate's per-target
+  /// allocator shim (`bindgenFree` — NOT the `xmlFree` global, which is not
+  /// a linkable symbol on MSVC).
   pub fn get_namespaces(&self, doc: &Document) -> Vec<Namespace> {
     let list_ptr_raw = unsafe { xmlGetNsList(doc.doc_ptr(), self.node_ptr()) };
     if list_ptr_raw.is_null() {
@@ -931,19 +942,8 @@ impl Node {
           namespaces.push(Namespace { ns_ptr: *ptr_iter });
           ptr_iter = ptr_iter.add(1);
         }
-        /* TODO: valgrind suggests this technique isn't sufficiently fluent:
-          ==114895== Conditional jump or move depends on uninitialised value(s)
-          ==114895==    at 0x4E9962F: xmlFreeNs (in /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.4)
-          ==114895==    by 0x195CE8: libxml::tree::Node::get_namespaces (tree.rs:723)
-          ==114895==    by 0x12E7B6: base_tests::can_work_with_namespaces (base_tests.rs:537)
-
-          DG: I could not improve on this state without creating memory leaks after ~1 hour, so I am
-          marking it as future work.
-        */
-        /* TODO: How do we properly deallocate here? The approach bellow reliably segfaults tree_tests on 1 thread */
-        // println!("\n-- xmlfreens on : {:?}", list_ptr_raw);
-        // xmlFreeNs(list_ptr_raw as xmlNsPtr);
       }
+      crate::c_helpers::bindgenFree(list_ptr_raw as *mut std::os::raw::c_void);
       namespaces
     }
   }
