@@ -49,7 +49,7 @@ pkg-config = "0.3.2"
 pkg-config = "0.3.2"
 
 [build-dependencies.bindgen]
-version = "0.72.1"
+version = "0.73.1"
 default-features = false
 
 [dev-dependencies]
