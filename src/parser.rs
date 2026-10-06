@@ -14,7 +14,6 @@ use std::io;
 use std::os::raw::{c_char, c_int};
 use std::ptr;
 use std::slice;
-use std::str;
 
 enum XmlParserOption {
   Recover = 1,
@@ -274,6 +273,16 @@ fn try_usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
   }
 }
 
+/// Convert an optional encoding name into a C string, rejecting interior NUL bytes.
+/// The caller must keep the returned `CString` alive for as long as its pointer is in use.
+/// No encoding name contains a NUL, so it is reported as the failed parse libxml2 would yield
+/// for an unknown encoding (a dedicated `XmlParseError` variant would be a breaking change).
+fn encoding_to_cstring(encoding: Option<&str>) -> Result<Option<CString>, XmlParseError> {
+  encoding
+    .map(|v| CString::new(v).map_err(|_| XmlParseError::GotNullPointer))
+    .transpose()
+}
+
 #[derive(Debug, PartialEq, Eq)]
 /// Enum for the parse formats supported by libxml2
 pub enum ParseFormat {
@@ -323,17 +332,15 @@ impl Parser {
     // a void pointer.
     let ioread: Option<XmlReadCallback> = Some(xml_read);
     let ioclose: Option<XmlCloseCallback> = Some(xml_close);
+    // Process encoding before opening the file, so an invalid name cannot leak `ioctx`.
+    let encoding_cstring = encoding_to_cstring(parser_options.encoding)?;
+    let encoding_ptr = encoding_cstring
+      .as_deref()
+      .map_or(DEFAULT_ENCODING, CStr::as_ptr);
+
     let ioctx = match xml_open(filename) {
       Ok(v) => v,
       Err(_) => return Err(XmlParseError::FileOpenError),
-    };
-
-    // Process encoding.
-    let encoding_cstring: Option<CString> =
-      parser_options.encoding.map(|v| CString::new(v).unwrap());
-    let encoding_ptr = match encoding_cstring.as_ref() {
-      Some(v) => v.as_ptr(),
-      None => DEFAULT_ENCODING,
     };
 
     // Process url.
@@ -436,12 +443,10 @@ impl Parser {
     let input_len = try_usize_to_i32(input_bytes.len())?;
 
     // Process encoding.
-    let encoding_cstring: Option<CString> =
-      parser_options.encoding.map(|v| CString::new(v).unwrap());
-    let encoding_ptr = match encoding_cstring.as_ref() {
-      Some(v) => v.as_ptr(),
-      None => DEFAULT_ENCODING,
-    };
+    let encoding_cstring = encoding_to_cstring(parser_options.encoding)?;
+    let encoding_ptr = encoding_cstring
+      .as_deref()
+      .map_or(DEFAULT_ENCODING, CStr::as_ptr);
 
     // Process url.
     let url_ptr = DEFAULT_URL;
@@ -495,11 +500,13 @@ impl Parser {
     };
 
     // Process encoding.
-    let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
-    let encoding_ptr = match encoding_cstring.as_ref() {
-      Some(v) => v.as_ptr(),
-      None => DEFAULT_ENCODING,
+    let encoding_cstring = match encoding_to_cstring(encoding) {
+      Ok(v) => v,
+      Err(_) => return false,
     };
+    let encoding_ptr = encoding_cstring
+      .as_deref()
+      .map_or(DEFAULT_ENCODING, CStr::as_ptr);
 
     // Process url.
     let url_ptr = DEFAULT_URL;
@@ -512,23 +519,13 @@ impl Parser {
         let docptr = htmlCtxtReadMemory(ctxt, input_ptr, input_len, url_ptr, encoding_ptr, 10_596); // htmlParserOption = 4+32+64+256+2048+8192
         let well_formed_final = if htmlWellFormed(ctxt) {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
-          if !docptr.is_null() {
-            let node_ptr = xmlDocGetRootElement(docptr);
-            if node_ptr.is_null() {
-              return false;
-            }
-            let name_ptr = xmlNodeGetName(node_ptr);
-            if name_ptr.is_null() {
-              false
-            }
-            //empty string
-            else {
-              let c_root_name = CStr::from_ptr(name_ptr);
-              let root_name = str::from_utf8(c_root_name.to_bytes()).unwrap().to_owned();
-              root_name == "html"
-            }
-          } else {
+          // (no early returns here: `ctxt` and `docptr` are freed below)
+          if docptr.is_null() {
             false
+          } else {
+            // xmlNodeGetName is null-safe, so a document without a root element yields null here
+            let name_ptr = xmlNodeGetName(xmlDocGetRootElement(docptr));
+            !name_ptr.is_null() && CStr::from_ptr(name_ptr).to_bytes() == b"html"
           }
         } else {
           false

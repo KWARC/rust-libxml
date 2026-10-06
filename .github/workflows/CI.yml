@@ -26,6 +26,23 @@ jobs:
       - name: run tests
         run: cargo test
 
+  test-valgrind:
+    name: rust-libxml valgrind
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev valgrind
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - name: run tests under valgrind
+        # Memory errors only (invalid reads/writes, uses of freed memory);
+        # leaks are reported but do not fail the job.
+        run: cargo test
+        env:
+          CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -q --error-exitcode=101
+
   test-arm64:
     name: rust-libxml arm64 CI
     runs-on: ubuntu-24.04-arm
