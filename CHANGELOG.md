@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Fixed
+
+* Use-after-free of the encoding name in `Parser::parse_file_with_options`,
+  `Parser::parse_string_with_options` and
+  `Parser::is_well_formed_html_with_encoding`, reachable from safe code since
+  `ParserOptions::encoding` was introduced (0.2.12, 2019): the `CString` was
+  moved into a `match` arm and dropped before libxml2 read it. With the freed
+  bytes reused, the requested encoding was silently ignored or the parse
+  failed. (#216)
+* An encoding name containing a NUL byte panicked; the parse methods now
+  return `XmlParseError::GotNullPointer` (as for any parse failure, keeping
+  the error enum unchanged), and `is_well_formed_html_with_encoding` returns
+  `false`. In `parse_file_with_options` the panic also leaked the opened file.
+* `Parser::is_well_formed_html_with_encoding` leaked its parser context and
+  document when the parsed document had no root element.
+
+### Added
+
+* Tests for `ParserOptions::encoding`, and a CI job running the test suite
+  under valgrind.
+
 ## [0.3.21] (2026-08-02)
 
 ### Fixed
