@@ -262,7 +262,7 @@ impl Parser {
     // Process encoding.
     let encoding_cstring: Option<CString> =
       parser_options.encoding.map(|v| CString::new(v).unwrap());
-    let encoding_ptr = match encoding_cstring {
+    let encoding_ptr = match encoding_cstring.as_ref() {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
     };
@@ -316,7 +316,7 @@ impl Parser {
     // Process encoding.
     let encoding_cstring: Option<CString> =
       parser_options.encoding.map(|v| CString::new(v).unwrap());
-    let encoding_ptr = match encoding_cstring {
+    let encoding_ptr = match encoding_cstring.as_ref() {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
     };
@@ -374,7 +374,7 @@ impl Parser {
 
     // Process encoding.
     let encoding_cstring: Option<CString> = encoding.map(|v| CString::new(v).unwrap());
-    let encoding_ptr = match encoding_cstring {
+    let encoding_ptr = match encoding_cstring.as_ref() {
       Some(v) => v.as_ptr(),
       None => DEFAULT_ENCODING,
     };
