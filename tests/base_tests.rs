@@ -169,7 +169,6 @@ fn well_formed_html() {
 
   let should_well_formed = parser.is_well_formed_html("<!DOCTYPE html>\n<html><head><title>Test</title></head><body>\n<h1>Tiny</h1><math><mn>2</mn></math></body></html>");
   assert!(should_well_formed);
-  // Kept in this test rather than a separate one, as the check is not thread-safe.
   let trivial_html = "<!DOCTYPE html>\n<html><head></head><body></body></html>";
   assert!(parser.is_well_formed_html_with_encoding(trivial_html, Some("UTF-8")));
   assert!(!parser.is_well_formed_html_with_encoding(trivial_html, Some("UTF-8\0junk")));

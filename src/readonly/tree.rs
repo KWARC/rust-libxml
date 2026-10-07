@@ -438,18 +438,9 @@ impl RoNode {
           namespaces.push(Namespace { ns_ptr: *ptr_iter });
           ptr_iter = ptr_iter.add(1);
         }
-        /* TODO: valgrind suggests this technique isn't sufficiently fluent:
-          ==114895== Conditional jump or move depends on uninitialised value(s)
-          ==114895==    at 0x4E9962F: xmlFreeNs (in /usr/lib/x86_64-linux-gnu/libxml2.so.2.9.4)
-          ==114895==    by 0x195CE8: libxml::tree::Node::get_namespaces (tree.rs:723)
-          ==114895==    by 0x12E7B6: base_tests::can_work_with_namespaces (base_tests.rs:537)
-          DG: I could not improve on this state without creating memory leaks after ~1 hour, so I am
-          marking it as future work.
-        */
-        /* TODO: How do we properly deallocate here? The approach bellow reliably segfaults tree_tests on 1 thread */
-        // println!("\n-- xmlfreens on : {:?}", list_ptr_raw);
-        // xmlFreeNs(list_ptr_raw as xmlNsPtr);
       }
+      // The array is the caller's; the namespaces it points at belong to the document.
+      crate::c_helpers::bindgenFree(list_ptr_raw as *mut std::os::raw::c_void);
       namespaces
     }
   }
