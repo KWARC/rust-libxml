@@ -41,6 +41,12 @@
   swallowing later errors and replacing any handler the application had set.
   The state is now per call, and the thread's previous handler is restored.
   `bindings::HACKY_WELL_FORMED` is deprecated and no longer used.
+* `Parser::is_well_formed_html` no longer lets one unknown tag hide other
+  errors: a `<math>` anywhere made the whole document pass on libxml2 before
+  2.14. The verdict is now libxml2's own, except that unknown-tag reports from
+  its pre-2.14 HTML4-era parser are not counted, matching 2.14+, which no
+  longer makes them. HTML5, SVG and MathML documents are well-formed on every
+  supported version.
 * `RoNode::get_namespaces` leaked the `xmlGetNsList` array (88 bytes per
   call), as `Node::get_namespaces` did until 0.3.21.
 
