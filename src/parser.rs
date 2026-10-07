@@ -2,6 +2,8 @@
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::error::StructuredError;
+use crate::schemas::common::structured_error_handler;
 use crate::tree::*;
 
 use std::convert::AsRef;
@@ -69,7 +71,8 @@ pub struct ParserOptions<'a> {
   pub ignore_enc: bool,
   /// manually-specified encoding. A name containing a NUL byte is rejected: the
   /// `parse_*` methods return `XmlParseError::GotNullPointer`, as libxml2 does for
-  /// a parse it cannot run.
+  /// a parse it cannot run, and `parse_string_with_diagnostics` returns
+  /// `XmlParseFailure::InvalidEncoding`.
   pub encoding: Option<&'a str>,
 }
 
@@ -143,8 +146,8 @@ pub enum XmlParseFailure {
   InvalidEncoding(std::ffi::NulError),
   /// libxml2 could not allocate a parser context.
   ContextAllocationFailed,
-  /// Parsing returned no document, optionally with a structured diagnostic.
-  ParseFailed(Option<crate::error::StructuredError>),
+  /// Parsing returned no document; holds every diagnostic libxml2 reported.
+  ParseFailed(Vec<StructuredError>),
 }
 
 impl fmt::Display for XmlParseFailure {
@@ -153,11 +156,11 @@ impl fmt::Display for XmlParseFailure {
       Self::DocumentTooLarge => f.write_str("Document too large for i32"),
       Self::InvalidEncoding(error) => write!(f, "Invalid encoding name: {error}"),
       Self::ContextAllocationFailed => f.write_str("Could not allocate parser context"),
-      Self::ParseFailed(diagnostic) => f.write_str(
-        diagnostic
-          .as_ref()
+      Self::ParseFailed(diagnostics) => f.write_str(
+        diagnostics
+          .first()
           .and_then(|error| error.message.as_deref())
-          .unwrap_or("Parser returned no document"),
+          .map_or("Parser returned no document", str::trim_end),
       ),
     }
   }
@@ -172,13 +175,13 @@ impl Error for XmlParseFailure {
   }
 }
 
-struct ParserContext<'a> {
+struct ParserContext {
   ptr: ptr::NonNull<xmlParserCtxt>,
-  format: &'a ParseFormat,
+  format: ParseFormat,
 }
 
-impl<'a> ParserContext<'a> {
-  fn new(format: &'a ParseFormat) -> Result<Self, XmlParseFailure> {
+impl ParserContext {
+  fn new(format: ParseFormat) -> Result<Self, XmlParseFailure> {
     let context = unsafe {
       match format {
         ParseFormat::XML => xmlNewParserCtxt(),
@@ -190,7 +193,7 @@ impl<'a> ParserContext<'a> {
   }
 }
 
-impl Drop for ParserContext<'_> {
+impl Drop for ParserContext {
   fn drop(&mut self) {
     // These destructors free the context, not the returned document.
     unsafe {
@@ -199,6 +202,47 @@ impl Drop for ParserContext<'_> {
         ParseFormat::HTML => htmlFreeParserCtxt(self.ptr.as_ptr()),
       }
     }
+  }
+}
+
+/// Collects the errors libxml2 reports on the current thread, restoring the previously
+/// installed thread-local structured error handler when dropped (including on unwind).
+/// A per-context handler would be preferable, but before libxml2 2.13 the HTML parser
+/// ignores `sax->serror`, and from 2.13 `XML_PARSE_NOERROR` silences it.
+struct ErrorCollector {
+  // Boxed so the address handed to libxml2 stays put when the collector moves.
+  #[allow(clippy::box_collection)]
+  errors: Box<Vec<StructuredError>>,
+  saved_handler: xmlStructuredErrorFunc,
+  saved_data: *mut c_void,
+}
+
+impl ErrorCollector {
+  fn install() -> Self {
+    let mut errors: Box<Vec<StructuredError>> = Box::default();
+    unsafe {
+      let saved_handler = *__xmlStructuredError();
+      let saved_data = *__xmlStructuredErrorContext();
+      xmlSetStructuredErrorFunc(
+        &mut *errors as *mut Vec<StructuredError> as *mut c_void,
+        Some(structured_error_handler),
+      );
+      ErrorCollector {
+        errors,
+        saved_handler,
+        saved_data,
+      }
+    }
+  }
+
+  fn take(&mut self) -> Vec<StructuredError> {
+    std::mem::take(&mut self.errors)
+  }
+}
+
+impl Drop for ErrorCollector {
+  fn drop(&mut self) {
+    unsafe { xmlSetStructuredErrorFunc(self.saved_data, self.saved_handler) }
   }
 }
 
@@ -282,7 +326,7 @@ fn encoding_to_cstring(encoding: Option<&str>) -> Result<Option<CString>, std::f
   encoding.map(CString::new).transpose()
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 /// Enum for the parse formats supported by libxml2
 pub enum ParseFormat {
   /// Strict parsing for XML
@@ -377,14 +421,19 @@ impl Parser {
     self.parse_string_with_options(input, ParserOptions::default())
   }
 
-  /// Parse XML or HTML with options, preserving an owned structured diagnostic
-  /// on failure. No global error handlers are changed. As with the other parser
-  /// methods, recovery must be disabled to reject malformed input strictly.
+  /// Parse XML or HTML with options, returning the document together with every
+  /// error and warning libxml2 reported while parsing it. On failure, the
+  /// diagnostics are returned in `XmlParseFailure::ParseFailed`.
+  ///
+  /// Diagnostics are collected regardless of `no_error` / `no_warning`, which only
+  /// control printing. As with the other parser methods, `recover` must be disabled
+  /// to reject malformed input; with recovery on, the errors arrive alongside the
+  /// recovered document.
   pub fn parse_string_with_diagnostics<Bytes: AsRef<[u8]>>(
     &self,
     input: Bytes,
     parser_options: ParserOptions,
-  ) -> Result<Document, XmlParseFailure> {
+  ) -> Result<(Document, Vec<StructuredError>), XmlParseFailure> {
     let bytes = input.as_ref();
     let size = try_usize_to_i32(bytes.len()).map_err(|_| XmlParseFailure::DocumentTooLarge)?;
     let encoding_cstring =
@@ -393,7 +442,8 @@ impl Parser {
       .as_deref()
       .map_or(DEFAULT_ENCODING, CStr::as_ptr);
     let options = parser_options.to_flags(&self.format);
-    let context = ParserContext::new(&self.format)?;
+    let context = ParserContext::new(self.format)?;
+    let mut collector = ErrorCollector::install();
     unsafe {
       let document = match self.format {
         ParseFormat::XML => xmlCtxtReadMemory(
@@ -413,16 +463,11 @@ impl Parser {
           options,
         ),
       };
+      let diagnostics = collector.take();
       if document.is_null() {
-        let error = xmlCtxtGetLastError(context.ptr.as_ptr().cast());
-        let diagnostic = if error.is_null() {
-          None
-        } else {
-          Some(crate::error::StructuredError::from_raw(error))
-        };
-        Err(XmlParseFailure::ParseFailed(diagnostic))
+        Err(XmlParseFailure::ParseFailed(diagnostics))
       } else {
-        Ok(Document::new_ptr(document))
+        Ok((Document::new_ptr(document), diagnostics))
       }
     }
   }

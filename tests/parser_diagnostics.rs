@@ -1,3 +1,4 @@
+use libxml::error::{StructuredError, XmlErrorLevel};
 use libxml::parser::{Parser, ParserOptions, XmlParseFailure};
 
 fn strict() -> ParserOptions<'static> {
@@ -8,16 +9,29 @@ fn strict() -> ParserOptions<'static> {
   }
 }
 
+fn messages(diagnostics: &[StructuredError]) -> Vec<&str> {
+  diagnostics
+    .iter()
+    .map(|error| error.message.as_deref().unwrap_or("").trim_end())
+    .collect()
+}
+
+fn failed(
+  result: Result<(libxml::tree::Document, Vec<StructuredError>), XmlParseFailure>,
+) -> Vec<StructuredError> {
+  match result {
+    Err(XmlParseFailure::ParseFailed(diagnostics)) => diagnostics,
+    Err(other) => panic!("expected ParseFailed, got {other:?}"),
+    Ok(_) => panic!("expected ParseFailed, got a document"),
+  }
+}
+
 #[test]
 fn owned_diagnostic_survives_later_parses() {
   let parser = Parser::default();
-  let failure = parser
-    .parse_string_with_diagnostics("\n<?xml version=\"1.0\"?><root/>", strict())
-    .err()
-    .expect("invalid declaration");
-  let XmlParseFailure::ParseFailed(Some(error)) = failure else {
-    panic!("expected a structured parser error");
-  };
+  let diagnostics =
+    failed(parser.parse_string_with_diagnostics("\n<?xml version=\"1.0\"?><root/>", strict()));
+  let error = &diagnostics[0];
   assert_eq!(error.line, Some(2));
   assert!(error.col.is_some());
   let message = error.message.as_ref().unwrap();
@@ -28,11 +42,65 @@ fn owned_diagnostic_survives_later_parses() {
     .unwrap();
   assert!(later.to_string().contains("missing"));
   assert_ne!(message, &later.to_string());
-  let doc = parser
+  let (doc, diagnostics) = parser
     .parse_string_with_diagnostics("<root>ok</root>", strict())
     .unwrap();
+  assert!(diagnostics.is_empty());
   assert_eq!(doc.get_root_element().unwrap().get_content(), "ok");
   assert!(message.contains("declaration"));
+}
+
+#[test]
+/// All errors are kept, in order, not only the last one.
+fn every_error_is_collected() {
+  let diagnostics =
+    failed(Parser::default().parse_string_with_diagnostics("<r>&first;&second;</r>", strict()));
+  let messages = messages(&diagnostics);
+  assert_eq!(messages.len(), 2, "{messages:?}");
+  assert!(messages[0].contains("'first'"), "{messages:?}");
+  assert!(messages[1].contains("'second'"), "{messages:?}");
+  // Display reports the first error, without libxml2's trailing newline.
+  let failure = XmlParseFailure::ParseFailed(diagnostics);
+  assert!(failure.to_string().contains("'first'"));
+  assert!(!failure.to_string().ends_with('\n'));
+}
+
+#[test]
+/// With the default options (recover, no_error), the recovered document comes
+/// with the errors that were recovered from.
+fn recovered_xml_returns_document_and_errors() {
+  let (doc, diagnostics) = Parser::default()
+    .parse_string_with_diagnostics("<a><b></a>", ParserOptions::default())
+    .unwrap();
+  assert!(doc.get_root_element().is_some());
+  let messages = messages(&diagnostics);
+  assert!(messages[0].contains("mismatch"), "{messages:?}");
+}
+
+#[test]
+fn html_errors_are_collected() {
+  let (doc, diagnostics) = Parser::default_html()
+    .parse_string_with_diagnostics("<p><b>x</p></i>", ParserOptions::default())
+    .unwrap();
+  assert!(doc.get_root_element().is_some());
+  let messages = messages(&diagnostics);
+  assert_eq!(messages.len(), 2, "{messages:?}");
+  assert!(messages[1].contains("Unexpected end tag"), "{messages:?}");
+  assert!(
+    diagnostics
+      .iter()
+      .all(|e| matches!(e.level, XmlErrorLevel::Error))
+  );
+}
+
+#[test]
+fn clean_input_has_no_diagnostics() {
+  for parser in [Parser::default(), Parser::default_html()] {
+    let (_, diagnostics) = parser
+      .parse_string_with_diagnostics("<html><body>ok</body></html>", strict())
+      .unwrap();
+    assert!(diagnostics.is_empty(), "{:?}", messages(&diagnostics));
+  }
 }
 
 #[test]
@@ -45,14 +113,11 @@ fn contexts_do_not_share_errors_across_threads() {
         let entity = format!("missing_{i}");
         let xml = format!("<root>&{entity};</root>");
         barrier.wait();
-        let failure = Parser::default()
-          .parse_string_with_diagnostics(xml, strict())
-          .err()
-          .unwrap();
-        let XmlParseFailure::ParseFailed(Some(error)) = failure else {
-          panic!("expected a structured parser error");
-        };
-        assert!(error.message.unwrap().contains(&entity));
+        for _ in 0..50 {
+          let diagnostics = failed(Parser::default().parse_string_with_diagnostics(&xml, strict()));
+          assert_eq!(diagnostics.len(), 1);
+          assert!(diagnostics[0].message.as_ref().unwrap().contains(&entity));
+        }
       })
     })
     .collect();
@@ -81,7 +146,7 @@ fn invalid_encoding_names_return_errors_without_panicking() {
 #[test]
 fn xml_and_html_documents_outlive_their_parser_contexts() {
   for parser in [Parser::default(), Parser::default_html()] {
-    let document = parser
+    let (document, _) = parser
       .parse_string_with_diagnostics(
         b"<html><body>caf\xe9</body></html>",
         ParserOptions {
