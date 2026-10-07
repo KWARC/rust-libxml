@@ -64,7 +64,7 @@ fn parse_file_with_options_keeps_encoding_alive() {
 
 #[test]
 fn parse_string_with_diagnostics_keeps_encoding_alive() {
-  let doc = Parser::default()
+  let (doc, _) = Parser::default()
     .parse_string_with_diagnostics(LATIN1_BYTES, latin1())
     .unwrap();
   assert_eq!(doc.get_root_element().unwrap().get_content(), "café");

@@ -25,6 +25,13 @@
 
 ### Added
 
+* `Parser::parse_string_with_diagnostics` returns the document together with
+  every error and warning libxml2 reported (`Vec<StructuredError>`), or
+  `XmlParseFailure::ParseFailed` with them when no document is produced. Works
+  for XML and HTML, with or without `recover` / `no_error`, on libxml2 2.9
+  through 2.15; errors are collected per thread. (#218, with error collection
+  reworked from a single last error to all errors)
+* `ParseFormat` derives `Clone` and `Copy`.
 * Tests for `ParserOptions::encoding`, and a CI job running the test suite
   under valgrind. `tests/encoding_lifetime_tests.rs` catches a dropped encoding
   name in any of the four entry points without valgrind, through an allocator
