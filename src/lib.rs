@@ -38,9 +38,10 @@ pub mod io;
 
 /// Ensure libxml2's global parser state is initialised. Safe to call from
 /// any number of threads — internally guarded by `std::sync::Once` so the
-/// underlying `xmlInitParser()` runs exactly once. Call this before
-/// performing any libxml2 operations from application code that does
-/// *not* go through the `parser::Parser` API (which initialises lazily).
+/// underlying `xmlInitParser()` runs exactly once. The crate's entry points
+/// (`Parser`, `Document::new`, `SchemaParserContext`, `TextReader::from_file`,
+/// `xpath::is_well_formed_xpath`, `io` registration) call it themselves; call it
+/// before using libxml2 directly, e.g. through `bindings`, from several threads.
 ///
 /// See libxml2's own thread-safety guidance:
 /// <https://dev.w3.org/XInclude-Test-Suite/libxml2-2.4.24/doc/threads.html>

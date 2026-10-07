@@ -383,6 +383,7 @@ impl fmt::Display for Object {
 /// a non-null pointer is returned. The idea is to use this to validate an xpath independent of context.
 /// Tests describing what this validates in tests/xpath_tests.rs
 pub fn is_well_formed_xpath(xpath: &str) -> bool {
+  crate::init_parser();
   let c_xpath = CString::new(xpath).unwrap();
   let xml_xpath_comp_expr_ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
   if xml_xpath_comp_expr_ptr.is_null() {

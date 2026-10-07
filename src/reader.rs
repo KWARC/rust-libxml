@@ -145,6 +145,7 @@ impl TextReader {
   /// (`0` for defaults). Fails if the reader could not be created (e.g. the
   /// file does not exist).
   pub fn from_file(path: &str, options: i32) -> Result<Self, ()> {
+    crate::init_parser();
     let c_path = CString::new(path).map_err(|_| ())?;
     let ptr = unsafe { xmlReaderForFile(c_path.as_ptr(), ptr::null(), options) };
     if ptr.is_null() {

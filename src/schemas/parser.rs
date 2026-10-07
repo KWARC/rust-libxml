@@ -19,6 +19,7 @@ pub struct SchemaParserContext {
 impl SchemaParserContext {
   /// Create a schema parsing context from a Document object
   pub fn from_document(doc: &Document) -> Self {
+    crate::init_parser();
     let parser = unsafe { bindings::xmlSchemaNewDocParserCtxt(doc.doc_ptr()) };
 
     if parser.is_null() {
@@ -30,6 +31,7 @@ impl SchemaParserContext {
 
   /// Create a schema parsing context from a buffer in memory
   pub fn from_buffer<Bytes: AsRef<[u8]>>(buff: Bytes) -> Self {
+    crate::init_parser();
     let buff_bytes = buff.as_ref();
     let buff_ptr = buff_bytes.as_ptr() as *const c_char;
     let buff_len = buff_bytes.len() as i32;
@@ -45,6 +47,7 @@ impl SchemaParserContext {
 
   /// Create a schema parsing context from an URL
   pub fn from_file(path: &str) -> Self {
+    crate::init_parser();
     let path = CString::new(path).unwrap(); // TODO error handling for \0 containing strings
     let path_ptr = path.as_bytes_with_nul().as_ptr() as *const c_char;
 

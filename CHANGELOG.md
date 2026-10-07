@@ -27,6 +27,13 @@
 * `Parser::is_well_formed_html_with_encoding` leaked its parser context and
   document (313 bytes per call) when the input had no root element, e.g.
   comment-only HTML. (#217)
+* Deadlock on libxml2 before 2.12 when a `SchemaParserContext` was created
+  while other threads first used libxml2: its constructors never called
+  `init_parser()`, so libxml2's lazily created mutexes could be initialised
+  twice (threads blocked in `xmlRMutexLock` from `xmlDictCreate`). The
+  `SchemaParserContext` constructors, `Document::new`, `TextReader::from_file`
+  and `xpath::is_well_formed_xpath` now initialise libxml2 first, as `Parser`
+  already did.
 
 ### Added
 
