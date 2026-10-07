@@ -180,3 +180,16 @@ fn schema_from_string_reports_unique_errors() {
     }
   }
 }
+
+#[test]
+fn schema_entity_reference_returns_error_instead_of_panicking() {
+  let mut parser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
+  let mut context = SchemaValidationContext::from_parser(&mut parser).unwrap();
+  let document = Parser::default().parse_string(
+    r#"<!DOCTYPE note [<!ENTITY to "<to>Tove</to>">]><note>&to;<from>Jani</from><heading>Reminder</heading><body>Text</body></note>"#,
+  ).unwrap();
+  let errors = context.validate_document(&document).unwrap_err();
+  assert!(!errors.is_empty());
+  let valid = Parser::default().parse_string(VALID_NOTE_XML).unwrap();
+  assert!(context.validate_document(&valid).is_ok());
+}
