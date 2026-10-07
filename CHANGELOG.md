@@ -34,6 +34,15 @@
   `SchemaParserContext` constructors, `Document::new`, `TextReader::from_file`
   and `xpath::is_well_formed_xpath` now initialise libxml2 first, as `Parser`
   already did.
+* `Parser::is_well_formed_html` is now thread-safe. It tolerated unknown tags
+  (such as `<math>`) through a process-global flag set from libxml2's error
+  callback, so one thread's unknown tag could make another thread's malformed
+  input pass, and it left that callback installed on the thread for good,
+  swallowing later errors and replacing any handler the application had set.
+  The state is now per call, and the thread's previous handler is restored.
+  `bindings::HACKY_WELL_FORMED` is deprecated and no longer used.
+* `RoNode::get_namespaces` leaked the `xmlGetNsList` array (88 bytes per
+  call), as `Node::get_namespaces` did until 0.3.21.
 
 ### Added
 

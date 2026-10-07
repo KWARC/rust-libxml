@@ -6,10 +6,12 @@
 #![allow(improper_ctypes)]
 #![allow(missing_docs)]
 
-/*
- * helper var until we figure out well-formedness checks
- */
-
+/// Formerly the well-formedness check's process-global flag, which raced between
+/// threads. Unused since 0.3.22; kept so existing references still compile.
+#[deprecated(
+  since = "0.3.22",
+  note = "unused: `Parser::is_well_formed_html` keeps its state per call"
+)]
 pub static mut HACKY_WELL_FORMED: bool = false;
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));

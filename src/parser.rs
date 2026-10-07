@@ -227,33 +227,54 @@ unsafe fn push_diagnostic(ctx: *mut c_void, error: *const xmlError) {
   }
 }
 
-/// Collects the errors libxml2 reports on the current thread, restoring the previously
-/// installed thread-local structured error handler when dropped (including on unwind).
-/// A per-context handler would be preferable, but before libxml2 2.13 the HTML parser
-/// ignores `sax->serror`, and from 2.13 `XML_PARSE_NOERROR` silences it.
+/// Installs a structured error handler for the calling thread, restoring the previously
+/// installed one when dropped (including on unwind). libxml2 keeps this handler per thread,
+/// so parses on other threads are unaffected. A per-context handler would be preferable,
+/// but before libxml2 2.13 the HTML parser ignores `sax->serror`, and from 2.13
+/// `XML_PARSE_NOERROR` silences it.
+struct ThreadErrorHandler {
+  saved_handler: xmlStructuredErrorFunc,
+  saved_data: *mut c_void,
+}
+
+impl ThreadErrorHandler {
+  /// # Safety
+  /// `data` must remain valid for `handler` until the returned guard is dropped.
+  unsafe fn install(handler: xmlStructuredErrorFunc, data: *mut c_void) -> Self {
+    unsafe {
+      let saved = ThreadErrorHandler {
+        saved_handler: *__xmlStructuredError(),
+        saved_data: *__xmlStructuredErrorContext(),
+      };
+      xmlSetStructuredErrorFunc(data, handler);
+      saved
+    }
+  }
+}
+
+impl Drop for ThreadErrorHandler {
+  fn drop(&mut self) {
+    unsafe { xmlSetStructuredErrorFunc(self.saved_data, self.saved_handler) }
+  }
+}
+
+/// Collects the errors libxml2 reports on the current thread while it is alive.
 struct ErrorCollector {
+  // Declared first so it is dropped first: the handler is restored before `errors` goes.
+  _handler: ThreadErrorHandler,
   // Boxed so the address handed to libxml2 stays put when the collector moves.
   #[allow(clippy::box_collection)]
   errors: Box<Vec<StructuredError>>,
-  saved_handler: xmlStructuredErrorFunc,
-  saved_data: *mut c_void,
 }
 
 impl ErrorCollector {
   fn install() -> Self {
     let mut errors: Box<Vec<StructuredError>> = Box::default();
-    unsafe {
-      let saved_handler = *__xmlStructuredError();
-      let saved_data = *__xmlStructuredErrorContext();
-      xmlSetStructuredErrorFunc(
-        &mut *errors as *mut Vec<StructuredError> as *mut c_void,
-        Some(collect_diagnostic),
-      );
-      ErrorCollector {
-        errors,
-        saved_handler,
-        saved_data,
-      }
+    let data = &mut *errors as *mut Vec<StructuredError> as *mut c_void;
+    let handler = unsafe { ThreadErrorHandler::install(Some(collect_diagnostic), data) };
+    ErrorCollector {
+      _handler: handler,
+      errors,
     }
   }
 
@@ -262,9 +283,22 @@ impl ErrorCollector {
   }
 }
 
-impl Drop for ErrorCollector {
-  fn drop(&mut self) {
-    unsafe { xmlSetStructuredErrorFunc(self.saved_data, self.saved_handler) }
+/// Sets the `Cell<bool>` at `ctx` when libxml2 reports an unknown HTML tag, which
+/// `is_well_formed_html` tolerates (HTML5 elements such as `<math>`).
+#[cfg(libxml_older_than_2_12)]
+unsafe extern "C" fn note_unknown_tag(ctx: *mut c_void, error: xmlErrorPtr) {
+  unsafe { set_if_unknown_tag(ctx, error) }
+}
+#[cfg(not(libxml_older_than_2_12))]
+unsafe extern "C" fn note_unknown_tag(ctx: *mut c_void, error: *const xmlError) {
+  unsafe { set_if_unknown_tag(ctx, error) }
+}
+unsafe fn set_if_unknown_tag(ctx: *mut c_void, error: *const xmlError) {
+  unsafe {
+    if !error.is_null() && (*error).code as xmlParserErrors == xmlParserErrors_XML_HTML_UNKNOWN_TAG
+    {
+      (*(ctx as *const std::cell::Cell<bool>)).set(true);
+    }
   }
 }
 
@@ -548,10 +582,10 @@ impl Parser {
   }
 
   /// Checks a string for well-formedness with manually-specified encoding.
-  /// IMPORTANT: This function is currently implemented in a HACKY way, to ignore invalid errors for HTML5 elements (such as <math>)
-  ///            this means you should NEVER USE IT WHILE THREADING, it is CERTAIN TO BREAK
   ///
-  /// Help is welcome in implementing it correctly.
+  /// Unknown tags, such as HTML5's `<math>`, are tolerated: libxml2's HTML parser
+  /// predates them. While checking, this replaces the calling thread's libxml2
+  /// structured error handler and restores it afterwards.
   pub fn is_well_formed_html_with_encoding<Bytes: AsRef<[u8]>>(
     &self,
     input: Bytes,
@@ -584,9 +618,15 @@ impl Parser {
       ParseFormat::XML => false, // TODO: Add support for XML at some point
       ParseFormat::HTML => unsafe {
         let ctxt = htmlNewParserCtxt();
-        setWellFormednessHandler(ctxt);
+        // Declared before the guard, so it outlives the handler that writes to it.
+        let saw_unknown_tag = std::cell::Cell::new(false);
+        let _handler = ThreadErrorHandler::install(
+          Some(note_unknown_tag),
+          &saw_unknown_tag as *const std::cell::Cell<bool> as *mut c_void,
+        );
         let docptr = htmlCtxtReadMemory(ctxt, input_ptr, input_len, url_ptr, encoding_ptr, 10_596); // htmlParserOption = 4+32+64+256+2048+8192
-        let well_formed_final = if htmlWellFormed(ctxt) {
+        let well_formed = (!ctxt.is_null() && (*ctxt).wellFormed > 0) || saw_unknown_tag.get();
+        let well_formed_final = if well_formed {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
           // (no early returns here: `ctxt` and `docptr` are freed below)
           if docptr.is_null() {

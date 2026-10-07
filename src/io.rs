@@ -85,6 +85,9 @@ fn snapshot() -> Vec<Arc<Callback>> {
 /// these callbacks — wire them up via libxslt's `parse_bytes` or
 /// libxml2's `xmlReadFile`.
 ///
+/// Register before other threads start parsing: the first call adds the
+/// trampolines to libxml2's input-callback table, which libxml2 does not lock.
+///
 /// ```no_run
 /// use libxml::io;
 ///
