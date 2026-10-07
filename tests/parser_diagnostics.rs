@@ -1,5 +1,5 @@
 use libxml::error::{StructuredError, XmlErrorLevel};
-use libxml::parser::{Parser, ParserOptions, XmlParseFailure};
+use libxml::parser::{MAX_DIAGNOSTICS, Parser, ParserOptions, XmlParseFailure};
 
 fn strict() -> ParserOptions<'static> {
   ParserOptions {
@@ -157,4 +157,26 @@ fn xml_and_html_documents_outlive_their_parser_contexts() {
       .unwrap();
     assert_eq!(document.get_root_element().unwrap().get_content(), "café");
   }
+}
+
+#[test]
+/// Warnings are collected too, even with the default `no_warning: true`.
+fn warnings_are_collected() {
+  let (_, diagnostics) = Parser::default()
+    .parse_string_with_diagnostics(r#"<r xmlns="not-absolute"/>"#, ParserOptions::default())
+    .unwrap();
+  assert_eq!(diagnostics.len(), 1, "{:?}", messages(&diagnostics));
+  assert!(matches!(diagnostics[0].level, XmlErrorLevel::Warning));
+  assert!(messages(&diagnostics)[0].contains("not absolute"));
+}
+
+#[test]
+/// Hostile input cannot grow the diagnostics without bound: libxml2 before 2.13
+/// reports one error per `&a;`.
+fn diagnostics_are_capped() {
+  let input = format!("<r>{}</r>", "&a;".repeat(10 * MAX_DIAGNOSTICS));
+  let (_, diagnostics) = Parser::default()
+    .parse_string_with_diagnostics(input, ParserOptions::default())
+    .unwrap();
+  assert_eq!(diagnostics.len(), MAX_DIAGNOSTICS);
 }
