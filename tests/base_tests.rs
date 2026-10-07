@@ -173,6 +173,8 @@ fn well_formed_html() {
   let trivial_html = "<!DOCTYPE html>\n<html><head></head><body></body></html>";
   assert!(parser.is_well_formed_html_with_encoding(trivial_html, Some("UTF-8")));
   assert!(!parser.is_well_formed_html_with_encoding(trivial_html, Some("UTF-8\0junk")));
+  // No root element: used to leak the parser context and document (visible under valgrind).
+  assert!(!parser.is_well_formed_html("<!-- only a comment -->"));
 }
 
 #[test]

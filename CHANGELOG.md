@@ -17,6 +17,11 @@
   `false`. In `parse_file_with_options` the panic also leaked the opened file.
 * `Parser::is_well_formed_html_with_encoding` leaked its parser context and
   document when the parsed document had no root element.
+* `SchemaValidationContext::validate_document`, `validate_file` and
+  `validate_node` panicked when libxml2 reported an internal validation error,
+  which any document containing an entity reference triggers: a crash for
+  services validating untrusted XML. They now return the errors, with a
+  fallback diagnostic when libxml2 provides none. (#219)
 
 ### Added
 
