@@ -164,6 +164,7 @@ impl fmt::Display for Document {
 impl Document {
   /// Creates a new empty libxml2 document
   pub fn new() -> Result<Self, ()> {
+    crate::init_parser();
     unsafe {
       let c_version = CString::new("1.0").unwrap();
       let c_version_bytes = c_version.as_bytes();
