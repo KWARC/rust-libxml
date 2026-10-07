@@ -49,6 +49,12 @@
   supported version.
 * `RoNode::get_namespaces` leaked the `xmlGetNsList` array (88 bytes per
   call), as `Node::get_namespaces` did until 0.3.21.
+* `xpath::is_well_formed_xpath` leaked the compiled expression's steps (8
+  allocations per call): it was released with a plain `free` instead of
+  `xmlXPathFreeCompExpr`.
+* `Document::canonicalize` leaked every `inclusive_ns_prefixes` string on
+  each call: they were handed to libxml2 through `CString::into_raw` and never
+  reclaimed.
 
 ### Added
 

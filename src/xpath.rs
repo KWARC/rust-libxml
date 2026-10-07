@@ -389,7 +389,8 @@ pub fn is_well_formed_xpath(xpath: &str) -> bool {
   if xml_xpath_comp_expr_ptr.is_null() {
     false
   } else {
-    bindgenFree(xml_xpath_comp_expr_ptr as *mut c_void);
+    // A compiled expression owns its steps; a plain free would leak them.
+    unsafe { xmlXPathFreeCompExpr(xml_xpath_comp_expr_ptr) };
     true
   }
 }

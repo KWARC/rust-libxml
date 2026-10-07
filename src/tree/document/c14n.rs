@@ -20,7 +20,9 @@ impl Document {
   ) -> Result<String, ()> {
     let document = (*self.0).borrow().doc_ptr;
 
-    let mut ns_list_c = to_xml_string_vec(options.inclusive_ns_prefixes);
+    // `ns_strings` owns the prefixes until the end of this call; libxml2 only reads them.
+    let ns_strings = to_cstrings(options.inclusive_ns_prefixes);
+    let mut ns_list_c = to_xml_string_vec(&ns_strings);
     let inclusive_ns_prefixes = ns_list_c.as_mut_ptr();
     let with_comments = c_int::from(options.with_comments);
 
@@ -117,11 +119,16 @@ unsafe extern "C" fn xml_write_io(
   }
 }
 
-/// Create a [Vec] of null-terminated [*mut xmlChar] strings
-fn to_xml_string_vec(vec: Vec<String>) -> Vec<*mut xmlChar> {
-  vec
-    .into_iter()
-    .map(|s| CString::new(s).unwrap().into_raw() as *mut xmlChar)
+fn to_cstrings(vec: Vec<String>) -> Vec<CString> {
+  vec.into_iter().map(|s| CString::new(s).unwrap()).collect()
+}
+
+/// A NULL-terminated array of pointers into `strings`, which must outlive it.
+/// (The strings used to be leaked through `CString::into_raw`.)
+fn to_xml_string_vec(strings: &[CString]) -> Vec<*mut xmlChar> {
+  strings
+    .iter()
+    .map(|s| s.as_ptr() as *mut xmlChar)
     .chain(std::iter::once(std::ptr::null_mut()))
     .collect()
 }
