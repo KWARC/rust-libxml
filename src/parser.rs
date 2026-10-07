@@ -132,6 +132,33 @@ pub enum XmlParseError {
   DocumentTooLarge,
 }
 
+/// An owned failure from a single parser context. It does not depend on the
+/// thread's global last-error slot or install a process-wide error callback.
+#[derive(Debug)]
+pub struct XmlParseFailure {
+  /// A description, including setup failures for which libxml has no xmlError.
+  pub message: String,
+  /// The final structured error, copied before the parser context is released.
+  pub diagnostic: Option<crate::error::StructuredError>,
+}
+
+impl fmt::Display for XmlParseFailure {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    self.message.fmt(f)
+  }
+}
+
+impl Error for XmlParseFailure {}
+
+impl XmlParseFailure {
+  fn setup(message: impl Into<String>) -> Self {
+    Self {
+      message: message.into(),
+      diagnostic: None,
+    }
+  }
+}
+
 impl Error for XmlParseError {}
 
 impl fmt::Debug for XmlParseError {
@@ -299,6 +326,81 @@ impl Parser {
   ///Parses the XML/HTML bytes `input` to generate a new `Document`
   pub fn parse_string<Bytes: AsRef<[u8]>>(&self, input: Bytes) -> Result<Document, XmlParseError> {
     self.parse_string_with_options(input, ParserOptions::default())
+  }
+
+  /// Parse XML or HTML with options, preserving an owned structured diagnostic
+  /// on failure. No global error handlers are changed. As with the other parser
+  /// methods, recovery must be disabled to reject malformed input strictly.
+  pub fn parse_string_with_diagnostics<Bytes: AsRef<[u8]>>(
+    &self,
+    input: Bytes,
+    parser_options: ParserOptions,
+  ) -> Result<Document, XmlParseFailure> {
+    let bytes = input.as_ref();
+    let size = try_usize_to_i32(bytes.len()).map_err(|e| XmlParseFailure::setup(e.to_string()))?;
+    let encoding = parser_options
+      .encoding
+      .map(CString::new)
+      .transpose()
+      .map_err(|_| XmlParseFailure::setup("Encoding name contains a NUL byte"))?;
+    let encoding_ptr = encoding
+      .as_ref()
+      .map_or(DEFAULT_ENCODING, |value| value.as_ptr());
+    let options = parser_options.to_flags(&self.format);
+    unsafe {
+      let context = match self.format {
+        ParseFormat::XML => xmlNewParserCtxt(),
+        ParseFormat::HTML => htmlNewParserCtxt(),
+      };
+      if context.is_null() {
+        return Err(XmlParseFailure::setup("Could not allocate parser context"));
+      }
+      let document = match self.format {
+        ParseFormat::XML => xmlCtxtReadMemory(
+          context,
+          bytes.as_ptr().cast(),
+          size,
+          DEFAULT_URL,
+          encoding_ptr,
+          options,
+        ),
+        ParseFormat::HTML => htmlCtxtReadMemory(
+          context,
+          bytes.as_ptr().cast(),
+          size,
+          DEFAULT_URL,
+          encoding_ptr,
+          options,
+        ),
+      };
+      let failure = if document.is_null() {
+        let error = xmlCtxtGetLastError(context.cast());
+        let diagnostic = if error.is_null() {
+          None
+        } else {
+          Some(crate::error::StructuredError::from_raw(error))
+        };
+        let message = diagnostic
+          .as_ref()
+          .and_then(|error| error.message.clone())
+          .unwrap_or_else(|| "Parser returned no document".to_owned());
+        Some(XmlParseFailure {
+          message,
+          diagnostic,
+        })
+      } else {
+        None
+      };
+      // libxml's context destructor explicitly does not free the returned document.
+      match self.format {
+        ParseFormat::XML => xmlFreeParserCtxt(context),
+        ParseFormat::HTML => htmlFreeParserCtxt(context),
+      }
+      match failure {
+        Some(error) => Err(error),
+        None => Ok(Document::new_ptr(document)),
+      }
+    }
   }
 
   ///Parses the XML/HTML bytes `input` with a manually-specified
