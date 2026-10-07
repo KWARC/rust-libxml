@@ -26,7 +26,9 @@
 ### Added
 
 * Tests for `ParserOptions::encoding`, and a CI job running the test suite
-  under valgrind.
+  under valgrind. `tests/encoding_lifetime_tests.rs` catches a dropped encoding
+  name in any of the four entry points without valgrind, through an allocator
+  that poisons freed memory.
 
 ## [0.3.21] (2026-08-02)
 
