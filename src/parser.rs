@@ -283,21 +283,34 @@ impl ErrorCollector {
   }
 }
 
-/// Sets the `Cell<bool>` at `ctx` when libxml2 reports an unknown HTML tag, which
-/// `is_well_formed_html` tolerates (HTML5 elements such as `<math>`).
+/// What libxml2 reported during an `is_well_formed_html` check.
+#[derive(Default)]
+struct WellFormedness {
+  /// An unknown-tag error, which the check does not count (see `is_well_formed_html`).
+  unknown_tag: std::cell::Cell<bool>,
+  /// Any other error: the document is ill-formed, as libxml2 itself judged it.
+  other_error: std::cell::Cell<bool>,
+}
+
+/// Records the error in the `WellFormedness` at `ctx`.
 #[cfg(libxml_older_than_2_12)]
-unsafe extern "C" fn note_unknown_tag(ctx: *mut c_void, error: xmlErrorPtr) {
-  unsafe { set_if_unknown_tag(ctx, error) }
+unsafe extern "C" fn note_well_formedness(ctx: *mut c_void, error: xmlErrorPtr) {
+  unsafe { record_well_formedness(ctx, error) }
 }
 #[cfg(not(libxml_older_than_2_12))]
-unsafe extern "C" fn note_unknown_tag(ctx: *mut c_void, error: *const xmlError) {
-  unsafe { set_if_unknown_tag(ctx, error) }
+unsafe extern "C" fn note_well_formedness(ctx: *mut c_void, error: *const xmlError) {
+  unsafe { record_well_formedness(ctx, error) }
 }
-unsafe fn set_if_unknown_tag(ctx: *mut c_void, error: *const xmlError) {
+unsafe fn record_well_formedness(ctx: *mut c_void, error: *const xmlError) {
   unsafe {
-    if !error.is_null() && (*error).code as xmlParserErrors == xmlParserErrors_XML_HTML_UNKNOWN_TAG
-    {
-      (*(ctx as *const std::cell::Cell<bool>)).set(true);
+    if error.is_null() || (*error).level < xmlErrorLevel_XML_ERR_ERROR {
+      return; // warnings do not affect well-formedness
+    }
+    let state = &*(ctx as *const WellFormedness);
+    if (*error).code as xmlParserErrors == xmlParserErrors_XML_HTML_UNKNOWN_TAG {
+      state.unknown_tag.set(true);
+    } else {
+      state.other_error.set(true);
     }
   }
 }
@@ -583,9 +596,12 @@ impl Parser {
 
   /// Checks a string for well-formedness with manually-specified encoding.
   ///
-  /// Unknown tags, such as HTML5's `<math>`, are tolerated: libxml2's HTML parser
-  /// predates them. While checking, this replaces the calling thread's libxml2
-  /// structured error handler and restores it afterwards.
+  /// The verdict is libxml2's, with one allowance: libxml2 before 2.14 has an HTML4-era
+  /// parser that reports HTML5, SVG and MathML elements (`<main>`, `<svg>`, `<math>`, ...)
+  /// as unknown tags. Those reports are not counted, matching libxml2 2.14+, which no
+  /// longer makes them. Any other error still makes the document ill-formed. While
+  /// checking, this replaces the calling thread's libxml2 structured error handler and
+  /// restores it afterwards.
   pub fn is_well_formed_html_with_encoding<Bytes: AsRef<[u8]>>(
     &self,
     input: Bytes,
@@ -619,13 +635,15 @@ impl Parser {
       ParseFormat::HTML => unsafe {
         let ctxt = htmlNewParserCtxt();
         // Declared before the guard, so it outlives the handler that writes to it.
-        let saw_unknown_tag = std::cell::Cell::new(false);
+        let reported = WellFormedness::default();
         let _handler = ThreadErrorHandler::install(
-          Some(note_unknown_tag),
-          &saw_unknown_tag as *const std::cell::Cell<bool> as *mut c_void,
+          Some(note_well_formedness),
+          &reported as *const WellFormedness as *mut c_void,
         );
         let docptr = htmlCtxtReadMemory(ctxt, input_ptr, input_len, url_ptr, encoding_ptr, 10_596); // htmlParserOption = 4+32+64+256+2048+8192
-        let well_formed = (!ctxt.is_null() && (*ctxt).wellFormed > 0) || saw_unknown_tag.get();
+        // libxml2's own verdict, unless only unknown-tag errors cleared it.
+        let well_formed = (!ctxt.is_null() && (*ctxt).wellFormed > 0)
+          || (reported.unknown_tag.get() && !reported.other_error.get());
         let well_formed_final = if well_formed {
           // Basic well-formedness passes, let's check if we have an <html> element as root too
           // (no early returns here: `ctxt` and `docptr` are freed below)
