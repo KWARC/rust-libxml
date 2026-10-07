@@ -1,4 +1,4 @@
-use libxml::parser::{Parser, ParserOptions};
+use libxml::parser::{Parser, ParserOptions, XmlParseFailure};
 
 fn strict() -> ParserOptions<'static> {
   ParserOptions {
@@ -15,7 +15,9 @@ fn owned_diagnostic_survives_later_parses() {
     .parse_string_with_diagnostics("\n<?xml version=\"1.0\"?><root/>", strict())
     .err()
     .expect("invalid declaration");
-  let error = failure.diagnostic.unwrap();
+  let XmlParseFailure::ParseFailed(Some(error)) = failure else {
+    panic!("expected a structured parser error");
+  };
   assert_eq!(error.line, Some(2));
   assert!(error.col.is_some());
   let message = error.message.as_ref().unwrap();
@@ -24,8 +26,8 @@ fn owned_diagnostic_survives_later_parses() {
     .parse_string_with_diagnostics("<root>&missing;</root>", strict())
     .err()
     .unwrap();
-  assert!(later.message.contains("missing"));
-  assert_ne!(message, &later.message);
+  assert!(later.to_string().contains("missing"));
+  assert_ne!(message, &later.to_string());
   let doc = parser
     .parse_string_with_diagnostics("<root>ok</root>", strict())
     .unwrap();
@@ -47,7 +49,9 @@ fn contexts_do_not_share_errors_across_threads() {
           .parse_string_with_diagnostics(xml, strict())
           .err()
           .unwrap();
-        let error = failure.diagnostic.unwrap();
+        let XmlParseFailure::ParseFailed(Some(error)) = failure else {
+          panic!("expected a structured parser error");
+        };
         assert!(error.message.unwrap().contains(&entity));
       })
     })
@@ -63,11 +67,15 @@ fn invalid_encoding_names_return_errors_without_panicking() {
     encoding: Some("UTF-8\0bad"),
     ..strict()
   };
-  assert!(
-    Parser::default()
-      .parse_string_with_diagnostics("<root/>", options)
-      .is_err()
-  );
+  let failure = Parser::default()
+    .parse_string_with_diagnostics("<root/>", options)
+    .err()
+    .unwrap();
+  assert!(std::error::Error::source(&failure).is_some());
+  let XmlParseFailure::InvalidEncoding(error) = failure else {
+    panic!("expected an encoding setup error");
+  };
+  assert_eq!(error.nul_position(), 5);
 }
 
 #[test]

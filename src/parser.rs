@@ -132,29 +132,71 @@ pub enum XmlParseError {
   DocumentTooLarge,
 }
 
-/// An owned failure from a single parser context. It does not depend on the
-/// thread's global last-error slot or install a process-wide error callback.
+/// An owned error from setting up or running a parser context.
 #[derive(Debug)]
-pub struct XmlParseFailure {
-  /// A description, including setup failures for which libxml has no xmlError.
-  pub message: String,
-  /// The final structured error, copied before the parser context is released.
-  pub diagnostic: Option<crate::error::StructuredError>,
+#[non_exhaustive]
+pub enum XmlParseFailure {
+  /// The input exceeds libxml2's signed 32-bit length limit.
+  DocumentTooLarge,
+  /// The encoding name contains an interior NUL byte.
+  InvalidEncoding(std::ffi::NulError),
+  /// libxml2 could not allocate a parser context.
+  ContextAllocationFailed,
+  /// Parsing returned no document, optionally with a structured diagnostic.
+  ParseFailed(Option<crate::error::StructuredError>),
 }
 
 impl fmt::Display for XmlParseFailure {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    self.message.fmt(f)
+    match self {
+      Self::DocumentTooLarge => f.write_str("Document too large for i32"),
+      Self::InvalidEncoding(error) => write!(f, "Invalid encoding name: {error}"),
+      Self::ContextAllocationFailed => f.write_str("Could not allocate parser context"),
+      Self::ParseFailed(diagnostic) => f.write_str(
+        diagnostic
+          .as_ref()
+          .and_then(|error| error.message.as_deref())
+          .unwrap_or("Parser returned no document"),
+      ),
+    }
   }
 }
 
-impl Error for XmlParseFailure {}
+impl Error for XmlParseFailure {
+  fn source(&self) -> Option<&(dyn Error + 'static)> {
+    match self {
+      Self::InvalidEncoding(error) => Some(error),
+      _ => None,
+    }
+  }
+}
 
-impl XmlParseFailure {
-  fn setup(message: impl Into<String>) -> Self {
-    Self {
-      message: message.into(),
-      diagnostic: None,
+struct ParserContext<'a> {
+  ptr: ptr::NonNull<xmlParserCtxt>,
+  format: &'a ParseFormat,
+}
+
+impl<'a> ParserContext<'a> {
+  fn new(format: &'a ParseFormat) -> Result<Self, XmlParseFailure> {
+    let context = unsafe {
+      match format {
+        ParseFormat::XML => xmlNewParserCtxt(),
+        ParseFormat::HTML => htmlNewParserCtxt(),
+      }
+    };
+    let ptr = ptr::NonNull::new(context).ok_or(XmlParseFailure::ContextAllocationFailed)?;
+    Ok(Self { ptr, format })
+  }
+}
+
+impl Drop for ParserContext<'_> {
+  fn drop(&mut self) {
+    // These destructors free the context, not the returned document.
+    unsafe {
+      match self.format {
+        ParseFormat::XML => xmlFreeParserCtxt(self.ptr.as_ptr()),
+        ParseFormat::HTML => htmlFreeParserCtxt(self.ptr.as_ptr()),
+      }
     }
   }
 }
@@ -337,27 +379,21 @@ impl Parser {
     parser_options: ParserOptions,
   ) -> Result<Document, XmlParseFailure> {
     let bytes = input.as_ref();
-    let size = try_usize_to_i32(bytes.len()).map_err(|e| XmlParseFailure::setup(e.to_string()))?;
+    let size = try_usize_to_i32(bytes.len()).map_err(|_| XmlParseFailure::DocumentTooLarge)?;
     let encoding = parser_options
       .encoding
       .map(CString::new)
       .transpose()
-      .map_err(|_| XmlParseFailure::setup("Encoding name contains a NUL byte"))?;
+      .map_err(XmlParseFailure::InvalidEncoding)?;
     let encoding_ptr = encoding
       .as_ref()
       .map_or(DEFAULT_ENCODING, |value| value.as_ptr());
     let options = parser_options.to_flags(&self.format);
+    let context = ParserContext::new(&self.format)?;
     unsafe {
-      let context = match self.format {
-        ParseFormat::XML => xmlNewParserCtxt(),
-        ParseFormat::HTML => htmlNewParserCtxt(),
-      };
-      if context.is_null() {
-        return Err(XmlParseFailure::setup("Could not allocate parser context"));
-      }
       let document = match self.format {
         ParseFormat::XML => xmlCtxtReadMemory(
-          context,
+          context.ptr.as_ptr(),
           bytes.as_ptr().cast(),
           size,
           DEFAULT_URL,
@@ -365,7 +401,7 @@ impl Parser {
           options,
         ),
         ParseFormat::HTML => htmlCtxtReadMemory(
-          context,
+          context.ptr.as_ptr(),
           bytes.as_ptr().cast(),
           size,
           DEFAULT_URL,
@@ -373,32 +409,16 @@ impl Parser {
           options,
         ),
       };
-      let failure = if document.is_null() {
-        let error = xmlCtxtGetLastError(context.cast());
+      if document.is_null() {
+        let error = xmlCtxtGetLastError(context.ptr.as_ptr().cast());
         let diagnostic = if error.is_null() {
           None
         } else {
           Some(crate::error::StructuredError::from_raw(error))
         };
-        let message = diagnostic
-          .as_ref()
-          .and_then(|error| error.message.clone())
-          .unwrap_or_else(|| "Parser returned no document".to_owned());
-        Some(XmlParseFailure {
-          message,
-          diagnostic,
-        })
+        Err(XmlParseFailure::ParseFailed(diagnostic))
       } else {
-        None
-      };
-      // libxml's context destructor explicitly does not free the returned document.
-      match self.format {
-        ParseFormat::XML => xmlFreeParserCtxt(context),
-        ParseFormat::HTML => htmlFreeParserCtxt(context),
-      }
-      match failure {
-        Some(error) => Err(error),
-        None => Ok(Document::new_ptr(document)),
+        Ok(Document::new_ptr(document))
       }
     }
   }
