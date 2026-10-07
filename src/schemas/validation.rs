@@ -46,11 +46,7 @@ impl SchemaValidationContext {
   pub fn validate_document(&mut self, doc: &Document) -> Result<(), Vec<StructuredError>> {
     let rc = unsafe { bindings::xmlSchemaValidateDoc(self.ctxt, doc.doc_ptr()) };
 
-    match rc {
-      -1 => panic!("Failed to validate document due to internal error"), // TODO error handling
-      0 => Ok(()),
-      _ => Err(self.drain_errors()),
-    }
+    self.validation_result(rc)
   }
 
   /// Validates a given file from path for its compliance with the loaded XSD schema definition
@@ -60,22 +56,35 @@ impl SchemaValidationContext {
 
     let rc = unsafe { bindings::xmlSchemaValidateFile(self.ctxt, path_ptr, 0) };
 
-    match rc {
-      -1 => panic!("Failed to validate file due to internal error"), // TODO error handling
-      0 => Ok(()),
-      _ => Err(self.drain_errors()),
-    }
+    self.validation_result(rc)
   }
 
   /// Validates a branch or leaf of a document given as a Node against the loaded XSD schema definition
   pub fn validate_node(&mut self, node: &Node) -> Result<(), Vec<StructuredError>> {
     let rc = unsafe { bindings::xmlSchemaValidateOneElement(self.ctxt, node.node_ptr()) };
 
-    match rc {
-      -1 => panic!("Failed to validate element due to internal error"), // TODO error handling
-      0 => Ok(()),
-      _ => Err(self.drain_errors()),
+    self.validation_result(rc)
+  }
+
+  fn validation_result(&mut self, rc: i32) -> Result<(), Vec<StructuredError>> {
+    if rc == 0 {
+      return Ok(());
     }
+    let mut errors = self.drain_errors();
+    if errors.is_empty() {
+      errors.push(StructuredError {
+        message: Some(format!(
+          "Schema validation failed with status {rc} without a diagnostic"
+        )),
+        level: crate::error::XmlErrorLevel::Fatal,
+        filename: None,
+        line: None,
+        col: None,
+        domain: bindings::xmlErrorDomain_XML_FROM_SCHEMASV as i32,
+        code: bindings::xmlParserErrors_XML_SCHEMAV_INTERNAL as i32,
+      });
+    }
+    Err(errors)
   }
 
   /// Drains error log from errors that might have accumulated while validating something
