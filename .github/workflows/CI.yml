@@ -37,8 +37,9 @@ jobs:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - name: run tests under valgrind
-        # Memory errors only (invalid reads/writes, uses of freed memory);
-        # leaks are reported but do not fail the job.
+        # Memory errors only (invalid reads/writes, uses of freed memory).
+        # Leaks do not fail the job yet: the suite still has definite leaks
+        # (base_tests::create_pi, base_tests::document_can_import_node).
         run: cargo test
         env:
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -q --error-exitcode=101

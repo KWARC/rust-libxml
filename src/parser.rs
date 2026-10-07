@@ -67,7 +67,9 @@ pub struct ParserOptions<'a> {
   pub compact: bool,
   /// ignore internal document encoding hint
   pub ignore_enc: bool,
-  /// manually-specified encoding
+  /// manually-specified encoding. A name containing a NUL byte is rejected: the
+  /// `parse_*` methods return `XmlParseError::GotNullPointer`, as libxml2 does for
+  /// a parse it cannot run.
   pub encoding: Option<&'a str>,
 }
 
@@ -274,13 +276,10 @@ fn try_usize_to_i32(value: usize) -> Result<i32, XmlParseError> {
 }
 
 /// Convert an optional encoding name into a C string, rejecting interior NUL bytes.
-/// The caller must keep the returned `CString` alive for as long as its pointer is in use.
-/// No encoding name contains a NUL, so it is reported as the failed parse libxml2 would yield
-/// for an unknown encoding (a dedicated `XmlParseError` variant would be a breaking change).
-fn encoding_to_cstring(encoding: Option<&str>) -> Result<Option<CString>, XmlParseError> {
-  encoding
-    .map(|v| CString::new(v).map_err(|_| XmlParseError::GotNullPointer))
-    .transpose()
+/// The caller must keep the returned `CString` alive for as long as its pointer is in use;
+/// take the pointer with `as_deref()`, as matching on the `Option` by value drops it (#216).
+fn encoding_to_cstring(encoding: Option<&str>) -> Result<Option<CString>, std::ffi::NulError> {
+  encoding.map(CString::new).transpose()
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -333,7 +332,8 @@ impl Parser {
     let ioread: Option<XmlReadCallback> = Some(xml_read);
     let ioclose: Option<XmlCloseCallback> = Some(xml_close);
     // Process encoding before opening the file, so an invalid name cannot leak `ioctx`.
-    let encoding_cstring = encoding_to_cstring(parser_options.encoding)?;
+    let encoding_cstring =
+      encoding_to_cstring(parser_options.encoding).map_err(|_| XmlParseError::GotNullPointer)?;
     let encoding_ptr = encoding_cstring
       .as_deref()
       .map_or(DEFAULT_ENCODING, CStr::as_ptr);
@@ -387,14 +387,11 @@ impl Parser {
   ) -> Result<Document, XmlParseFailure> {
     let bytes = input.as_ref();
     let size = try_usize_to_i32(bytes.len()).map_err(|_| XmlParseFailure::DocumentTooLarge)?;
-    let encoding = parser_options
-      .encoding
-      .map(CString::new)
-      .transpose()
-      .map_err(XmlParseFailure::InvalidEncoding)?;
-    let encoding_ptr = encoding
-      .as_ref()
-      .map_or(DEFAULT_ENCODING, |value| value.as_ptr());
+    let encoding_cstring =
+      encoding_to_cstring(parser_options.encoding).map_err(XmlParseFailure::InvalidEncoding)?;
+    let encoding_ptr = encoding_cstring
+      .as_deref()
+      .map_or(DEFAULT_ENCODING, CStr::as_ptr);
     let options = parser_options.to_flags(&self.format);
     let context = ParserContext::new(&self.format)?;
     unsafe {
@@ -443,7 +440,8 @@ impl Parser {
     let input_len = try_usize_to_i32(input_bytes.len())?;
 
     // Process encoding.
-    let encoding_cstring = encoding_to_cstring(parser_options.encoding)?;
+    let encoding_cstring =
+      encoding_to_cstring(parser_options.encoding).map_err(|_| XmlParseError::GotNullPointer)?;
     let encoding_ptr = encoding_cstring
       .as_deref()
       .map_or(DEFAULT_ENCODING, CStr::as_ptr);
