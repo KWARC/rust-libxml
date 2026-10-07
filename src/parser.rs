@@ -132,6 +132,75 @@ pub enum XmlParseError {
   DocumentTooLarge,
 }
 
+/// An owned error from setting up or running a parser context.
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum XmlParseFailure {
+  /// The input exceeds libxml2's signed 32-bit length limit.
+  DocumentTooLarge,
+  /// The encoding name contains an interior NUL byte.
+  InvalidEncoding(std::ffi::NulError),
+  /// libxml2 could not allocate a parser context.
+  ContextAllocationFailed,
+  /// Parsing returned no document, optionally with a structured diagnostic.
+  ParseFailed(Option<crate::error::StructuredError>),
+}
+
+impl fmt::Display for XmlParseFailure {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      Self::DocumentTooLarge => f.write_str("Document too large for i32"),
+      Self::InvalidEncoding(error) => write!(f, "Invalid encoding name: {error}"),
+      Self::ContextAllocationFailed => f.write_str("Could not allocate parser context"),
+      Self::ParseFailed(diagnostic) => f.write_str(
+        diagnostic
+          .as_ref()
+          .and_then(|error| error.message.as_deref())
+          .unwrap_or("Parser returned no document"),
+      ),
+    }
+  }
+}
+
+impl Error for XmlParseFailure {
+  fn source(&self) -> Option<&(dyn Error + 'static)> {
+    match self {
+      Self::InvalidEncoding(error) => Some(error),
+      _ => None,
+    }
+  }
+}
+
+struct ParserContext<'a> {
+  ptr: ptr::NonNull<xmlParserCtxt>,
+  format: &'a ParseFormat,
+}
+
+impl<'a> ParserContext<'a> {
+  fn new(format: &'a ParseFormat) -> Result<Self, XmlParseFailure> {
+    let context = unsafe {
+      match format {
+        ParseFormat::XML => xmlNewParserCtxt(),
+        ParseFormat::HTML => htmlNewParserCtxt(),
+      }
+    };
+    let ptr = ptr::NonNull::new(context).ok_or(XmlParseFailure::ContextAllocationFailed)?;
+    Ok(Self { ptr, format })
+  }
+}
+
+impl Drop for ParserContext<'_> {
+  fn drop(&mut self) {
+    // These destructors free the context, not the returned document.
+    unsafe {
+      match self.format {
+        ParseFormat::XML => xmlFreeParserCtxt(self.ptr.as_ptr()),
+        ParseFormat::HTML => htmlFreeParserCtxt(self.ptr.as_ptr()),
+      }
+    }
+  }
+}
+
 impl Error for XmlParseError {}
 
 impl fmt::Debug for XmlParseError {
@@ -299,6 +368,59 @@ impl Parser {
   ///Parses the XML/HTML bytes `input` to generate a new `Document`
   pub fn parse_string<Bytes: AsRef<[u8]>>(&self, input: Bytes) -> Result<Document, XmlParseError> {
     self.parse_string_with_options(input, ParserOptions::default())
+  }
+
+  /// Parse XML or HTML with options, preserving an owned structured diagnostic
+  /// on failure. No global error handlers are changed. As with the other parser
+  /// methods, recovery must be disabled to reject malformed input strictly.
+  pub fn parse_string_with_diagnostics<Bytes: AsRef<[u8]>>(
+    &self,
+    input: Bytes,
+    parser_options: ParserOptions,
+  ) -> Result<Document, XmlParseFailure> {
+    let bytes = input.as_ref();
+    let size = try_usize_to_i32(bytes.len()).map_err(|_| XmlParseFailure::DocumentTooLarge)?;
+    let encoding = parser_options
+      .encoding
+      .map(CString::new)
+      .transpose()
+      .map_err(XmlParseFailure::InvalidEncoding)?;
+    let encoding_ptr = encoding
+      .as_ref()
+      .map_or(DEFAULT_ENCODING, |value| value.as_ptr());
+    let options = parser_options.to_flags(&self.format);
+    let context = ParserContext::new(&self.format)?;
+    unsafe {
+      let document = match self.format {
+        ParseFormat::XML => xmlCtxtReadMemory(
+          context.ptr.as_ptr(),
+          bytes.as_ptr().cast(),
+          size,
+          DEFAULT_URL,
+          encoding_ptr,
+          options,
+        ),
+        ParseFormat::HTML => htmlCtxtReadMemory(
+          context.ptr.as_ptr(),
+          bytes.as_ptr().cast(),
+          size,
+          DEFAULT_URL,
+          encoding_ptr,
+          options,
+        ),
+      };
+      if document.is_null() {
+        let error = xmlCtxtGetLastError(context.ptr.as_ptr().cast());
+        let diagnostic = if error.is_null() {
+          None
+        } else {
+          Some(crate::error::StructuredError::from_raw(error))
+        };
+        Err(XmlParseFailure::ParseFailed(diagnostic))
+      } else {
+        Ok(Document::new_ptr(document))
+      }
+    }
   }
 
   ///Parses the XML/HTML bytes `input` with a manually-specified
