@@ -2,40 +2,53 @@
 
 ## [Unreleased]
 
+## [0.3.22] (2026-10-07)
+
 ### Fixed
 
 * Use-after-free of the encoding name in `Parser::parse_file_with_options`,
   `Parser::parse_string_with_options` and
   `Parser::is_well_formed_html_with_encoding`, reachable from safe code since
-  `ParserOptions::encoding` was introduced (0.2.12, 2019): the `CString` was
-  moved into a `match` arm and dropped before libxml2 read it. With the freed
-  bytes reused, the requested encoding was silently ignored or the parse
-  failed. (#216)
-* An encoding name containing a NUL byte panicked; the parse methods now
-  return `XmlParseError::GotNullPointer` (as for any parse failure, keeping
-  the error enum unchanged), and `is_well_formed_html_with_encoding` returns
-  `false`. In `parse_file_with_options` the panic also leaked the opened file.
+  `ParserOptions::encoding` was introduced in 0.2.12 (2019): the `CString` was
+  moved into a `match` arm and dropped before libxml2 read the pointer. When
+  the freed memory was reused, the requested encoding was silently ignored or
+  the parse failed. (#216, #217)
+* Schema validation no longer panics on an internal libxml2 error:
+  `SchemaValidationContext::validate_document`, `validate_file` and
+  `validate_node` return the errors instead, with a fallback diagnostic when
+  libxml2 provides none. Any document containing an entity reference triggered
+  the panic, so a service validating untrusted XML could be crashed by a
+  request. (#219)
+* An encoding name containing a NUL byte panicked. The `parse_*` methods now
+  return `XmlParseError::GotNullPointer` and
+  `is_well_formed_html_with_encoding` returns `false`; the error enum is
+  unchanged. In `parse_file_with_options` the panic also leaked the opened
+  file. (#217)
 * `Parser::is_well_formed_html_with_encoding` leaked its parser context and
-  document when the parsed document had no root element.
-* `SchemaValidationContext::validate_document`, `validate_file` and
-  `validate_node` panicked when libxml2 reported an internal validation error,
-  which any document containing an entity reference triggers: a crash for
-  services validating untrusted XML. They now return the errors, with a
-  fallback diagnostic when libxml2 provides none. (#219)
+  document (313 bytes per call) when the input had no root element, e.g.
+  comment-only HTML. (#217)
 
 ### Added
 
-* `Parser::parse_string_with_diagnostics` returns the document together with
-  every error and warning libxml2 reported (`Vec<StructuredError>`), or
-  `XmlParseFailure::ParseFailed` with them when no document is produced. Works
-  for XML and HTML, with or without `recover` / `no_error`, on libxml2 2.9
-  through 2.15; errors are collected per thread. (#218, with error collection
-  reworked from a single last error to all errors)
-* `ParseFormat` derives `Clone` and `Copy`.
-* Tests for `ParserOptions::encoding`, and a CI job running the test suite
-  under valgrind. `tests/encoding_lifetime_tests.rs` catches a dropped encoding
-  name in any of the four entry points without valgrind, through an allocator
-  that poisons freed memory.
+* `Parser::parse_string_with_diagnostics`: parses XML or HTML and returns the
+  document together with every error and warning libxml2 reported, as
+  `Vec<StructuredError>`, or `XmlParseFailure::ParseFailed` holding them when
+  no document is produced. Works with or without `recover` / `no_error`, on
+  libxml2 2.9 through 2.15; diagnostics are collected per thread and capped at
+  `parser::MAX_DIAGNOSTICS` (100) per parse, since libxml2 before 2.13 reports
+  one error per few bytes of hostile input (1 MB gave ~33 MB of diagnostics).
+  New error type `XmlParseFailure` (`#[non_exhaustive]`). (#218, #220)
+* `ParseFormat` derives `Clone` and `Copy`. (#220)
+* Tests for `ParserOptions::encoding`, which had none, including
+  `tests/encoding_lifetime_tests.rs`: an allocator that poisons freed memory
+  makes a dropped encoding name fail without valgrind, in any of the four
+  entry points. (#217)
+* CI runs the test suite under valgrind. Memory errors fail the job; leaks do
+  not yet, as two existing tests still leak. (#217)
+
+### Changed
+
+* Build dependency `bindgen` requirement raised from 0.72.1 to 0.73.1.
 
 ## [0.3.21] (2026-08-02)
 
