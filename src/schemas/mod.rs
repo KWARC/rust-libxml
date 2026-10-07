@@ -7,7 +7,7 @@
 //! WARNING: This module has not been tested in a multithreaded or multiprocessing
 //! environment.
 //!
-pub(crate) mod common;
+mod common;
 mod parser;
 mod schema;
 mod validation;

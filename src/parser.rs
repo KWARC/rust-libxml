@@ -3,7 +3,6 @@
 use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::error::StructuredError;
-use crate::schemas::common::structured_error_handler;
 use crate::tree::*;
 
 use std::convert::AsRef;
@@ -205,6 +204,29 @@ impl Drop for ParserContext {
   }
 }
 
+/// The most diagnostics kept per parse. libxml2 2.13+ stops reporting at 100 itself; older
+/// versions report every error, which hostile input can make one per few bytes
+/// (1 MB of `&a;` gives 333,333 errors, ~33 MB).
+pub const MAX_DIAGNOSTICS: usize = 100;
+
+/// Appends each reported error to the `Vec<StructuredError>` at `ctx`, up to `MAX_DIAGNOSTICS`.
+#[cfg(libxml_older_than_2_12)]
+unsafe extern "C" fn collect_diagnostic(ctx: *mut c_void, error: xmlErrorPtr) {
+  unsafe { push_diagnostic(ctx, error) }
+}
+#[cfg(not(libxml_older_than_2_12))]
+unsafe extern "C" fn collect_diagnostic(ctx: *mut c_void, error: *const xmlError) {
+  unsafe { push_diagnostic(ctx, error) }
+}
+unsafe fn push_diagnostic(ctx: *mut c_void, error: *const xmlError) {
+  unsafe {
+    let errors = &mut *(ctx as *mut Vec<StructuredError>);
+    if errors.len() < MAX_DIAGNOSTICS && !error.is_null() {
+      errors.push(StructuredError::from_raw(error));
+    }
+  }
+}
+
 /// Collects the errors libxml2 reports on the current thread, restoring the previously
 /// installed thread-local structured error handler when dropped (including on unwind).
 /// A per-context handler would be preferable, but before libxml2 2.13 the HTML parser
@@ -225,7 +247,7 @@ impl ErrorCollector {
       let saved_data = *__xmlStructuredErrorContext();
       xmlSetStructuredErrorFunc(
         &mut *errors as *mut Vec<StructuredError> as *mut c_void,
-        Some(structured_error_handler),
+        Some(collect_diagnostic),
       );
       ErrorCollector {
         errors,
@@ -426,9 +448,13 @@ impl Parser {
   /// diagnostics are returned in `XmlParseFailure::ParseFailed`.
   ///
   /// Diagnostics are collected regardless of `no_error` / `no_warning`, which only
-  /// control printing. As with the other parser methods, `recover` must be disabled
-  /// to reject malformed input; with recovery on, the errors arrive alongside the
-  /// recovered document.
+  /// control printing, and are capped at [`MAX_DIAGNOSTICS`]. As with the other parser
+  /// methods, `recover` must be disabled to reject malformed input; with recovery on,
+  /// the errors arrive alongside the recovered document.
+  ///
+  /// While parsing, this replaces the calling thread's libxml2 structured error
+  /// handler (`xmlSetStructuredErrorFunc`) and restores it afterwards, so a handler
+  /// installed by the application does not see these errors.
   pub fn parse_string_with_diagnostics<Bytes: AsRef<[u8]>>(
     &self,
     input: Bytes,
