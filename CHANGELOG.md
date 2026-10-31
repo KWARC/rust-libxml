@@ -7,17 +7,17 @@
 * `xpath::Expression`: an XPath expression compiled once (`Expression::compile`, libxml2's `xmlXPathCompile`) and
   evaluated any number of times, against any `Context`, by `Context::evaluate_compiled`, `node_evaluate_compiled`,
   `findnodes_compiled`, `findvalues_compiled` and `findvalue_compiled`. The string evaluators compile their expression
-  on every call; an application repeating a few expressions (latexml-oxide: 57–63 distinct expressions in 15k–32k
-  calls per document) saves 0.5–1.3 % of all its instructions. The result is the string evaluators': libxml2
-  compiles, optimizes and runs the expression the same way, and a node evaluation leaves its node as the context's
-  current node as `node_evaluate` does. Errors are the structured `XPathError`, at compile time for a malformed
-  expression.
+  on every call; an application repeating a few expressions (latexml-oxide: 35–63 distinct expressions in up to 134k
+  calls per document) saves up to 1.7 % of all its instructions, about 1 % on average. The result is the string
+  evaluators': libxml2 compiles, optimizes and runs the expression the same way, and a node evaluation leaves its node
+  as the context's current node as `node_evaluate` does. Errors are the structured `XPathError`, at compile time for a
+  malformed expression.
 * `Node::with_property` (alias `with_attribute`): read a property and pass it to a callback, in the common case
   without allocating. The name is a `&CStr` (`c"id"`). A value that libxml2 holds as a single text node of at most
-  128 bytes is copied into a stack buffer; a longer value, or one of another shape (an entity reference in the value, a DTD default), is read
-  into a `String` as `get_property` reads it. The result is `get_property`'s. The callback holds its own copy, so it
-  may change the document. latexml-oxide reads one private attribute on every text chunk; reading it this way saves
-  0.5–2.5 % of all its instructions.
+  128 bytes is copied into a stack buffer; a longer value, or one of another shape (an entity reference in the value,
+  a DTD default), is read into a `String` as `get_property` reads it. The result is `get_property`'s. The callback
+  holds its own copy, so it may change the document. latexml-oxide reads one private attribute on every text chunk;
+  reading it this way saves up to 2.5 % of all its instructions, 0.7–1.2 % on average.
 
 ## [0.3.22] (2026-10-07)
 
