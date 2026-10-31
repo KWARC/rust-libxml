@@ -11,7 +11,7 @@ use std::sync::atomic::{AtomicIsize, Ordering};
 
 use libxml::parser::Parser;
 use libxml::tree::c14n::{CanonicalizationMode, CanonicalizationOptions};
-use libxml::xpath::is_well_formed_xpath;
+use libxml::xpath::{Context, Expression, is_well_formed_xpath};
 
 static RUST_LIVE: AtomicIsize = AtomicIsize::new(0);
 static LIBXML_LIVE: AtomicIsize = AtomicIsize::new(0);
@@ -133,4 +133,75 @@ fn repeated_operations_do_not_leak() {
     libxml, 0,
     "canonicalize leaked {libxml} libxml2 allocations in 50 calls"
   );
+
+  // A compiled expression frees its steps when dropped; its evaluations free their objects.
+  let compiled = growth(&LIBXML_LIVE, 100, || {
+    let expression = Expression::compile("//a:x | //*[@b:y='1']").unwrap();
+    let ctx = Context::new(&doc).unwrap();
+    ctx.register_namespace("a", "urn:a").unwrap();
+    ctx.register_namespace("b", "urn:b").unwrap();
+    assert_eq!(ctx.findnodes_compiled(&expression, None).unwrap().len(), 1);
+    let root = doc.get_root_element().unwrap();
+    assert_eq!(
+      ctx
+        .findnodes_compiled(&expression, Some(&root))
+        .unwrap()
+        .len(),
+      1
+    );
+  });
+  assert_eq!(
+    compiled, 0,
+    "compiled XPath evaluation leaked {compiled} libxml2 allocations in 100 calls"
+  );
+
+  // A property read in place or through the copying fallback (an entity reference, a DTD default) frees its copy.
+  let dtd_doc = Parser::default()
+    .parse_string(
+      r#"<!DOCTYPE r [<!ENTITY e "EE"><!ATTLIST r d CDATA "dflt">]><r a="v" ent="x&e;y"/>"#,
+    )
+    .unwrap();
+  let dtd_root = dtd_doc.get_root_element().unwrap();
+  let in_place = growth(&LIBXML_LIVE, 100, || {
+    for name in [c"a", c"absent"] {
+      dtd_root.with_property(name, |value| assert!(!value.contains('\0')));
+    }
+  });
+  assert_eq!(
+    in_place, 0,
+    "with_property (in place) leaked {in_place} libxml2 allocations in 100 rounds"
+  );
+
+  // The paths that free a libxml2 string through `bindgenFree` — `findvalues_compiled` (via `get_nodes_as_str`) and
+  // `with_property`'s copying fallback — are counted off MSVC only: there `bindgenFree` frees with the C runtime's
+  // `free` (`c_helpers.rs`), which the counting hooks set by `xmlMemSetup` above never see.
+  #[cfg(not(all(target_family = "windows", target_env = "msvc")))]
+  {
+    let values = growth(&LIBXML_LIVE, 100, || {
+      let expression = Expression::compile("//*[@b:y='1']").unwrap();
+      let ctx = Context::new(&doc).unwrap();
+      ctx.register_namespace("b", "urn:b").unwrap();
+      let root = doc.get_root_element().unwrap();
+      assert_eq!(
+        ctx
+          .findvalues_compiled(&expression, Some(&root))
+          .unwrap()
+          .len(),
+        1
+      );
+    });
+    assert_eq!(
+      values, 0,
+      "findvalues_compiled leaked {values} libxml2 allocations in 100 calls"
+    );
+    let copied = growth(&LIBXML_LIVE, 100, || {
+      for name in [c"ent", c"d"] {
+        dtd_root.with_property(name, |value| assert!(!value.contains('\0')));
+      }
+    });
+    assert_eq!(
+      copied, 0,
+      "with_property (copy) leaked {copied} libxml2 allocations in 100 rounds"
+    );
+  }
 }

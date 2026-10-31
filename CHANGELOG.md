@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+
+* `xpath::Expression`: an XPath expression compiled once (`Expression::compile`, libxml2's `xmlXPathCompile`) and
+  evaluated any number of times, against any `Context`, by `Context::evaluate_compiled`, `node_evaluate_compiled`,
+  `findnodes_compiled`, `findvalues_compiled` and `findvalue_compiled`. The string evaluators compile their expression
+  on every call; an application repeating a few expressions (latexml-oxide: 57–63 distinct expressions in 15k–32k
+  calls per document) saves 0.5–1.3 % of all its instructions. The result is the string evaluators': libxml2
+  compiles, optimizes and runs the expression the same way, and a node evaluation leaves its node as the context's
+  current node as `node_evaluate` does. Errors are the structured `XPathError`, at compile time for a malformed
+  expression.
+* `Node::with_property` (alias `with_attribute`): read a property without copying it. The callback receives the value
+  in place when libxml2 holds it as a single text node, and a copy otherwise (an entity reference in the value, a DTD
+  default); the name is a `&CStr` (`c"id"`), so no allocation is made for it either. The result is
+  `get_property`'s. While the callback runs the node stays borrowed, so a change through another handle fails instead
+  of freeing the value being read. latexml-oxide reads one private attribute on every text chunk; reading it in
+  place saves 0.5–2.5 % of all its instructions.
+
 ## [0.3.22] (2026-10-07)
 
 ### Fixed

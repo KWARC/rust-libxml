@@ -327,3 +327,125 @@ mod checked_evaluators {
     assert!(ctx.node_evaluate_readonly_checked("///", ro_root).is_err());
   }
 }
+
+/// A compiled `xpath::Expression` evaluates as its source string does, reusable across nodes, contexts and documents.
+mod compiled_expressions {
+  use libxml::parser::Parser;
+  use libxml::xpath::{Context, Expression};
+
+  /// Every evaluator gives the same result for an expression compiled once as for its source string.
+  #[test]
+  fn compiled_matches_string_evaluation() {
+    let doc = Parser::default()
+      .parse_file("tests/resources/file01.xml")
+      .unwrap();
+    let mut ctx = Context::new(&doc).unwrap();
+    let root = doc.get_root_element().unwrap();
+    for xpath in [
+      "/root",
+      "//child",
+      "child",
+      "//*[@attribute]",
+      "count(//child)",
+      "*/text()",
+    ] {
+      let expression = Expression::compile(xpath).unwrap();
+      for node in [None, Some(&root)] {
+        assert_eq!(
+          ctx.findnodes_compiled(&expression, node).unwrap(),
+          ctx.findnodes(xpath, node).unwrap(),
+          "findnodes {xpath:?} at {node:?}"
+        );
+        assert_eq!(
+          ctx.findvalues_compiled(&expression, node).unwrap(),
+          ctx.findvalues(xpath, node).unwrap(),
+          "findvalues {xpath:?} at {node:?}"
+        );
+        assert_eq!(
+          ctx.findvalue_compiled(&expression, node).unwrap(),
+          ctx.findvalue(xpath, node).unwrap(),
+          "findvalue {xpath:?} at {node:?}"
+        );
+      }
+    }
+  }
+
+  /// As `node_evaluate`, a compiled node evaluation leaves its node as the context's current node, which a later
+  /// evaluation at no node starts from.
+  #[test]
+  fn compiled_keeps_the_context_node_as_strings_do() {
+    let doc = Parser::default()
+      .parse_file("tests/resources/file01.xml")
+      .unwrap();
+    let ctx = Context::new(&doc).unwrap();
+    let root = doc.get_root_element().unwrap();
+    let child = Expression::compile("child").unwrap();
+    ctx.node_evaluate_compiled(&child, &root).unwrap();
+    let after_compiled = ctx.evaluate_compiled(&child).unwrap().get_number_of_nodes();
+    ctx.node_evaluate("child", &root).unwrap();
+    let after_string = ctx.evaluate("child").unwrap().get_number_of_nodes();
+    assert_eq!(after_compiled, after_string);
+    assert_eq!(after_compiled, 2);
+  }
+
+  /// A namespace prefix is resolved when the expression runs, from the context it runs in.
+  #[test]
+  fn compiled_resolves_prefixes_at_evaluation() {
+    let doc = Parser::default()
+      .parse_string(r#"<r xmlns="urn:a"><x/><x/></r>"#)
+      .unwrap();
+    let expression = Expression::compile("//a:x").unwrap();
+    let plain = Context::new(&doc).unwrap();
+    assert!(plain.findnodes_compiled(&expression, None).is_err());
+    let registered = Context::new(&doc).unwrap();
+    registered.register_namespace("a", "urn:a").unwrap();
+    assert_eq!(
+      registered
+        .findnodes_compiled(&expression, None)
+        .unwrap()
+        .len(),
+      2
+    );
+  }
+
+  /// One expression evaluates against the contexts of different documents.
+  #[test]
+  fn compiled_is_reused_across_documents() {
+    let expression = Expression::compile("count(//child)").unwrap();
+    let one = Parser::default()
+      .parse_file("tests/resources/file01.xml")
+      .unwrap();
+    let two = Parser::default().parse_string("<r><child/></r>").unwrap();
+    let count = |doc: &libxml::tree::Document| {
+      Context::new(doc)
+        .unwrap()
+        .findvalue_compiled(&expression, None)
+        .unwrap()
+    };
+    assert_eq!(count(&one), "2");
+    assert_eq!(count(&two), "1");
+  }
+
+  /// A malformed expression fails to compile with libxml2's structured error; a NUL byte is refused, not a panic.
+  #[test]
+  fn compile_reports_malformed_expressions() {
+    let error = Expression::compile("//a[").unwrap_err();
+    assert!(error.message.is_some(), "a structured message: {error}");
+    assert!(Expression::compile("///").is_err());
+    assert!(Expression::compile("a\0b").is_err());
+  }
+
+  /// A compiled node evaluation at a node of another document fails as `node_evaluate` does.
+  #[test]
+  fn compiled_refuses_a_node_of_another_document() {
+    let one = Parser::default()
+      .parse_file("tests/resources/file01.xml")
+      .unwrap();
+    let two = Parser::default().parse_string("<r/>").unwrap();
+    let ctx = Context::new(&one).unwrap();
+    let foreign = two.get_root_element().unwrap();
+    let expression = Expression::compile("*").unwrap();
+    assert!(ctx.node_evaluate_compiled(&expression, &foreign).is_err());
+    assert!(ctx.node_evaluate("*", &foreign).is_err());
+  }
+}
