@@ -3,14 +3,16 @@
 //! value: those a parser makes, and those only the tree API makes (no children, a text child with no content, a CDATA
 //! child). The child lists hold the children in document order.
 
+use std::cell::Cell;
 use std::ffi::{CStr, CString};
-use std::os::raw::c_char;
+use std::os::raw::{c_char, c_void};
+use std::sync::{Once, OnceLock};
 
 #[cfg(not(all(target_family = "windows", target_env = "msvc")))]
 use libxml::bindings::xmlFree;
 use libxml::bindings::{
-  xmlAddChild, xmlGetNoNsProp, xmlGetNsProp, xmlGetProp, xmlNewCDataBlock, xmlNewDocText, xmlNewNs,
-  xmlNewNsProp, xmlNewProp, xmlNodeGetContent, xmlNodePtr,
+  xmlAddChild, xmlGetNoNsProp, xmlGetNsProp, xmlGetProp, xmlMemGet, xmlMemSetup, xmlNewCDataBlock,
+  xmlNewDocText, xmlNewNs, xmlNewNsProp, xmlNewProp, xmlNodeGetContent, xmlNodePtr,
 };
 use libxml::parser::Parser;
 use libxml::tree::{Node, NodeType};
@@ -222,6 +224,78 @@ fn get_properties_reads_each_value_as_get_property() {
     };
     assert_eq!(Some(value), expected, "property {name:?}");
   }
+}
+
+thread_local! {
+  /// libxml2's allocations on this thread, counted once `libxml2_allocations` has first run.
+  static LIBXML2_ALLOCATIONS: Cell<usize> = const { Cell::new(0) };
+}
+
+/// The `xmlMalloc` that `counting_malloc` passes each allocation on to.
+static LIBXML2_MALLOC: OnceLock<unsafe extern "C" fn(usize) -> *mut c_void> = OnceLock::new();
+
+unsafe extern "C" fn counting_malloc(size: usize) -> *mut c_void {
+  let _ = LIBXML2_ALLOCATIONS.try_with(|count| count.set(count.get() + 1));
+  unsafe { LIBXML2_MALLOC.get().unwrap()(size) }
+}
+
+/// How many times libxml2 calls `xmlMalloc` (or `xmlMallocAtomic`) while `op` runs on this thread. The count is per
+/// thread, so tests running alongside do not disturb it.
+fn libxml2_allocations<R>(op: impl FnOnce() -> R) -> usize {
+  static COUNT: Once = Once::new();
+  COUNT.call_once(|| unsafe {
+    let (mut free, mut malloc, mut realloc, mut strdup) = (None, None, None, None);
+    assert_eq!(
+      xmlMemGet(&mut free, &mut malloc, &mut realloc, &mut strdup),
+      0
+    );
+    LIBXML2_MALLOC.set(malloc.unwrap()).unwrap();
+    assert_eq!(xmlMemSetup(free, Some(counting_malloc), realloc, strdup), 0);
+  });
+  let before = LIBXML2_ALLOCATIONS.with(Cell::get);
+  drop(std::hint::black_box(op()));
+  LIBXML2_ALLOCATIONS.with(Cell::get) - before
+}
+
+/// libxml2's getters return NULL whenever their lookup (`xmlHasProp`, `xmlHasNsProp`) does, so an absent property is
+/// looked up once, as the matching `has_` method looks it up. A lookup that finds no attribute on the element goes on
+/// to the DTD, and here allocates there: it splits the prefixed name, or joins the prefixed element name, and lists
+/// the namespaces in scope for a namespaced name. Counting those allocations tells one lookup from two.
+#[test]
+fn an_absent_property_is_looked_up_once() {
+  let doc = Parser::default()
+    .parse_string(r#"<!DOCTYPE p:r [<!ATTLIST p:r d CDATA "dflt">]><p:r xmlns:p="urn:p" a="1"/>"#)
+    .unwrap();
+  let root = doc.get_root_element().unwrap();
+  let lookups = [
+    (
+      "get_property",
+      libxml2_allocations(|| root.get_property("p:absent")),
+      libxml2_allocations(|| root.has_property("p:absent")),
+    ),
+    (
+      "get_property_ns",
+      libxml2_allocations(|| root.get_property_ns("absent", "urn:p")),
+      libxml2_allocations(|| root.has_property_ns("absent", "urn:p")),
+    ),
+    (
+      "get_property_no_ns",
+      libxml2_allocations(|| root.get_property_no_ns("absent")),
+      libxml2_allocations(|| root.has_property_no_ns("absent")),
+    ),
+  ];
+  for (accessor, _, has) in lookups {
+    assert!(has > 0, "{accessor}: the lookup allocates nothing to count");
+  }
+  let looked_up_again: Vec<String> = lookups
+    .iter()
+    .filter(|(_, get, has)| get != has)
+    .map(|(accessor, get, has)| format!("{accessor}: {get} allocations, {has} for one lookup"))
+    .collect();
+  assert!(
+    looked_up_again.is_empty(),
+    "an absent property is looked up again: {looked_up_again:?}"
+  );
 }
 
 /// Names and values on both sides of the 128-byte stack copy are written, read, tested and removed alike.

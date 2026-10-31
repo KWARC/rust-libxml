@@ -558,11 +558,10 @@ impl Node {
   pub fn get_property(&self, name: &str) -> Option<String> {
     with_c_str(name, |c_name| unsafe {
       let node_ptr = self.node_ptr();
-      // (`xmlGetProp` is `xmlHasProp` and a copy of the value; the common shapes are read in place)
-      match single_text_value(xmlHasProp(node_ptr, c_name)) {
-        Some(content) => Some(c_str_to_string(content)),
-        None => take_xml_string(xmlGetProp(node_ptr, c_name)),
-      }
+      // (`xmlGetProp` is `xmlHasProp` and a copy of the value)
+      property_value(xmlHasProp(node_ptr, c_name), || {
+        xmlGetProp(node_ptr, c_name)
+      })
     })
   }
 
@@ -611,11 +610,10 @@ impl Node {
     with_c_str(name, |c_name| {
       with_c_str(ns, |c_ns| unsafe {
         let node_ptr = self.node_ptr();
-        // (`xmlGetNsProp` is `xmlHasNsProp` and a copy of the value; the common shapes are read in place)
-        match single_text_value(xmlHasNsProp(node_ptr, c_name, c_ns)) {
-          Some(content) => Some(c_str_to_string(content)),
-          None => take_xml_string(xmlGetNsProp(node_ptr, c_name, c_ns)),
-        }
+        // (`xmlGetNsProp` is `xmlHasNsProp` and a copy of the value)
+        property_value(xmlHasNsProp(node_ptr, c_name, c_ns), || {
+          xmlGetNsProp(node_ptr, c_name, c_ns)
+        })
       })
     })
   }
@@ -624,12 +622,10 @@ impl Node {
   pub fn get_property_no_ns(&self, name: &str) -> Option<String> {
     with_c_str(name, |c_name| unsafe {
       let node_ptr = self.node_ptr();
-      // (`xmlGetNoNsProp` is `xmlHasNsProp` with no namespace and a copy of the value; the common shapes are read in
-      // place)
-      match single_text_value(xmlHasNsProp(node_ptr, c_name, ptr::null())) {
-        Some(content) => Some(c_str_to_string(content)),
-        None => take_xml_string(xmlGetNoNsProp(node_ptr, c_name)),
-      }
+      // (`xmlGetNoNsProp` is `xmlHasNsProp` with no namespace and a copy of the value)
+      property_value(xmlHasNsProp(node_ptr, c_name, ptr::null()), || {
+        xmlGetNoNsProp(node_ptr, c_name)
+      })
     })
   }
 
@@ -1528,6 +1524,26 @@ unsafe fn single_text_value<'a>(attr: xmlAttrPtr) -> Option<&'a CStr> {
     Some(unsafe { CStr::from_ptr(text.content as *const c_char) })
   } else {
     None
+  }
+}
+
+/// The value of `attr`, which libxml2's lookup (`xmlHasProp`, `xmlHasNsProp`) returned: `None` when it is NULL, read in
+/// place when it is one of the shapes `single_text_value` reads, and otherwise copied by `getter`, the libxml2 getter
+/// that makes the same lookup. libxml2's getters return NULL whenever that lookup does, so an absent property is
+/// looked up once, not again by `getter`.
+///
+/// # Safety
+/// As for `single_text_value`; `getter` makes the lookup that returned `attr`.
+unsafe fn property_value(
+  attr: xmlAttrPtr,
+  getter: impl FnOnce() -> *mut xmlChar,
+) -> Option<String> {
+  if attr.is_null() {
+    return None;
+  }
+  match unsafe { single_text_value(attr) } {
+    Some(content) => Some(c_str_to_string(content)),
+    None => take_xml_string(getter()),
   }
 }
 
