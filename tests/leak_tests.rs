@@ -172,6 +172,28 @@ fn repeated_operations_do_not_leak() {
     stack, 0,
     "with_property (stack buffer) leaked {stack} libxml2 allocations in 100 rounds"
   );
+  // The accessors that read a value in place and pass a name through the stack (`get_property`, `has_property`,
+  // `get_properties` on single-text values, `set_property`) leave nothing behind, whether the name or value fits the
+  // 128-byte stack copy or not.
+  let long_value = "v".repeat(300);
+  let in_place = growth(&LIBXML_LIVE, 100, || {
+    let mut root = dtd_root.clone();
+    assert_eq!(dtd_root.get_property("a").as_deref(), Some("v"));
+    assert_eq!(dtd_root.get_property("absent"), None);
+    assert!(dtd_root.has_property("a"));
+    root.set_property("w", "x").unwrap();
+    root.set_property(&"w".repeat(200), &long_value).unwrap();
+    assert_eq!(
+      dtd_root.get_property(&"w".repeat(200)).as_deref(),
+      Some(long_value.as_str())
+    );
+    root.remove_property(&"w".repeat(200)).unwrap();
+    root.remove_property("w").unwrap();
+  });
+  assert_eq!(
+    in_place, 0,
+    "the in-place property accessors leaked {in_place} libxml2 allocations in 100 rounds"
+  );
 
   // The paths that free a libxml2 string through `bindgenFree` — `findvalues_compiled` (via `get_nodes_as_str`) and
   // `with_property`'s copying fallback — are counted off MSVC only: there `bindgenFree` frees with the C runtime's
@@ -203,6 +225,16 @@ fn repeated_operations_do_not_leak() {
     assert_eq!(
       copied, 0,
       "with_property (copy) leaked {copied} libxml2 allocations in 100 rounds"
+    );
+    // (`get_property`'s and `get_properties`' copying fallback frees libxml2's copy)
+    let copied_get = growth(&LIBXML_LIVE, 100, || {
+      assert_eq!(dtd_root.get_property("ent").as_deref(), Some("xEEy"));
+      assert_eq!(dtd_root.get_property("d").as_deref(), Some("dflt"));
+      assert_eq!(dtd_root.get_properties().len(), 2);
+    });
+    assert_eq!(
+      copied_get, 0,
+      "get_property / get_properties (copy) leaked {copied_get} libxml2 allocations in 100 rounds"
     );
   }
 }

@@ -19,6 +19,27 @@
   holds its own copy, so it may change the document. latexml-oxide reads one private attribute on every text chunk;
   reading it this way saves up to 2.5 % of all its instructions, 0.7–1.2 % on average.
 
+### Changed
+
+* Fewer copies between Rust and libxml2, with unchanged results:
+  * The property accessors (`get_`, `has_`, `set_`, `remove_property` and their `_ns`/`_no_ns`, `_node` and
+    `_attribute` forms) pass a name, a namespace and `set_property`'s value to libxml2 without allocating when it is
+    shorter than 128 bytes, copied on the stack instead of into a `CString`. A longer string, or one holding a NUL
+    byte, takes the `CString` path as before; a NUL byte still panics there.
+  * `get_property`, `get_property_ns`, `get_property_no_ns`, `get_properties` and `get_properties_ns` read a value
+    that libxml2 holds as a single text node, or as none, in place, instead of through a copy made by libxml2 and freed
+    again. Every other shape (an entity reference in the value, a DTD default) is still read through libxml2's own
+    getter. `xmlGetProp`, `xmlGetNsProp` and `xmlGetNoNsProp` are the same lookup followed by the same copy, and a test
+    checks the accessors against them for every shape.
+  * A string copied out of libxml2 (`get_name`, `get_content`, property names and values) is checked by
+    `str::from_utf8` and decoded lossily only when that check fails, as `to_string_lossy` decoded it before.
+  * `get_child_nodes` and `get_child_elements` size their vector by a first walk and upgrade the document once.
+    `get_child_elements` wraps only the element children.
+  * `get_properties` sizes its map before filling it.
+
+  On latexml-oxide's 18 audit papers these changes save 2.6 % of all instructions (1.6–3.6 % per paper), on top of
+  the two additions above; the output is byte-identical. Together with those additions the saving is 4.6 %.
+
 ## [0.3.22] (2026-10-07)
 
 ### Fixed
