@@ -12,12 +12,12 @@
   compiles, optimizes and runs the expression the same way, and a node evaluation leaves its node as the context's
   current node as `node_evaluate` does. Errors are the structured `XPathError`, at compile time for a malformed
   expression.
-* `Node::with_property` (alias `with_attribute`): read a property without copying it. The callback receives the value
-  in place when libxml2 holds it as a single text node, and a copy otherwise (an entity reference in the value, a DTD
-  default); the name is a `&CStr` (`c"id"`), so no allocation is made for it either. The result is
-  `get_property`'s. While the callback runs the node stays borrowed, so a change through another handle fails instead
-  of freeing the value being read. latexml-oxide reads one private attribute on every text chunk; reading it in
-  place saves 0.5–2.5 % of all its instructions.
+* `Node::with_property` (alias `with_attribute`): read a property and pass it to a callback, in the common case
+  without allocating. The name is a `&CStr` (`c"id"`). A value that libxml2 holds as a single text node of at most
+  128 bytes is copied into a stack buffer; a longer value, or one of another shape (an entity reference in the value, a DTD default), is read
+  into a `String` as `get_property` reads it. The result is `get_property`'s. The callback holds its own copy, so it
+  may change the document. latexml-oxide reads one private attribute on every text chunk; reading it this way saves
+  0.5–2.5 % of all its instructions.
 
 ## [0.3.22] (2026-10-07)
 
