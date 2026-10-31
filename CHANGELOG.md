@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.23] (2026-10-31)
 
 ### Added
 
@@ -11,17 +11,17 @@
   calls per document) saves up to 1.7 % of all its instructions, about 1 % on average. The result is the string
   evaluators': libxml2 compiles, optimizes and runs the expression the same way, and a node evaluation leaves its node
   as the context's current node as `node_evaluate` does. Errors are the structured `XPathError`, at compile time for a
-  malformed expression.
+  malformed expression. (#223)
 * `Node::with_property` (alias `with_attribute`): read a property and pass it to a callback, in the common case
   without allocating. The name is a `&CStr` (`c"id"`). A value that libxml2 holds as a single text node of at most
   128 bytes is copied into a stack buffer; a longer value, or one of another shape (an entity reference in the value,
   a DTD default), is read into a `String` as `get_property` reads it. The result is `get_property`'s. The callback
   holds its own copy, so it may change the document. latexml-oxide reads one private attribute on every text chunk;
-  reading it this way saves up to 2.5 % of all its instructions, 0.7–1.2 % on average.
+  reading it this way saves up to 2.5 % of all its instructions, 0.7–1.2 % on average. (#223)
 
 ### Changed
 
-* Fewer copies between Rust and libxml2, with unchanged results:
+* Fewer copies between Rust and libxml2, with unchanged results (#224, #226):
   * The property accessors (`get_`, `has_`, `set_`, `remove_property` and their `_ns`/`_no_ns`, `_node` and
     `_attribute` forms) pass a name, a namespace and `set_property`'s value to libxml2 without allocating when it is
     shorter than 128 bytes, copied on the stack instead of into a `CString`. A longer string, or one holding a NUL
@@ -29,9 +29,10 @@
   * `get_property`, `get_property_ns`, `get_property_no_ns`, `get_properties` and `get_properties_ns` read a value
     that libxml2 holds as a single text node, or as none, in place, instead of through a copy made by libxml2 and freed
     again. Every other shape (an entity reference in the value, a DTD default) is still read through libxml2's own
-    getter. `xmlGetProp`, `xmlGetNsProp` and `xmlGetNoNsProp` are the same lookup followed by the same copy, and a test
-    checks the accessors against them, and `get_properties` against `xmlNodeGetContent`, for every shape a parser
-    makes and for those only the tree API makes (no children, a text child with no content, a CDATA child).
+    getter, and an absent property is looked up once. `xmlGetProp`, `xmlGetNsProp` and `xmlGetNoNsProp` are the same
+    lookup followed by the same copy, returning NULL whenever the lookup does, and a test checks the accessors against
+    them, and `get_properties` against `xmlNodeGetContent`, for every shape a parser makes and for those only the tree
+    API makes (no children, a text child with no content, a CDATA child).
   * A string copied out of libxml2 (`get_name`, `get_content`, property names and values) is checked by
     `str::from_utf8` and decoded lossily only when that check fails, as `to_string_lossy` decoded it before.
   * `get_child_nodes` and `get_child_elements` size their vector by a first walk and upgrade the document once.
