@@ -120,7 +120,8 @@ impl std::error::Error for XPathError {}
 /// An expression holds no document and no context, so one `Expression` may be evaluated against any [`Context`].
 /// Two caveats are libxml2's own: a namespace prefix is resolved when the expression runs, from the context it runs
 /// in; and the first evaluation of a function call caches the function it found, so an expression calling an
-/// extension function should only run in contexts that register that same function.
+/// extension function should only run in contexts that register that same function. Because evaluation writes that
+/// cache into the expression, an `Expression` is neither `Send` nor `Sync`.
 #[derive(Debug)]
 pub struct Expression {
   ptr: xmlXPathCompExprPtr,

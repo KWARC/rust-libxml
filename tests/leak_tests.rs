@@ -155,21 +155,22 @@ fn repeated_operations_do_not_leak() {
     "compiled XPath evaluation leaked {compiled} libxml2 allocations in 100 calls"
   );
 
-  // A property read in place or through the copying fallback (an entity reference, a DTD default) frees its copy.
+  // A property read through the stack buffer or through the copying fallback (an entity reference, a DTD default)
+  // frees its copy.
   let dtd_doc = Parser::default()
     .parse_string(
       r#"<!DOCTYPE r [<!ENTITY e "EE"><!ATTLIST r d CDATA "dflt">]><r a="v" ent="x&e;y"/>"#,
     )
     .unwrap();
   let dtd_root = dtd_doc.get_root_element().unwrap();
-  let in_place = growth(&LIBXML_LIVE, 100, || {
+  let stack = growth(&LIBXML_LIVE, 100, || {
     for name in [c"a", c"absent"] {
       dtd_root.with_property(name, |value| assert!(!value.contains('\0')));
     }
   });
   assert_eq!(
-    in_place, 0,
-    "with_property (in place) leaked {in_place} libxml2 allocations in 100 rounds"
+    stack, 0,
+    "with_property (stack buffer) leaked {stack} libxml2 allocations in 100 rounds"
   );
 
   // The paths that free a libxml2 string through `bindgenFree` — `findvalues_compiled` (via `get_nodes_as_str`) and

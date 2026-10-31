@@ -1,6 +1,7 @@
 //! Node, and related, feature set
 //!
 use libc::{c_char, c_void};
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -548,52 +549,66 @@ impl Node {
     Some(prop_str)
   }
 
-  /// Read property `name`, as [`Node::get_property`] does, without copying its value: `f` receives the value in
-  /// place when libxml2 holds it as a single text node (the common case, which libxml2's own `xmlGetProp` also
-  /// shortcuts) and a copy otherwise (an entity reference in the value, a DTD default). The name is a C string
-  /// (`c"id"`), so no allocation is made for it either; `None` when the node has no such property.
+  /// Read property `name`, as [`Node::get_property`] does, and pass its value to `f`; unlike `get_property`, the common
+  /// case allocates nothing. The name is a C string (`c"id"`), and a value that libxml2 holds as a single text or CDATA
+  /// node (the case libxml2's own `xmlGetProp` also shortcuts) of at most 128 bytes is copied into a buffer on the
+  /// stack. A longer value, or one of any other shape (an entity reference in the value, a DTD default), is read into a
+  /// `String` as `get_property` reads it. Returns `None` when the node has no such property.
   ///
-  /// While `f` runs this node stays borrowed and its document alive: changing the node through another handle fails
-  /// (its mutators return an error) or panics, instead of freeing the value `f` is reading.
+  /// `f` reads its own copy of the value, never libxml2's, so `f` may change the document, this property included.
   pub fn with_property<R>(&self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
-    let inner = self.0.borrow();
-    let _document = inner.document.upgrade();
-    let node_ptr = inner.node_ptr;
+    let node_ptr = self.node_ptr();
     if node_ptr.is_null() {
       return None;
     }
     let c_name = name.as_ptr() as *const xmlChar;
-    unsafe {
+    let mut buffer = [0u8; 128];
+    // The value is copied out of libxml2's memory before `f` runs: a change `f` makes may free that memory.
+    let value: Cow<str> = unsafe {
       let attr = xmlHasProp(node_ptr, c_name);
       if attr.is_null() {
         return None;
       }
       // (libxml2's `xmlGetPropNodeValueInternal`: an attribute with no children reads as "", one text or CDATA child
       // as its content; `xmlHasProp` may instead return a DTD default declaration, read below)
+      let mut single_text: Option<&CStr> = None;
       if (*attr).type_ == xmlElementType_XML_ATTRIBUTE_NODE {
         let text = (*attr).children;
         if text.is_null() {
-          return Some(f(""));
-        }
-        if (*text).next.is_null()
+          single_text = Some(c"");
+        } else if (*text).next.is_null()
           && ((*text).type_ == xmlElementType_XML_TEXT_NODE
             || (*text).type_ == xmlElementType_XML_CDATA_SECTION_NODE)
           && !(*text).content.is_null()
         {
-          let value = CStr::from_ptr((*text).content as *const c_char).to_string_lossy();
-          return Some(f(&value));
+          single_text = Some(CStr::from_ptr((*text).content as *const c_char));
         }
       }
-      let value_ptr = xmlGetProp(node_ptr, c_name);
-      if value_ptr.is_null() {
-        return None;
+      match single_text {
+        Some(content) => {
+          let bytes = content.to_bytes();
+          match buffer.get_mut(..bytes.len()) {
+            Some(copy) => {
+              copy.copy_from_slice(bytes);
+              String::from_utf8_lossy(copy)
+            }
+            None => Cow::Owned(String::from_utf8_lossy(bytes).into_owned()),
+          }
+        }
+        None => {
+          let value_ptr = xmlGetProp(node_ptr, c_name);
+          if value_ptr.is_null() {
+            return None;
+          }
+          let value = CStr::from_ptr(value_ptr as *const c_char)
+            .to_string_lossy()
+            .into_owned();
+          bindgenFree(value_ptr as *mut c_void);
+          Cow::Owned(value)
+        }
       }
-      let value = CStr::from_ptr(value_ptr as *const c_char)
-        .to_string_lossy()
-        .into_owned();
-      bindgenFree(value_ptr as *mut c_void);
-      Some(f(&value))
-    }
+    };
+    Some(f(&value))
   }
 
   /// Returns the value of property `name` in namespace `ns`
