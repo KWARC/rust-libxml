@@ -556,8 +556,8 @@ impl Node {
 
   /// Returns the value of property `name`
   pub fn get_property(&self, name: &str) -> Option<String> {
-    let node_ptr = self.node_ptr();
     with_c_str(name, |c_name| unsafe {
+      let node_ptr = self.node_ptr();
       // (`xmlGetProp` is `xmlHasProp` and a copy of the value; the common shapes are read in place)
       match single_text_value(xmlHasProp(node_ptr, c_name)) {
         Some(content) => Some(c_str_to_string(content)),
@@ -608,9 +608,9 @@ impl Node {
 
   /// Returns the value of property `name` in namespace `ns`
   pub fn get_property_ns(&self, name: &str, ns: &str) -> Option<String> {
-    let node_ptr = self.node_ptr();
     with_c_str(name, |c_name| {
       with_c_str(ns, |c_ns| unsafe {
+        let node_ptr = self.node_ptr();
         // (`xmlGetNsProp` is `xmlHasNsProp` and a copy of the value; the common shapes are read in place)
         match single_text_value(xmlHasNsProp(node_ptr, c_name, c_ns)) {
           Some(content) => Some(c_str_to_string(content)),
@@ -622,8 +622,8 @@ impl Node {
 
   /// Returns the value of property `name` with no namespace
   pub fn get_property_no_ns(&self, name: &str) -> Option<String> {
-    let node_ptr = self.node_ptr();
     with_c_str(name, |c_name| unsafe {
+      let node_ptr = self.node_ptr();
       // (`xmlGetNoNsProp` is `xmlHasNsProp` with no namespace and a copy of the value; the common shapes are read in
       // place)
       match single_text_value(xmlHasNsProp(node_ptr, c_name, ptr::null())) {
@@ -1541,8 +1541,9 @@ fn take_xml_string(value_ptr: *mut xmlChar) -> Option<String> {
   Some(value)
 }
 
-/// A copy of `c` as a `String`, as `c.to_string_lossy().into_owned()` gives it; valid UTF-8 (every libxml2 string)
-/// is checked by `str::from_utf8`'s fast path instead of the lossy decoder's.
+/// A copy of `c` as a `String`, as `c.to_string_lossy().into_owned()` gives it; valid UTF-8 (almost every libxml2
+/// string: a document parsed with its encoding ignored, or recovered, may hold other bytes) is checked by
+/// `str::from_utf8`'s fast path instead of the lossy decoder's.
 fn c_str_to_string(c: &CStr) -> String {
   match c.to_str() {
     Ok(s) => s.to_owned(),

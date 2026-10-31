@@ -1,13 +1,17 @@
 //! The property accessors read what libxml2's own getters return, whichever path a name or a value takes (a name
-//! copied on the stack or through a `CString`, a value read in place or through libxml2's copy), and the child lists
-//! hold the children in document order.
+//! copied on the stack or through a `CString`, a value read in place or through libxml2's copy), for every shape of
+//! value: those a parser makes, and those only the tree API makes (no children, a text child with no content, a CDATA
+//! child). The child lists hold the children in document order.
 
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 #[cfg(not(all(target_family = "windows", target_env = "msvc")))]
 use libxml::bindings::xmlFree;
-use libxml::bindings::{xmlGetNoNsProp, xmlGetNsProp, xmlGetProp, xmlNodePtr};
+use libxml::bindings::{
+  xmlAddChild, xmlGetNoNsProp, xmlGetNsProp, xmlGetProp, xmlNewCDataBlock, xmlNewDocText, xmlNewNs,
+  xmlNewNsProp, xmlNewProp, xmlNodeGetContent, xmlNodePtr,
+};
 use libxml::parser::Parser;
 use libxml::tree::{Node, NodeType};
 
@@ -94,6 +98,99 @@ fn get_property_reads_what_libxml2_reads() {
   assert_eq!(root.get_property(&long).as_deref(), Some("long"));
 }
 
+/// The shapes only the tree API makes: an attribute with no children (`xmlNewProp` with no value), one whose text child
+/// has no content (`xmlNewDocText` with none), and one holding a CDATA child; each with and without a namespace.
+/// `get_property` and its forms, `with_property` and `get_properties` read each as libxml2's getters and
+/// `xmlNodeGetContent` read it.
+#[test]
+fn tree_built_value_shapes_read_as_libxml2_reads_them() {
+  let doc = Parser::default().parse_string("<r/>").unwrap();
+  let root = doc.get_root_element().unwrap();
+  let node_ptr = root.node_ptr() as xmlNodePtr;
+  let doc_ptr = doc.doc_ptr();
+  let names = [c"none", c"nul", c"cd"];
+  let mut attrs = Vec::new();
+  unsafe {
+    let ns = xmlNewNs(
+      node_ptr,
+      c"urn:p".as_ptr() as *const u8,
+      c"p".as_ptr() as *const u8,
+    );
+    for (prefix, ns) in [("", std::ptr::null_mut()), ("p", ns)] {
+      for name in names {
+        let qualified = CString::new(format!("{prefix}{}", name.to_str().unwrap())).unwrap();
+        let attr = if ns.is_null() {
+          xmlNewProp(node_ptr, qualified.as_ptr() as *const u8, std::ptr::null())
+        } else {
+          xmlNewNsProp(
+            node_ptr,
+            ns,
+            qualified.as_ptr() as *const u8,
+            std::ptr::null(),
+          )
+        };
+        assert!(!attr.is_null() && (*attr).children.is_null());
+        match name.to_bytes() {
+          b"nul" => {
+            let text = xmlNewDocText(doc_ptr, std::ptr::null());
+            assert!((*text).content.is_null());
+            xmlAddChild(attr as xmlNodePtr, text);
+          }
+          b"cd" => {
+            let cdata = xmlNewCDataBlock(doc_ptr, c"a<b".as_ptr() as *const u8, 3);
+            xmlAddChild(attr as xmlNodePtr, cdata);
+          }
+          _ => {}
+        }
+        attrs.push((qualified.into_string().unwrap(), !ns.is_null(), attr));
+      }
+    }
+  }
+  let properties = root.get_properties();
+  assert_eq!(properties.len(), attrs.len());
+  for (name, namespaced, attr) in &attrs {
+    let c_name = CString::new(name.as_str()).unwrap();
+    let c_name = c_name.as_bytes_with_nul().as_ptr();
+    let c_ns = c"urn:p".as_ptr() as *const u8;
+    let content = libxml2_value(unsafe { xmlNodeGetContent(*attr as xmlNodePtr) });
+    if *namespaced {
+      let expected = libxml2_value(unsafe { xmlGetNsProp(node_ptr, c_name, c_ns) });
+      assert_eq!(
+        root.get_property_ns(name, "urn:p"),
+        expected,
+        "get_property_ns {name:?}"
+      );
+      assert_eq!(
+        root.get_property_no_ns(name),
+        None,
+        "get_property_no_ns {name:?}"
+      );
+    } else {
+      let expected = libxml2_value(unsafe { xmlGetProp(node_ptr, c_name) });
+      assert_eq!(root.get_property(name), expected, "get_property {name:?}");
+      assert_eq!(
+        root.with_property(&CString::new(name.as_str()).unwrap(), str::to_string),
+        expected,
+        "with_property {name:?}"
+      );
+      let expected_no_ns = libxml2_value(unsafe { xmlGetNoNsProp(node_ptr, c_name) });
+      assert_eq!(
+        root.get_property_no_ns(name),
+        expected_no_ns,
+        "get_property_no_ns {name:?}"
+      );
+    }
+    // (`get_properties` reads each attribute it walks as `xmlNodeGetContent` reads it, a NULL as "")
+    assert_eq!(
+      properties.get(name.as_str()),
+      Some(&content.unwrap_or_default()),
+      "get_properties {name:?}"
+    );
+  }
+  assert_eq!(root.get_property("none").as_deref(), Some(""));
+  assert_eq!(root.get_property("cd").as_deref(), Some("a<b"));
+}
+
 #[test]
 fn get_properties_reads_each_value_as_get_property() {
   let doc = shapes_document();
@@ -101,13 +198,23 @@ fn get_properties_reads_each_value_as_get_property() {
   let properties = root.get_properties();
   // (the DTD default and the `xmlns:p` declaration are no attributes of the element; `p:q` is keyed by its local name)
   assert_eq!(properties.len(), 8);
-  for (name, value) in &properties {
+  // (each value as libxml2 reads the attribute node itself, `xmlNodeGetContent`, a NULL as "")
+  let mut attr = unsafe { (*(root.node_ptr() as xmlNodePtr)).properties };
+  let mut walked = 0;
+  while !attr.is_null() {
+    let name = unsafe { CStr::from_ptr((*attr).name as *const c_char) }
+      .to_str()
+      .unwrap();
+    let content = libxml2_value(unsafe { xmlNodeGetContent(attr as xmlNodePtr) });
     assert_eq!(
-      Some(value),
-      root.get_property(name).as_ref(),
+      properties.get(name),
+      Some(&content.unwrap_or_default()),
       "property {name:?}"
     );
+    walked += 1;
+    attr = unsafe { (*attr).next };
   }
+  assert_eq!(walked, properties.len());
   for ((name, ns), value) in root.get_properties_ns() {
     let expected = match ns {
       Some(ns) => root.get_property_ns(&name, &ns.get_href()),

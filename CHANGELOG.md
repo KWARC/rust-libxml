@@ -30,15 +30,18 @@
     that libxml2 holds as a single text node, or as none, in place, instead of through a copy made by libxml2 and freed
     again. Every other shape (an entity reference in the value, a DTD default) is still read through libxml2's own
     getter. `xmlGetProp`, `xmlGetNsProp` and `xmlGetNoNsProp` are the same lookup followed by the same copy, and a test
-    checks the accessors against them for every shape.
+    checks the accessors against them, and `get_properties` against `xmlNodeGetContent`, for every shape a parser
+    makes and for those only the tree API makes (no children, a text child with no content, a CDATA child).
   * A string copied out of libxml2 (`get_name`, `get_content`, property names and values) is checked by
     `str::from_utf8` and decoded lossily only when that check fails, as `to_string_lossy` decoded it before.
   * `get_child_nodes` and `get_child_elements` size their vector by a first walk and upgrade the document once.
     `get_child_elements` wraps only the element children.
   * `get_properties` sizes its map before filling it.
 
-  On latexml-oxide's 18 audit papers these changes save 2.6 % of all instructions (1.6–3.6 % per paper), on top of
-  the two additions above; the output is byte-identical. Together with those additions the saving is 4.6 %.
+  Measured with `perf stat -e instructions:u` on a release build of latexml-oxide converting 18 arXiv papers: these
+  changes save 2.63 % of the instructions summed over the 18 (1.58–3.57 % per paper) against `main` before them
+  (7000d0d9), with byte-identical XML output. Measured the same way, latexml-oxide on this release, using the two
+  additions above, runs 4.55 % fewer instructions than on 0.3.22.
 
 ## [0.3.22] (2026-10-07)
 
