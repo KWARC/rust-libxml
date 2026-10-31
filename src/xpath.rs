@@ -112,6 +112,51 @@ impl fmt::Display for XPathError {
 
 impl std::error::Error for XPathError {}
 
+/// A compiled XPath expression (libxml2's `xmlXPathCompExpr`): parsed once, then evaluated any number of times
+/// without the compilation that every string-taking evaluator ([`Context::evaluate`], [`Context::findnodes`], …)
+/// repeats on each call. Evaluating it gives the result of evaluating its source string: libxml2's string evaluators
+/// compile, optimize and run the expression exactly as [`Expression::compile`] and [`Context::evaluate_compiled`] do.
+///
+/// An expression holds no document and no context, so one `Expression` may be evaluated against any [`Context`].
+/// Two caveats are libxml2's own: a namespace prefix is resolved when the expression runs, from the context it runs
+/// in; and the first evaluation of a function call caches the function it found, so an expression calling an
+/// extension function should only run in contexts that register that same function.
+#[derive(Debug)]
+pub struct Expression {
+  ptr: xmlXPathCompExprPtr,
+}
+
+impl Expression {
+  /// Compile `xpath`, or return libxml2's structured error when it is not a well-formed expression.
+  pub fn compile(xpath: &str) -> Result<Expression, XPathError> {
+    crate::init_parser();
+    let c_xpath = CString::new(xpath).map_err(|_| XPathError {
+      message: Some("XPath expression contains a NUL byte".to_string()),
+      code: 0,
+      domain: 0,
+    })?;
+    unsafe { xmlResetLastError() };
+    let ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
+    if ptr.is_null() {
+      Err(XPathError::from_last_error())
+    } else {
+      Ok(Expression { ptr })
+    }
+  }
+
+  /// Returns the raw libxml2 compiled-expression pointer behind the struct
+  pub fn as_ptr(&self) -> xmlXPathCompExprPtr {
+    self.ptr
+  }
+}
+
+impl Drop for Expression {
+  /// free the compiled expression, with its steps, when it goes out of scope
+  fn drop(&mut self) {
+    unsafe { xmlXPathFreeCompExpr(self.ptr) };
+  }
+}
+
 impl Context {
   ///create the xpath context for a document
   pub fn new(doc: &Document) -> Result<Context, ()> {
@@ -266,6 +311,84 @@ impl Context {
       self.node_evaluate(xpath, node)?
     } else {
       self.evaluate(xpath)?
+    };
+    Ok(evaluated.to_string())
+  }
+
+  /// Shared body of the compiled evaluators, as [`Context::eval_checked`] is the string evaluators': reset the
+  /// thread's last error, run the expression, and wrap the raw object or surface the structured error.
+  fn compiled_eval_checked(&self, expression: &Expression) -> Result<Object, XPathError> {
+    unsafe { xmlResetLastError() };
+    let ptr = unsafe { xmlXPathCompiledEval(expression.ptr, self.as_ptr()) };
+    if ptr.is_null() {
+      Err(XPathError::from_last_error())
+    } else {
+      Ok(Object {
+        ptr,
+        document: self.document.clone(),
+      })
+    }
+  }
+
+  /// Evaluate a compiled expression at the context's current node, as [`Context::evaluate_checked`] evaluates a
+  /// string.
+  pub fn evaluate_compiled(&self, expression: &Expression) -> Result<Object, XPathError> {
+    self.compiled_eval_checked(expression)
+  }
+
+  /// Evaluate a compiled expression relative to `node`, as [`Context::node_evaluate_checked`] evaluates a string:
+  /// libxml2's `xmlXPathNodeEval` sets the context node, then runs the expression. Like it, this leaves `node` as the
+  /// context's current node.
+  pub fn node_evaluate_compiled(
+    &self,
+    expression: &Expression,
+    node: &Node,
+  ) -> Result<Object, XPathError> {
+    unsafe { xmlResetLastError() };
+    if unsafe { xmlXPathSetContextNode(node.node_ptr(), self.as_ptr()) } < 0 {
+      return Err(XPathError::from_last_error());
+    }
+    self.compiled_eval_checked(expression)
+  }
+
+  /// find nodes via a compiled expression, at a specified node or the context's current node (see
+  /// [`Context::findnodes`])
+  pub fn findnodes_compiled(
+    &self,
+    expression: &Expression,
+    node_opt: Option<&Node>,
+  ) -> Result<Vec<Node>, XPathError> {
+    let evaluated = match node_opt {
+      Some(node) => self.node_evaluate_compiled(expression, node)?,
+      None => self.evaluate_compiled(expression)?,
+    };
+    Ok(evaluated.get_nodes_as_vec())
+  }
+
+  /// find literal values via a compiled expression, at a specified node or the context's current node (see
+  /// [`Context::findvalues`])
+  pub fn findvalues_compiled(
+    &self,
+    expression: &Expression,
+    node_opt: Option<&Node>,
+  ) -> Result<Vec<String>, XPathError> {
+    let evaluated = match node_opt {
+      Some(node) => self.node_evaluate_compiled(expression, node)?,
+      None => self.evaluate_compiled(expression)?,
+    };
+    Ok(evaluated.get_nodes_as_str())
+  }
+
+  /// find a literal value via a compiled expression, at a specified node or the context's current node (see
+  /// [`Context::findvalue`])
+  pub fn findvalue_compiled(
+    &self,
+    expression: &Expression,
+    node_opt: Option<&Node>,
+  ) -> Result<String, XPathError> {
+    let evaluated = match node_opt {
+      Some(node) => self.node_evaluate_compiled(expression, node)?,
+      None => self.evaluate_compiled(expression)?,
     };
     Ok(evaluated.to_string())
   }

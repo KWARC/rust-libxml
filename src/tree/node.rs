@@ -548,6 +548,54 @@ impl Node {
     Some(prop_str)
   }
 
+  /// Read property `name`, as [`Node::get_property`] does, without copying its value: `f` receives the value in
+  /// place when libxml2 holds it as a single text node (the common case, which libxml2's own `xmlGetProp` also
+  /// shortcuts) and a copy otherwise (an entity reference in the value, a DTD default). The name is a C string
+  /// (`c"id"`), so no allocation is made for it either; `None` when the node has no such property.
+  ///
+  /// While `f` runs this node stays borrowed and its document alive: changing the node through another handle fails
+  /// (its mutators return an error) or panics, instead of freeing the value `f` is reading.
+  pub fn with_property<R>(&self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
+    let inner = self.0.borrow();
+    let _document = inner.document.upgrade();
+    let node_ptr = inner.node_ptr;
+    if node_ptr.is_null() {
+      return None;
+    }
+    let c_name = name.as_ptr() as *const xmlChar;
+    unsafe {
+      let attr = xmlHasProp(node_ptr, c_name);
+      if attr.is_null() {
+        return None;
+      }
+      // (libxml2's `xmlGetPropNodeValueInternal`: an attribute with no children reads as "", one text or CDATA child
+      // as its content; `xmlHasProp` may instead return a DTD default declaration, read below)
+      if (*attr).type_ == xmlElementType_XML_ATTRIBUTE_NODE {
+        let text = (*attr).children;
+        if text.is_null() {
+          return Some(f(""));
+        }
+        if (*text).next.is_null()
+          && ((*text).type_ == xmlElementType_XML_TEXT_NODE
+            || (*text).type_ == xmlElementType_XML_CDATA_SECTION_NODE)
+          && !(*text).content.is_null()
+        {
+          let value = CStr::from_ptr((*text).content as *const c_char).to_string_lossy();
+          return Some(f(&value));
+        }
+      }
+      let value_ptr = xmlGetProp(node_ptr, c_name);
+      if value_ptr.is_null() {
+        return None;
+      }
+      let value = CStr::from_ptr(value_ptr as *const c_char)
+        .to_string_lossy()
+        .into_owned();
+      bindgenFree(value_ptr as *mut c_void);
+      Some(f(&value))
+    }
+  }
+
   /// Returns the value of property `name` in namespace `ns`
   pub fn get_property_ns(&self, name: &str, ns: &str) -> Option<String> {
     let c_name = CString::new(name).unwrap();
@@ -774,6 +822,11 @@ impl Node {
   /// Alias for get_property
   pub fn get_attribute(&self, name: &str) -> Option<String> {
     self.get_property(name)
+  }
+
+  /// Alias for with_property
+  pub fn with_attribute<R>(&self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
+    self.with_property(name, f)
   }
 
   /// Alias for get_property_ns
