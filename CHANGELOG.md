@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.23] (2026-10-31)
 
 ### Added
 
@@ -11,17 +11,17 @@
   calls per document) saves up to 1.7 % of all its instructions, about 1 % on average. The result is the string
   evaluators': libxml2 compiles, optimizes and runs the expression the same way, and a node evaluation leaves its node
   as the context's current node as `node_evaluate` does. Errors are the structured `XPathError`, at compile time for a
-  malformed expression.
+  malformed expression. (#223)
 * `Node::with_property` (alias `with_attribute`): read a property and pass it to a callback, in the common case
   without allocating. The name is a `&CStr` (`c"id"`). A value that libxml2 holds as a single text node of at most
   128 bytes is copied into a stack buffer; a longer value, or one of another shape (an entity reference in the value,
   a DTD default), is read into a `String` as `get_property` reads it. The result is `get_property`'s. The callback
   holds its own copy, so it may change the document. latexml-oxide reads one private attribute on every text chunk;
-  reading it this way saves up to 2.5 % of all its instructions, 0.7–1.2 % on average.
+  reading it this way saves up to 2.5 % of all its instructions, 0.7–1.2 % on average. (#223)
 
 ### Changed
 
-* Fewer copies between Rust and libxml2, with unchanged results:
+* Fewer copies between Rust and libxml2, with unchanged results (#224):
   * The property accessors (`get_`, `has_`, `set_`, `remove_property` and their `_ns`/`_no_ns`, `_node` and
     `_attribute` forms) pass a name, a namespace and `set_property`'s value to libxml2 without allocating when it is
     shorter than 128 bytes, copied on the stack instead of into a `CString`. A longer string, or one holding a NUL
