@@ -14,6 +14,8 @@ use libxml::tree::c14n::{CanonicalizationMode, CanonicalizationOptions};
 use libxml::xpath::{Context, Expression, is_well_formed_xpath};
 
 static RUST_LIVE: AtomicIsize = AtomicIsize::new(0);
+/// Every Rust allocation made, freed or not: the count a "without allocating" claim is checked against.
+static RUST_ALLOCS: AtomicIsize = AtomicIsize::new(0);
 static LIBXML_LIVE: AtomicIsize = AtomicIsize::new(0);
 
 struct CountingAlloc;
@@ -23,6 +25,7 @@ unsafe impl GlobalAlloc for CountingAlloc {
     let ptr = unsafe { System.alloc(layout) };
     if !ptr.is_null() {
       RUST_LIVE.fetch_add(1, Ordering::Relaxed);
+      RUST_ALLOCS.fetch_add(1, Ordering::Relaxed);
     }
     ptr
   }
@@ -73,6 +76,17 @@ unsafe extern "C" fn count_strdup(s: *const c_char) -> *mut c_char {
 
 /// Live allocations added by `rounds` further runs of `op`, after two warm-up
 /// runs (lazy initialisation inside libxml2 is not a leak).
+/// The Rust allocations `rounds` runs of `op` make, after two warm-up runs.
+fn allocations(rounds: usize, mut op: impl FnMut()) -> isize {
+  op();
+  op();
+  let before = RUST_ALLOCS.load(Ordering::SeqCst);
+  for _ in 0..rounds {
+    op();
+  }
+  RUST_ALLOCS.load(Ordering::SeqCst) - before
+}
+
 fn growth(counter: &AtomicIsize, rounds: usize, mut op: impl FnMut()) -> isize {
   op();
   op();
@@ -172,6 +186,42 @@ fn repeated_operations_do_not_leak() {
     stack, 0,
     "with_property (stack buffer) leaked {stack} libxml2 allocations in 100 rounds"
   );
+  // The accessors that read a value in place and pass a name through the stack (`get_property`, `has_property`,
+  // `set_property`, `remove_property`) leave nothing behind, whether the name or value fits the 128-byte stack copy or
+  // not.
+  let long_value = "v".repeat(300);
+  let in_place = growth(&LIBXML_LIVE, 100, || {
+    let mut root = dtd_root.clone();
+    assert_eq!(dtd_root.get_property("a").as_deref(), Some("v"));
+    assert_eq!(dtd_root.get_property("absent"), None);
+    assert!(dtd_root.has_property("a"));
+    root.set_property("w", "x").unwrap();
+    root.set_property(&"w".repeat(200), &long_value).unwrap();
+    assert_eq!(
+      dtd_root.get_property(&"w".repeat(200)).as_deref(),
+      Some(long_value.as_str())
+    );
+    root.remove_property(&"w".repeat(200)).unwrap();
+    root.remove_property("w").unwrap();
+  });
+  assert_eq!(
+    in_place, 0,
+    "the in-place property accessors leaked {in_place} libxml2 allocations in 100 rounds"
+  );
+  // A short name reaches libxml2 without a Rust allocation: `has_property` makes none, `get_property` only its
+  // returned `String`.
+  let has = allocations(100, || assert!(dtd_root.has_property("a")));
+  assert_eq!(
+    has, 0,
+    "has_property made {has} Rust allocations in 100 calls"
+  );
+  let get = allocations(100, || {
+    assert_eq!(dtd_root.get_property("a").as_deref(), Some("v"))
+  });
+  assert_eq!(
+    get, 100,
+    "get_property made {get} Rust allocations in 100 calls"
+  );
 
   // The paths that free a libxml2 string through `bindgenFree` — `findvalues_compiled` (via `get_nodes_as_str`) and
   // `with_property`'s copying fallback — are counted off MSVC only: there `bindgenFree` frees with the C runtime's
@@ -203,6 +253,16 @@ fn repeated_operations_do_not_leak() {
     assert_eq!(
       copied, 0,
       "with_property (copy) leaked {copied} libxml2 allocations in 100 rounds"
+    );
+    // (`get_property`'s and `get_properties`' copying fallback frees libxml2's copy)
+    let copied_get = growth(&LIBXML_LIVE, 100, || {
+      assert_eq!(dtd_root.get_property("ent").as_deref(), Some("xEEy"));
+      assert_eq!(dtd_root.get_property("d").as_deref(), Some("dflt"));
+      assert_eq!(dtd_root.get_properties().len(), 2);
+    });
+    assert_eq!(
+      copied_get, 0,
+      "get_property / get_properties (copy) leaked {copied_get} libxml2 allocations in 100 rounds"
     );
   }
 }
