@@ -29,6 +29,33 @@ jobs:
       - name: run tests
         run: cargo test
 
+  # MSVC without vcpkg, as in conda-forge's own builds: vcpkg finds nothing
+  # and build.rs falls back to pkg-config.
+  test-msvc-pkgconfig-windows:
+    name: Windows MSVC pkg-config (conda-forge)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v6
+      - uses: conda-incubator/setup-miniconda@v4
+        with:
+          activate-environment: libxml2
+          channels: conda-forge
+          conda-remove-defaults: "true"
+      - name: Install libxml2 and pkg-config from conda-forge
+        run: conda install -y libxml2-devel pkg-config
+      - name: run tests
+        run: |
+          $env:PKG_CONFIG_PATH = "$env:CONDA_PREFIX\Library\lib\pkgconfig"
+          cargo test
+      - name: Check that the build took the pkg-config fallback
+        run: |
+          $stderr = Get-ChildItem target\debug\build\libxml-*\stderr
+          Get-Content $stderr
+          if (-not (Select-String -Quiet -Pattern 'vcpkg did not succeed' -Path $stderr)) { exit 1 }
+
   test-mingw64-windows:
     name: Windows (mingw64)
     runs-on: windows-latest
