@@ -86,6 +86,8 @@ C:\> vcpkg install libxml2:x64-windows
 C:\> vcpkg integrate install
 ```
 
+If vcpkg does not find libxml2, the build falls back to `pkg-config`.
+
 #### gnu
 
 On mingw64 environment you could install libxml2 with `pacman -S mingw64/mingw-w64-x86_64-libxml2`.

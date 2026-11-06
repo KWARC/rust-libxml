@@ -76,6 +76,16 @@ fn find_libxml2() -> Option<ProbedLib> {
       } else {
         eprintln!("vcpkg did not succeed in finding libxml2.");
       }
+      // Fall back to pkg-config (e.g. conda-forge, which has no vcpkg).
+      match pkg_config::Config::new().probe("libxml-2.0") {
+        Ok(lib) => {
+          return Some(ProbedLib {
+            include_paths: lib.include_paths,
+            version: lib.version,
+          });
+        }
+        Err(e) => eprintln!("pkg-config did not succeed in finding libxml2: {e}"),
+      }
     }
 
     panic!("Could not find libxml2.")
