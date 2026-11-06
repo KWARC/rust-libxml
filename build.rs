@@ -8,6 +8,27 @@ struct ProbedLib {
   include_paths: Vec<PathBuf>,
 }
 
+/// Finds libxml2 with pkg-config: on Unix and windows-gnu, and on MSVC when vcpkg does not find it.
+///
+/// Opt-in static link: when LIBXML2_STATIC is set and PKG_CONFIG_PATH points
+/// at a non-system prefix carrying a PIC `libxml2.a`, `.statik(true)` makes
+/// pkg-config emit `cargo:rustc-link-lib=static=xml2` plus the transitive
+/// `-lm` (which stays dynamic). pkg-config's static guard refuses a `static=`
+/// for a /usr/lib system path, so the non-system prefix is what enables this.
+/// Unset (the default) is unchanged: a normal dynamic link against the host
+/// libxml2. Used for the self-contained, SONAME-independent release binary.
+fn pkg_config_find_libxml2() -> Result<ProbedLib, pkg_config::Error> {
+  let mut cfg = pkg_config::Config::new();
+  if std::env::var_os("LIBXML2_STATIC").is_some() {
+    cfg.statik(true);
+  }
+  let lib = cfg.probe("libxml-2.0")?;
+  Ok(ProbedLib {
+    include_paths: lib.include_paths,
+    version: lib.version,
+  })
+}
+
 /// Finds libxml2 and optionally return a list of header
 /// files from which the bindings can be generated.
 fn find_libxml2() -> Option<ProbedLib> {
@@ -49,41 +70,18 @@ fn find_libxml2() -> Option<ProbedLib> {
       all(target_family = "windows", target_env = "gnu")
     ))]
     {
-      // Opt-in static link: when LIBXML2_STATIC is set and PKG_CONFIG_PATH points
-      // at a non-system prefix carrying a PIC `libxml2.a`, `.statik(true)` makes
-      // pkg-config emit `cargo:rustc-link-lib=static=xml2` plus the transitive
-      // `-lm` (which stays dynamic). pkg-config's static guard refuses a `static=`
-      // for a /usr/lib system path, so the non-system prefix is what enables this.
-      // Unset (the default) is unchanged: a normal dynamic link against the host
-      // libxml2. Used for the self-contained, SONAME-independent release binary.
-      let mut cfg = pkg_config::Config::new();
-      if std::env::var_os("LIBXML2_STATIC").is_some() {
-        cfg.statik(true);
-      }
-      let lib = cfg
-        .probe("libxml-2.0")
-        .expect("Couldn't find libxml2 via pkg-config");
-      return Some(ProbedLib {
-        include_paths: lib.include_paths,
-        version: lib.version,
-      });
+      return Some(pkg_config_find_libxml2().expect("Couldn't find libxml2 via pkg-config"));
     }
 
     #[cfg(all(target_family = "windows", target_env = "msvc"))]
     {
-      if let Some(meta) = vcpkg_dep::vcpkg_find_libxml2() {
-        return Some(meta);
-      } else {
-        eprintln!("vcpkg did not succeed in finding libxml2.");
+      match vcpkg_dep::vcpkg_find_libxml2() {
+        Ok(meta) => return Some(meta),
+        Err(e) => eprintln!("vcpkg did not succeed in finding libxml2: {e}"),
       }
       // Fall back to pkg-config (e.g. conda-forge, which has no vcpkg).
-      match pkg_config::Config::new().probe("libxml-2.0") {
-        Ok(lib) => {
-          return Some(ProbedLib {
-            include_paths: lib.include_paths,
-            version: lib.version,
-          });
-        }
+      match pkg_config_find_libxml2() {
+        Ok(lib) => return Some(lib),
         Err(e) => eprintln!("pkg-config did not succeed in finding libxml2: {e}"),
       }
     }
@@ -146,33 +144,31 @@ fn main() {
 #[cfg(all(target_family = "windows", target_env = "msvc"))]
 mod vcpkg_dep {
   use crate::ProbedLib;
-  pub fn vcpkg_find_libxml2() -> Option<ProbedLib> {
-    if let Ok(metadata) = vcpkg::Config::new().find_package("libxml2") {
-      // vcpkg emits link directives for the port's own libraries and its
-      // port dependencies (iconv, zlib, ...), but NOT for Windows SDK
-      // system libraries, which are Libs.private in libxml-2.0.pc:
-      // libxml2 >= 2.12 calls BCryptGenRandom (xmlInitRandom, dict.c), so
-      // a static libxml2.lib leaves that symbol unresolved unless we link
-      // bcrypt ourselves. ws2_32 likewise backs the (default-on) nanohttp
-      // code. Both import libraries ship with every MSVC/Windows SDK
-      // toolchain, so linking them unconditionally here is safe even for
-      // vcpkg builds configured without those features.
-      println!("cargo:rustc-link-lib=bcrypt");
-      println!("cargo:rustc-link-lib=ws2_32");
-      let include_paths = metadata
-        .include_paths
-        .into_iter()
-        .fold(Vec::new(), |mut acc, p| {
-          acc.push(p.join("libxml2"));
-          acc.push(p);
-          acc
-        });
-      return Some(ProbedLib {
-        version: vcpkg_version(),
-        include_paths,
+  pub fn vcpkg_find_libxml2() -> Result<ProbedLib, vcpkg::Error> {
+    let metadata = vcpkg::Config::new().find_package("libxml2")?;
+    // vcpkg emits link directives for the port's own libraries and its
+    // port dependencies (iconv, zlib, ...), but NOT for Windows SDK
+    // system libraries, which are Libs.private in libxml-2.0.pc:
+    // libxml2 >= 2.12 calls BCryptGenRandom (xmlInitRandom, dict.c), so
+    // a static libxml2.lib leaves that symbol unresolved unless we link
+    // bcrypt ourselves. ws2_32 likewise backs the (default-on) nanohttp
+    // code. Both import libraries ship with every MSVC/Windows SDK
+    // toolchain, so linking them unconditionally here is safe even for
+    // vcpkg builds configured without those features.
+    println!("cargo:rustc-link-lib=bcrypt");
+    println!("cargo:rustc-link-lib=ws2_32");
+    let include_paths = metadata
+      .include_paths
+      .into_iter()
+      .fold(Vec::new(), |mut acc, p| {
+        acc.push(p.join("libxml2"));
+        acc.push(p);
+        acc
       });
-    }
-    None
+    Ok(ProbedLib {
+      version: vcpkg_version(),
+      include_paths,
+    })
   }
 
   fn vcpkg_version() -> String {
