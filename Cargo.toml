@@ -40,7 +40,7 @@ libc = "0.2"
 vcpkg = "0.2"
 
 [build-dependencies]
-pkg-config = "0.3.2"
+pkg-config = "0.3.14"
 
 [build-dependencies.bindgen]
 version = "0.73.1"
