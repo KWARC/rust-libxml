@@ -1,5 +1,21 @@
 # Change Log
 
+## [0.3.24] (2026-11-06)
+
+### Added
+
+* Windows MSVC: when vcpkg does not find libxml2, the build falls back to pkg-config and generates the bindings with
+  bindgen, as it does for vcpkg. This builds against conda-forge's `libxml2-devel`, which comes without vcpkg; the
+  README says how to point the build at it. The fallback runs only where the build used to panic with `Could not find
+  libxml2.`, and a CI job builds and tests against conda-forge's libxml2. On MSVC, use it instead of `LIBXML2`, whose
+  default bindings assume a 64-bit `long` (#179). (#228, thanks @jcamiel; #229)
+
+### Changed
+
+* When vcpkg does not find libxml2, the build prints vcpkg's error next to pkg-config's instead of discarding it.
+  `pkg-config` is a build dependency on every target, at least 0.3.14, the first release whose MSVC support works.
+  (#229)
+
 ## [0.3.23] (2026-10-31)
 
 ### Added
