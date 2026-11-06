@@ -88,6 +88,8 @@ C:\> vcpkg integrate install
 
 If vcpkg does not find libxml2, the build falls back to `pkg-config`.
 
+To build against another libxml2, e.g. conda-forge's (`conda install libxml2-devel pkg-config`), put its `pkg-config` on `PATH` and its `.pc` directory on `PKG_CONFIG_PATH` (`%CONDA_PREFIX%\Library\lib\pkgconfig` for conda). `VCPKGRS_DISABLE=1` skips vcpkg when vcpkg has a libxml2 of its own.
+
 #### gnu
 
 On mingw64 environment you could install libxml2 with `pacman -S mingw64/mingw-w64-x86_64-libxml2`.
