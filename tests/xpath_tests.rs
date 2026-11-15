@@ -449,3 +449,40 @@ mod compiled_expressions {
     assert!(ctx.node_evaluate("*", &foreign).is_err());
   }
 }
+
+#[test]
+/// The namespace axis yields `xmlNs` copies owned by the XPath object, not nodes: the node vectors skip them (a `Node`
+/// or `RoNode` over one read past its end, and past the object's drop), while `get_nodes_as_str` still reads them.
+fn namespace_axis_results_are_not_nodes() {
+  let doc = Parser::default()
+    .parse_string(r#"<r xmlns:a="urn:a" xmlns:b="urn:b"><c/></r>"#)
+    .unwrap();
+  let context = Context::new(&doc).unwrap();
+  let result = context.evaluate("/r/namespace::*").unwrap();
+  let count = result.get_number_of_nodes();
+  let nodes = result.get_nodes_as_vec();
+  let readonly = result.get_readonly_nodes_as_vec();
+  let mut values = result.get_nodes_as_str();
+  values.sort();
+  assert_eq!(
+    values,
+    ["http://www.w3.org/XML/1998/namespace", "urn:a", "urn:b"]
+  );
+  assert_eq!(count, 3);
+  drop(result);
+  for node in &nodes {
+    assert!(node.get_next_sibling().is_none());
+    assert!(node.get_name().is_empty());
+  }
+  for node in &readonly {
+    assert!(node.get_next_sibling().is_none());
+  }
+  assert_eq!((nodes.len(), readonly.len()), (0, 0));
+  let mut context = Context::new(&doc).unwrap();
+  assert!(
+    context
+      .findnodes("//namespace::*", None)
+      .unwrap()
+      .is_empty()
+  );
+}

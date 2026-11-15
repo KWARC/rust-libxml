@@ -97,3 +97,40 @@ fn free_subtree_refuses_documents() {
   // Still a live document with a root.
   assert_eq!(doc.get_root_element().expect("root").get_name(), "r");
 }
+
+/// An XInclude start node keeps the `xi:include` element's properties, so freeing it neutralizes their held wrappers
+/// as an element's.
+#[test]
+fn free_subtree_neutralizes_xinclude_start_properties() {
+  // A URI, not a path: on Windows the manifest directory has backslashes and a drive letter, which libxml2 resolves
+  // only as a `file:///D:/...` URI.
+  let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/resources/file02.xml").replace('\\', "/");
+  let href = if cfg!(windows) {
+    format!("file:///{path}")
+  } else {
+    path
+  };
+  let xml = format!(
+    r#"<r xmlns:xi="http://www.w3.org/2001/XInclude"><xi:include href="{href}" parse="text"/><c/></r>"#
+  );
+  let doc = Parser::default().parse_string(xml).expect("parse");
+  let root = doc.get_root_element().expect("root");
+  let include = root.get_first_child().expect("xi:include");
+  let held_attr = include.get_property_node("parse").expect("parse attribute");
+  // SAFETY: the document is alive and no wrapper is borrowed across the call.
+  assert_eq!(
+    unsafe { libxml::bindings::xmlXIncludeProcess(doc.doc_ptr()) },
+    1
+  );
+  assert_eq!(include.get_type(), Some(NodeType::XIncludeStart));
+
+  include.free_subtree();
+
+  assert!(
+    held_attr.node_ptr().is_null(),
+    "the attribute wrapper is inert"
+  );
+  assert_eq!(held_attr.get_name(), "");
+  drop(doc);
+  drop(held_attr);
+}

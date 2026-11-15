@@ -1,6 +1,6 @@
 use libc::{c_char, c_void};
 use std::collections::{HashMap, HashSet};
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::ptr;
 use std::str;
 
@@ -8,10 +8,19 @@ use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::tree::Document;
 use crate::tree::namespace::Namespace;
+use crate::tree::node::{
+  attr_node_value, single_text_value, with_c_str, with_property_copy, with_str_copy,
+};
 use crate::tree::nodetype::NodeType;
 use crate::xpath::Context;
 
 /// Lightweight struct for read-only parallel processing
+///
+/// Navigating a `RoNode` does not touch the document's `Node` cache. Convert with
+/// [`Node::as_readonly`](crate::tree::Node::as_readonly) /
+/// [`Document::node_from_readonly`](crate::tree::Document::node_from_readonly); read without allocating, in the common
+/// case, through the `with_*` and `for_each_*` methods. A `RoNode` is valid while its document is alive and its node is
+/// not freed. The thread that owns the document must not modify it while another thread reads it through a `RoNode`.
 #[derive(Debug, Copy, Clone)]
 pub struct RoNode(pub(crate) xmlNodePtr);
 
@@ -218,8 +227,7 @@ impl RoNode {
 
   /// Returns the value of property `name`
   pub fn get_property(self, name: &str) -> Option<String> {
-    let c_name = CString::new(name).unwrap();
-    let value_ptr = unsafe { xmlGetProp(self.0, c_name.as_bytes().as_ptr()) };
+    let value_ptr = with_c_str(name, |c_name| unsafe { xmlGetProp(self.0, c_name) });
     if value_ptr.is_null() {
       return None;
     }
@@ -231,10 +239,9 @@ impl RoNode {
 
   /// Returns the value of property `name` in namespace `ns`
   pub fn get_property_ns(self, name: &str, ns: &str) -> Option<String> {
-    let c_name = CString::new(name).unwrap();
-    let c_ns = CString::new(ns).unwrap();
-    let value_ptr =
-      unsafe { xmlGetNsProp(self.0, c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
+    let value_ptr = with_c_str(name, |c_name| {
+      with_c_str(ns, |c_ns| unsafe { xmlGetNsProp(self.0, c_name, c_ns) })
+    });
     if value_ptr.is_null() {
       return None;
     }
@@ -246,8 +253,7 @@ impl RoNode {
 
   /// Returns the value of property `name` with no namespace
   pub fn get_property_no_ns(self, name: &str) -> Option<String> {
-    let c_name = CString::new(name).unwrap();
-    let value_ptr = unsafe { xmlGetNoNsProp(self.0, c_name.as_bytes().as_ptr()) };
+    let value_ptr = with_c_str(name, |c_name| unsafe { xmlGetNoNsProp(self.0, c_name) });
     if value_ptr.is_null() {
       return None;
     }
@@ -259,27 +265,38 @@ impl RoNode {
 
   /// Return an attribute as a `Node` struct of type AttributeNode
   pub fn get_property_node(self, name: &str) -> Option<RoNode> {
-    let c_name = CString::new(name).unwrap();
-    unsafe {
-      let attr_node = xmlHasProp(self.0, c_name.as_bytes().as_ptr());
-      self.ptr_as_option(attr_node as xmlNodePtr)
-    }
+    let attr_node = with_c_str(name, |c_name| unsafe { xmlHasProp(self.0, c_name) });
+    self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
   pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
-    let c_name = CString::new(name).unwrap();
-    let c_ns = CString::new(ns).unwrap();
-    let attr_node =
-      unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
+    let attr_node = with_c_str(name, |c_name| {
+      with_c_str(ns, |c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) })
+    });
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
   pub fn get_property_node_no_ns(self, name: &str) -> Option<RoNode> {
-    let c_name = CString::new(name).unwrap();
-    let attr_node = unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), ptr::null()) };
+    let attr_node = with_c_str(name, |c_name| unsafe {
+      xmlHasNsProp(self.0, c_name, ptr::null())
+    });
     self.ptr_as_option(attr_node as xmlNodePtr)
+  }
+
+  /// Read property `name`, as [`RoNode::get_property`] does, and pass its value to `f`, copied on the stack when it is
+  /// at most 128 bytes, so the common case allocates nothing; `None` when the node has no such property. As
+  /// [`Node::with_property`](crate::tree::Node::with_property).
+  #[must_use]
+  pub fn with_property<R>(self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
+    with_property_copy(self.0, name, f)
+  }
+
+  /// Alias for with_property
+  #[must_use]
+  pub fn with_attribute<R>(self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
+    self.with_property(name, f)
   }
 
   /// Alias for get_property
@@ -379,24 +396,23 @@ impl RoNode {
 
   /// Check if a property has been defined, without allocating its value
   pub fn has_property(self, name: &str) -> bool {
-    let c_name = CString::new(name).unwrap();
-    let value_ptr = unsafe { xmlHasProp(self.0, c_name.as_bytes().as_ptr()) };
+    let value_ptr = with_c_str(name, |c_name| unsafe { xmlHasProp(self.0, c_name) });
     !value_ptr.is_null()
   }
 
   /// Check if property `name` in namespace `ns` exists
   pub fn has_property_ns(self, name: &str, ns: &str) -> bool {
-    let c_name = CString::new(name).unwrap();
-    let c_ns = CString::new(ns).unwrap();
-    let value_ptr =
-      unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), c_ns.as_bytes().as_ptr()) };
+    let value_ptr = with_c_str(name, |c_name| {
+      with_c_str(ns, |c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) })
+    });
     !value_ptr.is_null()
   }
 
   /// Check if property `name` with no namespace exists
   pub fn has_property_no_ns(self, name: &str) -> bool {
-    let c_name = CString::new(name).unwrap();
-    let value_ptr = unsafe { xmlHasNsProp(self.0, c_name.as_bytes().as_ptr(), ptr::null()) };
+    let value_ptr = with_c_str(name, |c_name| unsafe {
+      xmlHasNsProp(self.0, c_name, ptr::null())
+    });
     !value_ptr.is_null()
   }
 
@@ -467,17 +483,15 @@ impl RoNode {
     if href.is_empty() {
       return None;
     }
-    let c_href = CString::new(href).unwrap();
-    unsafe {
-      let ptr_mut = self.0;
-      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href.as_bytes().as_ptr());
-      if !ns_ptr.is_null() {
-        let ns = Namespace { ns_ptr };
-        let ns_prefix = ns.get_prefix();
-        Some(ns_prefix)
-      } else {
-        None
-      }
+    let ns_ptr = with_c_str(href, |c_href| unsafe {
+      xmlSearchNsByHref(xmlGetDoc(self.0), self.0, c_href)
+    });
+    if !ns_ptr.is_null() {
+      let ns = Namespace { ns_ptr };
+      let ns_prefix = ns.get_prefix();
+      Some(ns_prefix)
+    } else {
+      None
     }
   }
 
@@ -486,20 +500,19 @@ impl RoNode {
     if prefix.is_empty() {
       return None;
     }
-    let c_prefix = CString::new(prefix).unwrap();
-    unsafe {
-      let ns_ptr = xmlSearchNs(xmlGetDoc(self.0), self.0, c_prefix.as_bytes().as_ptr());
-      if !ns_ptr.is_null() {
-        let ns = Namespace { ns_ptr };
-        let ns_prefix = ns.get_href();
-        if !ns_prefix.is_empty() {
-          Some(ns_prefix)
-        } else {
-          None
-        }
+    let ns_ptr = with_c_str(prefix, |c_prefix| unsafe {
+      xmlSearchNs(xmlGetDoc(self.0), self.0, c_prefix)
+    });
+    if !ns_ptr.is_null() {
+      let ns = Namespace { ns_ptr };
+      let ns_prefix = ns.get_href();
+      if !ns_prefix.is_empty() {
+        Some(ns_prefix)
       } else {
         None
       }
+    } else {
+      None
     }
   }
 
@@ -551,5 +564,143 @@ impl RoNode {
   /// Create a mock node, used for a placeholder argument
   pub fn null() -> Self {
     RoNode(ptr::null_mut())
+  }
+}
+
+/// Pass `f` a copy (by `with_str_copy`) of the libxml2 string `ptr`, NULL as `""`, so that `f` may change the document.
+/// Copying a short name costs less than asking the document's dictionary whether it owns it (`xmlDictOwns`).
+///
+/// # Safety
+/// `ptr` is NULL or a live NUL-terminated string.
+unsafe fn with_libxml_str<R>(ptr: *const c_char, f: impl FnOnce(&str) -> R) -> R {
+  if ptr.is_null() {
+    f("")
+  } else {
+    with_str_copy(unsafe { CStr::from_ptr(ptr) }, f)
+  }
+}
+
+/// Whether `attr` is one of `element`'s properties, compared by address (`attr` itself is not read).
+fn holds_property(element: xmlNodePtr, attr: xmlAttrPtr) -> bool {
+  let mut prop = xmlGetFirstProperty(element);
+  while !prop.is_null() {
+    if prop == attr {
+      return true;
+    }
+    prop = xmlNextPropertySibling(prop);
+  }
+  false
+}
+
+impl RoNode {
+  /// Calls `f` with a copy of this node's name (`""` if none); `f` may change the document.
+  pub fn with_name<R>(self, f: impl FnOnce(&str) -> R) -> R {
+    unsafe { with_libxml_str(xmlNodeGetName(self.0), f) }
+  }
+
+  /// Calls `f` with `get_content()`'s value, copied on the stack when short for text, CDATA, comment and PI nodes; `f`
+  /// may change the document.
+  pub fn with_content<R>(self, f: impl FnOnce(&str) -> R) -> R {
+    let in_node = !self.0.is_null() && {
+      let node_type = unsafe { (*self.0).type_ };
+      node_type == xmlElementType_XML_TEXT_NODE
+        || node_type == xmlElementType_XML_CDATA_SECTION_NODE
+        || node_type == xmlElementType_XML_COMMENT_NODE
+        || node_type == xmlElementType_XML_PI_NODE
+    };
+    let content = if in_node {
+      unsafe { (*self.0).content as *const c_char }
+    } else {
+      ptr::null()
+    };
+    if content.is_null() {
+      // (`xmlNodeGetContent` copies exactly the in-node content for these four types, NULL as NULL)
+      f(&self.get_content())
+    } else {
+      with_str_copy(unsafe { CStr::from_ptr(content) }, f)
+    }
+  }
+
+  /// Calls `f` with the namespace prefix: `None` without a namespace, `Some("")` for a default namespace; `f` may
+  /// change the document.
+  pub fn with_namespace_prefix<R>(self, f: impl FnOnce(Option<&str>) -> R) -> R {
+    let ns_ptr = xmlNodeNs(self.0);
+    if ns_ptr.is_null() {
+      f(None)
+    } else {
+      unsafe { with_libxml_str(xmlNsPrefix(ns_ptr), |prefix| f(Some(prefix))) }
+    }
+  }
+
+  /// Calls `f` with the namespace URI; `None` without a namespace; `f` may change the document.
+  pub fn with_namespace_href<R>(self, f: impl FnOnce(Option<&str>) -> R) -> R {
+    let ns_ptr = xmlNodeNs(self.0);
+    if ns_ptr.is_null() {
+      f(None)
+    } else {
+      unsafe { with_libxml_str(xmlNsHref(ns_ptr), |href| f(Some(href))) }
+    }
+  }
+
+  /// Calls `f(name, value)` for each property in document order; nothing on a non-element. Unlike `get_properties`,
+  /// it reports every same-named property from different namespaces. `f` may change the document, but not free this
+  /// node.
+  pub fn for_each_property(self, mut f: impl FnMut(&str, &str)) {
+    self.walk_properties(false, |name, _, value| f(name, value))
+  }
+
+  /// As `for_each_property`, also passing the namespace URI (`None` if none).
+  pub fn for_each_property_ns(self, f: impl FnMut(&str, Option<&str>, &str)) {
+    self.walk_properties(true, f)
+  }
+
+  /// The loop of `for_each_property(_ns)`, reading each namespace URI only `with_ns`.
+  fn walk_properties(self, with_ns: bool, mut f: impl FnMut(&str, Option<&str>, &str)) {
+    let mut prop = xmlGetFirstProperty(self.0);
+    while !prop.is_null() {
+      let next = xmlNextPropertySibling(prop);
+      let name_ptr = xmlAttrName(prop);
+      // (a property with a NULL name is skipped, as `get_properties` skips it)
+      if !name_ptr.is_null() {
+        let ns_ptr = if with_ns {
+          xmlAttrNs(prop)
+        } else {
+          ptr::null_mut()
+        };
+        let mut with_value =
+          |name: &str, href: Option<&str>| match unsafe { single_text_value(prop) } {
+            Some(content) => with_str_copy(content, |value| f(name, href, value)),
+            None => f(name, href, &attr_node_value(prop)),
+          };
+        unsafe {
+          with_libxml_str(name_ptr, |name| {
+            if ns_ptr.is_null() {
+              with_value(name, None)
+            } else {
+              with_libxml_str(xmlNsHref(ns_ptr), |href| with_value(name, Some(href)))
+            }
+          })
+        };
+        // `f` may have removed `prop` or `next`: go on from whichever the element still holds, else stop.
+        if holds_property(self.0, prop) {
+          prop = xmlNextPropertySibling(prop);
+          continue;
+        }
+        if !holds_property(self.0, next) {
+          break;
+        }
+      }
+      prop = next;
+    }
+  }
+
+  /// Alias for [`RoNode::for_each_property`]
+  pub fn for_each_attribute(self, f: impl FnMut(&str, &str)) {
+    self.for_each_property(f)
+  }
+
+  /// Alias for [`RoNode::for_each_property_ns`]
+  pub fn for_each_attribute_ns(self, f: impl FnMut(&str, Option<&str>, &str)) {
+    self.for_each_property_ns(f)
   }
 }

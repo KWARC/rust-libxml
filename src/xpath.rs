@@ -421,7 +421,7 @@ impl Object {
     v as usize
   }
 
-  /// returns the result set as a vector of `Node` objects
+  /// returns the result set as a vector of `Node` objects, without the namespace axis's entries (see `is_namespace`)
   pub fn get_nodes_as_vec(&self) -> Vec<Node> {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<Node> = Vec::with_capacity(n);
@@ -434,13 +434,16 @@ impl Object {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
       }
+      if is_namespace(ptr) {
+        continue;
+      }
       let node = Node::wrap(ptr, &self.document.upgrade().unwrap());
       vec.push(node);
     }
     vec
   }
 
-  /// returns the result set as a vector of `RoNode` objects
+  /// returns the result set as a vector of `RoNode` objects, without the namespace axis's entries (see `is_namespace`)
   pub fn get_readonly_nodes_as_vec(&self) -> Vec<RoNode> {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<RoNode> = Vec::with_capacity(n);
@@ -452,6 +455,9 @@ impl Object {
     for ptr in slice {
       if ptr.is_null() {
         panic!("rust-libxml: xpath: found null pointer result set");
+      }
+      if is_namespace(ptr) {
+        continue;
       }
       vec.push(RoNode(ptr));
     }
@@ -484,6 +490,12 @@ impl Object {
     }
     vec
   }
+}
+
+/// Whether a node-set entry is a namespace node (the namespace axis): an `xmlNs` copy the XPath object owns and frees,
+/// shorter than an `xmlNode`, so neither a `Node` nor an `RoNode` may wrap it. `get_nodes_as_str` still reads it.
+fn is_namespace(ptr: xmlNodePtr) -> bool {
+  xmlGetNodeType(ptr) == xmlElementType_XML_NAMESPACE_DECL
 }
 
 impl fmt::Display for Object {

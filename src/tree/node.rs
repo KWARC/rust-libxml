@@ -1,7 +1,6 @@
 //! Node, and related, feature set
 //!
 use libc::{c_char, c_void};
-use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -13,6 +12,7 @@ use std::str;
 
 use crate::bindings::*;
 use crate::c_helpers::*;
+use crate::readonly::RoNode;
 use crate::tree::namespace::Namespace;
 use crate::tree::nodetype::NodeType;
 use crate::tree::{Document, DocumentRef, DocumentWeak};
@@ -32,7 +32,7 @@ pub static mut NODE_RC_MAX_GUARD: usize = 2;
 #[deprecated(note = "no-op: node_ptr_mut now relies on RefCell::try_borrow_mut")]
 pub fn set_node_rc_guard(_value: usize) {}
 
-type NodeRef = Rc<RefCell<_Node>>;
+pub(crate) type NodeRef = Rc<RefCell<_Node>>;
 
 /// Lifecycle state of a wrapped libxml2 node.
 ///
@@ -61,7 +61,7 @@ enum Linkage {
 }
 
 #[derive(Debug)]
-struct _Node {
+pub(crate) struct _Node {
   /// libxml's xmlNodePtr
   node_ptr: xmlNodePtr,
   /// Reference to parent `Document`
@@ -72,7 +72,7 @@ struct _Node {
 
 /// An xml node
 #[derive(Clone, Debug)]
-pub struct Node(NodeRef);
+pub struct Node(pub(crate) NodeRef);
 
 impl Hash for Node {
   /// Generates a hash value from the `node_ptr` value.
@@ -573,36 +573,7 @@ impl Node {
   ///
   /// `f` reads its own copy of the value, never libxml2's, so `f` may change the document, this property included.
   pub fn with_property<R>(&self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
-    let node_ptr = self.node_ptr();
-    if node_ptr.is_null() {
-      return None;
-    }
-    let c_name = name.as_ptr() as *const xmlChar;
-    let mut buffer = [0u8; 128];
-    // The value is copied out of libxml2's memory before `f` runs: a change `f` makes may free that memory.
-    let value: Cow<str> = unsafe {
-      let attr = xmlHasProp(node_ptr, c_name);
-      if attr.is_null() {
-        return None;
-      }
-      match single_text_value(attr) {
-        Some(content) => {
-          let bytes = content.to_bytes();
-          match buffer.get_mut(..bytes.len()) {
-            Some(copy) => {
-              copy.copy_from_slice(bytes);
-              match str::from_utf8(copy) {
-                Ok(s) => Cow::Borrowed(s),
-                Err(_) => String::from_utf8_lossy(copy),
-              }
-            }
-            None => Cow::Owned(c_str_to_string(content)),
-          }
-        }
-        None => Cow::Owned(take_xml_string(xmlGetProp(node_ptr, c_name))?),
-      }
-    };
-    Some(f(&value))
+    with_property_copy(self.node_ptr(), name, f)
   }
 
   /// Returns the value of property `name` in namespace `ns`
@@ -1015,17 +986,16 @@ impl Node {
     if href.is_empty() {
       return None;
     }
-    let c_href = CString::new(href).unwrap();
-    unsafe {
-      let ptr_mut = self.node_ptr();
-      let ns_ptr = xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href.as_bytes().as_ptr());
-      if !ns_ptr.is_null() {
-        let ns = Namespace { ns_ptr };
-        let ns_prefix = ns.get_prefix();
-        Some(ns_prefix)
-      } else {
-        None
-      }
+    let ptr_mut = self.node_ptr();
+    let ns_ptr = with_c_str(href, |c_href| unsafe {
+      xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href)
+    });
+    if !ns_ptr.is_null() {
+      let ns = Namespace { ns_ptr };
+      let ns_prefix = ns.get_prefix();
+      Some(ns_prefix)
+    } else {
+      None
     }
   }
 
@@ -1034,24 +1004,19 @@ impl Node {
     if prefix.is_empty() {
       return None;
     }
-    let c_prefix = CString::new(prefix).unwrap();
-    unsafe {
-      let ns_ptr = xmlSearchNs(
-        xmlGetDoc(self.node_ptr()),
-        self.node_ptr(),
-        c_prefix.as_bytes().as_ptr(),
-      );
-      if !ns_ptr.is_null() {
-        let ns = Namespace { ns_ptr };
-        let ns_prefix = ns.get_href();
-        if !ns_prefix.is_empty() {
-          Some(ns_prefix)
-        } else {
-          None
-        }
+    let ns_ptr = with_c_str(prefix, |c_prefix| unsafe {
+      xmlSearchNs(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_prefix)
+    });
+    if !ns_ptr.is_null() {
+      let ns = Namespace { ns_ptr };
+      let ns_prefix = ns.get_href();
+      if !ns_prefix.is_empty() {
+        Some(ns_prefix)
       } else {
         None
       }
+    } else {
+      None
     }
   }
 
@@ -1202,6 +1167,11 @@ impl Node {
     !matches!(self.0.borrow().linkage, Linkage::Linked)
   }
 
+  /// Whether a wrapper other than this one shares this node's state (another clone of it is alive).
+  pub(crate) fn is_shared(&self) -> bool {
+    Rc::strong_count(&self.0) > 1
+  }
+
   /// Take ownership of this detached node's C allocation.
   ///
   /// After this call, the C node will be freed via `xmlFreeNode` when the
@@ -1242,6 +1212,27 @@ impl Node {
   /// See `set_rust_owned`.
   pub fn is_rust_owned(&self) -> bool {
     matches!(self.0.borrow().linkage, Linkage::RustOwned)
+  }
+
+  /// This node as a `RoNode`. Adds nothing to the wrapper cache.
+  #[must_use]
+  pub fn as_readonly(&self) -> RoNode {
+    RoNode(self.node_ptr())
+  }
+
+  /// [`Document::node_from_readonly`] on this node's document.
+  ///
+  /// # Panics
+  /// If this node is null or its document was dropped.
+  #[must_use]
+  pub fn node_from_readonly(&self, node: RoNode) -> Node {
+    let doc_ref = self
+      .0
+      .borrow()
+      .document
+      .upgrade()
+      .expect("node_from_readonly: the document was dropped");
+    Document(doc_ref).node_from_readonly(node)
   }
 
   /// Detach this node and free its entire C subtree IMMEDIATELY.
@@ -1296,15 +1287,12 @@ impl Node {
           stack.push(child);
           child = xmlNextSibling(child);
         }
-        // Attribute structs share the xmlNode prefix layout through `ns`,
-        // but only ELEMENTS have a `properties` field — reading it through
-        // an attribute or text pointer would be out of bounds.
-        if NodeType::from_int(xmlGetNodeType(ptr)) == Some(NodeType::ElementNode) {
-          let mut attr = xmlGetFirstProperty(ptr);
-          while !attr.is_null() {
-            stack.push(attr as xmlNodePtr);
-            attr = xmlNextPropertySibling(attr);
-          }
+        // Only elements (and XInclude's start/end copies of one) have a `properties` field; `xmlGetFirstProperty`
+        // answers NULL through any other node, where the slot is out of bounds or holds other data.
+        let mut attr = xmlGetFirstProperty(ptr);
+        while !attr.is_null() {
+          stack.push(attr as xmlNodePtr);
+          attr = xmlNextPropertySibling(attr);
         }
         let mut doc_borrowed = doc.borrow_mut();
         if let Some(wrapper) = doc_borrowed.get_node(ptr) {
@@ -1486,7 +1474,7 @@ fn node_ancestors(node_ptr: xmlNodePtr) -> Vec<xmlNodePtr> {
 /// libxml2-allocated buffer. Equivalent to resolving the attribute by name with
 /// `xmlGetProp`, but without the list re-scan and name `CString` allocation —
 /// the caller already holds the attribute pointer.
-fn attr_node_value(attr: xmlAttrPtr) -> String {
+pub(crate) fn attr_node_value(attr: xmlAttrPtr) -> String {
   if let Some(content) = unsafe { single_text_value(attr) } {
     return c_str_to_string(content);
   }
@@ -1507,7 +1495,7 @@ fn attr_node_value(attr: xmlAttrPtr) -> String {
 ///
 /// # Safety
 /// `attr` is null or points to a live attribute (or attribute declaration); the borrow lasts while it is not changed.
-unsafe fn single_text_value<'a>(attr: xmlAttrPtr) -> Option<&'a CStr> {
+pub(crate) unsafe fn single_text_value<'a>(attr: xmlAttrPtr) -> Option<&'a CStr> {
   if attr.is_null() || unsafe { (*attr).type_ } != xmlElementType_XML_ATTRIBUTE_NODE {
     return None;
   }
@@ -1567,10 +1555,50 @@ fn c_str_to_string(c: &CStr) -> String {
   }
 }
 
+/// [`Node::with_property`] on `node_ptr` (NULL or a live node): `f` gets the value as [`with_str_copy`] copies it.
+pub(crate) fn with_property_copy<R>(
+  node_ptr: xmlNodePtr,
+  name: &CStr,
+  f: impl FnOnce(&str) -> R,
+) -> Option<R> {
+  if node_ptr.is_null() {
+    return None;
+  }
+  let c_name = name.as_ptr() as *const xmlChar;
+  // The value is copied out of libxml2's memory before `f` runs: a change `f` makes may free that memory.
+  unsafe {
+    let attr = xmlHasProp(node_ptr, c_name);
+    if attr.is_null() {
+      return None;
+    }
+    match single_text_value(attr) {
+      Some(content) => Some(with_str_copy(content, f)),
+      None => Some(f(&take_xml_string(xmlGetProp(node_ptr, c_name))?)),
+    }
+  }
+}
+
+/// Pass `f` a copy of `c`, decoded lossily if it is not UTF-8: on the stack when it fits in 128 bytes, otherwise in a
+/// `String`. `c` is not read once `f` runs, so `f` may free it.
+pub(crate) fn with_str_copy<R>(c: &CStr, f: impl FnOnce(&str) -> R) -> R {
+  let bytes = c.to_bytes();
+  let mut buffer = [0u8; 128];
+  match buffer.get_mut(..bytes.len()) {
+    Some(copy) => {
+      copy.copy_from_slice(bytes);
+      match str::from_utf8(copy) {
+        Ok(s) => f(s),
+        Err(_) => f(&String::from_utf8_lossy(copy)),
+      }
+    }
+    None => f(&c_str_to_string(c)),
+  }
+}
+
 /// Pass `s` to `f` as a NUL-terminated string for libxml2: copied to the stack when it is shorter than 128 bytes,
 /// otherwise through a `CString`. A string holding a NUL byte takes the `CString` path and panics there, as
 /// `CString::new(s).unwrap()` always has in these methods.
-fn with_c_str<R>(s: &str, f: impl FnOnce(*const xmlChar) -> R) -> R {
+pub(crate) fn with_c_str<R>(s: &str, f: impl FnOnce(*const xmlChar) -> R) -> R {
   const STACK: usize = 128;
   let bytes = s.as_bytes();
   if bytes.len() < STACK && !bytes.contains(&0) {

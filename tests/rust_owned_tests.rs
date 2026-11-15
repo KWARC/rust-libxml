@@ -342,3 +342,79 @@ fn rust_owned_mixed_with_reattach() {
   drop(root);
   drop(doc);
 }
+
+// ---- The document drops its node cache before `xmlFreeDoc` -------------
+
+/// The scenario `document_drop_frees_cached_nodes_first` runs, chosen by its child process's environment.
+const DROP_ORDER_CHILD_ENV: &str = "LIBXML_DROP_ORDER_CHILD";
+
+/// Runs one drop-order scenario when spawned by `document_drop_frees_cached_nodes_first`; a no-op otherwise.
+#[test]
+fn drop_order_child() {
+  let Some(scenario) = std::env::var_os(DROP_ORDER_CHILD_ENV) else {
+    return;
+  };
+  let doc = Parser::default()
+    .parse_string("<r><a><b/></a><c/></r>")
+    .expect("parse");
+  match scenario.to_str().unwrap() {
+    // A rust-owned node only the cache holds: freed by the cache's drop, while its document is alive.
+    "rust_owned" => Node::new("d", None, &doc).unwrap().set_rust_owned(),
+    // An unlinked node only the cache holds: `node->doc` is set, so its wrapper frees nothing.
+    "unlinked" => drop(Node::new("d", None, &doc).unwrap()),
+    // Linked nodes, all wrapped: `xmlFreeDoc` frees them.
+    "linked" => drop(doc.get_root_element().unwrap().findnodes("//*").unwrap()),
+    // A rust-owned node with a linked child, both only in the cache: the parent's free takes the child, whose
+    // wrapper then frees nothing, whichever drops first.
+    "subtree" => {
+      let mut d = Node::new("d", None, &doc).unwrap();
+      let mut e = Node::new("e", None, &doc).unwrap();
+      d.add_child(&mut e).unwrap();
+      d.set_rust_owned();
+    }
+    // An unlinked subtree marked rust-owned, its descendants wrapped (and cached, linked); the subtree's own handle
+    // drops first, as the supported order asks.
+    "unlinked_subtree" => {
+      let root = doc.get_root_element().unwrap();
+      let mut a = root.get_first_element_child().unwrap();
+      let b = a.get_first_element_child().unwrap();
+      a.unlink_node();
+      assert_eq!(b.get_parent().unwrap().node_ptr(), a.node_ptr());
+      a.set_rust_owned();
+      drop(b);
+      drop(a);
+    }
+    other => panic!("unknown scenario {other}"),
+  }
+  drop(doc);
+}
+
+/// Dropping a document drops its cached wrappers before `xmlFreeDoc`, so a rust-owned node nothing else holds is
+/// freed while the dictionary holding its strings is alive. Freed after it, the node read the freed dictionary
+/// ("free(): invalid pointer", an abort): each scenario runs in its own process.
+#[test]
+fn document_drop_frees_cached_nodes_first() {
+  if std::env::var_os(DROP_ORDER_CHILD_ENV).is_some() {
+    return;
+  }
+  let exe = std::env::current_exe().unwrap();
+  for scenario in [
+    "rust_owned",
+    "unlinked",
+    "linked",
+    "subtree",
+    "unlinked_subtree",
+  ] {
+    let output = std::process::Command::new(&exe)
+      .args(["--exact", "drop_order_child", "--test-threads=1"])
+      .env(DROP_ORDER_CHILD_ENV, scenario)
+      .output()
+      .unwrap();
+    assert!(
+      output.status.success(),
+      "scenario {scenario}: {}\n{}",
+      output.status,
+      String::from_utf8_lossy(&output.stderr)
+    );
+  }
+}
