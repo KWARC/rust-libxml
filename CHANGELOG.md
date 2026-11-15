@@ -2,6 +2,12 @@
 
 ## [0.3.24] (2026-11-15)
 
+Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.23 builds
+unchanged. Three calls return a different result, each only where 0.3.23 read invalid memory or crashed (see Fixed):
+`get_namespace` on a node other than an element, attribute or XInclude node; `get_properties*` / `get_attributes*` on a
+node other than an element or XInclude node; and XPath node lists (`get_nodes_as_vec`, `findnodes`), which no longer
+contain namespace-axis entries.
+
 ### Added
 
 * `Node::as_readonly` and `Document::node_from_readonly` / `Node::node_from_readonly`: convert between `Node` and
