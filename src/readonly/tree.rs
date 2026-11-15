@@ -644,7 +644,8 @@ impl RoNode {
 
   /// Calls `f(name, value)` for each property in document order; nothing on a non-element. Unlike `get_properties`,
   /// it reports every same-named property from different namespaces. `f` may change the document, but not free this
-  /// node.
+  /// node. After each call the element's property list is searched again (for the property `f` may have removed), so
+  /// the cost grows with the square of the property count.
   pub fn for_each_property(self, mut f: impl FnMut(&str, &str)) {
     self.walk_properties(false, |name, _, value| f(name, value))
   }

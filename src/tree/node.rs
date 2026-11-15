@@ -841,15 +841,16 @@ impl Node {
 
   /// Get a copy of the attributes of this node
   pub fn get_properties(&self) -> HashMap<String, String> {
+    let first_prop = xmlGetFirstProperty(self.node_ptr());
     let mut count = 0;
-    let mut current_prop = xmlGetFirstProperty(self.node_ptr());
+    let mut current_prop = first_prop;
     while !current_prop.is_null() {
       count += 1;
       current_prop = xmlNextPropertySibling(current_prop);
     }
     let mut attributes = HashMap::with_capacity(count);
 
-    let mut current_prop = xmlGetFirstProperty(self.node_ptr());
+    let mut current_prop = first_prop;
     while !current_prop.is_null() {
       let name_ptr = xmlAttrName(current_prop);
       if name_ptr.is_null() {
