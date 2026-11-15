@@ -1,6 +1,12 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.24] (2026-11-15)
+
+Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.23 builds
+unchanged. Three calls return a different result, each only where 0.3.23 read invalid memory or crashed (see Fixed):
+`get_namespace` on a node other than an element, attribute or XInclude node; `get_properties*` / `get_attributes*` on a
+node other than an element or XInclude node; and XPath node lists (`get_nodes_as_vec`, `findnodes`), which no longer
+contain namespace-axis entries.
 
 ### Added
 
@@ -13,12 +19,20 @@
 * `Document::is_well_formed` and `Document::is_ns_valid`: libxml2's parse-time well-formedness and namespace-validity
   flags. (#231)
 * `Document::trim_node_cache`: drop cached `Node` wrappers no longer held outside the document. (#231)
+* Windows MSVC: when vcpkg does not find libxml2, the build falls back to pkg-config and generates the bindings with
+  bindgen, as it does for vcpkg. This builds against conda-forge's `libxml2-devel`, which comes without vcpkg; the
+  README says how to point the build at it. The fallback runs only where the build used to panic with `Could not find
+  libxml2.`, and a CI job builds and tests against conda-forge's libxml2. On MSVC, use it instead of `LIBXML2`, whose
+  default bindings assume a 64-bit `long` (#179). (#228, thanks @jcamiel; #229)
 
 ### Changed
 
 * `RoNode`'s name-taking reads (`get_property*`, `has_property*`, `get_property_node*`, `lookup_namespace_*` and the
   attribute aliases) and `Node::lookup_namespace_prefix` / `lookup_namespace_uri` no longer allocate for names up to
   127 bytes, as `Node`'s other name-taking reads since 0.3.23. (#231)
+* When vcpkg does not find libxml2, the build prints vcpkg's error next to pkg-config's instead of discarding it.
+  `pkg-config` is a build dependency on every target, at least 0.3.14, the first release whose MSVC support works.
+  (#229)
 
 ### Fixed
 
