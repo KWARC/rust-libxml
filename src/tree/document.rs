@@ -10,8 +10,10 @@ use std::rc::{Rc, Weak};
 use std::str;
 
 use crate::bindings::*;
+use crate::c_helpers::{xmlGetDoc, xmlGetNodeType, xmlGetParent};
 use crate::readonly::RoNode;
 use crate::tree::node::Node;
+use crate::tree::nodetype::NodeType;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
 pub(crate) type DocumentWeak = Weak<RefCell<_Document>>;
@@ -138,6 +140,11 @@ impl _Document {
   pub(crate) fn forget_node(&mut self, node_ptr: xmlNodePtr) {
     self.nodes.remove(&node_ptr);
   }
+  /// The number of cached wrappers, for the wrapper-cache tests.
+  #[cfg(test)]
+  pub(crate) fn cached_node_count(&self) -> usize {
+    self.nodes.len()
+  }
 }
 
 /// A libxml2 Document
@@ -147,6 +154,9 @@ pub struct Document(pub(crate) DocumentRef);
 impl Drop for _Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
+    // The cached wrappers drop first: a rust-owned node only the cache holds is freed by `xmlFreeNode`, which reads
+    // `node->doc` (its dictionary) and so must run while the document is alive.
+    self.nodes.clear();
     unsafe {
       if !self.doc_ptr.is_null() {
         xmlFreeDoc(self.doc_ptr);
@@ -240,6 +250,60 @@ impl Document {
         Some(RoNode(node_ptr))
       }
     }
+  }
+
+  /// The `Node` for `node`, reusing the document's cached wrapper if any; `Node::null()` for a null `node`, a namespace
+  /// node (XPath's namespace axis) and a node of another document.
+  #[must_use]
+  pub fn node_from_readonly(&self, node: RoNode) -> Node {
+    // A namespace node is an `xmlNs`, a shorter struct than the `xmlNode` a `Node` reads.
+    let node_type = xmlGetNodeType(node.0);
+    if node_type == xmlElementType_XML_NAMESPACE_DECL || NodeType::from_int(node_type).is_none() {
+      return Node::null();
+    }
+    // A wrapper cached here for another document's node would outlive that document.
+    if xmlGetDoc(node.0) != self.doc_ptr() {
+      return Node::null();
+    }
+    // A node in no tree wraps as unlinked, as `Node::new` wraps it; only the document node has no parent in a tree.
+    let in_tree = !xmlGetParent(node.0).is_null()
+      || node_type == xmlElementType_XML_DOCUMENT_NODE
+      || node_type == xmlElementType_XML_HTML_DOCUMENT_NODE;
+    if in_tree {
+      self.register_node(node.0)
+    } else {
+      Node::wrap_new(node.0, &self.0)
+    }
+  }
+
+  /// As parsed: whether libxml2 found the document well-formed. `false` for recovered, HTML, in-memory and copied
+  /// documents; edits do not update it.
+  #[must_use]
+  pub fn is_well_formed(&self) -> bool {
+    self.has_doc_property(xmlDocProperties_XML_DOC_WELLFORMED)
+  }
+
+  /// As parsed: whether libxml2 found the document namespace-valid. `false` for recovered, HTML, in-memory and copied
+  /// documents; edits do not update it.
+  #[must_use]
+  pub fn is_ns_valid(&self) -> bool {
+    self.has_doc_property(xmlDocProperties_XML_DOC_NSVALID)
+  }
+
+  /// Drops the cached wrappers of linked nodes not held elsewhere, to bound memory on long-lived documents. A dropped
+  /// node gets a new wrapper when next reached.
+  pub fn trim_node_cache(&self) {
+    self
+      .0
+      .borrow_mut()
+      .nodes
+      .retain(|_, node| node.is_unlinked() || node.is_shared());
+  }
+
+  fn has_doc_property(&self, flag: xmlDocProperties) -> bool {
+    let doc_ptr = self.doc_ptr();
+    // SAFETY: a non-null `doc_ptr` is the live `xmlDoc` this wrapper owns.
+    !doc_ptr.is_null() && unsafe { (*doc_ptr).properties } as xmlDocProperties & flag != 0
   }
 
   /// Sets the root element of the document
@@ -544,3 +608,132 @@ impl Document {
 }
 
 mod c14n;
+
+#[cfg(test)]
+mod trim_node_cache_tests {
+  use crate::parser::Parser;
+  use crate::readonly::RoNode;
+  use crate::tree::Node;
+  use std::rc::Rc;
+
+  #[test]
+  fn trim_node_cache_keeps_held_wrappers_and_rewraps_the_rest() {
+    let doc = Parser::default().parse_string("<a><b/><c/></a>").unwrap();
+    let cached = |node_ptr| doc.0.borrow().get_node(node_ptr).is_some();
+    let root = doc.get_root_element().unwrap();
+    let held = root.get_first_child().unwrap();
+    let visited = held.get_next_sibling().unwrap();
+    let visited_ptr = visited.node_ptr();
+    // A `Weak` keeps the old allocation, so a fresh wrapper cannot reuse its address.
+    let visited_weak = Rc::downgrade(&visited.0);
+    drop(visited);
+    let loose = Node::new("d", None, &doc).unwrap();
+    let loose_ptr = loose.node_ptr();
+    drop(loose);
+    let before = doc.0.borrow().cached_node_count();
+
+    doc.trim_node_cache();
+
+    // Only the unheld linked `c` is forgotten: its wrapper is dropped, the held and the unlinked ones stay.
+    assert_eq!(doc.0.borrow().cached_node_count(), before - 1);
+    assert!(visited_weak.upgrade().is_none());
+    assert!(!cached(visited_ptr));
+    assert!(cached(root.node_ptr()) && cached(held.node_ptr()) && cached(loose_ptr));
+    assert!(Rc::ptr_eq(&root.get_first_child().unwrap().0, &held.0));
+    assert_eq!(held.get_parent().unwrap(), root);
+    // The forgotten node is wrapped afresh: same node, new wrapper, cached again.
+    let rewrapped = held.get_next_sibling().unwrap();
+    assert_eq!(rewrapped.node_ptr(), visited_ptr);
+    assert_eq!(rewrapped.get_name(), "c");
+    assert!(Rc::as_ptr(&rewrapped.0) != visited_weak.as_ptr());
+    assert!(cached(visited_ptr));
+    assert_eq!(doc.0.borrow().cached_node_count(), before);
+  }
+
+  /// A rust-owned node nothing outside the document holds keeps its cached wrapper, which owns its allocation:
+  /// trimming must not free a node a `RoNode` still reads, and a rewrap is that same rust-owned wrapper.
+  #[test]
+  fn trim_node_cache_keeps_a_rust_owned_node() {
+    let doc = Parser::default().parse_string("<a/>").unwrap();
+    let owned = Node::new("d", None, &doc).unwrap();
+    owned.set_rust_owned();
+    let ro = owned.as_readonly();
+    let weak = Rc::downgrade(&owned.0);
+    drop(owned);
+
+    doc.trim_node_cache();
+    doc.trim_node_cache();
+
+    assert!(
+      weak.upgrade().is_some(),
+      "the cache still holds the owning wrapper"
+    );
+    assert_eq!(ro.with_name(str::to_string), "d");
+    let again = doc.node_from_readonly(ro);
+    assert!(again.is_rust_owned());
+    assert!(Rc::ptr_eq(&again.0, &weak.upgrade().unwrap()));
+    // The document's drop frees the node through its cached wrapper, before `xmlFreeDoc`.
+    drop(again);
+    drop(doc);
+    assert!(weak.upgrade().is_none());
+  }
+
+  /// A second trim finds nothing more to drop: the held, the unlinked and the remaining wrappers stay as they were.
+  #[test]
+  fn trim_node_cache_twice_is_a_no_op() {
+    let doc = Parser::default()
+      .parse_string("<a><b/><c><e/></c></a>")
+      .unwrap();
+    let root = doc.get_root_element().unwrap();
+    for child in root.get_child_nodes() {
+      child.get_child_nodes();
+    }
+    let loose = Node::new("d", None, &doc).unwrap();
+    let all = doc.0.borrow().cached_node_count();
+
+    doc.trim_node_cache();
+    let trimmed = doc.0.borrow().cached_node_count();
+    doc.trim_node_cache();
+
+    // b, c and e are dropped; the root and the loose node stay.
+    assert_eq!(trimmed, all - 3);
+    assert_eq!(doc.0.borrow().cached_node_count(), trimmed);
+    assert!(Rc::ptr_eq(&doc.get_root_element().unwrap().0, &root.0));
+    assert!(doc.0.borrow().get_node(loose.node_ptr()).is_some());
+  }
+
+  #[test]
+  fn node_from_readonly_does_not_cache_a_null_node() {
+    let doc = Parser::default().parse_string("<r/>").unwrap();
+    let root = doc.get_root_element().unwrap();
+    let before = doc.0.borrow().cached_node_count();
+    assert!(doc.node_from_readonly(RoNode::null()).is_null());
+    assert!(root.node_from_readonly(RoNode::null()).is_null());
+    assert_eq!(doc.0.borrow().cached_node_count(), before);
+  }
+
+  /// A namespace-axis entry is an `xmlNs` (48 bytes), shorter than the `xmlNode` whose `doc` field (offset 64) the
+  /// foreign-document check reads. `get_readonly_nodes_as_vec` skips such entries, so only a raw `RoNode` reaches
+  /// `node_from_readonly` with one; it must answer `Node::null()` before reading past the struct (red under valgrind,
+  /// "Invalid read of size 8", without the namespace guard).
+  #[test]
+  fn node_from_readonly_rejects_a_raw_namespace_node() {
+    use crate::bindings::xmlElementType_XML_NAMESPACE_DECL;
+    use crate::c_helpers::xmlGetNodeType;
+    use crate::xpath::Context;
+    let doc = Parser::default()
+      .parse_string(r#"<r xmlns:p="urn:p"><a/></r>"#)
+      .unwrap();
+    let root = doc.get_root_element().unwrap();
+    let context = Context::new(&doc).unwrap();
+    let namespaces = context.evaluate("/r/namespace::p").unwrap();
+    assert_eq!(namespaces.get_number_of_nodes(), 1);
+    // SAFETY: a node-set result with one entry, alive while `namespaces` is.
+    let ns_ptr = unsafe { *(*(*namespaces.ptr).nodesetval).nodeTab };
+    assert_eq!(xmlGetNodeType(ns_ptr), xmlElementType_XML_NAMESPACE_DECL);
+    let before = doc.0.borrow().cached_node_count();
+    assert!(doc.node_from_readonly(RoNode(ns_ptr)).is_null());
+    assert!(root.node_from_readonly(RoNode(ns_ptr)).is_null());
+    assert_eq!(doc.0.borrow().cached_node_count(), before);
+  }
+}

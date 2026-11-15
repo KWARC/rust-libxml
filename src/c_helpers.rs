@@ -89,8 +89,19 @@ pub fn xmlNodeNsDeclarations(cur: xmlNodePtr) -> xmlNsPtr {
   }
   unsafe { (*cur).nsDef }
 }
+/// Whether `node_type` is an element or one of XInclude's start/end nodes, which are copies of the `xi:include`
+/// element (libxml2's `xinclude.c`) and keep its `ns` and `properties`.
+fn is_element_like(node_type: xmlElementType) -> bool {
+  node_type == xmlElementType_XML_ELEMENT_NODE
+    || node_type == xmlElementType_XML_XINCLUDE_START
+    || node_type == xmlElementType_XML_XINCLUDE_END
+}
+/// The node's namespace: NULL unless `cur` is an element (or an XInclude start/end node) or an attribute, the
+/// structs whose `ns` field this is. An `xmlDoc` holds its `compression`/`standalone` ints there and an `xmlDtd` its
+/// `notations` table.
 pub fn xmlNodeNs(cur: xmlNodePtr) -> xmlNsPtr {
-  if cur.is_null() {
+  let node_type = xmlGetNodeType(cur);
+  if !is_element_like(node_type) && node_type != xmlElementType_XML_ATTRIBUTE_NODE {
     return ptr::null_mut();
   }
   unsafe { (*cur).ns }
@@ -114,8 +125,11 @@ pub fn xmlAttrNs(attr: xmlAttrPtr) -> xmlNsPtr {
   }
   unsafe { (*attr).ns }
 }
+/// The element's first property: NULL unless `node` is an element (or an XInclude start/end node). A text node
+/// parsed with `compact` holds its characters in the `properties` slot (libxml2's `xmlSAX2TextNode`), an `xmlDoc` its
+/// `extSubset`, an `xmlDtd` its `attributes` table.
 pub fn xmlGetFirstProperty(node: xmlNodePtr) -> xmlAttrPtr {
-  if node.is_null() {
+  if !is_element_like(xmlGetNodeType(node)) {
     return ptr::null_mut();
   }
   unsafe { (*node).properties }

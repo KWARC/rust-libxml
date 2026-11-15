@@ -1,5 +1,38 @@
 # Change Log
 
+## [Unreleased]
+
+### Added
+
+* `Node::as_readonly` and `Document::node_from_readonly` / `Node::node_from_readonly`: convert between `Node` and
+  `RoNode`, so a read-only walk need not cache a wrapper per node. (#231)
+* `RoNode::with_name`, `with_content`, `with_namespace_prefix`, `with_namespace_href`, `with_property` /
+  `with_attribute`, `for_each_property` and `for_each_property_ns` (aliases `for_each_attribute`,
+  `for_each_attribute_ns`): pass a node's strings to a closure without a heap allocation in the common case (each
+  string up to 128 bytes copied on the stack), so the closure may change the document. (#231)
+* `Document::is_well_formed` and `Document::is_ns_valid`: libxml2's parse-time well-formedness and namespace-validity
+  flags. (#231)
+* `Document::trim_node_cache`: drop cached `Node` wrappers no longer held outside the document. (#231)
+
+### Changed
+
+* `RoNode`'s name-taking reads (`get_property*`, `has_property*`, `get_property_node*`, `lookup_namespace_*` and the
+  attribute aliases) and `Node::lookup_namespace_prefix` / `lookup_namespace_uri` no longer allocate for names up to
+  127 bytes, as `Node`'s other name-taking reads since 0.3.23. (#231)
+
+### Fixed
+
+* `get_namespace` on `Node` and `RoNode` returns `None` for nodes other than elements, attributes and XInclude nodes;
+  on document and DTD nodes it read an unrelated field (garbage or a crash). (#231)
+* `get_properties`, `get_properties_ns` and their `get_attributes` aliases, on `Node` and `RoNode`, return an empty
+  map for nodes other than elements and XInclude nodes; on a text node parsed with `ParserOptions::compact` they
+  crashed. (#231)
+* Dropping a `Document` no longer aborts ("free(): invalid pointer") when its cache held the last wrapper of a node
+  marked `set_rust_owned`. (#231)
+* `Object::get_nodes_as_vec`, `get_readonly_nodes_as_vec` and the `findnodes` built on them skip the namespace axis's
+  entries (`namespace::*`), `xmlNs` copies the XPath object owns: a `Node` or `RoNode` over one read past its end and,
+  once the object dropped, freed memory. `get_nodes_as_str` still reads them. (#231)
+
 ## [0.3.23] (2026-10-31)
 
 ### Added
