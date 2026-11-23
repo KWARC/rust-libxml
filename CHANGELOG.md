@@ -7,6 +7,9 @@
 * `Node::set_text_content`: sets a node's text as it is. `set_content` keeps libxml2's reading of an element's or an
   attribute's content, with entity and character references, so a literal `&` there loses text and returns `Ok`
   (#141). Its documentation now says so.
+* `Document::copy_node`: copies a node, with its subtree, into a document, from that document or another, and
+  returns the unlinked copy (`xmlDocCopyNode`). Unlike `import_node`, the source may be linked, and is left as it is.
+  (#102)
 
 ### Fixed
 
