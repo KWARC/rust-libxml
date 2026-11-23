@@ -225,7 +225,7 @@ fn schema_constructors_return_errors_instead_of_panicking() {
       "The path has a NUL byte at 1".to_string()
     )
   );
-  let no_document = Document::new_ptr(std::ptr::null_mut());
+  let no_document = unsafe { Document::from_raw_ptr(std::ptr::null_mut()) };
   assert_eq!(
     only(SchemaParserContext::try_from_document(&no_document)).0,
     xmlParserErrors_XML_ERR_DOCUMENT_EMPTY as i32

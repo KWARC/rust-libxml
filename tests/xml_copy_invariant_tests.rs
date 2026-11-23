@@ -425,7 +425,8 @@ fn xml_copy_node_pair_full_oxide_style() {
       xmlDocSetRootElement(doc_ptr, copy);
       xmlSetTreeDoc(copy, doc_ptr);
       let _ = xmlReconciliateNs(doc_ptr, copy);
-      Document::new_ptr(doc_ptr)
+      // SAFETY: a new document, which only this `Document` holds.
+      Document::from_raw_ptr(doc_ptr)
     };
     // Mirror PostDocument::new_document post-dup work:
     let _id_walk = sub
@@ -472,7 +473,8 @@ fn xml_copy_node_pair_nodict_parse() {
       xmlParserOption_XML_PARSE_NODICT as ::std::os::raw::c_int,
     );
     assert!(!doc_ptr.is_null(), "xmlReadMemory returned NULL");
-    let doc = Document::new_ptr(doc_ptr);
+    // SAFETY: `xmlReadMemory`'s new document, which only this `Document` holds.
+    let doc = Document::from_raw_ptr(doc_ptr);
     let root = doc.get_root_element().unwrap();
     // Find sections.
     let sections: Vec<Node> = root
