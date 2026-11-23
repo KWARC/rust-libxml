@@ -56,6 +56,8 @@
   content, leave the reference alone, as 2.13 and later do, and `add_child` to one returns an error: `xmlAddChild`
   linked the new child after the declaration, among the DTD's children, under a reference that `free_subtree` could
   free.
+* `SchemaParserContext::from_buffer` keeps a copy of the buffer, and `from_document` the document, until the context
+  drops: libxml2 reads them only when the schema is parsed, and a buffer passed by value was freed before then.
 * `canonicalize` no longer puts U+FFFD replacement characters into long text with libxml2 before 2.13, which writes
   its output in chunks that can end inside a UTF-8 sequence: the output is decoded once, whole.
 * The callbacks that read a file for the parser and collect `canonicalize`'s output refuse a null buffer or a negative

@@ -103,21 +103,20 @@ impl SchemaValidationContext {
 /// Private Interface
 impl SchemaValidationContext {
   fn from_raw(ctx: *mut bindings::_xmlSchemaValidCtxt, schema: Schema) -> Self {
-    let errors: Box<Vec<StructuredError>> = Box::default();
+    let errlog = Box::into_raw(Box::<Vec<StructuredError>>::default());
 
     unsafe {
-      let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
       bindings::xmlSchemaSetValidStructuredErrors(
         ctx,
         Some(common::structured_error_handler),
-        reference as *mut _,
-        // Box::into_raw(Box::new(Rc::downgrade(&errors))) as *mut _,
+        errlog as *mut _,
       );
-      Self {
-        ctxt: ctx,
-        errlog: reference,
-        _schema: schema,
-      }
+    }
+
+    Self {
+      ctxt: ctx,
+      errlog,
+      _schema: schema,
     }
   }
 }
@@ -127,8 +126,7 @@ impl Drop for SchemaValidationContext {
     unsafe {
       bindings::xmlSchemaFreeValidCtxt(self.ctxt);
       if !self.errlog.is_null() {
-        let errors: Box<Vec<StructuredError>> = std::mem::transmute(self.errlog);
-        drop(errors)
+        drop(Box::from_raw(self.errlog));
       }
     }
   }
