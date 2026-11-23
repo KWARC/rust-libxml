@@ -17,6 +17,8 @@
   `__max_align_t`, and `max_align_t` is a typedef of it, so the 0.3.5 fix that made `max_align_t` opaque did not reach
   it. bindgen mapped its `long double` member to `f64`, and the size test then computed `16 - 20`. `__max_align_t` is
   opaque now too; no libxml2 type uses it.
+* bindgen no longer warns "ISO C99 requires whitespace after the macro name" during the build: the `-DPKG-CONFIG`
+  clang argument, which defined a macro `PKG` that nothing reads, is gone. The bindings are unchanged.
 
 ## [0.3.25] (2026-11-23)
 

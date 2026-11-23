@@ -101,7 +101,6 @@ fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
     .layout_tests(true)
     .clang_args(&[
-      "-DPKG-CONFIG",
       "-DLIBXML_C14N_ENABLED",
       "-DLIBXML_OUTPUT_ENABLED",
     ])
