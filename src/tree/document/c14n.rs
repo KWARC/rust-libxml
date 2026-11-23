@@ -62,20 +62,21 @@ unsafe fn c_obuf_into_output(c_obuf: xmlOutputBufferPtr) -> String {
       return String::new();
     }
     let ctx_ptr = (*c_obuf).context;
-    let output = Box::from_raw(ctx_ptr as *mut String);
+    let output = Box::from_raw(ctx_ptr as *mut Vec<u8>);
 
     (*c_obuf).context = std::ptr::null_mut::<c_void>();
 
     xmlOutputBufferClose(c_obuf);
 
-    *output
+    // Decoded once, whole: libxml2 before 2.13 writes chunks that can end inside a UTF-8 sequence.
+    String::from_utf8(*output)
+      .unwrap_or_else(|invalid| String::from_utf8_lossy(invalid.as_bytes()).into_owned())
   }
 }
 
 unsafe fn create_output_buffer() -> xmlOutputBufferPtr {
   unsafe {
-    let output = String::new();
-    let ctx_ptr = Box::into_raw(Box::new(output));
+    let ctx_ptr = Box::into_raw(Box::new(Vec::<u8>::new()));
     let encoder = std::ptr::null_mut();
 
     let buf = xmlAllocOutputBuffer(encoder);
@@ -105,18 +106,15 @@ unsafe extern "C" fn xml_write_io(
   buffer: *const raw::c_char,
   len: raw::c_int,
 ) -> raw::c_int {
-  unsafe {
-    if io_ptr.is_null() {
-      0
-    } else {
-      let buf = std::slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
-      let buf = String::from_utf8_lossy(buf);
-      let s2_ptr = io_ptr as *mut String;
-      String::push_str(&mut *s2_ptr, &buf);
-
-      len
-    }
+  if io_ptr.is_null() || buffer.is_null() || len <= 0 {
+    return 0;
   }
+  // SAFETY: libxml2 passes the `Vec` that `create_output_buffer` boxed, and `len` readable bytes at `buffer`.
+  unsafe {
+    let bytes = std::slice::from_raw_parts(buffer as *const u8, len as usize);
+    (*(io_ptr as *mut Vec<u8>)).extend_from_slice(bytes);
+  }
+  len
 }
 
 fn to_cstrings(vec: Vec<String>) -> Vec<CString> {
@@ -131,4 +129,22 @@ fn to_xml_string_vec(strings: &[CString]) -> Vec<*mut xmlChar> {
     .map(|s| s.as_ptr() as *mut xmlChar)
     .chain(std::iter::once(std::ptr::null_mut()))
     .collect()
+}
+
+#[cfg(test)]
+mod tests {
+  use super::xml_write_io;
+  use std::os::raw;
+  use std::ptr;
+
+  #[test]
+  fn write_callback_takes_nothing_from_a_null_or_empty_buffer() {
+    let mut output = Vec::<u8>::new();
+    let context = &mut output as *mut Vec<u8> as *mut raw::c_void;
+    unsafe {
+      assert_eq!(xml_write_io(context, ptr::null(), 0), 0);
+      assert_eq!(xml_write_io(context, c"abc".as_ptr(), -1), 0);
+    }
+    assert!(output.is_empty());
+  }
 }

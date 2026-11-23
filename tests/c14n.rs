@@ -252,3 +252,10 @@ fn opts() -> CanonicalizationOptions {
     inclusive_ns_prefixes: vec![],
   }
 }
+
+#[test]
+fn canonicalize_keeps_multibyte_characters_across_output_chunks() {
+  // libxml2 before 2.13 hands its output to the write callback in chunks that can end inside a UTF-8 sequence.
+  let input = format!("<r>a{}</r>", "€".repeat(20000));
+  assert_eq!(canonicalize_xml(&input, opts()), input);
+}
