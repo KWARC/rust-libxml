@@ -9,6 +9,7 @@ use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::rc::Rc;
 use std::str;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use crate::bindings::*;
 use crate::c_helpers::*;
@@ -140,13 +141,355 @@ impl Drop for _Node {
           !(*n).doc.is_null()
         };
         if !still_doc_owned {
-          unsafe { xmlFreeNode(node_ptr) };
+          self.free_node();
         }
       }
       // Caller took ownership; the wrapper is the sole lifetime owner.
-      Linkage::RustOwned => unsafe { xmlFreeNode(node_ptr) },
+      Linkage::RustOwned => self.free_node(),
     }
   }
+}
+
+impl _Node {
+  /// `xmlFreeNode` on this wrapper's node, which frees its whole subtree, after neutralizing the cached wrappers of
+  /// every node it frees (#232): a wrapper of a descendant, or of the node itself wrapped afresh after an unlink,
+  /// reads as `Node::null()` instead of freed memory. Neutralizing is skipped when the document is gone (its drop
+  /// clears the cache before `xmlFreeDoc`) or mutably borrowed.
+  fn free_node(&self) {
+    if let Some(doc) = self.document.upgrade()
+      && let Ok(mut doc) = doc.try_borrow_mut()
+    {
+      doc.neutralize_subtree(self.node_ptr);
+    }
+    unsafe { xmlFreeNode(self.node_ptr) };
+  }
+}
+
+/// Calls `f` on every node `xmlFreeNode(top)` frees, `top` first: its attributes (of an element), its children and
+/// their subtrees, but not the children of an entity reference, which belong to the entity's declaration. `f` may
+/// forget a node, but neither free it nor change the tree: the walk reads the links of the nodes it has passed. It
+/// follows those links (down, across, back up by `parent`) rather than keep a stack, so it allocates nothing and
+/// takes any depth.
+pub(crate) fn for_each_freed_with(top: xmlNodePtr, mut f: impl FnMut(xmlNodePtr)) {
+  if top.is_null() {
+    return;
+  }
+  let mut node = top;
+  loop {
+    // Only elements (and XInclude's start/end copies of one) have a `properties` field; `xmlGetFirstProperty`
+    // answers NULL through any other node, where the slot is out of bounds or holds other data.
+    let attr = xmlGetFirstProperty(node) as xmlNodePtr;
+    let child = if xmlGetNodeType(node) == xmlElementType_XML_ENTITY_REF_NODE {
+      ptr::null_mut()
+    } else {
+      xmlGetFirstChild(node)
+    };
+    f(node);
+    if !attr.is_null() {
+      node = attr;
+      continue;
+    }
+    if !child.is_null() {
+      node = child;
+      continue;
+    }
+    // Back up to the nearest node, short of `top`, with a next sibling; past an element's last attribute, its
+    // children come next.
+    loop {
+      if node == top {
+        return;
+      }
+      let is_attr = xmlGetNodeType(node) == xmlElementType_XML_ATTRIBUTE_NODE;
+      let next = if is_attr {
+        xmlNextPropertySibling(node as xmlAttrPtr) as xmlNodePtr
+      } else {
+        xmlNextSibling(node)
+      };
+      if !next.is_null() {
+        node = next;
+        break;
+      }
+      let parent = xmlGetParent(node);
+      if parent.is_null() {
+        return; // Not in `top`'s subtree after all.
+      }
+      if is_attr {
+        let child = xmlGetFirstChild(parent);
+        if !child.is_null() {
+          node = child;
+          break;
+        }
+      }
+      node = parent;
+    }
+  }
+}
+
+/// The nodes a libxml2 insertion of `new` (`xmlAddChild`, `xmlAddPrevSibling`, `xmlAddNextSibling`) may free,
+/// collected while they are alive, so that the wrappers of those it did free can be neutralized after it (#234):
+/// * `new`, which libxml2 merges into a text node and frees, returning that node instead of `new`: a text node added
+///   next to another (by `xmlAddChild`, and by the sibling functions before libxml2 2.13), and any node added as a
+///   child of a text node, subtree and all.
+/// * the attribute of the same name that an attribute `new` replaces.
+struct InsertionCasualties {
+  new: xmlNodePtr,
+  /// The element whose attribute an attribute `new` may replace.
+  element: xmlNodePtr,
+  /// `new`'s descendants (and attributes), when libxml2 may merge `new` away.
+  merged_descendants: Option<Vec<xmlNodePtr>>,
+  /// Each attribute of `element` named like the attribute `new`, then the rest of its subtree.
+  replaced: Vec<Vec<xmlNodePtr>>,
+}
+
+impl InsertionCasualties {
+  /// For `new` inserted as a child of `parent` (`as_child`), or as a sibling of one of `parent`'s children; `None`
+  /// when the insertion frees nothing, the usual case: `new` is neither a text node nor an attribute, and is not added
+  /// as a text node's child.
+  #[inline]
+  fn collect(new: xmlNodePtr, parent: xmlNodePtr, as_child: bool) -> Option<Self> {
+    let new_type = xmlGetNodeType(new);
+    note_wrapped(new_type, parent);
+    let under_text = as_child && xmlGetNodeType(parent) == xmlElementType_XML_TEXT_NODE;
+    if under_text
+      || new_type == xmlElementType_XML_TEXT_NODE
+      || new_type == xmlElementType_XML_ATTRIBUTE_NODE
+    {
+      Some(Self::collect_freeable(new, new_type, parent, under_text))
+    } else {
+      None
+    }
+  }
+
+  /// [`collect`](Self::collect), when the insertion may free nodes; out of line, so that the usual insertion stays
+  /// small.
+  #[inline(never)]
+  fn collect_freeable(
+    new: xmlNodePtr,
+    new_type: xmlElementType,
+    parent: xmlNodePtr,
+    under_text: bool,
+  ) -> Self {
+    let merged_descendants = if under_text {
+      let mut descendants = Vec::new();
+      for_each_freed_with(new, |node_ptr| {
+        if node_ptr != new {
+          descendants.push(node_ptr)
+        }
+      });
+      Some(descendants)
+    } else if new_type == xmlElementType_XML_TEXT_NODE {
+      Some(Vec::new()) // A text node has none, and the empty `Vec` does not allocate.
+    } else {
+      None
+    };
+    let mut replaced = Vec::new();
+    if new_type == xmlElementType_XML_ATTRIBUTE_NODE {
+      let name = xmlNodeGetName(new) as *const xmlChar;
+      let mut attr = xmlGetFirstProperty(parent);
+      while !attr.is_null() {
+        // SAFETY: `attr` is a live attribute of `parent`; `xmlStrEqual` accepts NULL names.
+        if attr as xmlNodePtr != new && unsafe { xmlStrEqual((*attr).name, name) } != 0 {
+          let mut subtree = Vec::new();
+          for_each_freed_with(attr as xmlNodePtr, |node_ptr| subtree.push(node_ptr));
+          replaced.push(subtree);
+        }
+        attr = xmlNextPropertySibling(attr);
+      }
+    }
+    InsertionCasualties {
+      new,
+      element: parent,
+      merged_descendants,
+      replaced,
+    }
+  }
+
+  /// Neutralizes the wrappers of the collected nodes libxml2 freed, given the node it `inserted`: `new` with its
+  /// subtree, if libxml2 returned another node in its place, and each replaced attribute, with its subtree, that is no
+  /// longer `element`'s. Reads none of them; nothing was freed when the insertion failed. The cached wrappers are
+  /// neutralized in the documents of both `wrappers`, the nodes of the insertion, and so are the `wrappers`
+  /// themselves, which a cache may not hold.
+  fn neutralize_freed(self, inserted: xmlNodePtr, wrappers: [&Node; 2]) {
+    if inserted.is_null() {
+      return;
+    }
+    let merged = if inserted != self.new {
+      self.merged_descendants
+    } else {
+      None
+    };
+    let mut replaced = self.replaced;
+    if !replaced.is_empty() {
+      replaced.retain(|subtree| !has_attribute(self.element, subtree[0]));
+    }
+    if merged.is_none() && replaced.is_empty() {
+      return;
+    }
+    let [first, second] = wrappers.map(|wrapper| wrapper.upgrade_docref());
+    let second = second.filter(|second| {
+      !first
+        .as_ref()
+        .is_some_and(|first| Rc::ptr_eq(first, second))
+    });
+    let mut docs = [first.as_ref(), second.as_ref()].map(|doc| doc.map(|doc| doc.borrow_mut()));
+    let mut neutralize = |node_ptr: xmlNodePtr| {
+      for wrapper in wrappers {
+        if wrapper.node_ptr() == node_ptr {
+          wrapper.null_out();
+        }
+      }
+      for doc in docs.iter_mut().flatten() {
+        doc.neutralize(node_ptr);
+      }
+    };
+    if let Some(descendants) = merged {
+      neutralize(self.new);
+      descendants.into_iter().for_each(&mut neutralize);
+    }
+    replaced.into_iter().flatten().for_each(neutralize);
+  }
+}
+
+/// Whether a wrapper of an attribute may be cached, in any document; see [`note_wrapped`]. Until then, the
+/// `remove_property` methods skip looking for wrappers of the attribute they free, unless [`VALUE_NODE_WRAPPED`].
+static ATTRIBUTE_WRAPPED: AtomicBool = AtomicBool::new(false);
+
+/// Whether a wrapper of an attribute's value node (a child of an attribute) may be cached, in any document; see
+/// [`note_wrapped`]. Until then, `set_property` and `set_property_ns` skip looking for wrappers of the value nodes they
+/// free ([`ValueNodes`]).
+static VALUE_NODE_WRAPPED: AtomicBool = AtomicBool::new(false);
+
+/// Notes, for [`ATTRIBUTE_WRAPPED`] and [`VALUE_NODE_WRAPPED`], that a wrapper's node, of type `node_type`, is or is
+/// about to be a child of `parent`. Called when a node is wrapped (`_Document::insert_node`) and when a node is
+/// inserted (`add_child`, `add_prev_sibling`, `add_next_sibling`, through `InsertionCasualties::collect`); every way a
+/// cached wrapper's node becomes an attribute's, or comes under one, must call it. The flags are never cleared: most
+/// programs never wrap these nodes, and those that do pay for the search.
+pub(crate) fn note_wrapped(node_type: xmlElementType, parent: xmlNodePtr) {
+  // A document and its wrappers stay on one thread, so a later call on it sees these stores.
+  if node_type == xmlElementType_XML_ATTRIBUTE_NODE {
+    ATTRIBUTE_WRAPPED.store(true, Ordering::Relaxed);
+  }
+  if xmlGetNodeType(parent) == xmlElementType_XML_ATTRIBUTE_NODE {
+    VALUE_NODE_WRAPPED.store(true, Ordering::Relaxed);
+  }
+}
+
+/// The cached wrappers in the value nodes of the attributes a setter may modify, collected while they are alive:
+/// `xmlSetProp` and `xmlSetNsProp` free the old value nodes of the attribute they modify, and keep the attribute.
+/// Which attribute that is, libxml2 decides (it resolves a prefixed name to its namespace), so every attribute with a
+/// candidate name is collected, and [`neutralize_replaced`](Self::neutralize_replaced) neutralizes the value nodes
+/// libxml2 did take out.
+struct ValueNodes {
+  /// A candidate attribute, one of its value nodes, and the cached wrappers in that value node's subtree.
+  cached: Vec<(xmlNodePtr, xmlNodePtr, Vec<xmlNodePtr>)>,
+}
+
+impl ValueNodes {
+  /// Collects from the attributes of `element` named `name`, `c_name` as a C string, or, when `local_too` (for
+  /// `xmlSetProp`, which resolves a prefixed name to its local part in the prefix's namespace, if the prefix is bound),
+  /// its local part; `None` when no candidate value node has a cached wrapper.
+  fn collect(element: &Node, name: &str, c_name: *const xmlChar, local_too: bool) -> Option<Self> {
+    let colon = if local_too {
+      name.bytes().position(|byte| byte == b':')
+    } else {
+      None
+    };
+    // SAFETY: the local part is the rest of `c_name`, NUL-terminated with it.
+    let names = [
+      c_name,
+      colon.map_or(ptr::null(), |colon| unsafe { c_name.add(colon + 1) }),
+    ];
+    let mut cached = Vec::new();
+    let mut doc = None;
+    let mut attr = xmlGetFirstProperty(element.node_ptr());
+    while !attr.is_null() {
+      let mut value = xmlGetFirstChild(attr as xmlNodePtr);
+      // SAFETY: `attr` is a live attribute of `element`, with a name; each of `names` is a C string, if not NULL.
+      if !value.is_null()
+        && (names.iter()).any(|&name| !name.is_null() && unsafe { c_str_eq((*attr).name, name) })
+      {
+        if doc.is_none() {
+          doc = element.upgrade_docref();
+        }
+        let Some(doc) = &doc else {
+          break;
+        };
+        let doc = doc.borrow();
+        while !value.is_null() {
+          let mut wrapped = Vec::new();
+          for_each_freed_with(value, |node_ptr| {
+            if doc.is_cached(node_ptr) {
+              wrapped.push(node_ptr);
+            }
+          });
+          if !wrapped.is_empty() {
+            cached.push((attr as xmlNodePtr, value, wrapped));
+          }
+          value = xmlNextSibling(value);
+        }
+      }
+      attr = xmlNextPropertySibling(attr);
+    }
+    (!cached.is_empty()).then_some(ValueNodes { cached })
+  }
+
+  /// Neutralizes the collected wrappers of each value node that is no longer its attribute's: libxml2 freed it.
+  fn neutralize_replaced(self, element: &Node) {
+    let Some(doc) = element.upgrade_docref() else {
+      return;
+    };
+    let mut doc = doc.borrow_mut();
+    for (attr, value, wrapped) in self.cached {
+      if !has_child(attr, value) {
+        for node_ptr in wrapped {
+          doc.neutralize(node_ptr);
+        }
+      }
+    }
+  }
+}
+
+/// Whether the C strings `a` and `b` are equal: `xmlStrEqual`, compared in place rather than through a call.
+///
+/// # Safety
+/// Both are live and NUL-terminated.
+unsafe fn c_str_eq(a: *const xmlChar, b: *const xmlChar) -> bool {
+  let mut i = 0;
+  loop {
+    // SAFETY: neither string ends before `i`, so both extend to it.
+    let (x, y) = unsafe { (*a.add(i), *b.add(i)) };
+    if x != y {
+      return false;
+    }
+    if x == 0 {
+      return true;
+    }
+    i += 1;
+  }
+}
+
+/// Whether `node` is one of `parent`'s children. Compares pointers only: `node` may be freed.
+fn has_child(parent: xmlNodePtr, node: xmlNodePtr) -> bool {
+  let mut current = xmlGetFirstChild(parent);
+  while !current.is_null() {
+    if current == node {
+      return true;
+    }
+    current = xmlNextSibling(current);
+  }
+  false
+}
+
+/// Whether `attr` is one of `element`'s attributes. Compares pointers only: `attr` may be freed.
+fn has_attribute(element: xmlNodePtr, attr: xmlNodePtr) -> bool {
+  let mut current = xmlGetFirstProperty(element);
+  while !current.is_null() {
+    if current as xmlNodePtr == attr {
+      return true;
+    }
+    current = xmlNextPropertySibling(current);
+  }
+  false
 }
 
 impl Node {
@@ -294,6 +637,11 @@ impl Node {
 
   pub(crate) fn get_docref(&self) -> DocumentWeak {
     self.0.borrow().document.clone()
+  }
+
+  /// The node's document, if it is alive: `get_docref().upgrade()` without cloning the weak reference.
+  pub(crate) fn upgrade_docref(&self) -> Option<DocumentRef> {
+    self.0.borrow().document.upgrade()
   }
 
   /// Returns the next sibling if it exists
@@ -471,32 +819,50 @@ impl Node {
   }
 
   /// Add a previous sibling
+  ///
+  /// libxml2 before 2.13 merges a text `new_sibling` into an adjacent text node and frees it, and an attribute
+  /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
+  /// read as `Node::null()` afterwards.
   pub fn add_prev_sibling(
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
     new_sibling.set_linked();
-    unsafe {
-      if xmlAddPrevSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
-        Err(From::from("add_prev_sibling returned NULL"))
-      } else {
-        Ok(())
-      }
+    let self_ptr = self.node_ptr_mut()?;
+    let new_ptr = new_sibling.node_ptr_mut()?;
+    let casualties = InsertionCasualties::collect(new_ptr, xmlGetParent(self_ptr), false);
+    let inserted = unsafe { xmlAddPrevSibling(self_ptr, new_ptr) };
+    if let Some(casualties) = casualties {
+      casualties.neutralize_freed(inserted, [&*self, &*new_sibling]);
+    }
+    if inserted.is_null() {
+      Err(From::from("add_prev_sibling returned NULL"))
+    } else {
+      Ok(())
     }
   }
 
   /// Add a next sibling
+  ///
+  /// libxml2 before 2.13 merges a text `new_sibling` into an adjacent text node and frees it, and an attribute
+  /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
+  /// read as `Node::null()` afterwards.
   pub fn add_next_sibling(
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
     new_sibling.set_linked();
-    unsafe {
-      if xmlAddNextSibling(self.node_ptr_mut()?, new_sibling.node_ptr_mut()?).is_null() {
-        Err(From::from("add_next_sibling returned NULL"))
-      } else {
-        Ok(())
-      }
+    let self_ptr = self.node_ptr_mut()?;
+    let new_ptr = new_sibling.node_ptr_mut()?;
+    let casualties = InsertionCasualties::collect(new_ptr, xmlGetParent(self_ptr), false);
+    let inserted = unsafe { xmlAddNextSibling(self_ptr, new_ptr) };
+    if let Some(casualties) = casualties {
+      casualties.neutralize_freed(inserted, [&*self, &*new_sibling]);
+    }
+    if inserted.is_null() {
+      Err(From::from("add_next_sibling returned NULL"))
+    } else {
+      Ok(())
     }
   }
 
@@ -546,10 +912,26 @@ impl Node {
   }
 
   /// Sets the text content of this `Node`
+  ///
+  /// The content of an element, attribute or document fragment replaces its children, which libxml2 frees: their
+  /// wrappers, and those of their descendants, read as `Node::null()` afterwards.
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_content = CString::new(content).unwrap();
+    let node_ptr = self.node_ptr_mut()?;
+    if matches!(
+      self.get_type(),
+      Some(NodeType::ElementNode | NodeType::AttributeNode | NodeType::DocumentFragNode)
+    ) && let Some(doc) = self.upgrade_docref()
+    {
+      let mut doc = doc.borrow_mut();
+      let mut child = xmlGetFirstChild(node_ptr);
+      while !child.is_null() {
+        doc.neutralize_subtree(child);
+        child = xmlNextSibling(child);
+      }
+    }
     unsafe {
-      xmlNodeSetContent(self.node_ptr_mut()?, c_content.as_bytes().as_ptr());
+      xmlNodeSetContent(node_ptr, c_content.as_bytes().as_ptr());
     }
     Ok(())
   }
@@ -667,40 +1049,97 @@ impl Node {
   }
 
   /// Sets the value of property `name` to `value`
+  ///
+  /// The new value of an existing attribute replaces its value nodes, which libxml2 frees: their wrappers read as
+  /// `Node::null()` afterwards.
   pub fn set_property(
     &mut self,
     name: &str,
     value: &str,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) {
+      return self.set_property_neutralizing(name, value, None);
+    }
     with_c_str(name, |c_name| {
       with_c_str(value, |c_value| {
-        unsafe { xmlSetProp(self.node_ptr_mut()?, c_name, c_value) };
+        let node_ptr = self.node_ptr_mut()?;
+        unsafe { xmlSetProp(node_ptr, c_name, c_value) };
         Ok(())
       })
     })
   }
   /// Sets a namespaced attribute
+  ///
+  /// The new value of an existing attribute replaces its value nodes, which libxml2 frees: their wrappers read as
+  /// `Node::null()` afterwards.
   pub fn set_property_ns(
     &mut self,
     name: &str,
     value: &str,
     ns: &Namespace,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) {
+      return self.set_property_neutralizing(name, value, Some(ns));
+    }
     with_c_str(name, |c_name| {
       with_c_str(value, |c_value| {
-        unsafe { xmlSetNsProp(self.node_ptr_mut()?, ns.ns_ptr(), c_name, c_value) };
+        let node_ptr = self.node_ptr_mut()?;
+        unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) };
         Ok(())
       })
     })
   }
 
+  /// `set_property` (no `ns`) or `set_property_ns`, once a value node may have been wrapped ([`VALUE_NODE_WRAPPED`]):
+  /// also neutralizes the wrappers of the old value nodes libxml2 frees. Out of line, so that the setters stay small.
+  #[inline(never)]
+  fn set_property_neutralizing(
+    &mut self,
+    name: &str,
+    value: &str,
+    ns: Option<&Namespace>,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    with_c_str(name, |c_name| {
+      with_c_str(value, |c_value| {
+        let node_ptr = self.node_ptr_mut()?;
+        let values = ValueNodes::collect(self, name, c_name, ns.is_none());
+        match ns {
+          None => unsafe { xmlSetProp(node_ptr, c_name, c_value) },
+          Some(ns) => unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) },
+        };
+        if let Some(values) = values {
+          values.neutralize_replaced(self);
+        }
+        Ok(())
+      })
+    })
+  }
+
+  /// Neutralizes the wrappers of the attribute `attr` and its value nodes, which libxml2 is about to free, once any may
+  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]). A DTD's default value, which `xmlHasProp` may also
+  /// return, is not this element's to free and keeps its wrapper.
+  fn neutralize_attribute(&self, attr: xmlAttrPtr) {
+    if !ATTRIBUTE_WRAPPED.load(Ordering::Relaxed) && !VALUE_NODE_WRAPPED.load(Ordering::Relaxed) {
+      return;
+    }
+    let attr = attr as xmlNodePtr;
+    if xmlGetNodeType(attr) == xmlElementType_XML_ATTRIBUTE_NODE
+      && let Some(doc) = self.upgrade_docref()
+    {
+      doc.borrow_mut().neutralize_subtree(attr);
+    }
+  }
+
   /// Removes the property of given `name`
+  ///
+  /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasProp(self.node_ptr_mut()?, c_name) })
     })?;
     unsafe {
       if !attr_node.is_null() {
+        self.neutralize_attribute(attr_node);
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
           Ok(())
@@ -718,6 +1157,8 @@ impl Node {
   }
 
   /// Removes the property of given `name` and namespace (`ns`)
+  ///
+  /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
   pub fn remove_property_ns(
     &mut self,
     name: &str,
@@ -730,6 +1171,7 @@ impl Node {
     })?;
     unsafe {
       if !attr_node.is_null() {
+        self.neutralize_attribute(attr_node);
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
           Ok(())
@@ -747,11 +1189,14 @@ impl Node {
   }
 
   /// Removes the property of given `name` with no namespace
+  ///
+  /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
   pub fn remove_property_no_ns(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, ptr::null()) })
     })?;
     if !attr_node.is_null() {
+      self.neutralize_attribute(attr_node);
       let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
       if remove_prop_status == 0 {
         Ok(())
@@ -1040,15 +1485,23 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
+  ///
+  /// libxml2 merges a text `child` into an adjacent text node and frees it, as it frees a `child` added to a text
+  /// node, after appending its content. An attribute `child` replaces (frees) the attribute of the same name. A freed
+  /// node's wrappers read as `Node::null()` afterwards: here, `child`'s, when it was merged.
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
     child.set_linked();
-    unsafe {
-      let new_child_ptr = xmlAddChild(self.node_ptr_mut()?, child.node_ptr_mut()?);
-      if new_child_ptr.is_null() {
-        Err("add_child encountered NULL pointer".to_string())
-      } else {
-        Ok(())
-      }
+    let parent_ptr = self.node_ptr_mut()?;
+    let child_ptr = child.node_ptr_mut()?;
+    let casualties = InsertionCasualties::collect(child_ptr, parent_ptr, true);
+    let new_child_ptr = unsafe { xmlAddChild(parent_ptr, child_ptr) };
+    if let Some(casualties) = casualties {
+      casualties.neutralize_freed(new_child_ptr, [&*self, &*child]);
+    }
+    if new_child_ptr.is_null() {
+      Err("add_child encountered NULL pointer".to_string())
+    } else {
+      Ok(())
     }
   }
 
@@ -1173,12 +1626,24 @@ impl Node {
     Rc::strong_count(&self.0) > 1
   }
 
+  /// Nulls the pointer every clone of this wrapper shares, once libxml2 frees (or is about to free) its node: they all
+  /// read as `Node::null()` from then on, and `Drop` frees nothing.
+  pub(crate) fn null_out(&self) {
+    if let Ok(mut inner) = self.0.try_borrow_mut() {
+      inner.node_ptr = ptr::null_mut();
+    }
+  }
+
   /// Take ownership of this detached node's C allocation.
   ///
   /// After this call, the C node will be freed via `xmlFreeNode` when the
   /// last `Node` clone drops, regardless of whether `node->doc` is still
   /// set. The flag is sticky and propagates to every clone (they share
   /// the same `_Node`), so transferring ownership once is sufficient.
+  ///
+  /// The free neutralizes every cached wrapper into the subtree first, as
+  /// [`free_subtree`](Self::free_subtree) does: a descendant handed out
+  /// earlier reads as `Node::null()` afterwards, not as freed memory.
   ///
   /// Use this on a subtree that has been:
   ///   1. detached from its parent via `unlink_node`, AND
@@ -1254,7 +1719,10 @@ impl Node {
   /// the freed addresses cannot collide with a stale wrapper. Attribute
   /// nodes are neutralized along with elements and texts; namespace
   /// declarations and attribute values are owned by their nodes and freed by
-  /// `xmlFreeNode` itself.
+  /// `xmlFreeNode` itself. An entity reference's children belong to the
+  /// entity's declaration, which `xmlFreeNode` leaves alone, and so does the
+  /// neutralizing. (Since 0.3.25, dropping the last wrapper of a rust-owned
+  /// node neutralizes the same way before its `xmlFreeNode`.)
   ///
   /// Documents (and document-fragment shells) are refused — tearing a whole
   /// document down belongs to `Document`'s `Drop`.
@@ -1279,28 +1747,7 @@ impl Node {
       return; // already freed/neutralized through another handle
     }
     if let Some(doc) = self.get_docref().upgrade() {
-      // Walk the subtree iteratively (an explicit stack — recursion would
-      // risk the call stack on deep trees), neutralizing wrappers.
-      let mut stack: Vec<xmlNodePtr> = vec![top];
-      while let Some(ptr) = stack.pop() {
-        let mut child = xmlGetFirstChild(ptr);
-        while !child.is_null() {
-          stack.push(child);
-          child = xmlNextSibling(child);
-        }
-        // Only elements (and XInclude's start/end copies of one) have a `properties` field; `xmlGetFirstProperty`
-        // answers NULL through any other node, where the slot is out of bounds or holds other data.
-        let mut attr = xmlGetFirstProperty(ptr);
-        while !attr.is_null() {
-          stack.push(attr as xmlNodePtr);
-          attr = xmlNextPropertySibling(attr);
-        }
-        let mut doc_borrowed = doc.borrow_mut();
-        if let Some(wrapper) = doc_borrowed.get_node(ptr) {
-          wrapper.0.borrow_mut().node_ptr = ptr::null_mut();
-        }
-        doc_borrowed.forget_node(ptr);
-      }
+      doc.borrow_mut().neutralize_subtree(top);
     }
     // Neutralize this handle itself (its registry entry went away with
     // unlink_node, so the walk above could not reach it), then free.

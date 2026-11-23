@@ -12,7 +12,7 @@ use std::str;
 use crate::bindings::*;
 use crate::c_helpers::{xmlGetDoc, xmlGetNodeType, xmlGetParent};
 use crate::readonly::RoNode;
-use crate::tree::node::Node;
+use crate::tree::node::{Node, for_each_freed_with, note_wrapped};
 use crate::tree::nodetype::NodeType;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
@@ -130,6 +130,7 @@ pub(crate) struct _Document {
 impl _Document {
   /// Internal bookkeeping function, so far only used by `Node::wrap`
   pub(crate) fn insert_node(&mut self, node_ptr: xmlNodePtr, node: Node) {
+    note_wrapped(xmlGetNodeType(node_ptr), xmlGetParent(node_ptr));
     self.nodes.insert(node_ptr, node);
   }
   /// Internal bookkeeping function, so far only used by `Node::wrap`
@@ -139,6 +140,22 @@ impl _Document {
   /// Internal bookkeeping function
   pub(crate) fn forget_node(&mut self, node_ptr: xmlNodePtr) {
     self.nodes.remove(&node_ptr);
+  }
+  /// Neutralizes the cached wrapper of the node at `node_ptr`, if any, ahead of or after libxml2 freeing that node:
+  /// nulls the pointer its clones share, so they all read as `Node::null()`, and forgets it, so a node later allocated
+  /// at the same address is wrapped afresh. Reads nothing through `node_ptr`, which may already be freed.
+  pub(crate) fn neutralize(&mut self, node_ptr: xmlNodePtr) {
+    if let Some(node) = self.nodes.remove(&node_ptr) {
+      node.null_out();
+    }
+  }
+  /// [`neutralize`](Self::neutralize) for every node `xmlFreeNode(top)` frees (see `for_each_freed_with`).
+  pub(crate) fn neutralize_subtree(&mut self, top: xmlNodePtr) {
+    for_each_freed_with(top, |node_ptr| self.neutralize(node_ptr));
+  }
+  /// Whether a wrapper of the node at `node_ptr` is cached.
+  pub(crate) fn is_cached(&self, node_ptr: xmlNodePtr) -> bool {
+    self.nodes.contains_key(&node_ptr)
   }
   /// The number of cached wrappers, for the wrapper-cache tests.
   #[cfg(test)]

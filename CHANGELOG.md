@@ -1,5 +1,20 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixed
+
+* A `Node` no longer points into a node that libxml2 freed behind a safe method. Every cached wrapper of a freed node
+  is neutralized, as `free_subtree` does: it reads as `Node::null()` from then on. The methods:
+  * dropping the last wrapper of a rust-owned node (`set_rust_owned`), which frees its whole subtree (#232);
+  * `add_child` of a text node next to another text node, which libxml2 merges and frees, and `add_prev_sibling` /
+    `add_next_sibling` likewise before libxml2 2.13 (#234); an attribute added by any of the three frees the element's
+    attribute of the same name;
+  * `remove_property`, `remove_property_ns` and `remove_property_no_ns`; `set_property` and `set_property_ns`, which
+    free the old value's nodes; and `set_content`, which frees the old children (#235).
+* `free_subtree` no longer neutralizes nodes under an entity reference. They belong to the entity's declaration, which
+  `xmlFreeNode` leaves alone, and the walk went on from there into the DTD's other declarations.
+
 ## [0.3.24] (2026-11-15)
 
 Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.23 builds
