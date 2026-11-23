@@ -93,7 +93,10 @@ fn find_libxml2() -> Option<ProbedLib> {
 fn generate_bindings(header_dirs: Vec<PathBuf>, output_path: &Path) {
   let bindings = bindgen::Builder::default()
     .header("src/wrapper.h")
+    // No libxml2 type uses max_align_t, and on 32-bit x86 bindgen maps its `long double` member to `f64`, whose
+    // layout tests then fail. FreeBSD defines the struct as `__max_align_t` and `max_align_t` as a typedef of it.
     .opaque_type("max_align_t")
+    .opaque_type("__max_align_t")
     // invalidate build as soon as the wrapper changes
     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
     .layout_tests(true)
