@@ -681,52 +681,12 @@ impl RoNode {
   /// node. After each call the element's property list is searched again (for the property `f` may have removed), so
   /// the cost grows with the square of the property count.
   pub fn for_each_property(self, mut f: impl FnMut(&str, &str)) {
-    self.walk_properties(false, |name, _, value| f(name, value))
+    walk_properties(|| self.0, false, |name, _, value| f(name, value))
   }
 
   /// As `for_each_property`, also passing the namespace URI (`None` if none).
   pub fn for_each_property_ns(self, f: impl FnMut(&str, Option<&str>, &str)) {
-    self.walk_properties(true, f)
-  }
-
-  /// The loop of `for_each_property(_ns)`, reading each namespace URI only `with_ns`.
-  fn walk_properties(self, with_ns: bool, mut f: impl FnMut(&str, Option<&str>, &str)) {
-    let mut prop = xmlGetFirstProperty(self.0);
-    while !prop.is_null() {
-      let next = xmlNextPropertySibling(prop);
-      let name_ptr = xmlAttrName(prop);
-      // (a property with a NULL name is skipped, as `get_properties` skips it)
-      if !name_ptr.is_null() {
-        let ns_ptr = if with_ns {
-          xmlAttrNs(prop)
-        } else {
-          ptr::null_mut()
-        };
-        let mut with_value =
-          |name: &str, href: Option<&str>| match unsafe { single_text_value(prop) } {
-            Some(content) => with_str_copy(content, |value| f(name, href, value)),
-            None => f(name, href, &attr_node_value(prop)),
-          };
-        unsafe {
-          with_libxml_str(name_ptr, |name| {
-            if ns_ptr.is_null() {
-              with_value(name, None)
-            } else {
-              with_libxml_str(xmlNsHref(ns_ptr), |href| with_value(name, Some(href)))
-            }
-          })
-        };
-        // `f` may have removed `prop` or `next`: go on from whichever the element still holds, else stop.
-        if holds_property(self.0, prop) {
-          prop = xmlNextPropertySibling(prop);
-          continue;
-        }
-        if !holds_property(self.0, next) {
-          break;
-        }
-      }
-      prop = next;
-    }
+    walk_properties(|| self.0, true, f)
   }
 
   /// Alias for [`RoNode::for_each_property`]
@@ -737,5 +697,55 @@ impl RoNode {
   /// Alias for [`RoNode::for_each_property_ns`]
   pub fn for_each_attribute_ns(self, f: impl FnMut(&str, Option<&str>, &str)) {
     self.for_each_property_ns(f)
+  }
+}
+
+/// The loop of `for_each_property(_ns)`, on `RoNode` and `Node`, over the properties of the element `element` returns,
+/// read again after each call of `f`: NULL stops the walk. Reads each namespace URI only `with_ns`.
+pub(crate) fn walk_properties(
+  element: impl Fn() -> xmlNodePtr,
+  with_ns: bool,
+  mut f: impl FnMut(&str, Option<&str>, &str),
+) {
+  let mut prop = xmlGetFirstProperty(element());
+  while !prop.is_null() {
+    let next = xmlNextPropertySibling(prop);
+    let name_ptr = xmlAttrName(prop);
+    // (a property with a NULL name is skipped, as `get_properties` skips it)
+    if !name_ptr.is_null() {
+      let ns_ptr = if with_ns {
+        xmlAttrNs(prop)
+      } else {
+        ptr::null_mut()
+      };
+      let mut with_value = |name: &str, href: Option<&str>| match unsafe { single_text_value(prop) }
+      {
+        Some(content) => with_str_copy(content, |value| f(name, href, value)),
+        None => f(name, href, &attr_node_value(prop)),
+      };
+      unsafe {
+        with_libxml_str(name_ptr, |name| {
+          if ns_ptr.is_null() {
+            with_value(name, None)
+          } else {
+            with_libxml_str(xmlNsHref(ns_ptr), |href| with_value(name, Some(href)))
+          }
+        })
+      };
+      // `f` may have removed `prop` or `next`, or freed the element (a `Node`'s, which its free neutralizes): go on
+      // from whichever the element still holds, else stop.
+      let element = element();
+      if element.is_null() {
+        break;
+      }
+      if holds_property(element, prop) {
+        prop = xmlNextPropertySibling(prop);
+        continue;
+      }
+      if !holds_property(element, next) {
+        break;
+      }
+    }
+    prop = next;
   }
 }

@@ -17,6 +17,10 @@
   `from_*` constructors are unchanged, except that their panic message now includes the error.
 * `Document::from_raw_ptr`, an `unsafe fn`: a `Document` that owns a libxml2 document made outside the crate, and
   frees it with its last handle, as `new_ptr` does.
+* `Node::with_name`, `with_content`, `with_namespace_prefix`, `with_namespace_href`, `for_each_property`,
+  `for_each_property_ns`, `for_each_attribute` and `for_each_attribute_ns`, as `RoNode` has them (#82): they pass `f`
+  a copy of the string, on the stack when short, instead of allocating one. `f` may change the document, the node
+  included; `for_each_property` stops once `f` frees the node.
 
 ### Deprecated
 
