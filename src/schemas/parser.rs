@@ -14,10 +14,14 @@ use std::os::raw::c_char;
 pub struct SchemaParserContext {
   inner: *mut bindings::_xmlSchemaParserCtxt,
   errlog: *mut Vec<StructuredError>,
+  /// The buffer or the document that `inner` reads the schema from when it is parsed, which libxml2 neither copies
+  /// nor keeps alive: dropped after `inner` is freed.
+  _buffer: Option<Box<[u8]>>,
+  _document: Option<Document>,
 }
 
 impl SchemaParserContext {
-  /// Create a schema parsing context from a Document object
+  /// Create a schema parsing context from a Document object, which it keeps alive until the context drops
   pub fn from_document(doc: &Document) -> Self {
     crate::init_parser();
     let parser = unsafe { bindings::xmlSchemaNewDocParserCtxt(doc.doc_ptr()) };
@@ -26,13 +30,13 @@ impl SchemaParserContext {
       panic!("Failed to create schema parser context from XmlDocument"); // TODO error handling
     }
 
-    Self::from_raw(parser)
+    Self::from_raw(parser, None, Some(doc.clone()))
   }
 
-  /// Create a schema parsing context from a buffer in memory
+  /// Create a schema parsing context from a buffer in memory, of which it keeps a copy until the context drops
   pub fn from_buffer<Bytes: AsRef<[u8]>>(buff: Bytes) -> Self {
     crate::init_parser();
-    let buff_bytes = buff.as_ref();
+    let buff_bytes: Box<[u8]> = buff.as_ref().into();
     let buff_ptr = buff_bytes.as_ptr() as *const c_char;
     let buff_len = buff_bytes.len() as i32;
 
@@ -42,7 +46,7 @@ impl SchemaParserContext {
       panic!("Failed to create schema parser context from buffer"); // TODO error handling
     }
 
-    Self::from_raw(parser)
+    Self::from_raw(parser, Some(buff_bytes), None)
   }
 
   /// Create a schema parsing context from an URL
@@ -57,7 +61,7 @@ impl SchemaParserContext {
       panic!("Failed to create schema parser context from path"); // TODO error handling
     }
 
-    Self::from_raw(parser)
+    Self::from_raw(parser, None, None)
   }
 
   /// Drains error log from errors that might have accumulated while parsing schema
@@ -75,21 +79,26 @@ impl SchemaParserContext {
 
 /// Private Interface
 impl SchemaParserContext {
-  fn from_raw(parser: *mut bindings::_xmlSchemaParserCtxt) -> Self {
-    let errors: Box<Vec<StructuredError>> = Box::default();
+  fn from_raw(
+    parser: *mut bindings::_xmlSchemaParserCtxt,
+    buffer: Option<Box<[u8]>>,
+    document: Option<Document>,
+  ) -> Self {
+    let errlog = Box::into_raw(Box::<Vec<StructuredError>>::default());
 
     unsafe {
-      let reference: *mut Vec<StructuredError> = std::mem::transmute(errors);
       bindings::xmlSchemaSetParserStructuredErrors(
         parser,
         Some(common::structured_error_handler),
-        reference as *mut _,
+        errlog as *mut _,
       );
+    }
 
-      Self {
-        inner: parser,
-        errlog: reference,
-      }
+    Self {
+      inner: parser,
+      errlog,
+      _buffer: buffer,
+      _document: document,
     }
   }
 }
@@ -99,8 +108,7 @@ impl Drop for SchemaParserContext {
     unsafe {
       bindings::xmlSchemaFreeParserCtxt(self.inner);
       if !self.errlog.is_null() {
-        let errors: Box<Vec<StructuredError>> = std::mem::transmute(self.errlog);
-        drop(errors)
+        drop(Box::from_raw(self.errlog));
       }
     }
   }
