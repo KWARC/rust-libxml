@@ -14,6 +14,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::readonly::RoNode;
+use crate::tree::document::node_sets_live;
 use crate::tree::namespace::Namespace;
 use crate::tree::nodetype::NodeType;
 use crate::tree::{Document, DocumentRef, DocumentWeak};
@@ -420,7 +421,8 @@ pub(crate) fn note_wrapped(node_type: xmlElementType, parent: xmlNodePtr) {
   }
 }
 
-/// The cached wrappers in the value nodes of the attributes a setter may modify, collected while they are alive:
+/// The cached wrappers in the value nodes of the attributes a setter may modify (all the value nodes, while the document
+/// logs frees for a live XPath node set), collected while they are alive:
 /// `xmlSetProp` and `xmlSetNsProp` free the old value nodes of the attribute they modify, and keep the attribute.
 /// Which attribute that is, libxml2 decides (it resolves a prefixed name to its namespace), so every attribute with a
 /// candidate name is collected, and [`neutralize_replaced`](Self::neutralize_replaced) neutralizes the value nodes
@@ -462,10 +464,11 @@ impl ValueNodes {
           break;
         };
         let doc = doc.borrow();
+        let logs_frees = doc.logs_frees();
         while !value.is_null() {
           let mut wrapped = Vec::new();
           for_each_freed_with(value, |node_ptr| {
-            if doc.is_cached(node_ptr) {
+            if logs_frees || doc.is_cached(node_ptr) {
               wrapped.push(node_ptr);
             }
           });
@@ -1230,7 +1233,7 @@ impl Node {
     name: &str,
     value: &str,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) {
+    if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) || node_sets_live() {
       return self.set_property_neutralizing(name, value, None);
     }
     with_c_str(name, |c_name| {
@@ -1251,7 +1254,7 @@ impl Node {
     value: &str,
     ns: &Namespace,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) {
+    if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) || node_sets_live() {
       return self.set_property_neutralizing(name, value, Some(ns));
     }
     with_c_str(name, |c_name| {
@@ -1263,8 +1266,10 @@ impl Node {
     })
   }
 
-  /// `set_property` (no `ns`) or `set_property_ns`, once a value node may have been wrapped ([`VALUE_NODE_WRAPPED`]):
-  /// also neutralizes the wrappers of the old value nodes libxml2 frees. Out of line, so that the setters stay small.
+  /// `set_property` (no `ns`) or `set_property_ns`, once a value node may have been wrapped ([`VALUE_NODE_WRAPPED`]), or
+  /// while an XPath node set is live, which may hold a value node (an evaluation at one selects it, or its siblings):
+  /// also neutralizes the wrappers of the old value nodes libxml2 frees, and logs those frees. Out of line, so that the
+  /// setters stay small.
   #[inline(never)]
   fn set_property_neutralizing(
     &mut self,
@@ -1289,10 +1294,13 @@ impl Node {
   }
 
   /// Neutralizes the wrappers of the attribute `attr` and its value nodes, which libxml2 is about to free, once any may
-  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]). A DTD's default value, which `xmlHasProp` may also
-  /// return, is not this element's to free and keeps its wrapper.
+  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]), and logs the frees while an XPath node set is live. A
+  /// DTD's default value, which `xmlHasProp` may also return, is not this element's to free and keeps its wrapper.
   fn neutralize_attribute(&self, attr: xmlAttrPtr) {
-    if !ATTRIBUTE_WRAPPED.load(Ordering::Relaxed) && !VALUE_NODE_WRAPPED.load(Ordering::Relaxed) {
+    if !ATTRIBUTE_WRAPPED.load(Ordering::Relaxed)
+      && !VALUE_NODE_WRAPPED.load(Ordering::Relaxed)
+      && !node_sets_live()
+    {
       return;
     }
     let attr = attr as xmlNodePtr;
