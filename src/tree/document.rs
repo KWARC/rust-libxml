@@ -496,6 +496,40 @@ impl Document {
     self.ptr_as_result(node_ptr)
   }
 
+  /// Copies `node`, with its attributes and descendants, into this document, and returns the copy
+  ///
+  /// Unlike [`import_node`](Self::import_node), `node` may be linked, and may be of this document or of another; it
+  /// is left as it is. A namespace that `node` or a descendant uses, declared above `node`, is declared again on the
+  /// copy (`xmlDocCopyNode`). The copy is unlinked, as a node from [`Node::new`] is: link it with
+  /// [`add_child`](Node::add_child), a sibling adder or [`set_root_element`](Self::set_root_element), or
+  /// [`set_rust_owned`](Node::set_rust_owned) frees it once its wrapper and this document have dropped.
+  ///
+  /// Copies an element, a text, CDATA, comment or processing-instruction node, or an entity reference. Returns
+  /// `Err(())` for any other node (a document or fragment, a DTD or a declaration in one, an attribute, whose copy
+  /// would lose its namespace without its element, or a null node), and if libxml2 returns NULL.
+  pub fn copy_node(&self, node: &Node) -> Result<Node, ()> {
+    let copied = matches!(
+      node.get_type(),
+      Some(
+        NodeType::ElementNode
+          | NodeType::TextNode
+          | NodeType::CDataSectionNode
+          | NodeType::EntityRefNode
+          | NodeType::PiNode
+          | NodeType::CommentNode
+      )
+    );
+    let doc_ptr = self.doc_ptr();
+    if !copied || doc_ptr.is_null() {
+      return Err(());
+    }
+    let copy_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), doc_ptr, 1) };
+    if copy_ptr.is_null() {
+      return Err(());
+    }
+    Ok(Node::wrap_new(copy_ptr, &self.0))
+  }
+
   /// Build a fresh `Document` whose root is a deep copy of `node`'s subtree.
   ///
   /// Unlike [`Document::import_node`], this does not require the source
@@ -505,14 +539,12 @@ impl Document {
   /// its own independently-owned `Document` — a pattern that the older
   /// `import_node` route handles poorly:
   ///
-  /// * `import_node` gates on `Node::is_unlinked()`, a wrapper-side flag
-  ///   with no public setter; the gate flips to `false` as a side
-  ///   effect of a previous successful import (`set_linked()` mutates
-  ///   the borrowed wrapper Rc), so every subsequent extract errors.
-  /// * A bare `xmlDocCopyNode(src, dst, 1)` returns NULL on the second
-  ///   sibling in the same source document, because the recursive
-  ///   descent relies on dictionary state that the first copy has
-  ///   marked dirty.
+  /// `import_node` gates on `Node::is_unlinked()`, a wrapper-side flag
+  /// with no public setter; the gate flips to `false` as a side
+  /// effect of a previous successful import (`set_linked()` mutates
+  /// the borrowed wrapper Rc), so every subsequent extract errors.
+  /// [`copy_node`](Self::copy_node) copies a node into an existing
+  /// document instead, linked or not.
   ///
   /// This method works as follows:
   /// 1. `xmlCopyNode(node, 1)` — recursive copy of the source subtree,
