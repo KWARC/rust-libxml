@@ -60,6 +60,10 @@
   drops: libxml2 reads them only when the schema is parsed, and a buffer passed by value was freed before then.
 * `canonicalize` no longer puts U+FFFD replacement characters into long text with libxml2 before 2.13, which writes
   its output in chunks that can end inside a UTF-8 sequence: the output is decoded once, whole.
+* `set_root_element` marks the root element it replaces as unlinked, as libxml2 leaves it: `is_unlinked` said it was
+  linked, and `set_rust_owned` refused to free it.
+* `new_child` and `add_text_child` return an error under a node that libxml2 makes no child under (anything but an
+  element, a document or a fragment), instead of a null node.
 * The callbacks that read a file for the parser and collect `canonicalize`'s output refuse a null buffer or a negative
   length, instead of building a slice from one.
 

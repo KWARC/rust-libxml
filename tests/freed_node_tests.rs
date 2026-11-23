@@ -809,6 +809,26 @@ fn set_root_element_merging_text_neutralizes_the_merged_node() {
   assert_eq!(first.get_content(), "ab");
 }
 
+/// `set_root_element` replacing a root element: libxml2 unlinks the old root and leaves it to the caller, so its
+/// wrapper is unlinked, and `set_rust_owned` takes it, as after `unlink_node`.
+#[test]
+fn set_root_element_unlinks_the_replaced_root() {
+  setup();
+  let mut doc = parse("<old><kid/></old>");
+  let old = doc.get_root_element().unwrap();
+  let old_ptr = old.node_ptr();
+  let new = Node::new("new", None, &doc).unwrap();
+  doc.set_root_element(&new);
+  assert!(old.is_unlinked(), "libxml2 unlinked the replaced root");
+  old.set_rust_owned();
+  drop(old);
+  assert!(is_freed(old_ptr), "its last wrapper freed it");
+  assert_eq!(doc.get_root_element().unwrap(), new);
+  // Setting the root element again leaves it linked.
+  doc.set_root_element(&new);
+  assert!(!new.is_unlinked());
+}
+
 /// `add_child` of a parent's last child leaves it in place, as libxml2 does since 2.13: moving it after its previous
 /// sibling merged it into a text node there, and freed it.
 #[test]

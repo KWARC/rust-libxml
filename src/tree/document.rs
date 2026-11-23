@@ -418,6 +418,9 @@ impl Document {
   /// In a document with no element, libxml2 appends `root` to the document's children instead, and merges a text
   /// `root` into a text node there and frees it: its wrappers read as `Node::null()` afterwards.
   ///
+  /// The root element that `root` replaces is unlinked, as by [`Node::unlink_node`], and left to the caller: the
+  /// document does not free it, and [`Node::set_rust_owned`] on a wrapper of it frees it with the wrapper's last clone.
+  ///
   /// # Panics
   ///
   /// On a rust-owned node, a node of another document, a document's own node, a DTD or a declaration in one, or an
@@ -439,7 +442,13 @@ impl Document {
       root_type != xmlElementType_XML_ATTRIBUTE_NODE,
       "set_root_element refused: an attribute can only be added to an element"
     );
-    root.link_as_root(self.doc_ptr());
+    if let Some(old_root) = root.link_as_root(self.doc_ptr()) {
+      // libxml2 leaves the root it replaced to the caller, unlinked.
+      let old_root = self.0.borrow().get_cached(old_root);
+      if let Some(old_root) = old_root {
+        old_root.set_unlinked();
+      }
+    }
   }
 
   /// Remove the internal DTD subset (the `<!DOCTYPE …>` declaration)
@@ -506,15 +515,13 @@ impl Document {
   ///   marked dirty.
   ///
   /// This method works as follows:
-  /// 1. `xmlNewDoc` — fresh empty target document.
-  /// 2. `xmlDocCopyNode(node, target, 1)` — recursive copy of the
-  ///    source subtree into the target, with libxml2 handling
-  ///    namespace inheritance (`xmlNewReconciliedNs`) during the copy.
-  /// 3. `xmlDocSetRootElement` + `xmlSetTreeDoc` — plant the copy as
-  ///    the new root and retarget every doc pointer in the subtree.
-  /// 4. `xmlReconciliateNs` — final pass that lifts any remaining
-  ///    namespace declarations into the new document so it owns 100%
-  ///    of its ns nodes.
+  /// 1. `xmlCopyNode(node, 1)` — recursive copy of the source subtree,
+  ///    in no document. A namespace declared above `node` is declared
+  ///    again on the copy's root, so the copy owns every namespace it
+  ///    uses.
+  /// 2. `xmlNewDoc` — fresh empty target document.
+  /// 3. `xmlDocSetRootElement` — plant the copy as the new root, which
+  ///    sets every doc pointer in the subtree (`xmlSetTreeDoc`).
   ///
   /// The returned `Document` shares no C-side state with the source —
   /// dropping either is independent of the other.
@@ -542,10 +549,7 @@ impl Document {
       unsafe { xmlFreeNode(copy_ptr) };
       return Err(());
     }
-    unsafe {
-      xmlDocSetRootElement(doc_ptr, copy_ptr);
-      // DEBUG: omit xmlSetTreeDoc + xmlReconciliateNs.
-    }
+    unsafe { xmlDocSetRootElement(doc_ptr, copy_ptr) };
     // The source node's wrapper state is left untouched. The new
     // `_Node::drop` rules already prevent a UAF on the source: a
     // detached subtree whose `node->doc` still points at the source

@@ -1704,6 +1704,8 @@ impl Node {
   }
 
   /// Creates a new `Node` as child to the self `Node`
+  ///
+  /// Returns `Err` if this node is not an element, a document or a fragment, which libxml2 makes no child under.
   pub fn new_child(
     &mut self,
     ns: Option<Namespace>,
@@ -1721,11 +1723,18 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         ptr::null(),
       );
+      if new_ptr.is_null() {
+        return Err(From::from(
+          "xmlNewChild made no node: only an element, a document or a fragment takes a child",
+        ));
+      }
       Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
     }
   }
 
   /// Adds a new text child, to this `Node`
+  ///
+  /// Returns `Err` if this node is not an element, a document or a fragment, which libxml2 makes no child under.
   pub fn add_text_child(
     &mut self,
     ns: Option<Namespace>,
@@ -1745,6 +1754,11 @@ impl Node {
         c_name.as_bytes().as_ptr(),
         c_content.as_bytes().as_ptr(),
       );
+      if new_ptr.is_null() {
+        return Err(From::from(
+          "xmlNewTextChild made no node: only an element, a document or a fragment takes a child",
+        ));
+      }
       Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
     }
   }
@@ -1925,10 +1939,12 @@ impl Node {
   /// with no element, libxml2 appends it to the document's children instead, and merges a text node into a text node
   /// there and frees it, as [`add_next_sibling`](Self::add_next_sibling) does: its wrappers read as `Node::null()`
   /// afterwards.
-  pub(crate) fn link_as_root(&self, doc_ptr: xmlDocPtr) {
+  ///
+  /// Returns the root element this node replaced, which libxml2 unlinked, if any.
+  pub(crate) fn link_as_root(&self, doc_ptr: xmlDocPtr) -> Option<xmlNodePtr> {
     let node_ptr = self.node_ptr();
     let casualties = InsertionCasualties::collect(node_ptr, doc_ptr as xmlNodePtr, false);
-    unsafe { xmlDocSetRootElement(doc_ptr, node_ptr) };
+    let old_root = unsafe { xmlDocSetRootElement(doc_ptr, node_ptr) };
     let mut inserted = node_ptr;
     if let Some(casualties) = casualties {
       // `xmlDocSetRootElement` returns the element it replaced, not the node it inserted: this one, unless it merged
@@ -1945,6 +1961,8 @@ impl Node {
       casualties.neutralize_freed(inserted, [self, self]);
     }
     self.settle_linkage(inserted);
+    // `xmlDocSetRootElement` returns the root it found, also when that is this node, which it then left in place.
+    (!old_root.is_null() && xmlGetParent(old_root).is_null()).then_some(old_root)
   }
 
   /// [`settle_linkage`](Self::settle_linkage), when libxml2 did not insert this node.
