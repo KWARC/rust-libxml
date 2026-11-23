@@ -9,15 +9,17 @@ use crate::tree::document::Document;
 
 use std::ffi::CString;
 use std::os::raw::c_char;
+use std::panic::AssertUnwindSafe;
 
 /// Wrapper on xmlSchemaParserCtxt
 pub struct SchemaParserContext {
   inner: *mut bindings::_xmlSchemaParserCtxt,
   errlog: *mut Vec<StructuredError>,
   /// The buffer or the document that `inner` reads the schema from when it is parsed, which libxml2 neither copies
-  /// nor keeps alive: dropped after `inner` is freed.
+  /// nor keeps alive: dropped after `inner` is freed. The document is only held, never read, so it leaves the
+  /// context's auto traits as they were (`UnwindSafe`, `RefUnwindSafe`).
   _buffer: Option<Box<[u8]>>,
-  _document: Option<Document>,
+  _document: Option<AssertUnwindSafe<Document>>,
 }
 
 impl SchemaParserContext {
@@ -30,7 +32,7 @@ impl SchemaParserContext {
       panic!("Failed to create schema parser context from XmlDocument"); // TODO error handling
     }
 
-    Self::from_raw(parser, None, Some(doc.clone()))
+    Self::from_raw(parser, None, Some(AssertUnwindSafe(doc.clone())))
   }
 
   /// Create a schema parsing context from a buffer in memory, of which it keeps a copy until the context drops
@@ -82,7 +84,7 @@ impl SchemaParserContext {
   fn from_raw(
     parser: *mut bindings::_xmlSchemaParserCtxt,
     buffer: Option<Box<[u8]>>,
-    document: Option<Document>,
+    document: Option<AssertUnwindSafe<Document>>,
   ) -> Self {
     let errlog = Box::into_raw(Box::<Vec<StructuredError>>::default());
 
