@@ -689,3 +689,36 @@ fn new_child_and_add_text_child_refuse_a_parent_that_takes_no_child() {
   assert!(text.add_text_child(None, "child", "content").is_err());
   assert_eq!(doc.get_root_element().unwrap().get_child_nodes().len(), 1);
 }
+
+/// `set_content` reads references in an element's or an attribute's content, so a literal `&` was dropped or emptied
+/// the node (#141); `set_text_content` sets the text as it is, and frees the old children as `set_content` does.
+#[test]
+fn set_text_content_sets_text_as_it_is() {
+  let text = "a & b &amp; c &#38; d &e; <f> \"g\"\r\n";
+  let doc = Parser::default()
+    .parse_string("<r><e><old/>x</e><h at='x'/></r>")
+    .unwrap();
+  let root = doc.get_root_element().unwrap();
+  let mut element = root.get_first_child().unwrap();
+  let old = element.get_first_child().unwrap();
+  let holder = element.get_next_sibling().unwrap();
+  let mut attribute = holder.get_property_node("at").unwrap();
+  let mut text_node = Node::new_text("x", &doc).unwrap();
+  let mut comment = Node::new_comment("x", &doc).unwrap();
+
+  for node in [&mut element, &mut attribute, &mut text_node, &mut comment] {
+    node.set_text_content(text).unwrap();
+    assert_eq!(node.get_content(), text, "{:?}", node.get_type());
+  }
+  assert!(old.is_null(), "the replaced child reads as Node::null()");
+  assert_eq!(element.get_child_nodes().len(), 1);
+  assert_eq!(holder.get_attribute("at").as_deref(), Some(text));
+  assert_eq!(
+    doc.node_to_string(&element),
+    "<e>a &amp; b &amp;amp; c &amp;#38; d &amp;e; &lt;f&gt; \"g\"&#13;\n</e>"
+  );
+
+  // set_content keeps libxml2's reading of references
+  element.set_content("a &amp; b &#38; c").unwrap();
+  assert_eq!(element.get_content(), "a & b & c");
+}
