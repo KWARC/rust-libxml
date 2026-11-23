@@ -4,7 +4,7 @@
 //! dangling is caught by `is_freed`, without valgrind.
 mod common;
 
-use common::quarantine::{is_freed, setup};
+use common::quarantine::{double_freed, is_freed, setup};
 use libxml::parser::Parser;
 use libxml::tree::{Document, Node, NodeType};
 
@@ -214,4 +214,134 @@ fn free_subtree_leaves_the_referenced_entity_alone() {
     "the entity declaration was neutralized"
   );
   assert_eq!(declaration.get_name(), "e");
+}
+
+/// An unlinked node's wrapper is kept track of until the node is linked again, anywhere in its document: freeing it
+/// there, or a node above it, neutralizes the wrapper.
+#[test]
+fn freeing_a_relinked_node_neutralizes_its_wrapper() {
+  type Free = fn(Node, &Document);
+  let paths: [(&str, Free); 3] = [
+    ("set_content on its new parent", |mut parent, _| {
+      parent.set_content("").unwrap()
+    }),
+    ("free_subtree of its new parent", |parent, _| {
+      parent.free_subtree()
+    }),
+    ("a rust-owned drop of its new parent", |mut parent, _| {
+      parent.unlink();
+      parent.set_rust_owned();
+    }),
+  ];
+  for (path, free) in paths {
+    let doc = parse("<r><a><c><d/></c></a><b/></r>");
+    let root = doc.get_root_element().unwrap();
+    let a = root.get_first_child().unwrap();
+    let mut c = a.get_first_child().unwrap();
+    let d = c.get_first_child().unwrap();
+    let mut b = root.get_last_child().unwrap();
+    c.unlink();
+    // Reached again while detached, the node has the same wrapper.
+    let c_again = d.get_parent().unwrap();
+    b.add_child(&mut c).unwrap();
+
+    free(b, &doc);
+
+    for (what, node) in [("relinked", &c), ("re-reached", &c_again), ("child", &d)] {
+      assert!(
+        !is_freed(node.node_ptr()),
+        "{path}: the {what} wrapper points at a freed node"
+      );
+      assert!(
+        node.is_null(),
+        "{path}: the {what} wrapper is not neutralized"
+      );
+    }
+  }
+}
+
+/// The same for an attribute, moved to another element and removed there.
+#[test]
+fn removing_a_moved_attribute_neutralizes_its_wrapper() {
+  let doc = parse("<r><a x='1'/><b/></r>");
+  let root = doc.get_root_element().unwrap();
+  let a = root.get_first_child().unwrap();
+  let mut b = root.get_last_child().unwrap();
+  let mut x = a.get_property_node("x").unwrap();
+  x.unlink();
+  b.add_child(&mut x).unwrap();
+  assert_eq!(b.get_property("x").as_deref(), Some("1"));
+
+  b.remove_property("x").unwrap();
+
+  assert_neutralized(&[("moved attribute", &x)]);
+}
+
+/// `xmlFreeDoc` frees the document's nodes and their names: every wrapper the document knows of reads as
+/// `Node::null()` afterwards, and a rust-owned node is freed with it, once.
+#[test]
+fn dropping_the_document_neutralizes_its_wrappers() {
+  let doc = parse("<r><a/><u/><o/></r>");
+  let root = doc.get_root_element().unwrap();
+  let a = root.get_first_child().unwrap();
+  let mut u = a.get_next_sibling().unwrap();
+  let mut o = root.get_last_child().unwrap();
+  let new = Node::new("n", None, &doc).unwrap();
+  u.unlink();
+  o.unlink();
+  o.set_rust_owned();
+  let o_ptr = o.node_ptr();
+
+  drop(doc);
+
+  for (what, node) in [
+    ("root", &root),
+    ("linked", &a),
+    ("unlinked", &u),
+    ("new", &new),
+  ] {
+    assert!(
+      !is_freed(node.node_ptr()),
+      "the {what} wrapper points at a freed node"
+    );
+    assert!(node.is_null(), "the {what} wrapper is not neutralized");
+  }
+  assert!(o.is_null(), "the rust-owned wrapper is not neutralized");
+  assert!(
+    is_freed(o_ptr),
+    "the rust-owned node was not freed with the document"
+  );
+  drop(o);
+  assert!(!double_freed(o_ptr), "the rust-owned node was freed twice");
+}
+
+/// A node of another document is not linked: that document would free it, and its names before libxml2 2.12, while
+/// its wrapper stayed with this one. `import_node` copies it instead.
+#[test]
+fn linking_a_node_of_another_document_is_refused() {
+  let doc = parse("<r><b/></r>");
+  let other = parse("<o/>");
+  let mut b = doc.get_root_element().unwrap().get_first_child().unwrap();
+  let mut n = Node::new("n", None, &other).unwrap();
+
+  assert!(b.add_child(&mut n).is_err());
+  assert!(b.add_prev_sibling(&mut n).is_err());
+  assert!(b.add_next_sibling(&mut n).is_err());
+
+  assert!(
+    b.get_first_child().is_none()
+      && b.get_prev_sibling().is_none()
+      && b.get_next_sibling().is_none()
+  );
+  drop(other);
+  assert_neutralized(&[("other document's", &n)]);
+}
+
+#[test]
+#[should_panic(expected = "set_root_element called with a node of another document")]
+fn set_root_element_refuses_a_node_of_another_document() {
+  let mut doc = parse("<r/>");
+  let other = parse("<o/>");
+  let n = Node::new("n", None, &other).unwrap();
+  doc.set_root_element(&n);
 }

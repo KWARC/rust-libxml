@@ -12,7 +12,7 @@ use std::str;
 use crate::bindings::*;
 use crate::c_helpers::{xmlGetDoc, xmlGetNodeType, xmlGetParent};
 use crate::readonly::RoNode;
-use crate::tree::node::{Node, for_each_freed_with, note_wrapped};
+use crate::tree::node::{Node, NodeWeak, for_each_freed_with, note_wrapped};
 use crate::tree::nodetype::NodeType;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
@@ -65,6 +65,9 @@ impl std::hash::Hasher for NodePtrHasher {
 /// The `_Document::nodes` bookkeeping map: `xmlNodePtr` → wrapped `Node`, hashed
 /// with [`BuildNodePtrHasher`] rather than the std SipHash default.
 pub(crate) type NodeMap = HashMap<xmlNodePtr, Node, BuildNodePtrHasher>;
+
+/// The `_Document::rust_owned` map: `xmlNodePtr` → the wrapper of a rust-owned node, held weakly.
+pub(crate) type RustOwnedMap = HashMap<xmlNodePtr, NodeWeak, BuildNodePtrHasher>;
 
 #[cfg(test)]
 mod node_ptr_hasher_tests {
@@ -125,27 +128,66 @@ pub(crate) struct _Document {
   pub(crate) doc_ptr: xmlDocPtr,
   /// hashed pointer-to-Node bookkeeping table
   nodes: NodeMap,
+  /// The wrappers of rust-owned nodes (`set_rust_owned`), moved out of `nodes` and held weakly, so that the last
+  /// clone's drop frees the node: wrapping such a node again finds its wrapper, and the neutralizing frees and the
+  /// document's drop reach it.
+  rust_owned: RustOwnedMap,
 }
 
 impl _Document {
+  fn new(doc_ptr: xmlDocPtr) -> Self {
+    _Document {
+      doc_ptr,
+      nodes: NodeMap::default(),
+      rust_owned: RustOwnedMap::default(),
+    }
+  }
   /// Internal bookkeeping function, so far only used by `Node::wrap`
   pub(crate) fn insert_node(&mut self, node_ptr: xmlNodePtr, node: Node) {
     note_wrapped(xmlGetNodeType(node_ptr), xmlGetParent(node_ptr));
     self.nodes.insert(node_ptr, node);
   }
-  /// Internal bookkeeping function, so far only used by `Node::wrap`
-  pub(crate) fn get_node(&self, node_ptr: xmlNodePtr) -> Option<&Node> {
-    self.nodes.get(&node_ptr)
+  /// The wrapper of the node at `node_ptr`, cached or rust-owned, if any.
+  #[cfg(test)]
+  pub(crate) fn get_node(&self, node_ptr: xmlNodePtr) -> Option<Node> {
+    self
+      .get_cached(node_ptr)
+      .or_else(|| self.get_rust_owned(node_ptr))
   }
-  /// Internal bookkeeping function
-  pub(crate) fn forget_node(&mut self, node_ptr: xmlNodePtr) {
+  /// The cached wrapper of the node at `node_ptr`, if any.
+  #[inline]
+  pub(crate) fn get_cached(&self, node_ptr: xmlNodePtr) -> Option<Node> {
+    self.nodes.get(&node_ptr).cloned()
+  }
+  /// The wrapper of the rust-owned node at `node_ptr`, if any.
+  pub(crate) fn get_rust_owned(&self, node_ptr: xmlNodePtr) -> Option<Node> {
+    if self.rust_owned.is_empty() {
+      None
+    } else {
+      self.rust_owned.get(&node_ptr).and_then(Node::upgrade)
+    }
+  }
+  /// Moves `node`, the wrapper of the node at `node_ptr`, which is becoming rust-owned, to `rust_owned`.
+  pub(crate) fn own_node(&mut self, node_ptr: xmlNodePtr, node: &Node) {
     self.nodes.remove(&node_ptr);
+    self.rust_owned.insert(node_ptr, node.downgrade());
   }
-  /// Neutralizes the cached wrapper of the node at `node_ptr`, if any, ahead of or after libxml2 freeing that node:
-  /// nulls the pointer its clones share, so they all read as `Node::null()`, and forgets it, so a node later allocated
-  /// at the same address is wrapped afresh. Reads nothing through `node_ptr`, which may already be freed.
+  /// Neutralizes the wrapper of the node at `node_ptr`, cached or rust-owned, if any, ahead of or after libxml2 freeing
+  /// that node: nulls the pointer its clones share, so they all read as `Node::null()`, and forgets it, so a node later
+  /// allocated at the same address is wrapped afresh. Reads nothing through `node_ptr`, which may already be freed.
+  #[inline]
   pub(crate) fn neutralize(&mut self, node_ptr: xmlNodePtr) {
     if let Some(node) = self.nodes.remove(&node_ptr) {
+      node.null_out();
+    }
+    if !self.rust_owned.is_empty() {
+      self.neutralize_rust_owned(node_ptr);
+    }
+  }
+  /// [`neutralize`](Self::neutralize) in `rust_owned`; out of line, as few wrappers are rust-owned.
+  #[inline(never)]
+  fn neutralize_rust_owned(&mut self, node_ptr: xmlNodePtr) {
+    if let Some(node) = (self.rust_owned.remove(&node_ptr)).and_then(|weak| Node::upgrade(&weak)) {
       node.null_out();
     }
   }
@@ -171,12 +213,23 @@ pub struct Document(pub(crate) DocumentRef);
 impl Drop for _Document {
   ///Free document when it goes out of scope
   fn drop(&mut self) {
-    // The cached wrappers drop first: a rust-owned node only the cache holds is freed by `xmlFreeNode`, which reads
-    // `node->doc` (its dictionary) and so must run while the document is alive.
-    self.nodes.clear();
+    // `xmlFreeDoc` frees the document's nodes and their names, in its dictionary, so every wrapper it knows of,
+    // cached or rust-owned, is released first: it reads as `Node::null()` from then on, and a rust-owned node is freed
+    // now, while the document is alive (`xmlFreeNode` reads `node->doc`), after every wrapper into it was nulled.
+    let doc_ptr = self.doc_ptr;
+    let mut owned = Vec::new();
+    for (_, node) in self.nodes.drain() {
+      owned.extend(node.release(doc_ptr));
+    }
+    for (_, weak) in self.rust_owned.drain() {
+      owned.extend(Node::upgrade(&weak).and_then(|node| node.release(doc_ptr)));
+    }
     unsafe {
-      if !self.doc_ptr.is_null() {
-        xmlFreeDoc(self.doc_ptr);
+      for node_ptr in owned {
+        xmlFreeNode(node_ptr);
+      }
+      if !doc_ptr.is_null() {
+        xmlFreeDoc(doc_ptr);
       }
     }
   }
@@ -199,11 +252,7 @@ impl Document {
       if doc_ptr.is_null() {
         Err(())
       } else {
-        let doc = _Document {
-          doc_ptr,
-          nodes: NodeMap::default(),
-        };
-        Ok(Document(Rc::new(RefCell::new(doc))))
+        Ok(Document(Rc::new(RefCell::new(_Document::new(doc_ptr)))))
       }
     }
   }
@@ -215,18 +264,11 @@ impl Document {
 
   /// Creates a new `Document` from an existing libxml2 pointer
   pub fn new_ptr(doc_ptr: xmlDocPtr) -> Self {
-    let doc = _Document {
-      doc_ptr,
-      nodes: NodeMap::default(),
-    };
-    Document(Rc::new(RefCell::new(doc)))
+    Document(Rc::new(RefCell::new(_Document::new(doc_ptr))))
   }
 
   pub(crate) fn null_ref() -> DocumentRef {
-    Rc::new(RefCell::new(_Document {
-      doc_ptr: ptr::null_mut(),
-      nodes: NodeMap::default(),
-    }))
+    Rc::new(RefCell::new(_Document::new(ptr::null_mut())))
   }
 
   /// Write document to `filename`
@@ -315,6 +357,7 @@ impl Document {
       .borrow_mut()
       .nodes
       .retain(|_, node| node.is_unlinked() || node.is_shared());
+    (self.0.borrow_mut().rust_owned).retain(|_, weak| weak.strong_count() > 0);
   }
 
   fn has_doc_property(&self, flag: xmlDocProperties) -> bool {
@@ -325,6 +368,14 @@ impl Document {
 
   /// Sets the root element of the document
   pub fn set_root_element(&mut self, root: &Node) {
+    assert!(
+      !root.is_rust_owned(),
+      "set_root_element called with a RustOwned node — linking it would set up a double free"
+    );
+    assert!(
+      Weak::ptr_eq(&Rc::downgrade(&self.0), &root.get_docref()),
+      "set_root_element called with a node of another document — import_node copies it"
+    );
     unsafe {
       xmlDocSetRootElement(self.doc_ptr(), root.node_ptr());
     }
@@ -372,14 +423,6 @@ impl Document {
     if !node.is_unlinked() || node.is_rust_owned() {
       return Err(());
     }
-    // Also remove this node from the prior document hash
-    node
-      .get_docref()
-      .upgrade()
-      .unwrap()
-      .borrow_mut()
-      .forget_node(node.node_ptr());
-
     let node_ptr = unsafe { xmlDocCopyNode(node.node_ptr(), self.doc_ptr(), 1) };
     node.set_linked();
     self.ptr_as_result(node_ptr)
@@ -601,11 +644,7 @@ impl Document {
     if doc_ptr.is_null() {
       Err(())
     } else {
-      let doc = _Document {
-        doc_ptr,
-        nodes: NodeMap::default(),
-      };
-      Ok(Document(Rc::new(RefCell::new(doc))))
+      Ok(Document(Rc::new(RefCell::new(_Document::new(doc_ptr)))))
     }
   }
 

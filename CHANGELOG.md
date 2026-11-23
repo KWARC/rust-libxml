@@ -11,7 +11,14 @@
     `add_next_sibling` likewise before libxml2 2.13 (#234); an attribute added by any of the three frees the element's
     attribute of the same name;
   * `remove_property`, `remove_property_ns` and `remove_property_no_ns`; `set_property` and `set_property_ns`, which
-    free the old value's nodes; and `set_content`, which frees the old children (#235).
+    free the old value's nodes; and `set_content`, which frees the old children (#235);
+  * any of these on a node that was unlinked and linked again: its document no longer forgets its wrapper at the
+    unlink, and wrapping it again while it is detached finds the same wrapper;
+  * dropping the document, which frees its nodes and their names: its wrappers read as `Node::null()` afterwards, and a
+    rust-owned node is freed with it.
+* Linking can no longer set up a double free or a dangling wrapper in release builds. `set_rust_owned` on a linked node
+  panics, as only debug builds did. `add_child`, `add_prev_sibling` and `add_next_sibling` return an error for a
+  rust-owned node or a node of another document (`import_node` copies one), and `set_root_element` panics on them.
 * `free_subtree` no longer neutralizes nodes under an entity reference. They belong to the entity's declaration, which
   `xmlFreeNode` leaves alone, and the walk went on from there into the DTD's other declarations.
 
