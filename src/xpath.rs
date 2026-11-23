@@ -4,7 +4,7 @@ use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::error::StructuredError;
 use crate::readonly::RoNode;
-use crate::tree::{Document, DocumentRef, DocumentWeak, Node};
+use crate::tree::{Document, DocumentRef, Node};
 use libc::{c_char, c_void, size_t};
 use std::cell::RefCell;
 use std::ffi::{CStr, CString};
@@ -28,20 +28,35 @@ impl Drop for _Context {
 }
 
 /// An XPath context
+///
+/// It keeps its document alive, as a [`Document`] handle does (#61): libxml2 evaluates against the document, and the
+/// document holds no context, so no cycle forms.
 #[derive(Clone)]
 pub struct Context {
   /// Safe reference to the libxml2 context pointer
+  ///
+  /// Declared before `document`, so that the last clone frees the libxml2 context before it lets go of the document.
   pub(crate) context_ptr: ContextRef,
-  ///Document contains pointer, needed for ContextPtr, so we need to borrow Document to prevent it's freeing
-  pub(crate) document: DocumentWeak,
+  /// The document the context evaluates against, kept alive with it.
+  pub(crate) document: DocumentRef,
 }
 
 ///Essentially, the result of the evaluation of some xpath expression
-#[derive(Debug)]
+///
+/// It keeps its document alive, as its [`Context`] does: its node set points into the document.
 pub struct Object {
   ///libxml's `ObjectPtr`
   pub ptr: xmlXPathObjectPtr,
-  document: DocumentWeak,
+  /// The document of the node set, let go of after `Drop::drop` frees `ptr`.
+  document: DocumentRef,
+}
+
+impl fmt::Debug for Object {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    f.debug_struct("Object")
+      .field("ptr", &self.ptr)
+      .finish_non_exhaustive()
+  }
 }
 
 /// A structured error from an XPath evaluation.
@@ -167,7 +182,7 @@ impl Context {
     } else {
       Ok(Context {
         context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(&doc.0),
+        document: Rc::clone(&doc.0),
       })
     }
   }
@@ -178,7 +193,7 @@ impl Context {
     } else {
       Ok(Context {
         context_ptr: Rc::new(RefCell::new(_Context(ctxtptr))),
-        document: Rc::downgrade(docref),
+        document: Rc::clone(docref),
       })
     }
   }
@@ -190,8 +205,10 @@ impl Context {
 
   /// Instantiate a new Context for the Document of a given Node.
   /// Note: the Context is root-level for that document, use `.set_context_node` to limit scope to this node
+  ///
+  /// Returns `Err` for a node without a document, such as `Node::null()` or a node of a dropped document.
   pub fn from_node(node: &Node) -> Result<Context, ()> {
-    let docref = node.get_docref().upgrade().unwrap();
+    let docref = node.upgrade_docref().ok_or(())?;
     Context::new_ptr(&docref)
   }
 
@@ -437,7 +454,7 @@ impl Object {
       if is_namespace(ptr) {
         continue;
       }
-      let node = Node::wrap(ptr, &self.document.upgrade().unwrap());
+      let node = Node::wrap(ptr, &self.document);
       vec.push(node);
     }
     vec
