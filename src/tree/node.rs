@@ -1054,7 +1054,14 @@ impl Node {
     rust_utf8
   }
 
-  /// Sets the text content of this `Node`
+  /// Sets the content of this `Node`
+  ///
+  /// For an element, an attribute or a document fragment, libxml2 reads `content` as an attribute value is read, with
+  /// entity and character references: `"a &amp; b"` and `"a &#38; b"` set the text `a & b`, and `"&name;"` adds a
+  /// reference to the entity `name`. A `&` that starts no well-formed reference loses text: libxml2 drops it, or the
+  /// text up to the next `;`, and before 2.13 it may empty the node and print an error. This returns `Ok` either way
+  /// (#141). To set text as it is, use [`set_text_content`](Node::set_text_content). Other nodes, such as text and
+  /// comments, take `content` as it is.
   ///
   /// The content of an element, attribute or document fragment replaces its children, which libxml2 frees: their
   /// wrappers, and those of their descendants, read as `Node::null()` afterwards. An entity reference is left alone,
@@ -1084,6 +1091,24 @@ impl Node {
       xmlNodeSetContent(node_ptr, c_content.as_bytes().as_ptr());
     }
     Ok(())
+  }
+
+  /// Sets the text content of this `Node` to `text`, as it is
+  ///
+  /// Unlike [`set_content`](Node::set_content), this reads no `&` in `text` as a reference:
+  /// `set_text_content("a & b")` sets the text `a & b` with every libxml2 version. It replaces and frees children
+  /// as `set_content` does.
+  pub fn set_text_content(&mut self, text: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let parses_references = matches!(
+      self.get_type(),
+      Some(NodeType::ElementNode | NodeType::AttributeNode | NodeType::DocumentFragNode)
+    );
+    if parses_references && text.contains('&') {
+      // `&#38;` is the character reference to `&`, which libxml2 turns back into `&`.
+      self.set_content(&text.replace('&', "&#38;"))
+    } else {
+      self.set_content(text)
+    }
   }
 
   /// Returns the value of property `name`

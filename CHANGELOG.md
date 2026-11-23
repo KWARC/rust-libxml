@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+
+* `Node::set_text_content`: sets a node's text as it is. `set_content` keeps libxml2's reading of an element's or an
+  attribute's content, with entity and character references, so a literal `&` there loses text and returns `Ok`
+  (#141). Its documentation now says so.
+
 ### Fixed
 
 * The build on FreeBSD i386 no longer fails in the bindings' layout tests (#186). FreeBSD names the struct
