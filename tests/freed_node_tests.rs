@@ -858,3 +858,265 @@ fn dup_node_into_new_doc_refuses_an_attribute_or_a_document() {
     );
   }
 }
+
+#[test]
+#[should_panic(expected = "set_root_element refused: a DTD")]
+fn set_root_element_refuses_a_dtd() {
+  let mut doc = parse("<!DOCTYPE r><r/>");
+  let dtd = doc.get_root_element().unwrap().get_prev_sibling().unwrap();
+  doc.set_root_element(&dtd);
+}
+
+/// #235: `remove_internal_subset` freed the DTD, though the document's entity references still point into it: their
+/// children are its entity declarations. The DTD is detached and kept until the document drops.
+#[test]
+fn remove_internal_subset_keeps_the_dtd_until_the_document_drops() {
+  let mut doc = parse("<!DOCTYPE r [<!ENTITY e '<b>x</b>'>]><r>&e;</r>");
+  let root = doc.get_root_element().unwrap();
+  let dtd = root.get_prev_sibling().unwrap();
+  assert_eq!(dtd.get_type(), Some(NodeType::DTDNode));
+  let declaration = root.get_first_child().unwrap().get_first_child().unwrap();
+
+  doc.remove_internal_subset();
+
+  assert!(!is_freed(dtd.node_ptr()), "the DTD was freed");
+  assert!(
+    !is_freed(declaration.node_ptr()),
+    "the entity declaration was freed"
+  );
+  assert_eq!(declaration.get_name(), "e");
+  assert!(root.get_prev_sibling().is_none());
+  assert_eq!(doc.to_string().matches("<!DOCTYPE").count(), 0);
+  assert!(doc.to_string().contains("<r>&e;</r>"));
+
+  let dtd_ptr = dtd.node_ptr();
+  drop((root, dtd, declaration));
+  drop(doc);
+  assert!(is_freed(dtd_ptr), "the DTD leaked");
+  assert!(!double_freed(dtd_ptr), "the DTD was freed twice");
+}
+
+/// A DTD is freed only with its document, whose entity references point into it (#235): freeing it through a wrapper,
+/// whether `remove_internal_subset` removed it first or not, unlinks it and leaves it to the document, which frees it
+/// once.
+#[test]
+fn a_dtd_is_freed_only_with_its_document() {
+  type Free = fn(&mut Document, Node);
+  let frees: [(&str, Free); 4] = [
+    ("free_subtree", |_, dtd| dtd.free_subtree()),
+    ("a rust-owned drop", |_, mut dtd| {
+      dtd.unlink();
+      dtd.set_rust_owned();
+    }),
+    ("remove_internal_subset, then free_subtree", |doc, dtd| {
+      doc.remove_internal_subset();
+      dtd.free_subtree();
+    }),
+    (
+      "remove_internal_subset, then a rust-owned drop",
+      |doc, mut dtd| {
+        doc.remove_internal_subset();
+        dtd.unlink();
+        dtd.set_rust_owned();
+      },
+    ),
+  ];
+  for (how, free) in frees {
+    let mut doc = parse("<!DOCTYPE r [<!ENTITY e '<b>x</b>'>]><r>&e;</r>");
+    let root = doc.get_root_element().unwrap();
+    let dtd = root.get_prev_sibling().unwrap();
+    let dtd_ptr = dtd.node_ptr();
+    let declaration = root.get_first_child().unwrap().get_first_child().unwrap();
+    let declaration_ptr = declaration.node_ptr();
+
+    free(&mut doc, dtd);
+
+    assert!(
+      !is_freed(declaration_ptr),
+      "{how} freed the entity declaration"
+    );
+    assert_eq!(declaration.get_name(), "e", "{how}");
+    assert!(
+      root.get_prev_sibling().is_none(),
+      "{how}: the DTD is linked"
+    );
+    assert!(doc.to_string().contains("<r>&e;</r>"));
+    drop((root, declaration));
+    drop(doc);
+    assert!(is_freed(dtd_ptr), "{how}: the DTD leaked");
+    assert!(!double_freed(dtd_ptr), "{how}: the DTD was freed twice");
+  }
+
+  // A rust-owned wrapper outliving the document.
+  let doc = parse("<!DOCTYPE r [<!ENTITY e 'x'>]><r>&e;</r>");
+  let mut dtd = doc.get_root_element().unwrap().get_prev_sibling().unwrap();
+  let dtd_ptr = dtd.node_ptr();
+  dtd.unlink();
+  dtd.set_rust_owned();
+  drop(doc);
+  assert!(dtd.is_null(), "the wrapper outlives its DTD");
+  assert!(is_freed(dtd_ptr), "the DTD leaked");
+  assert!(!double_freed(dtd_ptr), "the DTD was freed twice");
+}
+
+/// libxml2 frees a DTD added under a text node, merging it, and never frees one linked as a child elsewhere
+/// (`xmlFreeNodeList` skips DTDs): linking a DTD is refused, and its document keeps it.
+#[test]
+fn linking_a_dtd_is_refused() {
+  let mut doc = parse("<!DOCTYPE r [<!ENTITY e 'x'>]><r>t<c/></r>");
+  let mut root = doc.get_root_element().unwrap();
+  let mut dtd = root.get_prev_sibling().unwrap();
+  let dtd_ptr = dtd.node_ptr();
+  doc.remove_internal_subset();
+  let mut text = root.get_first_child().unwrap();
+  let mut c = root.get_last_child().unwrap();
+
+  assert!(text.add_child(&mut dtd).is_err(), "added under a text node");
+  assert!(c.add_child(&mut dtd).is_err(), "added as a child");
+  assert!(
+    root.add_prev_sibling(&mut dtd).is_err(),
+    "added as a sibling"
+  );
+  assert!(c.add_next_sibling(&mut dtd).is_err(), "added as a sibling");
+
+  assert!(!is_freed(dtd_ptr), "the DTD was freed");
+  assert!(root.get_prev_sibling().is_none(), "the DTD is linked");
+  assert!(c.get_first_child().is_none() && c.get_next_sibling().is_none());
+  drop((root, dtd, text, c));
+  drop(doc);
+  assert!(is_freed(dtd_ptr), "the DTD leaked");
+  assert!(!double_freed(dtd_ptr), "the DTD was freed twice");
+}
+
+/// A DTD's declarations are its own: `xmlFreeDtd` frees the element, attribute and entity declarations through its
+/// tables, and the document's entity references point at the entity declarations. Unlinking one, freeing one through a
+/// wrapper and linking one elsewhere are refused; `set_content` on an entity reference, which before libxml2 2.13 frees
+/// the declaration under it, leaves the reference alone, as 2.13 and later do.
+#[test]
+fn a_dtd_keeps_its_declarations() {
+  let doc = parse(
+    "<!DOCTYPE r [<!ELEMENT r ANY><!ATTLIST r a CDATA #IMPLIED><!ENTITY e '<b>x</b>'>]><r>&e;</r>",
+  );
+  let mut root = doc.get_root_element().unwrap();
+  let dtd = root.get_prev_sibling().unwrap();
+  let mut reference = root.get_first_child().unwrap();
+  let declarations = dtd.get_child_nodes();
+  let types: Vec<_> = declarations.iter().map(Node::get_type).collect();
+  assert_eq!(
+    types,
+    [
+      Some(NodeType::ElementDecl),
+      Some(NodeType::AttributeDecl),
+      Some(NodeType::EntityDecl)
+    ]
+  );
+  let entity_declaration = declarations[2].node_ptr();
+
+  reference.set_content("y").unwrap();
+  let mut ptrs = Vec::new();
+  for mut declaration in declarations {
+    let what = format!("{:?}", declaration.get_type().unwrap());
+    ptrs.push(declaration.node_ptr());
+    declaration.unlink();
+    assert!(!declaration.is_unlinked(), "{what} was unlinked");
+    assert!(
+      root.add_child(&mut declaration).is_err(),
+      "{what} was linked"
+    );
+    declaration.clone().free_subtree();
+    assert!(!is_freed(declaration.node_ptr()), "{what} was freed");
+    assert_eq!(
+      declaration.get_parent().as_ref(),
+      Some(&dtd),
+      "{what} moved"
+    );
+  }
+
+  assert!(
+    !is_freed(entity_declaration),
+    "the entity declaration was freed"
+  );
+  assert_eq!(
+    reference.get_first_child().map(|child| child.node_ptr()),
+    Some(entity_declaration)
+  );
+  assert!(doc.to_string().contains("<r>&e;</r>"));
+  drop((root, dtd, reference));
+  drop(doc);
+  for ptr in ptrs {
+    assert!(is_freed(ptr), "a declaration leaked");
+    assert!(!double_freed(ptr), "a declaration was freed twice");
+  }
+}
+
+/// [`a_dtd_keeps_its_declarations`], by `append_text`: an entity reference's content is its entity declaration's, which
+/// libxml2 before 2.13 appended to, reallocating it under the declaration. It leaves the reference alone, as 2.13 and
+/// later do.
+#[test]
+fn append_text_leaves_an_entity_reference_alone() {
+  let doc = parse("<!DOCTYPE r [<!ENTITY e 'abc'>]><r>&e;</r>");
+  let mut reference = doc.get_root_element().unwrap().get_first_child().unwrap();
+  let declaration = reference.get_first_child().unwrap();
+  assert_eq!(declaration.get_type(), Some(NodeType::EntityDecl));
+  // SAFETY: `declaration` is a live entity declaration, read before anything frees it.
+  let content = unsafe { (*declaration.node_ptr()).content };
+  reference.append_text("xyz").unwrap();
+  assert!(
+    !is_freed(content),
+    "the declaration's content was reallocated under it"
+  );
+  assert!(doc.to_string().contains("<r>&e;</r>"));
+  drop((reference, declaration));
+  drop(doc);
+  assert!(
+    !double_freed(content),
+    "the declaration's content was freed twice"
+  );
+}
+
+/// [`a_dtd_keeps_its_declarations`], by `set_root_element`: it linked a declaration into the document's children,
+/// which `xmlFreeDoc` frees after its DTD freed the declaration through its tables.
+#[test]
+fn set_root_element_refuses_a_declaration() {
+  let source =
+    "<!DOCTYPE r [<!ELEMENT r ANY><!ATTLIST r a CDATA #IMPLIED><!ENTITY e 'x'>]><r>&e;</r>";
+  let mut linked = Vec::new();
+  for index in 0..3 {
+    let mut doc = parse(source);
+    let dtd = doc.get_root_element().unwrap().get_prev_sibling().unwrap();
+    let declaration = dtd.get_child_nodes().swap_remove(index);
+    let set = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+      doc.set_root_element(&declaration)
+    }));
+    if set.is_ok() {
+      linked.push(declaration.get_type());
+      std::mem::forget(doc); // its DTD and its children both free the declaration
+    }
+  }
+  assert!(linked.is_empty(), "set_root_element linked {linked:?}");
+}
+
+/// An entity reference's only child is its entity's declaration, one of the DTD's children: `xmlAddChild` linked a
+/// node added to the reference after the declaration, among the DTD's children, with the reference as its parent,
+/// which `free_subtree` then freed under it. Adding a child to an entity reference is refused.
+#[test]
+fn adding_a_child_to_an_entity_reference_is_refused() {
+  let doc = parse("<!DOCTYPE r [<!ENTITY e 'x'><!ENTITY f 'y'>]><r>&e;</r>");
+  let mut reference = doc.get_root_element().unwrap().get_first_child().unwrap();
+  let declaration = reference.get_first_child().unwrap();
+  let mut z = Node::new("z", None, &doc).unwrap();
+
+  let added = reference.add_child(&mut z);
+  reference.clone().free_subtree();
+  assert!(
+    z.get_parent()
+      .is_none_or(|parent| !is_freed(parent.node_ptr())),
+    "the added node's parent was freed under it"
+  );
+  assert!(added.is_err());
+  assert_eq!(
+    declaration.get_next_sibling().map(|next| next.get_name()),
+    Some("f".to_string()),
+    "the DTD's children changed"
+  );
+}

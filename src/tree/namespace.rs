@@ -96,8 +96,12 @@ impl Namespace {
     }
   }
 
-  /// Explicit free method, until (if?) we implement automatic+safe free-on-drop
-  pub fn free(&mut self) {
-    unsafe { xmlFreeNs(self.ns_ptr()) }
-  }
+  /// Does nothing. A namespace belongs to its document: libxml2 frees it with the element that declares it, or the
+  /// document keeps it until it is freed itself. This used to free it, while its element still declared it, so that
+  /// libxml2 freed it a second time (#233).
+  #[deprecated(
+    since = "0.3.25",
+    note = "a namespace is freed with its document; this does nothing"
+  )]
+  pub fn free(&mut self) {}
 }

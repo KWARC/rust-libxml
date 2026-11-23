@@ -37,6 +37,29 @@
   `free_subtree` freed it as an ordinary node, and the `Document` then freed it again.
 * `free_subtree` no longer neutralizes nodes under an entity reference. They belong to the entity's declaration, which
   `xmlFreeNode` leaves alone, and the walk went on from there into the DTD's other declarations.
+* A `Namespace` no longer points into a namespace that libxml2 freed. `Namespace::free` freed one its element still
+  declared, which the document then freed again (#233); it does nothing now. `recursively_remove_namespaces` freed the
+  declarations it removed, and freeing an element (`free_subtree`, `set_content` on its parent, dropping a rust-owned
+  node, `add_child` under a text node, which merges it) freed the element's declarations, though a `Namespace` from
+  `get_namespace_declarations`, or the namespace of a node elsewhere, may point at one (#235). The document keeps such
+  declarations, detached, until it is freed itself. `recursively_remove_namespaces` also leaves an entity reference's
+  children alone now.
+* `remove_internal_subset` freed the DTD, though the document's entity references point at its entity declarations
+  (#235). The document keeps it, detached, until it is freed itself; the DOCTYPE is gone from the output as before.
+  So does `unlink_node` on a DTD now: `free_subtree` and dropping a rust-owned wrapper no longer free one, and a DTD
+  removed by `remove_internal_subset` is no longer freed twice. Linking a DTD returns an error (`set_root_element`
+  panics): libxml2 frees one added under a text node at once, and never frees one linked as a child.
+* A DTD's element, attribute and entity declarations are its own (#235): `free_subtree` freed one, which the DTD then
+  freed again, and an entity reference pointed at a freed entity declaration. `unlink_node` and `free_subtree` leave a
+  declaration alone now, and linking one returns an error (`set_root_element` panics). `set_content` and
+  `append_text` on an entity reference, which before libxml2 2.13 freed the entity's declaration, or appended to its
+  content, leave the reference alone, as 2.13 and later do, and `add_child` to one returns an error: `xmlAddChild`
+  linked the new child after the declaration, among the DTD's children, under a reference that `free_subtree` could
+  free.
+
+### Deprecated
+
+* `Namespace::free`: it does nothing. A namespace is freed with its document. (#233)
 
 ## [0.3.24] (2026-11-15)
 
