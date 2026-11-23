@@ -10,6 +10,11 @@
 * `Document::copy_node`: copies a node, with its subtree, into a document, from that document or another, and
   returns the unlinked copy (`xmlDocCopyNode`). Unlike `import_node`, the source may be linked, and is left as it is.
   (#102)
+* `SchemaParserContext::try_from_document`, `try_from_buffer` and `try_from_file`: return
+  `Result<Self, Vec<StructuredError>>`, as `SchemaValidationContext::from_parser` and `validate_*` do, where
+  `from_document`, `from_buffer` and `from_file` panic: for an empty buffer, one of more than `i32::MAX` bytes, a
+  path with a NUL byte, a `Document` without a libxml2 document, and when libxml2 makes no context (#120). The
+  `from_*` constructors are unchanged, except that their panic message now includes the error.
 
 ### Fixed
 
@@ -19,6 +24,9 @@
   opaque now too; no libxml2 type uses it.
 * bindgen no longer warns "ISO C99 requires whitespace after the macro name" during the build: the `-DPKG-CONFIG`
   clang argument, which defined a macro `PKG` that nothing reads, is gone. The bindings are unchanged.
+* `SchemaValidationContext::validate_file` returns an error for a path with a NUL byte, and `from_parser` one when
+  libxml2 makes no validation context, instead of panicking (#120). `SchemaParserContext::from_buffer` panics for a
+  buffer of 4 GiB or more instead of passing libxml2 a length truncated to 32 bits.
 
 ## [0.3.25] (2026-11-23)
 

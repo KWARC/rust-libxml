@@ -193,3 +193,59 @@ fn schema_entity_reference_returns_error_instead_of_panicking() {
   let valid = Parser::default().parse_string(VALID_NOTE_XML).unwrap();
   assert!(context.validate_document(&valid).is_ok());
 }
+
+/// The `try_from_*` constructors return an error where `from_*` panic, and `validate_file` returns one for a path with a
+/// NUL byte (#120).
+#[test]
+fn schema_constructors_return_errors_instead_of_panicking() {
+  use libxml::bindings::{
+    xmlErrorDomain_XML_FROM_SCHEMASP, xmlErrorDomain_XML_FROM_SCHEMASV,
+    xmlParserErrors_XML_ERR_DOCUMENT_EMPTY, xmlParserErrors_XML_ERR_INVALID_URI,
+  };
+  use libxml::tree::Document;
+  use std::panic::catch_unwind;
+
+  let only = |result: Result<SchemaParserContext, Vec<libxml::error::StructuredError>>| {
+    let errors = result.err().expect("an error");
+    assert_eq!(errors.len(), 1);
+    assert_eq!(errors[0].domain, xmlErrorDomain_XML_FROM_SCHEMASP as i32);
+    (errors[0].code, errors[0].message.clone().unwrap())
+  };
+  assert_eq!(
+    only(SchemaParserContext::try_from_buffer(b"")),
+    (
+      xmlParserErrors_XML_ERR_DOCUMENT_EMPTY as i32,
+      "The schema buffer is empty".to_string()
+    )
+  );
+  assert_eq!(
+    only(SchemaParserContext::try_from_file("a\0b.xsd")),
+    (
+      xmlParserErrors_XML_ERR_INVALID_URI as i32,
+      "The path has a NUL byte at 1".to_string()
+    )
+  );
+  let no_document = Document::new_ptr(std::ptr::null_mut());
+  assert_eq!(
+    only(SchemaParserContext::try_from_document(&no_document)).0,
+    xmlParserErrors_XML_ERR_DOCUMENT_EMPTY as i32
+  );
+  // The panicking constructors are unchanged.
+  assert!(catch_unwind(|| SchemaParserContext::from_buffer(b"")).is_err());
+  assert!(catch_unwind(|| SchemaParserContext::from_file("a\0b.xsd")).is_err());
+
+  let schema_doc = Parser::default().parse_string(NOTE_SCHEMA).unwrap();
+  for mut parser in [
+    SchemaParserContext::try_from_buffer(NOTE_SCHEMA).unwrap_or_else(|_| panic!("buffer")),
+    SchemaParserContext::try_from_document(&schema_doc).unwrap_or_else(|_| panic!("document")),
+  ] {
+    let mut validation =
+      SchemaValidationContext::from_parser(&mut parser).unwrap_or_else(|_| panic!("schema"));
+    let errors = validation.validate_file("a\0b.xml").expect_err("an error");
+    assert_eq!(errors[0].domain, xmlErrorDomain_XML_FROM_SCHEMASV as i32);
+    assert_eq!(errors[0].code, xmlParserErrors_XML_ERR_INVALID_URI as i32);
+  }
+  let mut parser = SchemaParserContext::try_from_file("tests/resources/schema.xsd")
+    .unwrap_or_else(|_| panic!("file"));
+  assert!(SchemaValidationContext::from_parser(&mut parser).is_ok());
+}
