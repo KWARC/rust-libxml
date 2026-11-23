@@ -134,6 +134,15 @@ pub struct XPathError {
 }
 
 impl XPathError {
+  /// For an expression with a NUL byte, which libxml2 cannot read.
+  fn nul_byte() -> Self {
+    XPathError {
+      message: Some("XPath expression contains a NUL byte".to_string()),
+      code: 0,
+      domain: 0,
+    }
+  }
+
   /// Snapshot the thread's last libxml2 error (set when an evaluation returns
   /// NULL); empty message when libxml2 recorded no structured detail.
   fn from_last_error() -> Self {
@@ -202,11 +211,7 @@ impl Expression {
   /// Compile `xpath`, or return libxml2's structured error when it is not a well-formed expression.
   pub fn compile(xpath: &str) -> Result<Expression, XPathError> {
     crate::init_parser();
-    let c_xpath = CString::new(xpath).map_err(|_| XPathError {
-      message: Some("XPath expression contains a NUL byte".to_string()),
-      code: 0,
-      domain: 0,
-    })?;
+    let c_xpath = CString::new(xpath).map_err(|_| XPathError::nul_byte())?;
     unsafe { xmlResetLastError() };
     let ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
     if ptr.is_null() {
@@ -346,10 +351,10 @@ impl Context {
     Context::new_ptr(&docref)
   }
 
-  /// Register a namespace prefix-href pair on the xpath context
+  /// Register a namespace prefix-href pair on the xpath context; `Err` if libxml2 refuses it, or either has a NUL byte
   pub fn register_namespace(&self, prefix: &str, href: &str) -> Result<(), ()> {
-    let c_prefix = CString::new(prefix).unwrap();
-    let c_href = CString::new(href).unwrap();
+    let c_prefix = CString::new(prefix).map_err(|_| ())?;
+    let c_href = CString::new(href).map_err(|_| ())?;
     unsafe {
       let result = xmlXPathRegisterNs(
         self.as_ptr(),
@@ -369,7 +374,7 @@ impl Context {
     xpath: &str,
     eval: impl FnOnce(*const u8) -> xmlXPathObjectPtr,
   ) -> Result<Object, XPathError> {
-    let c_xpath = CString::new(xpath).unwrap();
+    let c_xpath = CString::new(xpath).map_err(|_| XPathError::nul_byte())?;
     unsafe { xmlResetLastError() };
     let ptr = eval(c_xpath.as_bytes().as_ptr());
     if ptr.is_null() {
@@ -828,8 +833,9 @@ impl fmt::Display for Object {
         // OOM in the cast; write nothing rather than `strlen(NULL)`.
         return Ok(());
       }
-      let c_string = CStr::from_ptr(receiver as *const c_char);
-      let rust_string = str::from_utf8(c_string.to_bytes()).unwrap().to_owned();
+      let rust_string = CStr::from_ptr(receiver as *const c_char)
+        .to_string_lossy()
+        .into_owned();
       bindgenFree(receiver as *mut c_void);
       write!(f, "{rust_string}")
     }
@@ -841,7 +847,9 @@ impl fmt::Display for Object {
 /// Tests describing what this validates in tests/xpath_tests.rs
 pub fn is_well_formed_xpath(xpath: &str) -> bool {
   crate::init_parser();
-  let c_xpath = CString::new(xpath).unwrap();
+  let Ok(c_xpath) = CString::new(xpath) else {
+    return false;
+  };
   let xml_xpath_comp_expr_ptr = unsafe { xmlXPathCompile(c_xpath.as_bytes().as_ptr()) };
   if xml_xpath_comp_expr_ptr.is_null() {
     false
