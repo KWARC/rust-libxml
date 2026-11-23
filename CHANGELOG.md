@@ -1,5 +1,14 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixed
+
+* The build on FreeBSD i386 no longer fails in the bindings' layout tests (#186). FreeBSD names the struct
+  `__max_align_t`, and `max_align_t` is a typedef of it, so the 0.3.5 fix that made `max_align_t` opaque did not reach
+  it. bindgen mapped its `long double` member to `f64`, and the size test then computed `16 - 20`. `__max_align_t` is
+  opaque now too; no libxml2 type uses it.
+
 ## [0.3.25] (2026-11-23)
 
 Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.24 builds
