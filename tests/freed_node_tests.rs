@@ -345,3 +345,516 @@ fn set_root_element_refuses_a_node_of_another_document() {
   let n = Node::new("n", None, &other).unwrap();
   doc.set_root_element(&n);
 }
+
+/// An XML and an HTML document, each `<html><body><p>t</p></body></html>`.
+fn xml_and_html_documents() -> [Document; 2] {
+  setup();
+  let source = "<html><body><p>t</p></body></html>";
+  [
+    Parser::default().parse_string(source).unwrap(),
+    Parser::default_html().parse_string(source).unwrap(),
+  ]
+}
+
+/// The first descendant of `doc`'s root element without children: the text node `t`.
+fn leaf(doc: &Document) -> Node {
+  let mut node = doc.get_root_element().unwrap();
+  while let Some(child) = node.get_first_child() {
+    node = child;
+  }
+  assert!(node.is_text_node());
+  node
+}
+
+/// `free_subtree` and `unlink_node` leave a document's own node alone, an HTML one as an XML one: `xmlFreeNode` would
+/// free it as an ordinary node, and its `Document` free it again.
+#[test]
+fn freeing_a_document_node_is_refused() {
+  for doc in xml_and_html_documents() {
+    let doc_ptr = doc.doc_ptr();
+    let t = leaf(&doc);
+
+    doc.as_node().free_subtree();
+    assert!(!is_freed(doc_ptr), "free_subtree freed a document");
+    assert_eq!(t.get_content(), "t");
+
+    let mut doc_node = doc.as_node();
+    doc_node.unlink();
+    assert!(
+      !doc_node.is_unlinked(),
+      "a document's node was marked unlinked, which set_rust_owned would free"
+    );
+
+    drop(doc);
+    assert!(!double_freed(doc_ptr), "the document was freed twice");
+  }
+}
+
+/// Whether `link` refused to link `doc`'s own node. A document it did link is leaked, not freed: freeing it would free
+/// it twice, or recurse without end.
+fn refuses_the_document(
+  doc: Document,
+  link: impl FnOnce(&Document, &mut Node) -> Result<(), String>,
+) -> bool {
+  let refused = link(&doc, &mut doc.as_node()).is_err();
+  if !refused {
+    std::mem::forget(doc);
+  }
+  refused
+}
+
+/// A document is not linked into its own tree: libxml2 frees one added under a text node at once, as an ordinary node,
+/// and `xmlFreeDoc` recurses through one linked elsewhere.
+#[test]
+fn linking_a_document_is_refused() {
+  type Link = fn(&Document, &mut Node) -> Result<(), String>;
+  let links: [(&str, Link); 4] = [
+    ("add_child under an element", |doc, d| {
+      doc.get_root_element().unwrap().add_child(d)
+    }),
+    ("add_child under a text node", |doc, d| {
+      leaf(doc).add_child(d)
+    }),
+    ("add_prev_sibling", |doc, d| {
+      let mut body = doc.get_root_element().unwrap().get_last_child().unwrap();
+      body.add_prev_sibling(d).map_err(|e| e.to_string())
+    }),
+    ("add_next_sibling", |doc, d| {
+      let mut body = doc.get_root_element().unwrap().get_last_child().unwrap();
+      body.add_next_sibling(d).map_err(|e| e.to_string())
+    }),
+  ];
+  let mut linked = Vec::new();
+  for (what, link) in links {
+    for doc in xml_and_html_documents() {
+      let kind = match doc.as_node().get_type() {
+        Some(NodeType::HtmlDocumentNode) => "an HTML",
+        _ => "an XML",
+      };
+      if !refuses_the_document(doc, link) {
+        linked.push(format!("{what} linked {kind} document"));
+      }
+    }
+  }
+  assert!(linked.is_empty(), "{linked:#?}");
+}
+
+/// [`linking_a_document_is_refused`], by `set_root_element`.
+#[test]
+fn set_root_element_refuses_a_document() {
+  for mut doc in xml_and_html_documents() {
+    let doc_node = doc.as_node();
+    let set = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+      doc.set_root_element(&doc_node)
+    }));
+    if set.is_ok() {
+      std::mem::forget(doc); // its tree contains it now: freeing it would recurse without end
+      panic!("set_root_element linked a document");
+    }
+  }
+}
+
+/// Whether `link` refused to link one of `doc`'s nodes. A document it did link a node in is leaked, not freed: its tree
+/// may loop.
+fn refuses(doc: Document, link: impl FnOnce(&Document) -> Result<(), String>) -> bool {
+  let refused = link(&doc).is_err();
+  if !refused {
+    std::mem::forget(doc);
+  }
+  refused
+}
+
+/// The node at `path` (child indices from the root element) in `doc`.
+fn at(doc: &Document, path: &[usize]) -> Node {
+  let mut node = doc.get_root_element().unwrap();
+  for &index in path {
+    node = node.get_child_nodes().swap_remove(index);
+  }
+  node
+}
+
+/// A node is not linked under itself or one of its descendants: libxml2 makes a loop of them, which every walk up or
+/// down the tree then follows without end.
+#[test]
+fn linking_a_node_under_itself_is_refused() {
+  type Link = fn(&Document) -> Result<(), String>;
+  // <r><a><b><c/></b></a></r>: a is [0], b [0, 0] and c [0, 0, 0].
+  let links: [(&str, Link); 6] = [
+    ("add_child of a grandparent", |doc| {
+      at(doc, &[0, 0, 0]).add_child(&mut at(doc, &[0]))
+    }),
+    ("add_child of a parent", |doc| {
+      at(doc, &[0, 0, 0]).add_child(&mut at(doc, &[0, 0]))
+    }),
+    ("add_prev_sibling of a grandparent", |doc| {
+      at(doc, &[0, 0, 0])
+        .add_prev_sibling(&mut at(doc, &[0]))
+        .map_err(|e| e.to_string())
+    }),
+    ("add_next_sibling of a parent", |doc| {
+      at(doc, &[0, 0, 0])
+        .add_next_sibling(&mut at(doc, &[0, 0]))
+        .map_err(|e| e.to_string())
+    }),
+    ("add_child of itself", |doc| {
+      at(doc, &[0]).add_child(&mut at(doc, &[0]))
+    }),
+    ("add_prev_sibling of itself", |doc| {
+      at(doc, &[0, 0, 0])
+        .add_prev_sibling(&mut at(doc, &[0, 0, 0]))
+        .map_err(|e| e.to_string())
+    }),
+  ];
+  let mut linked = Vec::new();
+  for (what, link) in links {
+    let doc = parse("<r><a><b><c/></b></a></r>");
+    if refuses(doc, link) {
+      let doc = parse("<r><a><b><c/></b></a></r>");
+      let _ = link(&doc);
+      assert_eq!(
+        doc.node_to_string(&doc.get_root_element().unwrap()),
+        "<r><a><b><c/></b></a></r>",
+        "{what} changed the tree"
+      );
+    } else {
+      linked.push(what);
+    }
+  }
+  assert!(linked.is_empty(), "{linked:#?}");
+}
+
+/// The attribute `a` of `doc`'s root element, unlinked.
+fn unlinked_attribute(doc: &Document) -> Node {
+  let mut a = doc
+    .get_root_element()
+    .unwrap()
+    .get_property_node("a")
+    .unwrap();
+  a.unlink();
+  a
+}
+
+/// An attribute is added to an element only, as libxml2 required before 2.13. Since, `xmlAddChild` adds one to any
+/// node's attribute list, at a field that a document's external subset overlays, or a DTD's attribute declarations,
+/// and merges one added to a text node into it, reading its type as its text: an ID attribute's is the address 2.
+#[test]
+fn adding_an_attribute_outside_an_element_is_refused() {
+  type Link = fn(&Document) -> Result<(), String>;
+  let links: [(&str, Link); 3] = [
+    ("a document", |doc| {
+      doc.as_node().add_child(&mut unlinked_attribute(doc))
+    }),
+    ("a text node", |doc| {
+      at(doc, &[0]).add_child(&mut unlinked_attribute(doc))
+    }),
+    ("a comment", |doc| {
+      at(doc, &[1]).add_child(&mut unlinked_attribute(doc))
+    }),
+  ];
+  let mut added = Vec::new();
+  for (what, link) in links {
+    if !refuses(parse("<r a='1'>t<!--c--></r>"), link) {
+      added.push(format!("an attribute was added to {what}"));
+    }
+  }
+  assert!(added.is_empty(), "{added:#?}");
+}
+
+/// `add_child` moves a linked node: it unlinks it first, as libxml2 does since 2.13. Before, `xmlAddChild` left it in
+/// its old parent's children as well, which then looped, or kept it after it was merged into a text node and freed.
+#[test]
+fn add_child_moves_a_linked_node() {
+  let doc = parse("<r><a/><b/><c/></r>");
+  let mut a = at(&doc, &[0]);
+  at(&doc, &[2]).add_child(&mut a).unwrap();
+  if at(&doc, &[0]) == a || a.get_next_sibling().is_some() {
+    std::mem::forget(doc); // its tree loops: serializing or freeing it does not end
+    panic!("add_child left the moved node in its old parent's children");
+  }
+  assert_eq!(
+    doc.node_to_string(&doc.get_root_element().unwrap()),
+    "<r><b/><c><a/></c></r>"
+  );
+}
+
+/// [`add_child_moves_a_linked_node`], into a text node it is merged into: before libxml2 2.13 it stayed in its old
+/// parent's children after it was freed.
+#[test]
+fn add_child_merging_a_linked_text_node_unlinks_it() {
+  let doc = parse("<r><p>x</p><q>y</q></r>");
+  let p = at(&doc, &[0]);
+  let mut x = p.get_first_child().unwrap();
+  at(&doc, &[1]).add_child(&mut x).unwrap();
+  let left = p.get_first_child();
+  if left.as_ref().is_some_and(|x| is_freed(x.node_ptr())) {
+    std::mem::forget(doc);
+    panic!("the merged text node was freed, but left in its old parent");
+  }
+  assert!(left.is_none());
+  assert_eq!(
+    doc.node_to_string(&doc.get_root_element().unwrap()),
+    "<r><p/><q>yx</q></r>"
+  );
+}
+
+/// A node that libxml2 did not insert stays, or becomes, unlinked, as it is: `set_rust_owned` can free it. libxml2
+/// inserts an attribute next to attributes only, and before 2.13 unlinks one before it refuses it.
+#[test]
+fn a_node_not_inserted_is_left_unlinked() {
+  let doc = parse("<r a='1' b='2'><c/></r>");
+  let mut c = at(&doc, &[0]);
+  let mut a = unlinked_attribute(&doc);
+  let mut b = doc
+    .get_root_element()
+    .unwrap()
+    .get_property_node("b")
+    .unwrap();
+  let mut n = Node::new("n", None, &doc).unwrap();
+
+  assert!(c.add_next_sibling(&mut a).is_err());
+  assert!(c.add_prev_sibling(&mut a).is_err());
+  assert!(c.add_next_sibling(&mut b).is_err());
+  assert!(n.add_child(&mut n.clone()).is_err());
+
+  assert!(
+    a.is_unlinked() && n.is_unlinked(),
+    "a node not inserted is marked linked"
+  );
+  let detached = b.get_parent().is_none();
+  assert_eq!(
+    b.is_unlinked(),
+    detached,
+    "b is marked linked: {}",
+    !detached
+  );
+  for node in [a, n] {
+    node.set_rust_owned();
+  }
+}
+
+/// [`linking_a_node_under_itself_is_refused`], under one of its attributes: they are under it too, though it may have
+/// no children.
+#[test]
+fn linking_an_element_under_its_own_attribute_is_refused() {
+  type Link = fn(&Document) -> Result<(), String>;
+  fn attribute(doc: &Document) -> Node {
+    at(doc, &[0]).get_property_node("a").unwrap()
+  }
+  // <r><e a='v'/></r>: e is [0].
+  let links: [(&str, Link); 4] = [
+    ("add_child of an element to its attribute", |doc| {
+      attribute(doc).add_child(&mut at(doc, &[0]))
+    }),
+    ("add_child of an element to its attribute's value", |doc| {
+      attribute(doc)
+        .get_first_child()
+        .unwrap()
+        .add_child(&mut at(doc, &[0]))
+    }),
+    (
+      "add_next_sibling of an element to its attribute's value",
+      |doc| {
+        attribute(doc)
+          .get_first_child()
+          .unwrap()
+          .add_next_sibling(&mut at(doc, &[0]))
+          .map_err(|e| e.to_string())
+      },
+    ),
+    ("add_child of a childless element to itself", |doc| {
+      at(doc, &[0]).add_child(&mut at(doc, &[0]))
+    }),
+  ];
+  let mut linked = Vec::new();
+  for (what, link) in links {
+    if refuses(parse("<r><e a='v'/></r>"), link) {
+      let doc = parse("<r><e a='v'/></r>");
+      let _ = link(&doc);
+      assert_eq!(
+        doc.node_to_string(&doc.get_root_element().unwrap()),
+        "<r><e a=\"v\"/></r>",
+        "{what} changed the tree"
+      );
+    } else {
+      linked.push(what);
+    }
+  }
+  assert!(linked.is_empty(), "{linked:#?}");
+}
+
+/// A node without a parent takes no sibling: nothing would free the sibling with it. `xmlFreeNode` frees a node, not
+/// its siblings, so a rust-owned node's drop left its sibling pointing at it, and `add_child` moved a node out of its
+/// parent only, leaving it in such a chain, which libxml2 then freed twice.
+#[test]
+fn a_sibling_of_a_node_without_a_parent_is_refused() {
+  let doc = parse("<r><p/></r>");
+  let mut detached = Node::new("d", None, &doc).unwrap();
+  let mut owned = Node::new("o", None, &doc).unwrap();
+  owned.set_rust_owned();
+  let mut linked = Vec::new();
+  for (what, anchor) in [
+    ("a detached node", &mut detached),
+    ("a rust-owned node", &mut owned),
+  ] {
+    let mut next = Node::new("n", None, &doc).unwrap();
+    let mut prev = Node::new("p", None, &doc).unwrap();
+    if anchor.add_next_sibling(&mut next).is_ok() {
+      linked.push(format!("add_next_sibling of {what}"));
+    }
+    if anchor.add_prev_sibling(&mut prev).is_ok() {
+      linked.push(format!("add_prev_sibling of {what}"));
+    }
+    if !linked.is_empty() {
+      std::mem::forget(doc);
+      panic!("{linked:#?}");
+    }
+    assert!(anchor.get_next_sibling().is_none() && anchor.get_prev_sibling().is_none());
+    for node in [next, prev] {
+      assert!(node.is_unlinked());
+      node.set_rust_owned();
+    }
+  }
+}
+
+/// An attribute's siblings are attributes, and a child's are not: libxml2 refuses an attribute next to a child (and
+/// before 2.13 unlinks it first), but links a child into an element's attributes. `xmlFreeProp` then freed it as an
+/// attribute, its static name too, and since 2.13 `add_prev_sibling` made it the element's first child as well, so the
+/// attribute after it was freed twice.
+#[test]
+fn an_attributes_siblings_are_attributes() {
+  type Link = fn(&Document) -> Result<(), String>;
+  fn attribute(doc: &Document) -> Node {
+    doc
+      .get_root_element()
+      .unwrap()
+      .get_property_node("a")
+      .unwrap()
+  }
+  // <r a='1'><c/></r>: c is [0].
+  let links: [(&str, Link); 5] = [
+    ("a text node after an attribute", |doc| {
+      let mut text = Node::new_text("t", doc).unwrap();
+      attribute(doc)
+        .add_next_sibling(&mut text)
+        .map_err(|e| e.to_string())
+    }),
+    ("a text node before an attribute", |doc| {
+      let mut text = Node::new_text("t", doc).unwrap();
+      attribute(doc)
+        .add_prev_sibling(&mut text)
+        .map_err(|e| e.to_string())
+    }),
+    ("an element after an attribute", |doc| {
+      attribute(doc)
+        .add_next_sibling(&mut at(doc, &[0]))
+        .map_err(|e| e.to_string())
+    }),
+    ("an attribute after an element", |doc| {
+      at(doc, &[0])
+        .add_next_sibling(&mut attribute(doc))
+        .map_err(|e| e.to_string())
+    }),
+    ("an attribute before an element", |doc| {
+      at(doc, &[0])
+        .add_prev_sibling(&mut attribute(doc))
+        .map_err(|e| e.to_string())
+    }),
+  ];
+  let mut linked = Vec::new();
+  for (what, link) in links {
+    if refuses(parse("<r a='1'><c/></r>"), link) {
+      let doc = parse("<r a='1'><c/></r>");
+      let _ = link(&doc);
+      assert_eq!(
+        doc.node_to_string(&doc.get_root_element().unwrap()),
+        "<r a=\"1\"><c/></r>",
+        "linking {what} changed the tree"
+      );
+    } else {
+      linked.push(what);
+    }
+  }
+  assert!(linked.is_empty(), "{linked:#?}");
+}
+
+/// `set_root_element` links no attribute: libxml2 makes it a child of the document, which `xmlUnlinkNode` does not
+/// take it out of (it unlinks an attribute from its parent's attributes), so the document freed it again after it was
+/// moved and removed.
+#[test]
+fn set_root_element_refuses_an_attribute() {
+  let mut doc = parse("<r a='1'/>");
+  let mut root = doc.get_root_element().unwrap();
+  let a = root.get_property_node("a").unwrap();
+  root.unlink_node();
+  let set = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| doc.set_root_element(&a)));
+  if set.is_ok() {
+    std::mem::forget(doc);
+    panic!("set_root_element linked an attribute");
+  }
+  assert_eq!(a.get_parent(), Some(root));
+}
+
+/// `set_root_element` of a text node, in a document with no element: libxml2 appends it to the document's children,
+/// and merges it into a text node there and frees it, as `add_next_sibling` does.
+#[test]
+fn set_root_element_merging_text_neutralizes_the_merged_node() {
+  setup();
+  let mut doc = Document::new().unwrap();
+  let first = Node::new_text("a", &doc).unwrap();
+  doc.set_root_element(&first);
+  let second = Node::new_text("b", &doc).unwrap();
+  doc.set_root_element(&second);
+  assert_neutralized(&[("merged text", &second)]);
+  assert!(!first.is_null() && !first.is_unlinked());
+  assert_eq!(first.get_content(), "ab");
+}
+
+/// `add_child` of a parent's last child leaves it in place, as libxml2 does since 2.13: moving it after its previous
+/// sibling merged it into a text node there, and freed it.
+#[test]
+fn add_child_of_the_last_child_leaves_it_in_place() {
+  let doc = parse("<r>a<!--c-->b</r>");
+  let mut r = doc.get_root_element().unwrap();
+  at(&doc, &[1]).unlink_node(); // a and b are adjacent text nodes now
+  let mut b = r.get_last_child().unwrap();
+  r.add_child(&mut b).unwrap();
+  assert!(!b.is_null(), "re-adding the last child freed it");
+  assert!(!b.is_unlinked());
+  assert_eq!(r.get_child_nodes().len(), 2);
+  assert_eq!(b.get_content(), "b");
+}
+
+/// `dup_node_into_new_doc` makes its copy the new document's root with `xmlDocSetRootElement`, so it refuses what
+/// `set_root_element` refuses: an attribute's copy became a child of the new document, which `xmlUnlinkNode` does not
+/// take it out of, so the document freed it again after it was moved and removed; and a document's copy was linked
+/// into the new document's tree.
+#[test]
+fn dup_node_into_new_doc_refuses_an_attribute_or_a_document() {
+  let doc = parse("<r a='1'/>");
+  let attribute = doc
+    .get_root_element()
+    .unwrap()
+    .get_property_node("a")
+    .unwrap();
+  if let Ok(new) = Document::dup_node_into_new_doc(&attribute) {
+    let mut copy = new.as_node().get_first_child().unwrap();
+    let copy_ptr = copy.node_ptr();
+    let mut x = Node::new("x", None, &new).unwrap();
+    new.as_node().add_child(&mut x).unwrap();
+    x.add_child(&mut copy).unwrap();
+    x.remove_property("a").unwrap();
+    drop((x, copy, new));
+    assert!(
+      !double_freed(copy_ptr),
+      "the attribute's copy was freed twice"
+    );
+    panic!("dup_node_into_new_doc made an attribute's copy a document's child");
+  }
+  for doc in xml_and_html_documents() {
+    assert!(
+      Document::dup_node_into_new_doc(&doc.as_node()).is_err(),
+      "dup_node_into_new_doc linked a copy of {:?}",
+      doc.as_node().get_type()
+    );
+  }
+}
