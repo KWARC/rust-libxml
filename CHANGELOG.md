@@ -15,11 +15,16 @@
   `from_document`, `from_buffer` and `from_file` panic: for an empty buffer, one of more than `i32::MAX` bytes, a
   path with a NUL byte, a `Document` without a libxml2 document, and when libxml2 makes no context (#120). The
   `from_*` constructors are unchanged, except that their panic message now includes the error.
+* `Document::from_raw_ptr`, an `unsafe fn`: a `Document` that owns a libxml2 document made outside the crate, and
+  frees it with its last handle, as `new_ptr` does.
 
 ### Deprecated
 
 * `SchemaParserContext::from_document`, `from_buffer` and `from_file`, which panic where `try_from_document`,
   `try_from_buffer` and `try_from_file` return the errors (#120). They are unchanged, and go in 0.4.
+* `Document::new_ptr`, a safe function that takes ownership of a raw pointer: its caller must ensure that nothing else
+  frees or wraps the document. `Document::from_raw_ptr` does the same, as an `unsafe fn`. `new_ptr` is unchanged, and
+  goes in 0.4.
 
 ### Fixed
 

@@ -324,7 +324,7 @@ impl TextReader {
         }
         decl = (*decl).next;
       }
-      Some(Document::new_ptr(newdoc))
+      Some(Document::own(newdoc))
     }
   }
 

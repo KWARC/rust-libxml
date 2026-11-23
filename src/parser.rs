@@ -474,7 +474,7 @@ impl Parser {
         if doc_ptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
-          Ok(Document::new_ptr(doc_ptr))
+          Ok(Document::own(doc_ptr))
         }
       },
       ParseFormat::HTML => unsafe {
@@ -482,7 +482,7 @@ impl Parser {
         if doc_ptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
-          Ok(Document::new_ptr(doc_ptr))
+          Ok(Document::own(doc_ptr))
         }
       },
     }
@@ -543,7 +543,7 @@ impl Parser {
       if document.is_null() {
         Err(XmlParseFailure::ParseFailed(diagnostics))
       } else {
-        Ok((Document::new_ptr(document), diagnostics))
+        Ok((Document::own(document), diagnostics))
       }
     }
   }
@@ -578,7 +578,7 @@ impl Parser {
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
-          Ok(Document::new_ptr(docptr))
+          Ok(Document::own(docptr))
         }
       },
       ParseFormat::HTML => unsafe {
@@ -586,7 +586,7 @@ impl Parser {
         if docptr.is_null() {
           Err(XmlParseError::GotNullPointer)
         } else {
-          Ok(Document::new_ptr(docptr))
+          Ok(Document::own(docptr))
         }
       },
     }

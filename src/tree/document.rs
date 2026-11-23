@@ -310,7 +310,27 @@ impl Document {
   }
 
   /// Creates a new `Document` from an existing libxml2 pointer
+  #[deprecated(
+    since = "0.3.26",
+    note = "use the unsafe `from_raw_ptr`: the `Document` frees the pointer, which nothing else may then free or wrap"
+  )]
   pub fn new_ptr(doc_ptr: xmlDocPtr) -> Self {
+    Document::own(doc_ptr)
+  }
+
+  /// A `Document` that owns `doc_ptr`, a libxml2 document made outside this crate: it frees it (`xmlFreeDoc`) when the
+  /// last of its `Document` handles drops, and of what holds one, such as an XPath `Context` or `Object` (a `Node` holds
+  /// its document weakly, and reads as null once it is freed). NULL makes a `Document` without a libxml2 document.
+  ///
+  /// # Safety
+  /// `doc_ptr` is NULL, or a live libxml2 document that nothing else frees, and that no other `Document` owns. Its nodes
+  /// are not reached through other pointers while the `Document` is alive.
+  pub unsafe fn from_raw_ptr(doc_ptr: xmlDocPtr) -> Self {
+    Document::own(doc_ptr)
+  }
+
+  /// [`from_raw_ptr`](Document::from_raw_ptr), for a document this crate made, which it owns.
+  pub(crate) fn own(doc_ptr: xmlDocPtr) -> Self {
     Document(Rc::new(RefCell::new(_Document::new(doc_ptr))))
   }
 
@@ -590,7 +610,7 @@ impl Document {
     // (because the source doc tree-walk won't reach an unlinked
     // subtree), they should call `Node::set_rust_owned` on the
     // source after this returns.
-    Ok(Document::new_ptr(doc_ptr))
+    Ok(Document::own(doc_ptr))
   }
   /// Serializes the `Document` with options
   pub fn to_string_with_options(&self, options: SaveOptions) -> String {

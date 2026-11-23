@@ -62,7 +62,7 @@ fn copies_report_neither() {
   assert!(doc.is_well_formed() && doc.is_ns_valid());
   let dup = doc.dup().unwrap();
   // (`dup_from` copies into a Document holding no xmlDoc)
-  let mut dup_into = Document::new_ptr(std::ptr::null_mut());
+  let mut dup_into = unsafe { Document::from_raw_ptr(std::ptr::null_mut()) };
   dup_into.dup_from(&doc).unwrap();
   let root = doc.get_root_element().unwrap();
   let node_copy = Document::dup_node_into_new_doc(&root).unwrap();
