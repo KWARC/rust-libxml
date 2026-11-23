@@ -251,7 +251,7 @@ impl InsertionCasualties {
   /// For `new` inserted as a child of `parent` (`as_child`), or as a sibling of one of `parent`'s children; `None`
   /// when the insertion frees nothing, the usual case: `new` is neither a text node nor an attribute, and is not added
   /// as a text node's child.
-  #[inline]
+  #[inline(always)]
   fn collect(new: xmlNodePtr, parent: xmlNodePtr, as_child: bool) -> Option<Self> {
     let new_type = xmlGetNodeType(new);
     note_wrapped(new_type, parent);
@@ -497,6 +497,70 @@ fn has_attribute(element: xmlNodePtr, attr: xmlNodePtr) -> bool {
     current = xmlNextPropertySibling(current);
   }
   false
+}
+
+/// Whether a node of `node_type` is a document's own node (an HTML one too) or a document fragment: no node of a tree,
+/// it is never unlinked, or freed as one.
+fn is_document(node_type: &Option<NodeType>) -> bool {
+  matches!(
+    node_type,
+    Some(NodeType::DocumentNode | NodeType::HtmlDocumentNode | NodeType::DocumentFragNode)
+  )
+}
+
+/// Why a node of type `node_type` may never be linked, if it may not: a document's own node is no node of a tree.
+/// libxml2 frees one added under a text node as an ordinary node, and `xmlFreeDoc` recurses through one linked
+/// elsewhere.
+#[inline]
+pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
+  if node_type == xmlElementType_XML_DOCUMENT_NODE
+    || node_type == xmlElementType_XML_HTML_DOCUMENT_NODE
+  {
+    Some("a document cannot be linked into a tree")
+  } else {
+    None
+  }
+}
+
+/// Whether `node` is `ancestor`, or one of its descendants.
+#[inline(never)]
+fn is_within(mut node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
+  while !node.is_null() {
+    if node == ancestor {
+      return true;
+    }
+    node = xmlGetParent(node);
+  }
+  false
+}
+
+/// Whether any node is under `node`, of type `node_type`: a child, or an attribute.
+#[inline]
+fn has_descendants(node: xmlNodePtr, node_type: xmlElementType) -> bool {
+  // SAFETY: an element-like node is a live `xmlNode`, whose attributes `properties` holds.
+  !xmlGetFirstChild(node).is_null()
+    || is_element_like(node_type) && !unsafe { (*node).properties }.is_null()
+}
+
+/// Why `new` may not be linked next to `anchor`, whose parent is `parent`, if it may not, after [`Node::link_refusal`]:
+/// a sibling of a node without a parent is in no tree, which would free it (`xmlFreeNode` frees a node, not its
+/// siblings), and an attribute's siblings are attributes, which libxml2 checks for an attribute `new` only: it links
+/// any other node into an element's attributes, which it then frees as an attribute.
+#[inline]
+fn sibling_refusal(
+  anchor: xmlNodePtr,
+  parent: xmlNodePtr,
+  new: xmlNodePtr,
+) -> Option<&'static str> {
+  if parent.is_null() {
+    Some("a node without a parent takes no sibling: nothing would free it")
+  } else if (xmlGetNodeType(anchor) == xmlElementType_XML_ATTRIBUTE_NODE)
+    != (xmlGetNodeType(new) == xmlElementType_XML_ATTRIBUTE_NODE)
+  {
+    Some("an attribute's siblings are attributes")
+  } else {
+    None
+  }
 }
 
 impl Node {
@@ -841,6 +905,8 @@ impl Node {
   /// libxml2 before 2.13 merges a text `new_sibling` into an adjacent text node and frees it, and an attribute
   /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
   /// read as `Node::null()` afterwards.
+  ///
+  /// A node without a parent takes no sibling, and an attribute's siblings are attributes.
   pub fn add_prev_sibling(
     &mut self,
     new_sibling: &mut Node,
@@ -848,14 +914,18 @@ impl Node {
     if let Some(refusal) = self.link_refusal(new_sibling) {
       return Err(From::from(refusal));
     }
-    new_sibling.set_linked();
     let self_ptr = self.node_ptr_mut()?;
     let new_ptr = new_sibling.node_ptr_mut()?;
-    let casualties = InsertionCasualties::collect(new_ptr, xmlGetParent(self_ptr), false);
+    let parent = xmlGetParent(self_ptr);
+    if let Some(refusal) = sibling_refusal(self_ptr, parent, new_ptr) {
+      return Err(From::from(refusal));
+    }
+    let casualties = InsertionCasualties::collect(new_ptr, parent, false);
     let inserted = unsafe { xmlAddPrevSibling(self_ptr, new_ptr) };
     if let Some(casualties) = casualties {
       casualties.neutralize_freed(inserted, [&*self, &*new_sibling]);
     }
+    new_sibling.settle_linkage(inserted);
     if inserted.is_null() {
       Err(From::from("add_prev_sibling returned NULL"))
     } else {
@@ -868,6 +938,8 @@ impl Node {
   /// libxml2 before 2.13 merges a text `new_sibling` into an adjacent text node and frees it, and an attribute
   /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
   /// read as `Node::null()` afterwards.
+  ///
+  /// A node without a parent takes no sibling, and an attribute's siblings are attributes.
   pub fn add_next_sibling(
     &mut self,
     new_sibling: &mut Node,
@@ -875,14 +947,18 @@ impl Node {
     if let Some(refusal) = self.link_refusal(new_sibling) {
       return Err(From::from(refusal));
     }
-    new_sibling.set_linked();
     let self_ptr = self.node_ptr_mut()?;
     let new_ptr = new_sibling.node_ptr_mut()?;
-    let casualties = InsertionCasualties::collect(new_ptr, xmlGetParent(self_ptr), false);
+    let parent = xmlGetParent(self_ptr);
+    if let Some(refusal) = sibling_refusal(self_ptr, parent, new_ptr) {
+      return Err(From::from(refusal));
+    }
+    let casualties = InsertionCasualties::collect(new_ptr, parent, false);
     let inserted = unsafe { xmlAddNextSibling(self_ptr, new_ptr) };
     if let Some(casualties) = casualties {
       casualties.neutralize_freed(inserted, [&*self, &*new_sibling]);
     }
+    new_sibling.settle_linkage(inserted);
     if inserted.is_null() {
       Err(From::from("add_next_sibling returned NULL"))
     } else {
@@ -1513,18 +1589,41 @@ impl Node {
   /// libxml2 merges a text `child` into an adjacent text node and frees it, as it frees a `child` added to a text
   /// node, after appending its content. An attribute `child` replaces (frees) the attribute of the same name. A freed
   /// node's wrappers read as `Node::null()` afterwards: here, `child`'s, when it was merged.
+  ///
+  /// A linked `child` is moved: it is unlinked first, as libxml2 does since 2.13 (before, `xmlAddChild` left it in its
+  /// old parent's children too), unless it is this node's last child already, which libxml2 leaves in place. An
+  /// attribute `child` is added to an element only, as libxml2 required before 2.13; since, it adds one to any node,
+  /// at a field that a document's or a DTD's own data overlays.
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
     if let Some(refusal) = self.link_refusal(child) {
       return Err(refusal.to_string());
     }
-    child.set_linked();
     let parent_ptr = self.node_ptr_mut()?;
     let child_ptr = child.node_ptr_mut()?;
+    if parent_ptr.is_null() {
+      return Err("add_child encountered NULL pointer".to_string());
+    }
+    if xmlGetNodeType(child_ptr) == xmlElementType_XML_ATTRIBUTE_NODE
+      && xmlGetNodeType(parent_ptr) != xmlElementType_XML_ELEMENT_NODE
+    {
+      return Err("an attribute can only be added to an element".to_string());
+    }
+    if !xmlGetParent(child_ptr).is_null() {
+      // SAFETY: `parent_ptr` is a live node, not NULL.
+      if unsafe { (*parent_ptr).last } == child_ptr {
+        // Its last child already: libxml2 leaves it in place since 2.13, where moving it could merge it into a text
+        // node before it.
+        child.set_linked();
+        return Ok(());
+      }
+      unsafe { xmlUnlinkNode(child_ptr) };
+    }
     let casualties = InsertionCasualties::collect(child_ptr, parent_ptr, true);
     let new_child_ptr = unsafe { xmlAddChild(parent_ptr, child_ptr) };
     if let Some(casualties) = casualties {
       casualties.neutralize_freed(new_child_ptr, [&*self, &*child]);
     }
+    child.settle_linkage(new_child_ptr);
     if new_child_ptr.is_null() {
       Err("add_child encountered NULL pointer".to_string())
     } else {
@@ -1614,13 +1713,11 @@ impl Node {
   ///
   /// In short: an unlinked node that is *neither* re-attached *nor*
   /// marked `set_rust_owned` is a leak until process exit.
+  ///
+  /// A document's own node (an HTML one too) is no node of a tree: it is left alone.
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
-    if node_type.is_some()
-      && node_type != Some(NodeType::DocumentNode)
-      && node_type != Some(NodeType::DocumentFragNode)
-      && !self.is_unlinked()
-    {
+    if node_type.is_some() && !is_document(&node_type) && !self.is_unlinked() {
       // only unlink nodes that are currently marked as linked
       self.set_unlinked();
       unsafe {
@@ -1692,18 +1789,73 @@ impl Node {
   /// Why `new` may not be linked next to or under this node, if it may not: a rust-owned node would be freed by its
   /// last wrapper's drop while linked, and a node of another document would be freed by that document while its
   /// wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it instead).
-  #[inline]
+  /// No [`type_refusal`] type is linked, and no node under itself or its attributes, which libxml2 would make a loop
+  /// of.
+  #[inline(always)]
   pub(crate) fn link_refusal(&self, new: &Node) -> Option<&'static str> {
+    let this = self.0.borrow();
     let new = new.0.borrow();
+    let new_type = xmlGetNodeType(new.node_ptr);
     if matches!(new.linkage, Linkage::RustOwned) {
       Some("a rust-owned node cannot be linked: dropping its last wrapper frees it")
-    } else if !Weak::ptr_eq(&self.0.borrow().document, &new.document) {
+    } else if !Weak::ptr_eq(&this.document, &new.document) {
       Some("a node of another document cannot be linked; import_node copies it")
+    } else if let Some(refusal) = type_refusal(new_type) {
+      Some(refusal)
+    } else if new.node_ptr == this.node_ptr && !new.node_ptr.is_null()
+      || has_descendants(new.node_ptr, new_type) && is_within(this.node_ptr, new.node_ptr)
+    {
+      Some("a node cannot be linked under or next to itself")
     } else {
       None
     }
   }
 
+  /// Marks this node, which an insertion was to link, linked if it did (`inserted` is not NULL), and unlinked if it
+  /// did not and the node is detached: libxml2 unlinks some nodes it then refuses to insert.
+  #[inline]
+  fn settle_linkage(&self, inserted: xmlNodePtr) {
+    if !inserted.is_null() {
+      self.set_linked();
+    } else {
+      self.settle_refused();
+    }
+  }
+
+  /// Links this node as the root element of the document at `doc_ptr` ([`Document::set_root_element`]). In a document
+  /// with no element, libxml2 appends it to the document's children instead, and merges a text node into a text node
+  /// there and frees it, as [`add_next_sibling`](Self::add_next_sibling) does: its wrappers read as `Node::null()`
+  /// afterwards.
+  pub(crate) fn link_as_root(&self, doc_ptr: xmlDocPtr) {
+    let node_ptr = self.node_ptr();
+    let casualties = InsertionCasualties::collect(node_ptr, doc_ptr as xmlNodePtr, false);
+    unsafe { xmlDocSetRootElement(doc_ptr, node_ptr) };
+    let mut inserted = node_ptr;
+    if let Some(casualties) = casualties {
+      // `xmlDocSetRootElement` returns the element it replaced, not the node it inserted: this one, unless it merged
+      // it into the node it would have followed, the document's last child now. Only addresses are compared: nothing
+      // was allocated since the free.
+      let mut child = xmlGetFirstChild(doc_ptr as xmlNodePtr);
+      while !child.is_null() && child != node_ptr {
+        child = xmlNextSibling(child);
+      }
+      if child.is_null() {
+        // SAFETY: `doc_ptr` is a live document.
+        inserted = unsafe { (*doc_ptr).last };
+      }
+      casualties.neutralize_freed(inserted, [self, self]);
+    }
+    self.settle_linkage(inserted);
+  }
+
+  /// [`settle_linkage`](Self::settle_linkage), when libxml2 did not insert this node.
+  #[cold]
+  #[inline(never)]
+  fn settle_refused(&self) {
+    if xmlGetParent(self.node_ptr()).is_null() {
+      self.set_unlinked();
+    }
+  }
   /// Take ownership of this detached node's C allocation.
   ///
   /// After this call, the C node will be freed via `xmlFreeNode` when the
@@ -1814,10 +1966,7 @@ impl Node {
   /// The subtree must be garbage to the caller. Every `Node` into it is
   /// neutralized, but a `RoNode` into it is a bare pointer, and dangles.
   pub fn free_subtree(mut self) {
-    if matches!(
-      self.get_type(),
-      Some(NodeType::DocumentNode) | Some(NodeType::DocumentFragNode)
-    ) {
+    if is_document(&self.get_type()) {
       return;
     }
     // Sever from parent/siblings.

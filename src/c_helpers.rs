@@ -91,7 +91,7 @@ pub fn xmlNodeNsDeclarations(cur: xmlNodePtr) -> xmlNsPtr {
 }
 /// Whether `node_type` is an element or one of XInclude's start/end nodes, which are copies of the `xi:include`
 /// element (libxml2's `xinclude.c`) and keep its `ns` and `properties`.
-fn is_element_like(node_type: xmlElementType) -> bool {
+pub(crate) fn is_element_like(node_type: xmlElementType) -> bool {
   node_type == xmlElementType_XML_ELEMENT_NODE
     || node_type == xmlElementType_XML_XINCLUDE_START
     || node_type == xmlElementType_XML_XINCLUDE_END

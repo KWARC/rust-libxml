@@ -12,13 +12,29 @@
     attribute of the same name;
   * `remove_property`, `remove_property_ns` and `remove_property_no_ns`; `set_property` and `set_property_ns`, which
     free the old value's nodes; and `set_content`, which frees the old children (#235);
+  * `set_root_element` of a text node in a document with no element, which libxml2 merges into a text node there;
   * any of these on a node that was unlinked and linked again: its document no longer forgets its wrapper at the
     unlink, and wrapping it again while it is detached finds the same wrapper;
   * dropping the document, which frees its nodes and their names: its wrappers read as `Node::null()` afterwards, and a
     rust-owned node is freed with it.
-* Linking can no longer set up a double free or a dangling wrapper in release builds. `set_rust_owned` on a linked node
-  panics, as only debug builds did. `add_child`, `add_prev_sibling` and `add_next_sibling` return an error for a
-  rust-owned node or a node of another document (`import_node` copies one), and `set_root_element` panics on them.
+* Linking can no longer set up a double free, a dangling wrapper or a loop in release builds. `set_rust_owned` on a
+  linked node panics, as only debug builds did. `add_child`, `add_prev_sibling` and `add_next_sibling` return an error
+  for a rust-owned node, a node of another document (`import_node` copies one), a document's own node, or a node under
+  itself or its attributes; `set_root_element` panics on the first three, and on an attribute, which libxml2 would
+  make a child of the document. The sibling methods also return an error next to a node without a parent, whose
+  siblings nothing frees (a rust-owned node's drop left them pointing at it), and for a non-attribute next to an
+  attribute, which libxml2 links into the element's attributes and then frees as one. A node they fail to insert is no
+  longer marked linked, so `set_rust_owned` can still free it.
+* `Document::dup_node_into_new_doc` returns an error for an attribute or a document's own node, which
+  `set_root_element` panics on: it made an attribute's copy a child of the new document, which `xmlUnlinkNode` does not
+  take it out of, so the document freed it again after it was moved and removed.
+* `add_child` moves a linked node by unlinking it first, as libxml2 does since 2.13. Before, `xmlAddChild` left it in
+  its old parent's children too, where the document freed it twice, or kept it after merging it into a text node. The
+  parent's last child stays in place, as libxml2 leaves it. It also returns an error for an attribute added to anything
+  but an element, as libxml2 did before 2.13: since, `xmlAddChild` writes one into the node's attribute list, at a field
+  that a document's external subset overlays, and reads an attribute added to a text node as text.
+* `free_subtree` and `unlink_node` leave an HTML document's own node alone, as they did an XML document's:
+  `free_subtree` freed it as an ordinary node, and the `Document` then freed it again.
 * `free_subtree` no longer neutralizes nodes under an entity reference. They belong to the entity's declaration, which
   `xmlFreeNode` leaves alone, and the walk went on from there into the DTD's other declarations.
 

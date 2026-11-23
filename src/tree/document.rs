@@ -12,7 +12,7 @@ use std::str;
 use crate::bindings::*;
 use crate::c_helpers::{xmlGetDoc, xmlGetNodeType, xmlGetParent};
 use crate::readonly::RoNode;
-use crate::tree::node::{Node, NodeWeak, for_each_freed_with, note_wrapped};
+use crate::tree::node::{Node, NodeWeak, for_each_freed_with, note_wrapped, type_refusal};
 use crate::tree::nodetype::NodeType;
 
 pub(crate) type DocumentRef = Rc<RefCell<_Document>>;
@@ -367,6 +367,13 @@ impl Document {
   }
 
   /// Sets the root element of the document
+  ///
+  /// In a document with no element, libxml2 appends `root` to the document's children instead, and merges a text
+  /// `root` into a text node there and frees it: its wrappers read as `Node::null()` afterwards.
+  ///
+  /// # Panics
+  ///
+  /// On a rust-owned node, a node of another document, a document's own node or an attribute.
   pub fn set_root_element(&mut self, root: &Node) {
     assert!(
       !root.is_rust_owned(),
@@ -376,10 +383,15 @@ impl Document {
       Weak::ptr_eq(&Rc::downgrade(&self.0), &root.get_docref()),
       "set_root_element called with a node of another document — import_node copies it"
     );
-    unsafe {
-      xmlDocSetRootElement(self.doc_ptr(), root.node_ptr());
+    let root_type = xmlGetNodeType(root.node_ptr());
+    if let Some(refusal) = type_refusal(root_type) {
+      panic!("set_root_element refused: {refusal}");
     }
-    root.set_linked();
+    assert!(
+      root_type != xmlElementType_XML_ATTRIBUTE_NODE,
+      "set_root_element refused: an attribute can only be added to an element"
+    );
+    root.link_as_root(self.doc_ptr());
   }
 
   /// Remove the internal DTD subset (the `<!DOCTYPE …>` declaration)
@@ -461,8 +473,16 @@ impl Document {
   /// dropping either is independent of the other.
   ///
   /// Returns `Err(())` if any of the underlying libxml2 calls returns
-  /// NULL (typically OOM, or `node` is itself NULL).
+  /// NULL (typically OOM, or `node` is itself NULL), and for what
+  /// [`set_root_element`](Self::set_root_element) refuses: a document's
+  /// own node, which is no node of a tree, and an attribute, which
+  /// libxml2 would make a child of the new document that `xmlUnlinkNode`
+  /// cannot take out again.
   pub fn dup_node_into_new_doc(node: &Node) -> Result<Document, ()> {
+    let node_type = xmlGetNodeType(node.node_ptr());
+    if type_refusal(node_type).is_some() || node_type == xmlElementType_XML_ATTRIBUTE_NODE {
+      return Err(());
+    }
     let copy_ptr = unsafe { xmlCopyNode(node.node_ptr(), 1) };
     if copy_ptr.is_null() {
       return Err(());
