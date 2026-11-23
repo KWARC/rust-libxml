@@ -13,9 +13,6 @@ use crate::tree::node::Node;
 
 use crate::error::StructuredError;
 
-use std::ffi::CString;
-use std::os::raw::c_char;
-
 /// Wrapper on xmlSchemaValidCtxt
 pub struct SchemaValidationContext {
   ctxt: *mut bindings::_xmlSchemaValidCtxt,
@@ -25,21 +22,19 @@ pub struct SchemaValidationContext {
 
 impl SchemaValidationContext {
   /// Create a schema validation context from a parser object
+  ///
+  /// Returns the errors of parsing the schema, or an error if libxml2 makes no context (out of memory).
   pub fn from_parser(parser: &mut SchemaParserContext) -> Result<Self, Vec<StructuredError>> {
-    let schema = Schema::from_parser(parser);
-
-    match schema {
-      Ok(s) => {
-        let ctx = unsafe { bindings::xmlSchemaNewValidCtxt(s.as_ptr()) };
-
-        if ctx.is_null() {
-          panic!("Failed to create validation context from XML schema") // TODO error handling
-        }
-
-        Ok(Self::from_raw(ctx, s))
-      }
-      Err(e) => Err(e),
+    let schema = Schema::from_parser(parser)?;
+    let ctx = unsafe { bindings::xmlSchemaNewValidCtxt(schema.as_ptr()) };
+    if ctx.is_null() {
+      return Err(common::unreported_error(
+        bindings::xmlErrorDomain_XML_FROM_SCHEMASV,
+        bindings::xmlParserErrors_XML_ERR_NO_MEMORY,
+        "libxml2 made no schema validation context".to_string(),
+      ));
     }
+    Ok(Self::from_raw(ctx, schema))
   }
 
   /// Validates a given Document, that is to be tested to comply with the loaded XSD schema definition
@@ -50,11 +45,11 @@ impl SchemaValidationContext {
   }
 
   /// Validates a given file from path for its compliance with the loaded XSD schema definition
+  ///
+  /// A path with a NUL byte is an error (before 0.3.26, a panic).
   pub fn validate_file(&mut self, path: &str) -> Result<(), Vec<StructuredError>> {
-    let path = CString::new(path).unwrap(); // TODO error handling for \0 containing strings
-    let path_ptr = path.as_bytes_with_nul().as_ptr() as *const c_char;
-
-    let rc = unsafe { bindings::xmlSchemaValidateFile(self.ctxt, path_ptr, 0) };
+    let path = common::c_path(path, bindings::xmlErrorDomain_XML_FROM_SCHEMASV)?;
+    let rc = unsafe { bindings::xmlSchemaValidateFile(self.ctxt, path.as_ptr(), 0) };
 
     self.validation_result(rc)
   }
@@ -70,19 +65,13 @@ impl SchemaValidationContext {
     if rc == 0 {
       return Ok(());
     }
-    let mut errors = self.drain_errors();
+    let errors = self.drain_errors();
     if errors.is_empty() {
-      errors.push(StructuredError {
-        message: Some(format!(
-          "Schema validation failed with status {rc} without a diagnostic"
-        )),
-        level: crate::error::XmlErrorLevel::Fatal,
-        filename: None,
-        line: None,
-        col: None,
-        domain: bindings::xmlErrorDomain_XML_FROM_SCHEMASV as i32,
-        code: bindings::xmlParserErrors_XML_SCHEMAV_INTERNAL as i32,
-      });
+      return Err(common::unreported_error(
+        bindings::xmlErrorDomain_XML_FROM_SCHEMASV,
+        bindings::xmlParserErrors_XML_SCHEMAV_INTERNAL,
+        format!("Schema validation failed with status {rc} without a diagnostic"),
+      ));
     }
     Err(errors)
   }
