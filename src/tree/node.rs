@@ -14,6 +14,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::readonly::RoNode;
+use crate::readonly::walk_properties;
 use crate::tree::document::node_sets_live;
 use crate::tree::namespace::Namespace;
 use crate::tree::nodetype::NodeType;
@@ -1415,6 +1416,55 @@ impl Node {
   /// Alias for with_property
   pub fn with_attribute<R>(&self, name: &CStr, f: impl FnOnce(&str) -> R) -> Option<R> {
     self.with_property(name, f)
+  }
+
+  /// Calls `f` with a copy of this node's name, as [`get_name`](Node::get_name) reads it (`""` if none), without
+  /// allocating for a name of at most 128 bytes. As [`RoNode::with_name`]; `f` may change the document, this node
+  /// included.
+  pub fn with_name<R>(&self, f: impl FnOnce(&str) -> R) -> R {
+    self.as_readonly().with_name(f)
+  }
+
+  /// Calls `f` with [`get_content`](Node::get_content)'s value, without allocating for the short content of a text,
+  /// CDATA, comment or PI node. As [`RoNode::with_content`]; `f` may change the document, this node included.
+  pub fn with_content<R>(&self, f: impl FnOnce(&str) -> R) -> R {
+    self.as_readonly().with_content(f)
+  }
+
+  /// Calls `f` with the namespace prefix: `None` without a namespace, `Some("")` for a default namespace. As
+  /// [`RoNode::with_namespace_prefix`]; `f` may change the document, this node included.
+  pub fn with_namespace_prefix<R>(&self, f: impl FnOnce(Option<&str>) -> R) -> R {
+    self.as_readonly().with_namespace_prefix(f)
+  }
+
+  /// Calls `f` with the namespace URI; `None` without a namespace. As [`RoNode::with_namespace_href`]; `f` may change
+  /// the document, this node included.
+  pub fn with_namespace_href<R>(&self, f: impl FnOnce(Option<&str>) -> R) -> R {
+    self.as_readonly().with_namespace_href(f)
+  }
+
+  /// Calls `f(name, value)` for each property in document order, without allocating for a short value; nothing on a
+  /// non-element. Unlike [`get_properties`](Node::get_properties), it reports every same-named property from different
+  /// namespaces. As [`RoNode::for_each_property`], except that `f` may also free this node: the walk then stops.
+  /// After each call, the element's property list is searched again (for the property `f` may have removed), so the
+  /// cost grows with the square of the property count.
+  pub fn for_each_property(&self, mut f: impl FnMut(&str, &str)) {
+    walk_properties(|| self.node_ptr(), false, |name, _, value| f(name, value))
+  }
+
+  /// As [`for_each_property`](Node::for_each_property), also passing the namespace URI (`None` if none).
+  pub fn for_each_property_ns(&self, f: impl FnMut(&str, Option<&str>, &str)) {
+    walk_properties(|| self.node_ptr(), true, f)
+  }
+
+  /// Alias for [`Node::for_each_property`]
+  pub fn for_each_attribute(&self, f: impl FnMut(&str, &str)) {
+    self.for_each_property(f)
+  }
+
+  /// Alias for [`Node::for_each_property_ns`]
+  pub fn for_each_attribute_ns(&self, f: impl FnMut(&str, Option<&str>, &str)) {
+    self.for_each_property_ns(f)
   }
 
   /// Alias for get_property_ns
