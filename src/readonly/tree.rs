@@ -1,6 +1,7 @@
 use libc::{c_char, c_void};
 use std::collections::{HashMap, HashSet};
 use std::ffi::CStr;
+use std::marker::PhantomData;
 use std::ptr;
 use std::str;
 
@@ -21,53 +22,66 @@ use crate::xpath::Context;
 /// [`Document::node_from_readonly`](crate::tree::Document::node_from_readonly); read without allocating, in the common
 /// case, through the `with_*` and `for_each_*` methods. A `RoNode` is valid while its document is alive and its node is
 /// not freed. The thread that owns the document must not modify it while another thread reads it through a `RoNode`.
+///
+/// The lifetime `'a` is the borrow of the owner the node came from, which the node cannot outlive: the document
+/// ([`Document::get_root_readonly`](crate::tree::Document::get_root_readonly)) or the reader
+/// ([`TextReader::expand`](crate::reader::TextReader::expand), which also may not advance meanwhile). The nodes reached
+/// from a `RoNode` share its lifetime. A `RoNode` from a `Node`
+/// ([`Node::as_readonly`](crate::tree::Node::as_readonly)) or from an XPath result
+/// ([`Object::get_readonly_nodes_as_vec`](crate::xpath::Object::get_readonly_nodes_as_vec)) borrows nothing, as
+/// neither holds its document by a borrow.
 #[derive(Debug, Copy, Clone)]
-pub struct RoNode(pub(crate) xmlNodePtr);
+pub struct RoNode<'a>(pub(crate) xmlNodePtr, PhantomData<&'a ()>);
 
 // we claim Sync and Send, as we are in read-only mode over the owning document
-unsafe impl Sync for RoNode {}
-unsafe impl Send for RoNode {}
+unsafe impl Sync for RoNode<'_> {}
+unsafe impl Send for RoNode<'_> {}
 
-impl PartialEq for RoNode {
+impl PartialEq for RoNode<'_> {
   /// Two nodes are considered equal, if they point to the same xmlNode.
-  fn eq(&self, other: &RoNode) -> bool {
+  fn eq(&self, other: &Self) -> bool {
     std::ptr::eq(self.0, other.0)
   }
 }
-impl Eq for RoNode {}
+impl Eq for RoNode<'_> {}
 
-impl RoNode {
+impl<'a> RoNode<'a> {
+  /// Wraps `node_ptr` for the lifetime the caller gives it: the borrow of the node's owner.
+  pub(crate) fn wrap(node_ptr: xmlNodePtr) -> Self {
+    RoNode(node_ptr, PhantomData)
+  }
+
   /// Immutably borrows the underlying libxml2 `xmlNodePtr` pointer
   pub fn node_ptr(&self) -> xmlNodePtr {
     self.0
   }
 
   /// Returns the next sibling if it exists
-  pub fn get_next_sibling(self) -> Option<RoNode> {
+  pub fn get_next_sibling(self) -> Option<Self> {
     let ptr = xmlNextSibling(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Returns the previous sibling if it exists
-  pub fn get_prev_sibling(self) -> Option<RoNode> {
+  pub fn get_prev_sibling(self) -> Option<Self> {
     let ptr = xmlPrevSibling(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Returns the first child if it exists
-  pub fn get_first_child(self) -> Option<RoNode> {
+  pub fn get_first_child(self) -> Option<Self> {
     let ptr = xmlGetFirstChild(self.0);
     self.ptr_as_option(ptr)
   }
 
   /// Returns the last child if it exists
-  pub fn get_last_child(self) -> Option<RoNode> {
+  pub fn get_last_child(self) -> Option<Self> {
     let ptr = unsafe { xmlGetLastChild(self.0) };
     self.ptr_as_option(ptr)
   }
 
   /// Returns the next element sibling if it exists
-  pub fn get_next_element_sibling(&self) -> Option<RoNode> {
+  pub fn get_next_element_sibling(&self) -> Option<Self> {
     match self.get_next_sibling() {
       None => None,
       Some(child) => {
@@ -89,7 +103,7 @@ impl RoNode {
   }
 
   /// Returns the previous element sibling if it exists
-  pub fn get_prev_element_sibling(&self) -> Option<RoNode> {
+  pub fn get_prev_element_sibling(&self) -> Option<Self> {
     match self.get_prev_sibling() {
       None => None,
       Some(child) => {
@@ -111,7 +125,7 @@ impl RoNode {
   }
 
   /// Returns the first element child if it exists
-  pub fn get_first_element_child(self) -> Option<RoNode> {
+  pub fn get_first_element_child(self) -> Option<Self> {
     match self.get_first_child() {
       None => None,
       Some(child) => {
@@ -133,7 +147,7 @@ impl RoNode {
   }
 
   /// Returns the last element child if it exists
-  pub fn get_last_element_child(&self) -> Option<RoNode> {
+  pub fn get_last_element_child(&self) -> Option<Self> {
     match self.get_last_child() {
       None => None,
       Some(child) => {
@@ -155,7 +169,7 @@ impl RoNode {
   }
 
   /// Returns all child nodes of the given node as a vector
-  pub fn get_child_nodes(self) -> Vec<RoNode> {
+  pub fn get_child_nodes(self) -> Vec<Self> {
     let mut children = Vec::new();
     if let Some(first_child) = self.get_first_child() {
       children.push(first_child);
@@ -167,16 +181,16 @@ impl RoNode {
   }
 
   /// Returns all child elements of the given node as a vector
-  pub fn get_child_elements(self) -> Vec<RoNode> {
+  pub fn get_child_elements(self) -> Vec<Self> {
     self
       .get_child_nodes()
       .into_iter()
       .filter(|n| n.get_type() == Some(NodeType::ElementNode))
-      .collect::<Vec<RoNode>>()
+      .collect::<Vec<Self>>()
   }
 
   /// Returns the parent if it exists
-  pub fn get_parent(self) -> Option<RoNode> {
+  pub fn get_parent(self) -> Option<Self> {
     let ptr = xmlGetParent(self.0);
     self.ptr_as_option(ptr)
   }
@@ -264,13 +278,13 @@ impl RoNode {
   }
 
   /// Return an attribute as a `Node` struct of type AttributeNode
-  pub fn get_property_node(self, name: &str) -> Option<RoNode> {
+  pub fn get_property_node(self, name: &str) -> Option<Self> {
     let attr_node = with_c_str(name, |c_name| unsafe { xmlHasProp(self.0, c_name) });
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
-  pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
+  pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<Self> {
     let attr_node = with_c_str(name, |c_name| {
       with_c_str(ns, |c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) })
     });
@@ -278,7 +292,7 @@ impl RoNode {
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
-  pub fn get_property_node_no_ns(self, name: &str) -> Option<RoNode> {
+  pub fn get_property_node_no_ns(self, name: &str) -> Option<Self> {
     let attr_node = with_c_str(name, |c_name| unsafe {
       xmlHasNsProp(self.0, c_name, ptr::null())
     });
@@ -315,17 +329,17 @@ impl RoNode {
   }
 
   /// Alias for get_property_node
-  pub fn get_attribute_node(self, name: &str) -> Option<RoNode> {
+  pub fn get_attribute_node(self, name: &str) -> Option<Self> {
     self.get_property_node(name)
   }
 
   /// Alias for get_property_node_ns
-  pub fn get_attribute_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
+  pub fn get_attribute_node_ns(self, name: &str, ns: &str) -> Option<Self> {
     self.get_property_node_ns(name, ns)
   }
 
   /// Alias for get_property_node_no_ns
-  pub fn get_attribute_node_no_ns(self, name: &str) -> Option<RoNode> {
+  pub fn get_attribute_node_no_ns(self, name: &str) -> Option<Self> {
     self.get_property_node_no_ns(name)
   }
 
@@ -528,7 +542,7 @@ impl RoNode {
   }
 
   /// find read-only nodes via xpath, at the specified node and a given document
-  pub fn findnodes(self, xpath: &str, owner: &Document) -> Result<Vec<RoNode>, ()> {
+  pub fn findnodes(self, xpath: &str, owner: &Document) -> Result<Vec<Self>, ()> {
     let context = Context::new(owner)?;
     let evaluated = context.node_evaluate_readonly(xpath, self)?;
     Ok(evaluated.get_readonly_nodes_as_vec())
@@ -549,11 +563,11 @@ impl RoNode {
     false
   }
   /// Read-only nodes only need a null check
-  fn ptr_as_option(self, node_ptr: xmlNodePtr) -> Option<RoNode> {
+  fn ptr_as_option(self, node_ptr: xmlNodePtr) -> Option<Self> {
     if node_ptr.is_null() {
       None
     } else {
-      Some(RoNode(node_ptr))
+      Some(RoNode::wrap(node_ptr))
     }
   }
 
@@ -563,7 +577,7 @@ impl RoNode {
   }
   /// Create a mock node, used for a placeholder argument
   pub fn null() -> Self {
-    RoNode(ptr::null_mut())
+    RoNode::wrap(ptr::null_mut())
   }
 }
 
@@ -592,7 +606,7 @@ fn holds_property(element: xmlNodePtr, attr: xmlAttrPtr) -> bool {
   false
 }
 
-impl RoNode {
+impl<'a> RoNode<'a> {
   /// Calls `f` with a copy of this node's name (`""` if none); `f` may change the document.
   pub fn with_name<R>(self, f: impl FnOnce(&str) -> R) -> R {
     unsafe { with_libxml_str(xmlNodeGetName(self.0), f) }

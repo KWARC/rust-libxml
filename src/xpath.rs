@@ -444,7 +444,10 @@ impl Object {
   }
 
   /// returns the result set as a vector of `RoNode` objects, without the namespace axis's entries (see `is_namespace`)
-  pub fn get_readonly_nodes_as_vec(&self) -> Vec<RoNode> {
+  ///
+  /// The nodes do not borrow this result: they are the document's, and outlive it (the namespace axis's entries,
+  /// which are the result's own, are left out).
+  pub fn get_readonly_nodes_as_vec<'a>(&self) -> Vec<RoNode<'a>> {
     let n = self.get_number_of_nodes();
     let mut vec: Vec<RoNode> = Vec::with_capacity(n);
     let slice = if n > 0 {
@@ -459,7 +462,7 @@ impl Object {
       if is_namespace(ptr) {
         continue;
       }
-      vec.push(RoNode(ptr));
+      vec.push(RoNode::wrap(ptr));
     }
     vec
   }
