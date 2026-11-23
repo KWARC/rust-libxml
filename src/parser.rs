@@ -351,8 +351,11 @@ fn xml_open(filename: &str) -> io::Result<*mut c_void> {
 
 /// Read callback for an FS file.
 unsafe extern "C" fn xml_read(context: *mut c_void, buffer: *mut c_char, len: c_int) -> c_int {
+  // libxml2 passes a positive `len`, typically 40-4000 bytes.
+  if context.is_null() || buffer.is_null() || len < 0 {
+    return -1;
+  }
   unsafe {
-    // Len is always positive, typically 40-4000 bytes.
     let file = context as *mut fs::File;
     let buf = slice::from_raw_parts_mut(buffer as *mut u8, len as usize);
     match io::Read::read(&mut *file, buf) {
@@ -666,6 +669,25 @@ impl Parser {
         }
         well_formed_final
       },
+    }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::{xml_close, xml_open, xml_read};
+  use std::os::raw::c_char;
+  use std::ptr;
+
+  #[test]
+  fn read_callback_refuses_a_null_buffer_or_a_negative_length() {
+    let context = xml_open(file!()).unwrap();
+    let mut buffer = [0 as c_char; 4];
+    unsafe {
+      assert_eq!(xml_read(context, ptr::null_mut(), 0), -1);
+      assert_eq!(xml_read(context, buffer.as_mut_ptr(), -1), -1);
+      assert_eq!(xml_read(context, buffer.as_mut_ptr(), 4), 4);
+      xml_close(context);
     }
   }
 }
