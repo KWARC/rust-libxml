@@ -679,3 +679,13 @@ fn can_replace_child() {
     "document initialized correctly."
   );
 }
+
+/// libxml2 makes no child under a node that is not an element, a document or a fragment: both adders say so.
+#[test]
+fn new_child_and_add_text_child_refuse_a_parent_that_takes_no_child() {
+  let doc = Parser::default().parse_string("<r>text</r>").unwrap();
+  let mut text = doc.get_root_element().unwrap().get_first_child().unwrap();
+  assert!(text.new_child(None, "child").is_err());
+  assert!(text.add_text_child(None, "child", "content").is_err());
+  assert_eq!(doc.get_root_element().unwrap().get_child_nodes().len(), 1);
+}
