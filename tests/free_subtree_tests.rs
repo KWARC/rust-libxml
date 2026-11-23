@@ -27,7 +27,10 @@ fn free_subtree_neutralizes_held_wrappers() {
   let remaining = root.get_first_element_child().expect("c stays");
   assert_eq!(remaining.get_name(), "c");
   // The held descendant wrapper is inert, not dangling.
-  assert!(b_clone.get_type().is_none(), "neutralized wrapper has no type");
+  assert!(
+    b_clone.get_type().is_none(),
+    "neutralized wrapper has no type"
+  );
   assert_eq!(b_clone.get_name(), "", "null-guarded accessors go empty");
   // Dropping holders after the document is freed must be a no-op.
   drop(doc);

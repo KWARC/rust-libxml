@@ -5,6 +5,9 @@
 #![allow(dead_code)]
 #![allow(improper_ctypes)]
 #![allow(missing_docs)]
+// bindgen copies libxml2's comments, with bare URLs, and writes code that clippy flags.
+#![allow(rustdoc::bare_urls)]
+#![allow(clippy::all)]
 
 /// Formerly the well-formedness check's process-global flag, which raced between
 /// threads. Unused since 0.3.22; kept so existing references still compile.

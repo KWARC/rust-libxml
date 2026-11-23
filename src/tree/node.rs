@@ -649,11 +649,9 @@ impl Node {
   /// was meant to catch.
   ///
   /// The shared-`RefCell` invariant holds across clones and repeated accessor
-  /// calls for a node that is **linked** in the tree (both resolve to the cached
-  /// wrapper). It does not extend to an unlinked or imported node: `set_unlinked`
-  /// / `import_node` drop the pointer from the cache (its C node may be freed and
-  /// the address reused), so re-wrapping it afterwards yields an independent
-  /// `RefCell`.
+  /// calls, for a linked node and an unlinked one alike: while a wrapper of a
+  /// node is held, its document keeps that wrapper (cached, or for a rust-owned
+  /// node in a weak map), and every accessor resolves to it.
   ///
   /// This guards the Rust wrapper, not the C node: mutations through the returned
   /// raw pointer, and the C node's lifetime, remain the caller's responsibility.
