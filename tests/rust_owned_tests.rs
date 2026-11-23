@@ -254,12 +254,11 @@ fn import_node_rejects_rust_owned_source() {
 }
 
 #[test]
-/// `set_rust_owned` must not be called on a `Linked` node. In debug
-/// builds we panic via `debug_assert!`; this test exercises the guard.
-/// In release builds the call would be a silent UB, leaving the
-/// wrapper poised to free a still-tree-attached node.
+/// `set_rust_owned` must not be called on a `Linked` node, which would
+/// leave the wrapper poised to free a still-tree-attached node: it
+/// panics, in release builds too (only debug builds checked before
+/// 0.3.25).
 #[should_panic(expected = "set_rust_owned called on a Linked node")]
-#[cfg(debug_assertions)]
 fn rust_owned_panics_on_linked_node() {
   let parser = Parser::default();
   let doc = parser
@@ -273,25 +272,63 @@ fn rust_owned_panics_on_linked_node() {
 }
 
 #[test]
-/// Re-attaching a `RustOwned` node via `add_child` (or any other
-/// linker) is a misuse pattern. In debug builds, the crate-private
-/// `set_linked` transition fires a `debug_assert!` to catch this. We
-/// exercise the guard via the public `add_child` path.
-#[should_panic(expected = "set_linked called on a RustOwned node")]
-#[cfg(debug_assertions)]
-fn rust_owned_relink_via_add_child_panics_in_debug() {
+/// Re-attaching a `RustOwned` node would set up a double free: the
+/// document would free it, and so would its last wrapper's drop. The
+/// linkers refuse it, in release builds too (before 0.3.25, only a
+/// debug assertion caught it).
+fn rust_owned_relink_is_refused() {
   let parser = Parser::default();
   let doc = parser
-    .parse_string("<r><a/></r>".as_bytes())
+    .parse_string("<r><a/><b/></r>".as_bytes())
     .expect("parse");
   let mut root = doc.get_root_element().expect("root");
   let mut a = root.get_first_element_child().expect("a");
+  let mut b = root.get_last_element_child().expect("b");
   a.unlink_node();
   a.set_rust_owned();
-  // Intentional misuse: re-attach a rust-owned node. The crate-private
-  // `set_linked` called by `add_child` must trip the debug assertion.
-  let _ = root.add_child(&mut a);
+  assert!(root.add_child(&mut a).is_err());
+  assert!(b.add_prev_sibling(&mut a).is_err());
+  assert!(b.add_next_sibling(&mut a).is_err());
+  assert!(a.is_rust_owned());
+  assert_eq!(root.get_child_elements().len(), 1, "a was linked");
+  drop(a);
   drop(doc);
+}
+
+#[test]
+/// A rust-owned node reached again, through a descendant, is the same
+/// wrapper, rust-owned: a second one would let it be linked, and its
+/// first wrapper's drop would then free a linked node.
+fn rust_owned_node_reached_again_is_the_same_wrapper() {
+  let parser = Parser::default();
+  let doc = parser
+    .parse_string("<r><a><c/></a></r>".as_bytes())
+    .expect("parse");
+  let mut root = doc.get_root_element().expect("root");
+  let mut a = root.get_first_element_child().expect("a");
+  let c = a.get_first_element_child().expect("c");
+  a.unlink_node();
+  a.set_rust_owned();
+  let mut a_again = c.get_parent().expect("a, again");
+  assert_eq!(a_again, a);
+  assert!(a_again.is_rust_owned());
+  assert!(root.add_child(&mut a_again).is_err());
+  drop((a, a_again, c));
+  drop(doc);
+}
+
+#[test]
+#[should_panic(expected = "set_root_element called with a RustOwned node")]
+fn rust_owned_set_root_element_panics() {
+  let parser = Parser::default();
+  let mut doc = parser
+    .parse_string("<r><a/></r>".as_bytes())
+    .expect("parse");
+  let root = doc.get_root_element().expect("root");
+  let mut a = root.get_first_element_child().expect("a");
+  a.unlink_node();
+  a.set_rust_owned();
+  doc.set_root_element(&a);
 }
 
 #[test]

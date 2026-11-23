@@ -7,7 +7,7 @@ use std::error::Error;
 use std::ffi::{CStr, CString};
 use std::hash::{Hash, Hasher};
 use std::ptr;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 use std::str;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -34,6 +34,8 @@ pub static mut NODE_RC_MAX_GUARD: usize = 2;
 pub fn set_node_rc_guard(_value: usize) {}
 
 pub(crate) type NodeRef = Rc<RefCell<_Node>>;
+/// A wrapper held weakly, by the document while its node is unlinked.
+pub(crate) type NodeWeak = Weak<RefCell<_Node>>;
 
 /// Lifecycle state of a wrapped libxml2 node.
 ///
@@ -69,6 +71,10 @@ pub(crate) struct _Node {
   document: DocumentWeak,
   /// Lifecycle state — see `Linkage` for the semantics of each variant.
   linkage: Linkage,
+  /// Whether `unlink_node` unlinked the node from its tree (until it is linked again): `set_rust_owned` then leaves
+  /// its lifetime to the last clone, as the document no longer holds the wrapper strongly (see `_Document::rust_owned`).
+  /// A node created unlinked (`Node::new`) stays cached, rust-owned or not, until its document drops.
+  unlinked_from_tree: bool,
 }
 
 /// An xml node
@@ -404,8 +410,9 @@ impl ValueNodes {
     let mut attr = xmlGetFirstProperty(element.node_ptr());
     while !attr.is_null() {
       let mut value = xmlGetFirstChild(attr as xmlNodePtr);
-      // SAFETY: `attr` is a live attribute of `element`, with a name; each of `names` is a C string, if not NULL.
+      // SAFETY: `attr` is a live attribute of `element`; its name and each of `names` is a C string, if not NULL.
       if !value.is_null()
+        && !unsafe { (*attr).name }.is_null()
         && (names.iter()).any(|&name| !name.is_null() && unsafe { c_str_eq((*attr).name, name) })
       {
         if doc.is_none() {
@@ -557,8 +564,17 @@ impl Node {
   /// Wrap a libxml node ptr with a Node
   fn _wrap(node_ptr: xmlNodePtr, unlinked: bool, document: &DocumentRef) -> Node {
     // If already seen, return saved Node
-    if let Some(node) = document.borrow().get_node(node_ptr) {
-      return node.clone();
+    if let Some(node) = document.borrow().get_cached(node_ptr) {
+      return node;
+    }
+    Self::wrap_uncached(node_ptr, unlinked, document)
+  }
+  /// [`_wrap`](Self::_wrap) of a node whose wrapper is not cached: its rust-owned wrapper, if it has one, or a new
+  /// one, cached. Out of line, so that the usual case, a cached wrapper, stays small.
+  #[inline(never)]
+  fn wrap_uncached(node_ptr: xmlNodePtr, unlinked: bool, document: &DocumentRef) -> Node {
+    if let Some(node) = document.borrow().get_rust_owned(node_ptr) {
+      return node;
     }
     // If newly encountered pointer, wrap
     let node = _Node {
@@ -569,6 +585,7 @@ impl Node {
       } else {
         Linkage::Linked
       },
+      unlinked_from_tree: false,
     };
     let wrapped_node = Node(Rc::new(RefCell::new(node)));
     document
@@ -627,6 +644,7 @@ impl Node {
       node_ptr: ptr::null_mut(),
       document: Rc::downgrade(&Document::null_ref()),
       linkage: Linkage::Unlinked,
+      unlinked_from_tree: false,
     })))
   }
 
@@ -827,6 +845,9 @@ impl Node {
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if let Some(refusal) = self.link_refusal(new_sibling) {
+      return Err(From::from(refusal));
+    }
     new_sibling.set_linked();
     let self_ptr = self.node_ptr_mut()?;
     let new_ptr = new_sibling.node_ptr_mut()?;
@@ -851,6 +872,9 @@ impl Node {
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if let Some(refusal) = self.link_refusal(new_sibling) {
+      return Err(From::from(refusal));
+    }
     new_sibling.set_linked();
     let self_ptr = self.node_ptr_mut()?;
     let new_ptr = new_sibling.node_ptr_mut()?;
@@ -1490,6 +1514,9 @@ impl Node {
   /// node, after appending its content. An attribute `child` replaces (frees) the attribute of the same name. A freed
   /// node's wrappers read as `Node::null()` afterwards: here, `child`'s, when it was merged.
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
+    if let Some(refusal) = self.link_refusal(child) {
+      return Err(refusal.to_string());
+    }
     child.set_linked();
     let parent_ptr = self.node_ptr_mut()?;
     let child_ptr = child.node_ptr_mut()?;
@@ -1589,7 +1616,8 @@ impl Node {
   /// marked `set_rust_owned` is a leak until process exit.
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
-    if node_type != Some(NodeType::DocumentNode)
+    if node_type.is_some()
+      && node_type != Some(NodeType::DocumentNode)
       && node_type != Some(NodeType::DocumentFragNode)
       && !self.is_unlinked()
     {
@@ -1634,6 +1662,48 @@ impl Node {
     }
   }
 
+  /// This wrapper, held weakly.
+  pub(crate) fn downgrade(&self) -> NodeWeak {
+    Rc::downgrade(&self.0)
+  }
+
+  /// The wrapper `weak` holds, if a clone of it is still alive.
+  pub(crate) fn upgrade(weak: &NodeWeak) -> Option<Node> {
+    weak.upgrade().map(Node)
+  }
+
+  /// Releases this wrapper as the document at `doc_ptr` is freed, which frees the nodes it owns and their names:
+  /// [`null_out`](Self::null_out), unless its node is an unlinked one the document does not own (whose `doc` is NULL
+  /// or another document's). A rust-owned node is returned instead, for the document to free while it is alive.
+  pub(crate) fn release(&self, doc_ptr: xmlDocPtr) -> Option<xmlNodePtr> {
+    let Ok(mut inner) = self.0.try_borrow_mut() else {
+      return None;
+    };
+    let node_ptr = inner.node_ptr;
+    if node_ptr.is_null()
+      || matches!(inner.linkage, Linkage::Unlinked) && xmlGetDoc(node_ptr) != doc_ptr
+    {
+      return None;
+    }
+    inner.node_ptr = ptr::null_mut();
+    matches!(inner.linkage, Linkage::RustOwned).then_some(node_ptr)
+  }
+
+  /// Why `new` may not be linked next to or under this node, if it may not: a rust-owned node would be freed by its
+  /// last wrapper's drop while linked, and a node of another document would be freed by that document while its
+  /// wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it instead).
+  #[inline]
+  pub(crate) fn link_refusal(&self, new: &Node) -> Option<&'static str> {
+    let new = new.0.borrow();
+    if matches!(new.linkage, Linkage::RustOwned) {
+      Some("a rust-owned node cannot be linked: dropping its last wrapper frees it")
+    } else if !Weak::ptr_eq(&self.0.borrow().document, &new.document) {
+      Some("a node of another document cannot be linked; import_node copies it")
+    } else {
+      None
+    }
+  }
+
   /// Take ownership of this detached node's C allocation.
   ///
   /// After this call, the C node will be freed via `xmlFreeNode` when the
@@ -1657,21 +1727,33 @@ impl Node {
   /// A subtree that has been unlinked but not re-attached and not marked
   /// rust-owned will leak until process exit.
   ///
-  /// # Safety preconditions
+  /// # Panics
   ///
-  /// Calling this on a node that is still `Linked` (part of a document
-  /// tree) is **undefined behavior**: the node's later free will leave
-  /// dangling pointers in its former parent / siblings / ID table. The
-  /// wrapper cannot cheaply verify this, so the caller must guarantee
-  /// it. In debug builds we panic if the precondition is obviously
-  /// violated.
+  /// On a node that is still `Linked` (part of a document tree): its
+  /// later free would leave dangling pointers in its former parent,
+  /// siblings and ID table. (Before 0.3.25, only debug builds checked.)
   pub fn set_rust_owned(&self) {
-    let mut inner = self.0.borrow_mut();
-    debug_assert!(
-      !matches!(inner.linkage, Linkage::Linked),
-      "set_rust_owned called on a Linked node — call unlink_node first"
-    );
-    inner.linkage = Linkage::RustOwned;
+    let (node_ptr, doc) = {
+      let mut inner = self.0.borrow_mut();
+      assert!(
+        !matches!(inner.linkage, Linkage::Linked),
+        "set_rust_owned called on a Linked node — call unlink_node first"
+      );
+      if matches!(inner.linkage, Linkage::RustOwned) {
+        return;
+      }
+      inner.linkage = Linkage::RustOwned;
+      if !inner.unlinked_from_tree {
+        return;
+      }
+      (inner.node_ptr, inner.document.upgrade())
+    };
+    // The document holds the wrapper weakly from now on, so that the last clone's drop frees the node.
+    if let Some(doc) = doc
+      && let Ok(mut doc) = doc.try_borrow_mut()
+    {
+      doc.own_node(node_ptr, self);
+    }
   }
 
   /// Returns whether the C allocation is owned by the Rust wrapper.
@@ -1729,10 +1811,8 @@ impl Node {
   ///
   /// # Safety contract (mirrors C `xmlFreeNode`)
   ///
-  /// The subtree must be garbage to the caller. Wrappers created in an
-  /// earlier bookkeeping epoch (re-wrapped after an unlink cleared their
-  /// entry) cannot be found and neutralized here; using one after this call
-  /// is undefined behavior, exactly as using a freed `xmlNodePtr` in C.
+  /// The subtree must be garbage to the caller. Every `Node` into it is
+  /// neutralized, but a `RoNode` into it is a bare pointer, and dangles.
   pub fn free_subtree(mut self) {
     if matches!(
       self.get_type(),
@@ -1740,7 +1820,7 @@ impl Node {
     ) {
       return;
     }
-    // Sever from parent/siblings (and clear self's bookkeeping entry).
+    // Sever from parent/siblings.
     self.unlink_node();
     let top = self.0.borrow().node_ptr;
     if top.is_null() {
@@ -1749,8 +1829,8 @@ impl Node {
     if let Some(doc) = self.get_docref().upgrade() {
       doc.borrow_mut().neutralize_subtree(top);
     }
-    // Neutralize this handle itself (its registry entry went away with
-    // unlink_node, so the walk above could not reach it), then free.
+    // Neutralize this handle itself, which the walk above could not reach
+    // if the document is gone, then free.
     self.0.borrow_mut().node_ptr = ptr::null_mut();
     unsafe { xmlFreeNode(top) };
   }
@@ -1784,6 +1864,7 @@ impl Node {
   /// teardown was to leak each wrapper's allocation (latexml-oxide's
   /// `DocOwnedNode`, ~100+ bytes per id-cache entry per document — measured
   /// as a leading retention term at ~150 KB/page across a 115k-page render).
+  #[inline]
   pub fn set_linked(&self) {
     let mut inner = self.0.borrow_mut();
     debug_assert!(
@@ -1793,6 +1874,7 @@ impl Node {
     );
     if matches!(inner.linkage, Linkage::Unlinked) {
       inner.linkage = Linkage::Linked;
+      inner.unlinked_from_tree = false;
     }
   }
 
@@ -1800,19 +1882,15 @@ impl Node {
   ///
   /// Transitions from `Linked` to `Unlinked`. Leaves `RustOwned`
   /// untouched — that variant already implies "detached".
+  ///
+  /// The document keeps the wrapper cached, as a linked node's: wrapping the node again, while it is unlinked or
+  /// after it is linked anywhere, finds the same wrapper, and the neutralizing frees and the document's drop reach it.
   pub(crate) fn set_unlinked(&self) {
-    {
-      let mut inner = self.0.borrow_mut();
-      if matches!(inner.linkage, Linkage::Linked) {
-        inner.linkage = Linkage::Unlinked;
-      }
+    let mut inner = self.0.borrow_mut();
+    if matches!(inner.linkage, Linkage::Linked) {
+      inner.linkage = Linkage::Unlinked;
+      inner.unlinked_from_tree = true;
     }
-    self
-      .get_docref()
-      .upgrade()
-      .unwrap()
-      .borrow_mut()
-      .forget_node(self.node_ptr());
   }
 
   /// find nodes via xpath, at a specified node or the document root
