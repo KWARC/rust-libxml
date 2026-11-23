@@ -26,6 +26,26 @@ jobs:
       - name: run tests
         run: cargo test
 
+  lints:
+    name: rustfmt and rustdoc
+    runs-on: ubuntu-latest
+    steps:
+      - name: install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: check formatting
+        run: cargo fmt --check
+      - name: build the docs without warnings
+        # Broken intra-doc links show up as warnings only; the published docs (gh-pages) carry them.
+        run: cargo doc --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
   test-valgrind:
     name: rust-libxml valgrind
     runs-on: ubuntu-latest

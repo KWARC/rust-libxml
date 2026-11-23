@@ -32,6 +32,8 @@
 * `SchemaValidationContext::validate_file` returns an error for a path with a NUL byte, and `from_parser` one when
   libxml2 makes no validation context, instead of panicking (#120). `SchemaParserContext::from_buffer` panics for a
   buffer of 4 GiB or more instead of passing libxml2 a length truncated to 32 bits.
+* The links in the `reader` module's documentation, to `TextReader` and its methods, `RoNode` and `Document`, resolve:
+  the module's two doc comments made rustdoc look them up in the crate root.
 
 ## [0.3.25] (2026-11-23)
 

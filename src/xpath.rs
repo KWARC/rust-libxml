@@ -532,7 +532,7 @@ impl fmt::Display for Object {
   }
 }
 
-/// Calls the binding to http://xmlsoft.org/html/libxml-xpath.html#xmlXPathCompile and return true if
+/// Calls the binding to <http://xmlsoft.org/html/libxml-xpath.html#xmlXPathCompile> and return true if
 /// a non-null pointer is returned. The idea is to use this to validate an xpath independent of context.
 /// Tests describing what this validates in tests/xpath_tests.rs
 pub fn is_well_formed_xpath(xpath: &str) -> bool {

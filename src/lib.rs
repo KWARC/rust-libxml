@@ -27,8 +27,6 @@ pub mod schemas;
 /// Read-only parallel primitives
 pub mod readonly;
 
-/// Streaming pull-parser (`xmlTextReader`) for very large documents — process
-/// one subtree at a time instead of building the whole DOM.
 pub mod reader;
 
 /// Custom input callbacks for `xmlRegisterInputCallbacks` — bundle

@@ -295,9 +295,7 @@ impl TextReader {
       let mut decl = (*cloned).nsDef;
       while !decl.is_null() {
         let prefix = (*decl).prefix;
-        if !prefix.is_null()
-          && xmlStrncmp(prefix, c"default".as_ptr() as *const xmlChar, 7) == 0
-        {
+        if !prefix.is_null() && xmlStrncmp(prefix, c"default".as_ptr() as *const xmlChar, 7) == 0 {
           let src_ns = xmlSearchNsByHref(src_doc, node, (*decl).href);
           if !src_ns.is_null() {
             let want = (*src_ns).prefix;
@@ -620,11 +618,7 @@ mod tests {
     // Reader restored to the element: name still <doc>, and streaming resumes.
     assert_eq!(reader.local_name().as_deref(), Some("doc"));
 
-    assert!(
-      reader
-        .read_to_next(|_, name| name == "section")
-        .unwrap()
-    );
+    assert!(reader.read_to_next(|_, name| name == "section").unwrap());
     assert_eq!(
       reader.attributes_qname(),
       vec![
@@ -647,15 +641,10 @@ mod tests {
 </doc>"#;
     let path = write_temp("outerxml", xml);
     let mut reader = TextReader::from_file(&path, 0).unwrap();
-    assert!(
-      reader
-        .read_to_next(|_, name| name == "section")
-        .unwrap()
-    );
+    assert!(reader.read_to_next(|_, name| name == "section").unwrap());
     let outer = reader.outer_xml().unwrap();
     assert_eq!(
-      outer,
-      r#"<section a="1" b="&lt;2&gt;"><p>t&amp;t</p><x:note>hi</x:note></section>"#,
+      outer, r#"<section a="1" b="&lt;2&gt;"><p>t&amp;t</p><x:note>hi</x:note></section>"#,
       "no default: prefix, no added xmlns decls, escaping and attr order intact"
     );
     // Position unchanged: the same subtree can still be skipped as a unit.
