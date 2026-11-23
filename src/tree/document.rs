@@ -1,7 +1,7 @@
 //! Document feature set
 //!
 use libc::{c_char, c_int};
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 use std::fmt;
@@ -138,6 +138,36 @@ pub(crate) struct _Document {
   /// DTDs removed from the document, which its entity references may still point into: freed before the document
   /// (their names are in its dictionary), unless linked again.
   removed_dtds: Vec<xmlDtdPtr>,
+  /// The number of watches of the document's frees ([`watch_node_set`](Self::watch_node_set)): by the live node sets of
+  /// XPath `Object`s handed out, and by XPath contexts whose context node is an `RoNode`'s.
+  node_sets: usize,
+  /// The nodes freed while a watch was live, logged by [`neutralize`](Self::neutralize), which every free of a node a
+  /// node set may hold goes through: an XPath `Object` leaves them out of its set before it reads it, and a context
+  /// forgets such a context node.
+  free_log: Vec<xmlNodePtr>,
+  /// The number of frees logged before `free_log`'s first entry, so that `free_log_base + free_log.len()`, the count of
+  /// frees logged so far, only grows.
+  free_log_base: u64,
+}
+
+thread_local! {
+  /// The number of watches of frees ([`_Document::watch_node_set`]) on this thread, in all its documents (a document,
+  /// its nodes and its XPath objects and contexts stay on one thread): while it is 0, no free needs logging, and the
+  /// attribute setters and removers keep their fast paths.
+  static NODE_SETS: Cell<usize> = const { Cell::new(0) };
+}
+
+/// Ends a watch in the thread's count only, as [`_Document::unwatch_node_set`] does in both.
+pub(crate) fn unwatch_node_set_on_thread() {
+  NODE_SETS.with(|count| count.set(count.get() - 1));
+}
+
+/// Whether a watch of frees, by an XPath node set or context, is live on this thread, so that every free of a node must
+/// reach
+/// [`_Document::neutralize`], which logs it.
+#[inline]
+pub(crate) fn node_sets_live() -> bool {
+  NODE_SETS.with(|count| count.get() > 0)
 }
 
 impl _Document {
@@ -148,6 +178,9 @@ impl _Document {
       rust_owned: RustOwnedMap::default(),
       kept_namespaces: Vec::new(),
       removed_dtds: Vec::new(),
+      node_sets: 0,
+      free_log: Vec::new(),
+      free_log_base: 0,
     }
   }
   /// Internal bookkeeping function, so far only used by `Node::wrap`
@@ -191,6 +224,50 @@ impl _Document {
     if !self.rust_owned.is_empty() {
       self.neutralize_rust_owned(node_ptr);
     }
+    if self.node_sets > 0 {
+      self.free_log.push(node_ptr);
+    }
+  }
+  /// Registers a watch of this document's frees, by a live XPath node set into it or a context at one of its nodes: it
+  /// logs every node freed from now on until the watch's [`unwatch_node_set`](Self::unwatch_node_set). Returns the
+  /// count of frees logged so far, from which the watcher reads [`freed_since`](Self::freed_since).
+  pub(crate) fn watch_node_set(&mut self) -> u64 {
+    self.node_sets += 1;
+    NODE_SETS.with(|count| count.set(count.get() + 1));
+    self.frees_logged()
+  }
+  /// Ends a [`watch_node_set`](Self::watch_node_set); the last one's end empties the log.
+  pub(crate) fn unwatch_node_set(&mut self) {
+    self.node_sets -= 1;
+    unwatch_node_set_on_thread();
+    if self.node_sets == 0 {
+      self.forget_frees();
+    }
+  }
+  /// The nodes freed since `frees_logged` returned `logged`, for a live watch.
+  pub(crate) fn freed_since(&self, logged: u64) -> &[xmlNodePtr] {
+    &self.free_log[(logged - self.free_log_base) as usize..]
+  }
+  /// The count of frees logged so far; also empties the log, if the one live watch, which calls this having read it,
+  /// is the only one to read it.
+  pub(crate) fn frees_seen(&mut self) -> u64 {
+    if self.node_sets == 1 {
+      self.forget_frees();
+    }
+    self.frees_logged()
+  }
+  /// The count of frees logged so far.
+  #[inline]
+  pub(crate) fn frees_logged(&self) -> u64 {
+    self.free_log_base + self.free_log.len() as u64
+  }
+  fn forget_frees(&mut self) {
+    self.free_log_base += self.free_log.len() as u64;
+    self.free_log.clear();
+  }
+  /// Whether a live watch has this document log its frees.
+  pub(crate) fn logs_frees(&self) -> bool {
+    self.node_sets > 0
   }
   /// [`neutralize`](Self::neutralize) in `rust_owned`; out of line, as few wrappers are rust-owned.
   #[inline(never)]

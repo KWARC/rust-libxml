@@ -34,6 +34,13 @@
   buffer of 4 GiB or more instead of passing libxml2 a length truncated to 32 bits.
 * The links in the `reader` module's documentation, to `TextReader` and its methods, `RoNode` and `Document`, resolve:
   the module's two doc comments made rustdoc look them up in the crate root.
+* An XPath `Object` no longer reads a node of its result set that was freed while it was alive (by `free_subtree`,
+  `set_content` on an ancestor, `remove_property`, `set_property`, a text merge, or the drop of a rust-owned node's last
+  wrapper): it leaves such a node out of the set, so its accessors and its `Drop`, which libxml2's `xmlXPathFreeNodeSet`
+  reads every entry for, see only live nodes. A namespace node goes with its element. A free of any other node changes
+  no result.
+* A `Context` whose context node was freed forgets it, and evaluates without a node, as a new context does, instead of
+  reading it. The context node is the one an evaluation at a node, or `set_context_node`, left.
 
 ## [0.3.25] (2026-11-23)
 
