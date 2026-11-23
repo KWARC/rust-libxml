@@ -87,7 +87,7 @@ fn schema_from_string() {
     .parse_string(VALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
+  let mut xsdparser = SchemaParserContext::try_from_buffer(NOTE_SCHEMA).unwrap();
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -117,7 +117,7 @@ fn schema_from_string_generates_errors() {
     .parse_string(INVALID_NOTE_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
+  let mut xsdparser = SchemaParserContext::try_from_buffer(NOTE_SCHEMA).unwrap();
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -146,7 +146,7 @@ fn schema_from_string_reports_unique_errors() {
     .parse_string(INVALID_STOCK_XML)
     .expect("Expected to be able to parse XML Document from string");
 
-  let mut xsdparser = SchemaParserContext::from_buffer(STOCK_SCHEMA);
+  let mut xsdparser = SchemaParserContext::try_from_buffer(STOCK_SCHEMA).unwrap();
   let xsd = SchemaValidationContext::from_parser(&mut xsdparser);
 
   if let Err(errors) = xsd {
@@ -183,7 +183,7 @@ fn schema_from_string_reports_unique_errors() {
 
 #[test]
 fn schema_entity_reference_returns_error_instead_of_panicking() {
-  let mut parser = SchemaParserContext::from_buffer(NOTE_SCHEMA);
+  let mut parser = SchemaParserContext::try_from_buffer(NOTE_SCHEMA).unwrap();
   let mut context = SchemaValidationContext::from_parser(&mut parser).unwrap();
   let document = Parser::default().parse_string(
     r#"<!DOCTYPE note [<!ENTITY to "<to>Tove</to>">]><note>&to;<from>Jani</from><heading>Reminder</heading><body>Text</body></note>"#,
@@ -230,9 +230,12 @@ fn schema_constructors_return_errors_instead_of_panicking() {
     only(SchemaParserContext::try_from_document(&no_document)).0,
     xmlParserErrors_XML_ERR_DOCUMENT_EMPTY as i32
   );
-  // The panicking constructors are unchanged.
-  assert!(catch_unwind(|| SchemaParserContext::from_buffer(b"")).is_err());
-  assert!(catch_unwind(|| SchemaParserContext::from_file("a\0b.xsd")).is_err());
+  // The panicking constructors, deprecated, are unchanged.
+  #[allow(deprecated)]
+  {
+    assert!(catch_unwind(|| SchemaParserContext::from_buffer(b"")).is_err());
+    assert!(catch_unwind(|| SchemaParserContext::from_file("a\0b.xsd")).is_err());
+  }
 
   let schema_doc = Parser::default().parse_string(NOTE_SCHEMA).unwrap();
   for mut parser in [

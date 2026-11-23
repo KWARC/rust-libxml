@@ -37,19 +37,20 @@ impl Drop for Scrubbed {
 }
 
 #[test]
-fn from_buffer_keeps_the_schema_until_it_is_parsed() {
+fn try_from_buffer_keeps_the_schema_until_it_is_parsed() {
   setup();
-  let mut parser = SchemaParserContext::from_buffer(Scrubbed(NOTE_SCHEMA.as_bytes().to_vec()));
+  let mut parser =
+    SchemaParserContext::try_from_buffer(Scrubbed(NOTE_SCHEMA.as_bytes().to_vec())).unwrap();
   let validator = SchemaValidationContext::from_parser(&mut parser);
   assert!(validator.is_ok(), "{:?}", validator.err());
 }
 
 #[test]
-fn from_document_keeps_the_document_until_the_schema_is_parsed() {
+fn try_from_document_keeps_the_document_until_the_schema_is_parsed() {
   setup();
   let doc = Parser::default().parse_string(NOTE_SCHEMA).unwrap();
   let doc_ptr = doc.doc_ptr();
-  let mut parser = SchemaParserContext::from_document(&doc);
+  let mut parser = SchemaParserContext::try_from_document(&doc).unwrap();
   drop(doc);
   assert!(!is_freed(doc_ptr), "the parser context reads the document");
   let validator = SchemaValidationContext::from_parser(&mut parser);
@@ -62,7 +63,7 @@ fn a_schema_outlives_the_document_it_was_parsed_from() {
   let doc = Parser::default().parse_string(NOTE_SCHEMA).unwrap();
   let doc_ptr = doc.doc_ptr();
   let mut validator = {
-    let mut parser = SchemaParserContext::from_document(&doc);
+    let mut parser = SchemaParserContext::try_from_document(&doc).unwrap();
     SchemaValidationContext::from_parser(&mut parser).unwrap()
   };
   drop(doc);

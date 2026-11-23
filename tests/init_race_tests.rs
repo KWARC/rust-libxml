@@ -37,7 +37,7 @@ fn race_child() {
       std::thread::spawn(move || {
         barrier.wait();
         match i % 5 {
-          0 => drop(SchemaParserContext::from_buffer(SCHEMA)),
+          0 => drop(SchemaParserContext::try_from_buffer(SCHEMA).unwrap()),
           1 => drop(Document::new().unwrap()),
           2 => drop(TextReader::from_file("tests/resources/file01.xml", 0).unwrap()),
           3 => assert!(is_well_formed_xpath("//a")),

@@ -26,6 +26,10 @@ impl SchemaParserContext {
   ///
   /// # Panics
   /// Where [`try_from_document`](Self::try_from_document) returns an error.
+  #[deprecated(
+    since = "0.3.26",
+    note = "use `try_from_document`, which returns the errors where this panics"
+  )]
   pub fn from_document(doc: &Document) -> Self {
     Self::try_from_document(doc).unwrap_or_else(|errors| {
       failed(
@@ -56,6 +60,10 @@ impl SchemaParserContext {
   ///
   /// # Panics
   /// Where [`try_from_buffer`](Self::try_from_buffer) returns an error.
+  #[deprecated(
+    since = "0.3.26",
+    note = "use `try_from_buffer`, which returns the errors where this panics"
+  )]
   pub fn from_buffer<Bytes: AsRef<[u8]>>(buff: Bytes) -> Self {
     Self::try_from_buffer(buff)
       .unwrap_or_else(|errors| failed("Failed to create schema parser context from buffer", errors))
@@ -93,6 +101,10 @@ impl SchemaParserContext {
   ///
   /// # Panics
   /// Where [`try_from_file`](Self::try_from_file) returns an error.
+  #[deprecated(
+    since = "0.3.26",
+    note = "use `try_from_file`, which returns the errors where this panics"
+  )]
   pub fn from_file(path: &str) -> Self {
     Self::try_from_file(path)
       .unwrap_or_else(|errors| failed("Failed to create schema parser context from path", errors))
