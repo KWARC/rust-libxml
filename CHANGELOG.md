@@ -56,6 +56,9 @@
   content, leave the reference alone, as 2.13 and later do, and `add_child` to one returns an error: `xmlAddChild`
   linked the new child after the declaration, among the DTD's children, under a reference that `free_subtree` could
   free.
+* An XPath `Context` or `Object` keeps its document alive, as a `Document` handle does (#61). One that outlived its
+  document evaluated against freed memory, which showed as empty results. The document holds no context, so no cycle
+  forms. `Context::from_node` returns an error for a node without a document, instead of panicking.
 * `SchemaParserContext::from_buffer` keeps a copy of the buffer, and `from_document` the document, until the context
   drops: libxml2 reads them only when the schema is parsed, and a buffer passed by value was freed before then.
 * `canonicalize` no longer puts U+FFFD replacement characters into long text with libxml2 before 2.13, which writes
