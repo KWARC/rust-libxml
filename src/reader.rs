@@ -228,8 +228,30 @@ impl TextReader {
   /// not retain it across an advance. For a subtree you can keep, use
   /// [`expand_to_document`](Self::expand_to_document). Returns `None` at end of
   /// input or on error.
-  pub fn expand(&self) -> Option<RoNode> {
-    self.current_subtree().map(RoNode)
+  ///
+  /// The node borrows the reader, so the compiler holds it to that (#236): it
+  /// can outlive neither the reader
+  ///
+  /// ```compile_fail,E0597
+  /// # use libxml::reader::TextReader;
+  /// let node = {
+  ///   let reader = TextReader::from_file("doc.xml", 0).unwrap();
+  ///   reader.expand()
+  /// };
+  /// # drop(node);
+  /// ```
+  ///
+  /// nor an advance:
+  ///
+  /// ```compile_fail,E0502
+  /// # use libxml::reader::TextReader;
+  /// let mut reader = TextReader::from_file("doc.xml", 0).unwrap();
+  /// let node = reader.expand();
+  /// reader.read().unwrap();
+  /// # drop(node);
+  /// ```
+  pub fn expand(&self) -> Option<RoNode<'_>> {
+    self.current_subtree().map(RoNode::wrap)
   }
 
   /// The current node's fully-built subtree as a raw pointer, or `None` at end

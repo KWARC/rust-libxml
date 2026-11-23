@@ -1216,9 +1216,13 @@ impl Node {
   }
 
   /// This node as a `RoNode`. Adds nothing to the wrapper cache.
+  ///
+  /// The `RoNode` does not borrow this handle: like the `Node`, it is valid while the document is alive and the node
+  /// is not freed, and a closure it is reading for (`with_name`, `for_each_property`, ...) may change the node through
+  /// this handle.
   #[must_use]
-  pub fn as_readonly(&self) -> RoNode {
-    RoNode(self.node_ptr())
+  pub fn as_readonly<'a>(&self) -> RoNode<'a> {
+    RoNode::wrap(self.node_ptr())
   }
 
   /// [`Document::node_from_readonly`] on this node's document.

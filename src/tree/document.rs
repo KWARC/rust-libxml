@@ -241,13 +241,24 @@ impl Document {
   }
 
   /// Get the root element of the document (read-only)
-  pub fn get_root_readonly(&self) -> Option<RoNode> {
+  ///
+  /// The node borrows the document, so it cannot outlive it:
+  ///
+  /// ```compile_fail,E0597
+  /// # use libxml::parser::Parser;
+  /// let root = {
+  ///   let doc = Parser::default().parse_string("<r/>").unwrap();
+  ///   doc.get_root_readonly()
+  /// };
+  /// # drop(root);
+  /// ```
+  pub fn get_root_readonly(&self) -> Option<RoNode<'_>> {
     unsafe {
       let node_ptr = xmlDocGetRootElement(self.doc_ptr());
       if node_ptr.is_null() {
         None
       } else {
-        Some(RoNode(node_ptr))
+        Some(RoNode::wrap(node_ptr))
       }
     }
   }
@@ -732,8 +743,8 @@ mod trim_node_cache_tests {
     let ns_ptr = unsafe { *(*(*namespaces.ptr).nodesetval).nodeTab };
     assert_eq!(xmlGetNodeType(ns_ptr), xmlElementType_XML_NAMESPACE_DECL);
     let before = doc.0.borrow().cached_node_count();
-    assert!(doc.node_from_readonly(RoNode(ns_ptr)).is_null());
-    assert!(root.node_from_readonly(RoNode(ns_ptr)).is_null());
+    assert!(doc.node_from_readonly(RoNode::wrap(ns_ptr)).is_null());
+    assert!(root.node_from_readonly(RoNode::wrap(ns_ptr)).is_null());
     assert_eq!(doc.0.borrow().cached_node_count(), before);
   }
 }

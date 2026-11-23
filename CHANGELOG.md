@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased]
+
+### Changed
+
+* Breaking: `RoNode` has a lifetime, `RoNode<'a>`, the borrow of the owner it came from, which it cannot outlive.
+  `TextReader::expand` returns a node that borrows the reader, so the node can outlive neither the reader nor an
+  advance (`read`, `read_next`), which may free it (#236). `Document::get_root_readonly` returns one that borrows the
+  document. The nodes reached from a `RoNode` keep its lifetime. `Node::as_readonly` and
+  `Object::get_readonly_nodes_as_vec` return nodes that borrow nothing, as before: neither a `Node` nor an XPath
+  result holds its document by a borrow. Code that names `RoNode` in a struct, or keeps one from a document or a
+  reader beyond its borrow, needs a lifetime parameter; in function signatures, elision covers it.
+
 ## [0.3.24] (2026-11-15)
 
 Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.23 builds
