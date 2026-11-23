@@ -72,3 +72,10 @@ fn a_schema_outlives_the_document_it_was_parsed_from() {
   let invalid = Parser::default().parse_string(INVALID_NOTE).unwrap();
   assert!(validator.validate_document(&invalid).is_err());
 }
+
+/// Keeping the document leaves the context's auto traits as they were.
+#[test]
+fn a_schema_parser_context_stays_unwind_safe() {
+  fn unwind_safe<T: std::panic::UnwindSafe + std::panic::RefUnwindSafe>() {}
+  unwind_safe::<SchemaParserContext>();
+}
