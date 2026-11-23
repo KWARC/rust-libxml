@@ -1,6 +1,6 @@
 //! Node, and related, feature set
 //!
-use libc::{c_char, c_void};
+use libc::{c_char, c_int, c_void};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
@@ -1814,16 +1814,20 @@ impl Node {
 
   /// Append text to this `Node`
   ///
+  /// Returns an error for text with a NUL byte, and for text of more than `i32::MAX` bytes, the most libxml2 appends
+  /// at a time.
+  ///
   /// An entity reference is left alone, as libxml2 2.13 and later do: its content is its entity's declaration's, which
   /// libxml2 before 2.13 appended to (#235).
   pub fn append_text(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let c_len = content.len() as i32;
+    let c_len = c_int::try_from(content.len())
+      .map_err(|_| "append_text: libxml2 appends at most i32::MAX bytes at a time")?;
     if c_len > 0 {
       let node_ptr = self.node_ptr_mut()?;
       if xmlGetNodeType(node_ptr) == xmlElementType_XML_ENTITY_REF_NODE {
         return Ok(());
       }
-      let c_content = CString::new(content).unwrap();
+      let c_content = CString::new(content)?;
       unsafe {
         xmlNodeAddContentLen(node_ptr, c_content.as_bytes().as_ptr(), c_len);
       }

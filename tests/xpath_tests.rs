@@ -486,3 +486,50 @@ fn namespace_axis_results_are_not_nodes() {
       .is_empty()
   );
 }
+
+/// A NUL byte in an expression, a prefix or a namespace URI is an error, not a panic; and a result string that is not
+/// UTF-8 reads lossily.
+mod no_panics {
+  use libxml::parser::Parser;
+  use libxml::xpath::{Context, is_well_formed_xpath};
+
+  #[test]
+  fn a_nul_byte_is_an_error() {
+    let doc = Parser::default().parse_string("<r><a/></r>").unwrap();
+    let root = doc.get_root_element().unwrap();
+    let mut ctx = Context::new(&doc).unwrap();
+    let error = ctx.evaluate_checked("//a\0").err().unwrap();
+    assert_eq!(
+      error.message.as_deref(),
+      Some("XPath expression contains a NUL byte")
+    );
+    assert!(ctx.evaluate("//a\0").is_err());
+    assert!(ctx.node_evaluate("a\0", &root).is_err());
+    assert!(
+      ctx
+        .node_evaluate_readonly("a\0", root.as_readonly())
+        .is_err()
+    );
+    assert!(ctx.findnodes("a\0", Some(&root)).is_err());
+    assert!(ctx.register_namespace("p\0", "urn:p").is_err());
+    assert!(ctx.register_namespace("p", "urn:\0p").is_err());
+    assert!(!is_well_formed_xpath("//a\0"));
+    // The context is still usable.
+    assert_eq!(ctx.evaluate("count(//a)").unwrap().to_string(), "1");
+  }
+
+  #[test]
+  fn a_result_string_that_is_not_utf8_reads_lossily() {
+    let doc = Parser::default().parse_string("<r>x</r>").unwrap();
+    let text = doc.get_root_element().unwrap().get_first_child().unwrap();
+    // libxml2 stores what it is given: bytes that are not UTF-8, through the raw API.
+    unsafe {
+      libxml::bindings::xmlNodeSetContent(text.node_ptr(), c"a\xffb".as_ptr() as *const u8)
+    };
+    let ctx = Context::new(&doc).unwrap();
+    assert_eq!(
+      ctx.evaluate("string(/r)").unwrap().to_string(),
+      "a\u{FFFD}b"
+    );
+  }
+}

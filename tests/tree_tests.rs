@@ -722,3 +722,14 @@ fn set_text_content_sets_text_as_it_is() {
   element.set_content("a &amp; b &#38; c").unwrap();
   assert_eq!(element.get_content(), "a & b & c");
 }
+
+/// `append_text` returns an error for text with a NUL byte, which libxml2 cannot take, and leaves the node as it was.
+#[test]
+fn append_text_with_a_nul_byte_is_an_error() {
+  let doc = Parser::default().parse_string("<r>a</r>").unwrap();
+  let mut root = doc.get_root_element().unwrap();
+  assert!(root.append_text("b\0c").is_err());
+  assert_eq!(root.get_content(), "a");
+  root.append_text("b").unwrap();
+  assert_eq!(root.get_content(), "ab");
+}

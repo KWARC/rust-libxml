@@ -39,6 +39,12 @@
   buffer of 4 GiB or more instead of passing libxml2 a length truncated to 32 bits.
 * The links in the `reader` module's documentation, to `TextReader` and its methods, `RoNode` and `Document`, resolve:
   the module's two doc comments made rustdoc look them up in the crate root.
+* An XPath expression with a NUL byte no longer panics. The evaluators (`evaluate`, `node_evaluate`,
+  `node_evaluate_readonly`, `findnodes` and the like) return the error `Expression::compile` returns for one, and
+  `is_well_formed_xpath` answers `false`. `register_namespace` returns `Err` for a NUL byte in the prefix or the URI.
+  `Object`'s `Display` reads a result string that is not UTF-8 lossily, as `get_nodes_as_str` does.
+  `Node::append_text` returns an error for text with a NUL byte. It does the same for text of more than `i32::MAX`
+  bytes, whose length it passed to libxml2 wrapped or truncated.
 * An XPath `Object` no longer reads a node of its result set that was freed while it was alive (by `free_subtree`,
   `set_content` on an ancestor, `remove_property`, `set_property`, a text merge, or the drop of a rust-owned node's last
   wrapper): it leaves such a node out of the set, so its accessors and its `Drop`, which libxml2's `xmlXPathFreeNodeSet`
