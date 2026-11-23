@@ -1,6 +1,16 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.25] (2026-11-23)
+
+Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.24 builds
+unchanged (cargo-semver-checks, default features: no semver update required). Calls behave differently only where
+0.3.24 read or freed invalid memory, crashed, or returned a null node (see Fixed). `add_child`, `add_prev_sibling` and
+`add_next_sibling` return an error for the links they refuse, and `set_root_element` panics on the same nodes.
+`set_rust_owned` on a linked node panics in release builds too. `dup_node_into_new_doc` returns an error for an
+attribute or a document's own node, `new_child` and `add_text_child` under a node that takes no child, and
+`Context::from_node` for a node without a document, instead of panicking. A wrapper of a node that libxml2 freed reads
+as `Node::null()`. An XPath `Context` or `Object` keeps its document alive until it drops. `Namespace::free` is
+deprecated and does nothing.
 
 ### Fixed
 
