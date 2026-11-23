@@ -16,6 +16,11 @@
   path with a NUL byte, a `Document` without a libxml2 document, and when libxml2 makes no context (#120). The
   `from_*` constructors are unchanged, except that their panic message now includes the error.
 
+### Deprecated
+
+* `SchemaParserContext::from_document`, `from_buffer` and `from_file`, which panic where `try_from_document`,
+  `try_from_buffer` and `try_from_file` return the errors (#120). They are unchanged, and go in 0.4.
+
 ### Fixed
 
 * The build on FreeBSD i386 no longer fails in the bindings' layout tests (#186). FreeBSD names the struct
