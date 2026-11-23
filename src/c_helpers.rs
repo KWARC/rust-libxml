@@ -11,40 +11,6 @@ use std::slice;
 // pub fn xmlThrDefSetGenericErrorFunc(ctx: *mut c_void, handler: *mut c_void);
 
 // Taken from Nokogiri (https://github.com/sparklemotion/nokogiri/blob/24bb843327306d2d71e4b2dc337c1e327cbf4516/ext/nokogiri/xml_document.c#L64)
-pub fn xmlNodeRecursivelyRemoveNs(node: xmlNodePtr) {
-  if node.is_null() {
-    return;
-  }
-  unsafe {
-    let mut property: xmlAttrPtr;
-
-    xmlSetNs(node, ptr::null_mut());
-    let mut child: xmlNodePtr = (*node).children;
-    while !child.is_null() {
-      xmlNodeRecursivelyRemoveNs(child);
-      child = (*child).next;
-    }
-
-    if (((*node).type_ == xmlElementType_XML_ELEMENT_NODE)
-      || ((*node).type_ == xmlElementType_XML_XINCLUDE_START)
-      || ((*node).type_ == xmlElementType_XML_XINCLUDE_END))
-      && !(*node).nsDef.is_null()
-    {
-      xmlFreeNsList((*node).nsDef);
-      (*node).nsDef = ptr::null_mut();
-    }
-
-    if (*node).type_ == xmlElementType_XML_ELEMENT_NODE && !(*node).properties.is_null() {
-      property = (*node).properties;
-      while !property.is_null() {
-        if !(*property).ns.is_null() {
-          (*property).ns = ptr::null_mut();
-        }
-        property = (*property).next;
-      }
-    }
-  }
-}
 // Null-safety convention for the field accessors below.
 //
 // Each of these reads a single field out of a libxml2 struct via a raw
@@ -95,6 +61,14 @@ pub(crate) fn is_element_like(node_type: xmlElementType) -> bool {
   node_type == xmlElementType_XML_ELEMENT_NODE
     || node_type == xmlElementType_XML_XINCLUDE_START
     || node_type == xmlElementType_XML_XINCLUDE_END
+}
+/// Detaches the namespace declarations of `node` and returns them: NULL unless it is an element (or an XInclude
+/// start/end node), the structs with an `nsDef` field.
+pub fn xmlNodeTakeNsDeclarations(node: xmlNodePtr) -> xmlNsPtr {
+  if !is_element_like(xmlGetNodeType(node)) {
+    return ptr::null_mut();
+  }
+  unsafe { std::mem::replace(&mut (*node).nsDef, ptr::null_mut()) }
 }
 /// The node's namespace: NULL unless `cur` is an element (or an XInclude start/end node) or an attribute, the
 /// structs whose `ns` field this is. An `xmlDoc` holds its `compression`/`standalone` ints there and an `xmlDtd` its

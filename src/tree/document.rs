@@ -10,7 +10,7 @@ use std::rc::{Rc, Weak};
 use std::str;
 
 use crate::bindings::*;
-use crate::c_helpers::{xmlGetDoc, xmlGetNodeType, xmlGetParent};
+use crate::c_helpers::{xmlGetDoc, xmlGetNodeType, xmlGetParent, xmlNodeTakeNsDeclarations};
 use crate::readonly::RoNode;
 use crate::tree::node::{Node, NodeWeak, for_each_freed_with, note_wrapped, type_refusal};
 use crate::tree::nodetype::NodeType;
@@ -132,6 +132,12 @@ pub(crate) struct _Document {
   /// clone's drop frees the node: wrapping such a node again finds its wrapper, and the neutralizing frees and the
   /// document's drop reach it.
   rust_owned: RustOwnedMap,
+  /// Namespace declaration lists that libxml2 would have freed while a `Namespace`, or a node's namespace, may still
+  /// point into one: detached from the elements that declared them, and freed after the document.
+  kept_namespaces: Vec<xmlNsPtr>,
+  /// DTDs removed from the document, which its entity references may still point into: freed before the document
+  /// (their names are in its dictionary), unless linked again.
+  removed_dtds: Vec<xmlDtdPtr>,
 }
 
 impl _Document {
@@ -140,6 +146,8 @@ impl _Document {
       doc_ptr,
       nodes: NodeMap::default(),
       rust_owned: RustOwnedMap::default(),
+      kept_namespaces: Vec::new(),
+      removed_dtds: Vec::new(),
     }
   }
   /// Internal bookkeeping function, so far only used by `Node::wrap`
@@ -191,9 +199,33 @@ impl _Document {
       node.null_out();
     }
   }
-  /// [`neutralize`](Self::neutralize) for every node `xmlFreeNode(top)` frees (see `for_each_freed_with`).
-  pub(crate) fn neutralize_subtree(&mut self, top: xmlNodePtr) {
-    for_each_freed_with(top, |node_ptr| self.neutralize(node_ptr));
+  /// Readies every node `xmlFreeNode(top)` frees (see `for_each_freed_with`) for it, before libxml2 frees them:
+  /// [`neutralize`](Self::neutralize)s its wrapper and, if it is an element, [keeps](Self::keep_namespaces) its
+  /// namespace declarations.
+  pub(crate) fn prepare_to_free(&mut self, top: xmlNodePtr) {
+    for_each_freed_with(top, |node_ptr| {
+      self.neutralize(node_ptr);
+      self.keep_namespaces(node_ptr);
+    });
+  }
+  /// Detaches the namespace declarations of the element at `node_ptr`, if any, and keeps them until the document is
+  /// freed (#233, #235): libxml2 frees an element's declarations with the element, or on demand, while a `Namespace`
+  /// handed out for one, or the namespace of another node, may still point at it.
+  pub(crate) fn keep_namespaces(&mut self, node_ptr: xmlNodePtr) {
+    self.keep_declarations(xmlNodeTakeNsDeclarations(node_ptr));
+  }
+  /// Keeps a list of namespace declarations, taken off the element that declared them, until the document is freed.
+  pub(crate) fn keep_declarations(&mut self, declarations: xmlNsPtr) {
+    if !declarations.is_null() {
+      self.kept_namespaces.push(declarations);
+    }
+  }
+  /// Keeps the DTD at `dtd`, unlinked from the document, until the document is freed (#235): the document's entity
+  /// references still point at its entity declarations. Keeps each DTD once.
+  pub(crate) fn keep_dtd(&mut self, dtd: xmlDtdPtr) {
+    if !self.removed_dtds.contains(&dtd) {
+      self.removed_dtds.push(dtd);
+    }
   }
   /// Whether a wrapper of the node at `node_ptr` is cached.
   pub(crate) fn is_cached(&self, node_ptr: xmlNodePtr) -> bool {
@@ -216,6 +248,7 @@ impl Drop for _Document {
     // `xmlFreeDoc` frees the document's nodes and their names, in its dictionary, so every wrapper it knows of,
     // cached or rust-owned, is released first: it reads as `Node::null()` from then on, and a rust-owned node is freed
     // now, while the document is alive (`xmlFreeNode` reads `node->doc`), after every wrapper into it was nulled.
+    // So must `xmlFreeDtd`.
     let doc_ptr = self.doc_ptr;
     let mut owned = Vec::new();
     for (_, node) in self.nodes.drain() {
@@ -224,12 +257,26 @@ impl Drop for _Document {
     for (_, weak) in self.rust_owned.drain() {
       owned.extend(Node::upgrade(&weak).and_then(|node| node.release(doc_ptr)));
     }
+    for node_ptr in owned {
+      if xmlGetNodeType(node_ptr) == xmlElementType_XML_DTD_NODE {
+        self.keep_dtd(node_ptr as xmlDtdPtr); // A wrapper never frees a DTD.
+      } else {
+        unsafe { xmlFreeNode(node_ptr) };
+      }
+    }
     unsafe {
-      for node_ptr in owned {
-        xmlFreeNode(node_ptr);
+      for dtd in self.removed_dtds.drain(..) {
+        // Unless it was linked again, into this document or another, which then frees it.
+        if xmlGetParent(dtd as xmlNodePtr).is_null() {
+          xmlFreeDtd(dtd);
+        }
       }
       if !doc_ptr.is_null() {
         xmlFreeDoc(doc_ptr);
+      }
+      // After the document, whose nodes may point at them; `xmlFreeNs` reads no document.
+      for declarations in self.kept_namespaces.drain(..) {
+        xmlFreeNsList(declarations);
       }
     }
   }
@@ -373,7 +420,8 @@ impl Document {
   ///
   /// # Panics
   ///
-  /// On a rust-owned node, a node of another document, a document's own node or an attribute.
+  /// On a rust-owned node, a node of another document, a document's own node, a DTD or a declaration in one, or an
+  /// attribute.
   pub fn set_root_element(&mut self, root: &Node) {
     assert!(
       !root.is_rust_owned(),
@@ -401,15 +449,14 @@ impl Document {
   /// serialisation no longer emits the DOCTYPE preamble.
   ///
   /// Safe to call on a document with no internal subset (no-op).
-  /// Unlinks the DTD node from the document and frees it via
-  /// `xmlFreeDtd`.
+  /// Unlinks the DTD node from the document, which keeps it until it is
+  /// freed itself: the document's entity references still point at the
+  /// DTD's entity declarations (#235).
   pub fn remove_internal_subset(&mut self) {
-    unsafe {
-      let dtd = xmlGetIntSubset(self.doc_ptr());
-      if !dtd.is_null() {
-        xmlUnlinkNode(dtd as xmlNodePtr);
-        xmlFreeDtd(dtd);
-      }
+    let dtd = unsafe { xmlGetIntSubset(self.doc_ptr()) };
+    if !dtd.is_null() {
+      unsafe { xmlUnlinkNode(dtd as xmlNodePtr) };
+      self.0.borrow_mut().keep_dtd(dtd);
     }
   }
 
@@ -475,9 +522,9 @@ impl Document {
   /// Returns `Err(())` if any of the underlying libxml2 calls returns
   /// NULL (typically OOM, or `node` is itself NULL), and for what
   /// [`set_root_element`](Self::set_root_element) refuses: a document's
-  /// own node, which is no node of a tree, and an attribute, which
-  /// libxml2 would make a child of the new document that `xmlUnlinkNode`
-  /// cannot take out again.
+  /// own node, which is no node of a tree, a DTD or a declaration in one,
+  /// and an attribute, which libxml2 would make a child of the new
+  /// document that `xmlUnlinkNode` cannot take out again.
   pub fn dup_node_into_new_doc(node: &Node) -> Result<Document, ()> {
     let node_type = xmlGetNodeType(node.node_ptr());
     if type_refusal(node_type).is_some() || node_type == xmlElementType_XML_ATTRIBUTE_NODE {

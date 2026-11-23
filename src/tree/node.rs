@@ -162,13 +162,30 @@ impl _Node {
   /// reads as `Node::null()` instead of freed memory. Neutralizing is skipped when the document is gone (its drop
   /// clears the cache before `xmlFreeDoc`) or mutably borrowed.
   fn free_node(&self) {
-    if let Some(doc) = self.document.upgrade()
-      && let Ok(mut doc) = doc.try_borrow_mut()
-    {
-      doc.neutralize_subtree(self.node_ptr);
+    let doc = self.document.upgrade();
+    let mut doc = doc.as_ref().and_then(|doc| doc.try_borrow_mut().ok());
+    if xmlGetNodeType(self.node_ptr) == xmlElementType_XML_DTD_NODE {
+      // Its document's entity references may point into it: the document keeps it, and frees it (#235).
+      if let Some(doc) = doc.as_mut() {
+        doc.keep_dtd(self.node_ptr as xmlDtdPtr);
+      }
+      return;
+    }
+    if let Some(doc) = doc.as_mut() {
+      doc.prepare_to_free(self.node_ptr);
     }
     unsafe { xmlFreeNode(self.node_ptr) };
   }
+}
+
+/// Whether a node of type `node_type` is an element, attribute or entity declaration, which its DTD frees through its
+/// tables (`xmlFreeDtd`), and the document's entity references point at: `unlink_node` and `free_subtree` leave one
+/// alone, and linking one is refused (#235).
+fn is_declaration(node_type: &Option<NodeType>) -> bool {
+  matches!(
+    node_type,
+    Some(NodeType::ElementDecl | NodeType::AttributeDecl | NodeType::EntityDecl)
+  )
 }
 
 /// Calls `f` on every node `xmlFreeNode(top)` frees, `top` first: its attributes (of an element), its children and
@@ -245,6 +262,10 @@ struct InsertionCasualties {
   merged_descendants: Option<Vec<xmlNodePtr>>,
   /// Each attribute of `element` named like the attribute `new`, then the rest of its subtree.
   replaced: Vec<Vec<xmlNodePtr>>,
+  /// The namespace declarations of `new` and its descendants, with the element that declared each list, taken off
+  /// before `new` is added under a text node, which merges `new` away and would free them with it: a `Namespace`, or
+  /// the namespace of a node elsewhere, may still point at one (#235).
+  declarations: Vec<(xmlNodePtr, xmlNsPtr)>,
 }
 
 impl InsertionCasualties {
@@ -275,11 +296,16 @@ impl InsertionCasualties {
     parent: xmlNodePtr,
     under_text: bool,
   ) -> Self {
+    let mut declarations = Vec::new();
     let merged_descendants = if under_text {
       let mut descendants = Vec::new();
       for_each_freed_with(new, |node_ptr| {
         if node_ptr != new {
           descendants.push(node_ptr)
+        }
+        let declared = xmlNodeTakeNsDeclarations(node_ptr);
+        if !declared.is_null() {
+          declarations.push((node_ptr, declared));
         }
       });
       Some(descendants)
@@ -307,6 +333,7 @@ impl InsertionCasualties {
       element: parent,
       merged_descendants,
       replaced,
+      declarations,
     }
   }
 
@@ -314,12 +341,20 @@ impl InsertionCasualties {
   /// subtree, if libxml2 returned another node in its place, and each replaced attribute, with its subtree, that is no
   /// longer `element`'s. Reads none of them; nothing was freed when the insertion failed. The cached wrappers are
   /// neutralized in the documents of both `wrappers`, the nodes of the insertion, and so are the `wrappers`
-  /// themselves, which a cache may not hold.
+  /// themselves, which a cache may not hold. The namespace declarations taken off `new`'s subtree are kept by the
+  /// document, if it was merged away, or given back.
   fn neutralize_freed(self, inserted: xmlNodePtr, wrappers: [&Node; 2]) {
+    let merged_away = !inserted.is_null() && inserted != self.new;
+    if !merged_away {
+      for &(declarer, declared) in &self.declarations {
+        // SAFETY: `declarer` is a live element, whose declarations were taken off it by `collect_freeable`.
+        unsafe { (*declarer).nsDef = declared };
+      }
+    }
     if inserted.is_null() {
       return;
     }
-    let merged = if inserted != self.new {
+    let merged = if merged_away {
       self.merged_descendants
     } else {
       None
@@ -353,6 +388,11 @@ impl InsertionCasualties {
       descendants.into_iter().for_each(&mut neutralize);
     }
     replaced.into_iter().flatten().for_each(neutralize);
+    if merged_away && let Some(doc) = docs.iter_mut().flatten().next() {
+      for (_, declared) in self.declarations {
+        doc.keep_declarations(declared);
+      }
+    }
   }
 }
 
@@ -510,13 +550,16 @@ fn is_document(node_type: &Option<NodeType>) -> bool {
 
 /// Why a node of type `node_type` may never be linked, if it may not: a document's own node is no node of a tree.
 /// libxml2 frees one added under a text node as an ordinary node, and `xmlFreeDoc` recurses through one linked
-/// elsewhere.
+/// elsewhere. A DTD, and a declaration in one, is its document's to free (see [`Node::unlink_node`]): libxml2 frees one
+/// added under a text node at once, never a DTD linked as a child, and a declaration through its DTD's tables too.
 #[inline]
 pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
   if node_type == xmlElementType_XML_DOCUMENT_NODE
     || node_type == xmlElementType_XML_HTML_DOCUMENT_NODE
   {
     Some("a document cannot be linked into a tree")
+  } else if (xmlElementType_XML_DTD_NODE..=xmlElementType_XML_ENTITY_DECL).contains(&node_type) {
+    Some("a DTD, or a declaration in one, cannot be linked: it is its document's to free")
   } else {
     None
   }
@@ -1014,19 +1057,26 @@ impl Node {
   /// Sets the text content of this `Node`
   ///
   /// The content of an element, attribute or document fragment replaces its children, which libxml2 frees: their
-  /// wrappers, and those of their descendants, read as `Node::null()` afterwards.
+  /// wrappers, and those of their descendants, read as `Node::null()` afterwards. An entity reference is left alone,
+  /// as libxml2 2.13 and later do: its child is the entity's declaration.
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_content = CString::new(content).unwrap();
     let node_ptr = self.node_ptr_mut()?;
+    let node_type = self.get_type();
+    if node_type == Some(NodeType::EntityRefNode) {
+      // Its child is the entity's declaration, which libxml2 before 2.13 frees here (#235); 2.13 and later leave an
+      // entity reference alone, and so does this.
+      return Ok(());
+    }
     if matches!(
-      self.get_type(),
+      node_type,
       Some(NodeType::ElementNode | NodeType::AttributeNode | NodeType::DocumentFragNode)
     ) && let Some(doc) = self.upgrade_docref()
     {
       let mut doc = doc.borrow_mut();
       let mut child = xmlGetFirstChild(node_ptr);
       while !child.is_null() {
-        doc.neutralize_subtree(child);
+        doc.prepare_to_free(child);
         child = xmlNextSibling(child);
       }
     }
@@ -1226,7 +1276,7 @@ impl Node {
     if xmlGetNodeType(attr) == xmlElementType_XML_ATTRIBUTE_NODE
       && let Some(doc) = self.upgrade_docref()
     {
-      doc.borrow_mut().neutralize_subtree(attr);
+      doc.borrow_mut().prepare_to_free(attr);
     }
   }
 
@@ -1566,10 +1616,25 @@ impl Node {
     }
   }
 
-  // TODO: Clear a future Document namespaces vec
-  /// Removes the namespaces of this `Node` and it's children!
+  /// Removes the namespaces of this `Node` and its descendants: their own, their attributes', and every namespace
+  /// declaration among them. The document keeps the declarations until it is freed, so a `Namespace` handed out for
+  /// one never dangles (#235). An entity reference's children belong to the entity's declaration and are left alone.
   pub fn recursively_remove_namespaces(&mut self) -> Result<(), Box<dyn Error + Send + Sync>> {
-    xmlNodeRecursivelyRemoveNs(self.node_ptr_mut()?);
+    let top = self.node_ptr_mut()?;
+    let doc = self.get_docref().upgrade();
+    let mut doc = doc.as_ref().map(|doc| doc.borrow_mut());
+    for_each_freed_with(top, |node_ptr| {
+      // `xmlSetNs` sets the namespace of an element or an attribute, and ignores any other node.
+      let node_type = xmlGetNodeType(node_ptr);
+      if node_type == xmlElementType_XML_ELEMENT_NODE
+        || node_type == xmlElementType_XML_ATTRIBUTE_NODE
+      {
+        unsafe { xmlSetNs(node_ptr, ptr::null_mut()) };
+      }
+      if let Some(doc) = doc.as_mut() {
+        doc.keep_namespaces(node_ptr);
+      }
+    });
     Ok(())
   }
 
@@ -1593,7 +1658,8 @@ impl Node {
   /// A linked `child` is moved: it is unlinked first, as libxml2 does since 2.13 (before, `xmlAddChild` left it in its
   /// old parent's children too), unless it is this node's last child already, which libxml2 leaves in place. An
   /// attribute `child` is added to an element only, as libxml2 required before 2.13; since, it adds one to any node,
-  /// at a field that a document's or a DTD's own data overlays.
+  /// at a field that a document's or a DTD's own data overlays. An entity reference takes no child: its child is its
+  /// entity's declaration, which libxml2 would link the new one after, among the DTD's children.
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
     if let Some(refusal) = self.link_refusal(child) {
       return Err(refusal.to_string());
@@ -1603,8 +1669,14 @@ impl Node {
     if parent_ptr.is_null() {
       return Err("add_child encountered NULL pointer".to_string());
     }
+    let parent_type = xmlGetNodeType(parent_ptr);
+    if parent_type == xmlElementType_XML_ENTITY_REF_NODE {
+      return Err(
+        "an entity reference takes no child: its child is its entity's declaration".to_string(),
+      );
+    }
     if xmlGetNodeType(child_ptr) == xmlElementType_XML_ATTRIBUTE_NODE
-      && xmlGetNodeType(parent_ptr) != xmlElementType_XML_ELEMENT_NODE
+      && parent_type != xmlElementType_XML_ELEMENT_NODE
     {
       return Err("an attribute can only be added to an element".to_string());
     }
@@ -1678,12 +1750,19 @@ impl Node {
   }
 
   /// Append text to this `Node`
+  ///
+  /// An entity reference is left alone, as libxml2 2.13 and later do: its content is its entity's declaration's, which
+  /// libxml2 before 2.13 appended to (#235).
   pub fn append_text(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_len = content.len() as i32;
     if c_len > 0 {
+      let node_ptr = self.node_ptr_mut()?;
+      if xmlGetNodeType(node_ptr) == xmlElementType_XML_ENTITY_REF_NODE {
+        return Ok(());
+      }
       let c_content = CString::new(content).unwrap();
       unsafe {
-        xmlNodeAddContentLen(self.node_ptr_mut()?, c_content.as_bytes().as_ptr(), c_len);
+        xmlNodeAddContentLen(node_ptr, c_content.as_bytes().as_ptr(), c_len);
       }
     }
     Ok(())
@@ -1715,14 +1794,34 @@ impl Node {
   /// marked `set_rust_owned` is a leak until process exit.
   ///
   /// A document's own node (an HTML one too) is no node of a tree: it is left alone.
+  /// A DTD is the exception: its document's entity references point into it,
+  /// so the document keeps it, frees it with itself, and refuses to link it
+  /// again ([`Document::remove_internal_subset`] unlinks it the same way). A
+  /// declaration in a DTD stays there: its DTD frees it.
   pub fn unlink_node(&mut self) {
     let node_type = self.get_type();
-    if node_type.is_some() && !is_document(&node_type) && !self.is_unlinked() {
+    if node_type.is_some()
+      && !is_document(&node_type)
+      && !is_declaration(&node_type)
+      && !self.is_unlinked()
+    {
       // only unlink nodes that are currently marked as linked
       self.set_unlinked();
       unsafe {
         xmlUnlinkNode(self.node_ptr());
       }
+      if node_type == Some(NodeType::DTDNode) {
+        self.keep_dtd();
+      }
+    }
+  }
+  /// Leaves this DTD, unlinked, to its document, which frees it (#235): see `free_node`.
+  #[inline(never)]
+  fn keep_dtd(&self) {
+    if let Some(doc) = self.get_docref().upgrade()
+      && let Ok(mut doc) = doc.try_borrow_mut()
+    {
+      doc.keep_dtd(self.node_ptr() as xmlDtdPtr);
     }
   }
   /// Alias for `unlink_node`
@@ -1789,8 +1888,8 @@ impl Node {
   /// Why `new` may not be linked next to or under this node, if it may not: a rust-owned node would be freed by its
   /// last wrapper's drop while linked, and a node of another document would be freed by that document while its
   /// wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it instead).
-  /// No [`type_refusal`] type is linked, and no node under itself or its attributes, which libxml2 would make a loop
-  /// of.
+  /// No [`type_refusal`] type is linked (a document, or a DTD or a declaration in one), and no node under itself or
+  /// its attributes, which libxml2 would make a loop of.
   #[inline(always)]
   pub(crate) fn link_refusal(&self, new: &Node) -> Option<&'static str> {
     let this = self.0.borrow();
@@ -1951,22 +2050,27 @@ impl Node {
   /// null-guarded accessors return their empty defaults) — and the
   /// bookkeeping entries are cleared, so a future allocation reusing one of
   /// the freed addresses cannot collide with a stale wrapper. Attribute
-  /// nodes are neutralized along with elements and texts; namespace
-  /// declarations and attribute values are owned by their nodes and freed by
-  /// `xmlFreeNode` itself. An entity reference's children belong to the
-  /// entity's declaration, which `xmlFreeNode` leaves alone, and so does the
-  /// neutralizing. (Since 0.3.25, dropping the last wrapper of a rust-owned
-  /// node neutralizes the same way before its `xmlFreeNode`.)
+  /// nodes are neutralized along with elements and texts; attribute values
+  /// are owned by their nodes and freed by `xmlFreeNode` itself, while the
+  /// document keeps the namespace declarations, which a `Namespace` may
+  /// point at, until it is freed. An entity reference's children belong to
+  /// the entity's declaration, which `xmlFreeNode` leaves alone, and so does
+  /// the neutralizing. (Since 0.3.25, dropping the last wrapper of a
+  /// rust-owned node neutralizes the same way before its `xmlFreeNode`.)
   ///
   /// Documents (and document-fragment shells) are refused — tearing a whole
-  /// document down belongs to `Document`'s `Drop`.
+  /// document down belongs to `Document`'s `Drop`. A DTD is only unlinked:
+  /// its document's entity references point into it, so the document keeps
+  /// it, and frees it with itself. A declaration in a DTD (of an element, an
+  /// attribute or an entity) is left alone: its DTD frees it.
   ///
   /// # Safety contract (mirrors C `xmlFreeNode`)
   ///
   /// The subtree must be garbage to the caller. Every `Node` into it is
   /// neutralized, but a `RoNode` into it is a bare pointer, and dangles.
   pub fn free_subtree(mut self) {
-    if is_document(&self.get_type()) {
+    let node_type = self.get_type();
+    if is_document(&node_type) || is_declaration(&node_type) {
       return;
     }
     // Sever from parent/siblings.
@@ -1975,8 +2079,11 @@ impl Node {
     if top.is_null() {
       return; // already freed/neutralized through another handle
     }
+    if xmlGetNodeType(top) == xmlElementType_XML_DTD_NODE {
+      return; // `unlink_node` left it to its document, which frees it.
+    }
     if let Some(doc) = self.get_docref().upgrade() {
-      doc.borrow_mut().neutralize_subtree(top);
+      doc.borrow_mut().prepare_to_free(top);
     }
     // Neutralize this handle itself, which the walk above could not reach
     // if the document is gone, then free.
