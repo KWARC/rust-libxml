@@ -567,13 +567,14 @@ pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
 }
 
 /// Whether `node` is `ancestor`, or one of its descendants (an attribute of one, or under one, too). Three walks take
-/// turns, and the first to settle answers: up from `node`, which meets `ancestor` or the top of the tree; through
-/// `ancestor`'s subtree, by the child and attribute lists that libxml2 keeps in step with the `parent` links, which
-/// meets `node` or ends; and up from `ancestor`, which may meet `node`, then a proper ancestor of it, so not within it
-/// in a tree without loops. A link then costs the size of the subtree linked, or the distance from it up to `node`,
-/// rather than `node`'s depth: latexml-oxide moving a group's last children out after it, at every level of a chain of
-/// 9,642 nested `svg:g` elements, made 4.7e7 walks up of 3,200 levels on average (arXiv 2605.19500, 2.1x the
-/// instructions of the whole conversion).
+/// turns, in this order, and the first to settle answers: up from `ancestor`'s parent, which may meet `node`, then a
+/// proper ancestor of `ancestor`, so not within it in a tree without loops; up from `node`, which meets `ancestor` or
+/// the top of the tree, and which runs every round, so it bounds the rounds by `node`'s depth, as the walk up alone
+/// did; and through `ancestor`'s subtree, by the child and attribute lists that libxml2 keeps in step with the `parent`
+/// links, which meets `node` or ends. A link then costs at most what it did, and usually the size of the subtree
+/// linked, or the distance from it up to `node`, instead of `node`'s depth: latexml-oxide moving a group's last children
+/// out after it, at every level of a chain of 9,642 nested `svg:g` elements, made 4.7e7 walks up of 3,200 levels on
+/// average (arXiv 2605.19500, 2.1x the instructions of the whole conversion).
 #[inline(never)]
 fn is_within(node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
   let mut up = node;
@@ -2639,15 +2640,36 @@ mod is_within_tests {
     false
   }
 
+  /// Every node of `node`'s subtree, in `for_each_freed_with`'s order, by plain recursion over the attribute and child
+  /// lists (an entity reference's children belong to its declaration): an oracle that shares no code with `next_freed`.
+  fn subtree_by_recursion(node: xmlNodePtr, out: &mut Vec<xmlNodePtr>) {
+    out.push(node);
+    let mut attr = xmlGetFirstProperty(node) as xmlNodePtr;
+    while !attr.is_null() {
+      subtree_by_recursion(attr, out);
+      attr = xmlNextPropertySibling(attr as xmlAttrPtr) as xmlNodePtr;
+    }
+    if xmlGetNodeType(node) != xmlElementType_XML_ENTITY_REF_NODE {
+      let mut child = xmlGetFirstChild(node);
+      while !child.is_null() {
+        subtree_by_recursion(child, out);
+        child = xmlNextSibling(child);
+      }
+    }
+  }
+
   /// The three walks of `is_within` answer as the walk up alone, for every pair of nodes of a document with
   /// attributes (an entity reference in one), entity references in content, a DTD with its declarations, comments,
-  /// processing instructions, a deep chain and a detached subtree (a small one, and a deep one).
+  /// processing instructions, CDATA, a deep chain, a target deep in a subtree's second branch after a long first one,
+  /// and a detached subtree (a small one, and a deep one). The nodes are listed by plain recursion, and
+  /// `for_each_freed_with` (`next_freed`, which the subtree walk uses) must list the same ones in the same order: a walk
+  /// that skipped nodes would otherwise drop them from both the list and the check.
   #[test]
   fn is_within_answers_as_the_walk_up() {
     let doc = Parser::default()
       .parse_string(
         r#"<!DOCTYPE r [<!ENTITY e "EE"><!ENTITY f "<x a='1'>F<y/></x>"><!ATTLIST r d CDATA "dflt">]>
-<r a="x&e;y" b="2"><p q="1"><s>deep<t u="v"/></s>&f;<!--c--><?pi d?></p><w/>tail<k i="j"><l><m n="o">z</m></l></k><c1><c2><c3><c4><c5 h="1"><c6/></c5></c4></c3></c2></c1></r>"#,
+<r a="x&e;y" b="2"><p q="1"><s>deep<t u="v"/></s>&f;<!--c--><?pi d?><![CDATA[cd]]></p><b1><b2><b3><b4/></b3></b2><b5><b6 z="1"/></b5></b1><w/>tail<k i="j"><l><m n="o">z</m></l></k><c1><c2><c3><c4><c5 h="1"><c6/></c5></c4></c3></c2></c1></r>"#,
       )
       .unwrap();
     let root = doc.get_root_element().unwrap();
@@ -2658,10 +2680,17 @@ mod is_within_tests {
       detached.push(node);
     }
     let mut nodes = Vec::new();
-    for_each_freed_with(doc.doc_ptr() as xmlNodePtr, |node| nodes.push(node));
+    let mut freed = Vec::new();
+    subtree_by_recursion(doc.doc_ptr() as xmlNodePtr, &mut nodes);
+    for_each_freed_with(doc.doc_ptr() as xmlNodePtr, |node| freed.push(node));
     for node in &detached {
-      for_each_freed_with(node.node_ptr(), |node| nodes.push(node));
+      subtree_by_recursion(node.node_ptr(), &mut nodes);
+      for_each_freed_with(node.node_ptr(), |node| freed.push(node));
     }
+    assert_eq!(
+      freed, nodes,
+      "for_each_freed_with lists the subtree as plain recursion does"
+    );
     let types: HashSet<xmlElementType> = nodes.iter().map(|&node| xmlGetNodeType(node)).collect();
     for node_type in [
       xmlElementType_XML_ATTRIBUTE_NODE,
@@ -2669,6 +2698,7 @@ mod is_within_tests {
       xmlElementType_XML_ENTITY_DECL,
       xmlElementType_XML_DTD_NODE,
       xmlElementType_XML_PI_NODE,
+      xmlElementType_XML_CDATA_SECTION_NODE,
     ] {
       assert!(types.contains(&node_type), "no node of type {node_type}");
     }
