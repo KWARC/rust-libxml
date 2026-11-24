@@ -1,5 +1,22 @@
 # Change Log
 
+## [0.3.27] (2026-11-24)
+
+Compatibility: no public item changed (cargo-semver-checks against v0.3.26, default features: no semver update
+required). The same links are refused as in 0.3.26; only the cost of the check changed.
+
+### Fixed
+
+* Linking a node that has children or attributes (`add_child`, `add_prev_sibling`, `add_next_sibling`) no longer walks
+  from the insertion point up to the top of the tree, which 0.3.25 added to refuse a loop: the check now costs the least
+  of the size of the subtree linked, the depth of the insertion point, and the distance from the node up to the
+  insertion point, when it is above the node, and never more than the walk up did. Moving a node out from under one
+  of its ancestors, and linking a small subtree, cost as little as before 0.3.25 again; linking a subtree with
+  children into another deep branch still costs the lesser of its size and the depth of the insertion point
+  (latexml-oxide on arXiv 2605.19500, which moves the children of a chain of 9,642 nested elements: 1,966 G
+  instructions with 0.3.25 and 0.3.26, 918 G now, against 916.6 G before 0.3.25's loop refusal). The same links are
+  refused.
+
 ## [0.3.26] (2026-11-23)
 
 Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.25 builds unchanged

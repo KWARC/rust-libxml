@@ -196,57 +196,54 @@ fn is_declaration(node_type: &Option<NodeType>) -> bool {
 /// follows those links (down, across, back up by `parent`) rather than keep a stack, so it allocates nothing and
 /// takes any depth.
 pub(crate) fn for_each_freed_with(top: xmlNodePtr, mut f: impl FnMut(xmlNodePtr)) {
-  if top.is_null() {
-    return;
-  }
   let mut node = top;
-  loop {
-    // Only elements (and XInclude's start/end copies of one) have a `properties` field; `xmlGetFirstProperty`
-    // answers NULL through any other node, where the slot is out of bounds or holds other data.
-    let attr = xmlGetFirstProperty(node) as xmlNodePtr;
-    let child = if xmlGetNodeType(node) == xmlElementType_XML_ENTITY_REF_NODE {
-      ptr::null_mut()
-    } else {
-      xmlGetFirstChild(node)
-    };
+  while !node.is_null() {
+    let next = next_freed(top, node);
     f(node);
-    if !attr.is_null() {
-      node = attr;
-      continue;
-    }
+    node = next;
+  }
+}
+
+/// The node after `node` in [`for_each_freed_with`]'s walk of `top`'s subtree, or NULL past its last one.
+fn next_freed(top: xmlNodePtr, mut node: xmlNodePtr) -> xmlNodePtr {
+  // Only elements (and XInclude's start/end copies of one) have a `properties` field; `xmlGetFirstProperty`
+  // answers NULL through any other node, where the slot is out of bounds or holds other data.
+  let attr = xmlGetFirstProperty(node) as xmlNodePtr;
+  if !attr.is_null() {
+    return attr;
+  }
+  if xmlGetNodeType(node) != xmlElementType_XML_ENTITY_REF_NODE {
+    let child = xmlGetFirstChild(node);
     if !child.is_null() {
-      node = child;
-      continue;
+      return child;
     }
-    // Back up to the nearest node, short of `top`, with a next sibling; past an element's last attribute, its
-    // children come next.
-    loop {
-      if node == top {
-        return;
-      }
-      let is_attr = xmlGetNodeType(node) == xmlElementType_XML_ATTRIBUTE_NODE;
-      let next = if is_attr {
-        xmlNextPropertySibling(node as xmlAttrPtr) as xmlNodePtr
-      } else {
-        xmlNextSibling(node)
-      };
-      if !next.is_null() {
-        node = next;
-        break;
-      }
-      let parent = xmlGetParent(node);
-      if parent.is_null() {
-        return; // Not in `top`'s subtree after all.
-      }
-      if is_attr {
-        let child = xmlGetFirstChild(parent);
-        if !child.is_null() {
-          node = child;
-          break;
-        }
-      }
-      node = parent;
+  }
+  // Back up to the nearest node, short of `top`, with a next sibling; past an element's last attribute, its
+  // children come next.
+  loop {
+    if node == top {
+      return ptr::null_mut();
     }
+    let is_attr = xmlGetNodeType(node) == xmlElementType_XML_ATTRIBUTE_NODE;
+    let next = if is_attr {
+      xmlNextPropertySibling(node as xmlAttrPtr) as xmlNodePtr
+    } else {
+      xmlNextSibling(node)
+    };
+    if !next.is_null() {
+      return next;
+    }
+    let parent = xmlGetParent(node);
+    if parent.is_null() {
+      return ptr::null_mut(); // Not in `top`'s subtree after all.
+    }
+    if is_attr {
+      let child = xmlGetFirstChild(parent);
+      if !child.is_null() {
+        return child;
+      }
+    }
+    node = parent;
   }
 }
 
@@ -569,16 +566,46 @@ pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
   }
 }
 
-/// Whether `node` is `ancestor`, or one of its descendants.
+/// Whether `node` is `ancestor`, or one of its descendants (an attribute of one, or under one, too). Three walks take
+/// turns, in this order, and the first to settle answers: up from `ancestor`'s parent, which may meet `node`, then a
+/// proper ancestor of `ancestor`, so not within it in a tree without loops; up from `node`, which meets `ancestor` or
+/// the top of the tree, and which runs every round, so it bounds the rounds by `node`'s depth, as the walk up alone
+/// did; and through `ancestor`'s subtree, by the child and attribute lists that libxml2 keeps in step with the `parent`
+/// links, which meets `node` or ends. A link then costs at most what it did, and usually the size of the subtree
+/// linked, or the distance from it up to `node`, instead of `node`'s depth: latexml-oxide moving a group's last children
+/// out after it, at every level of a chain of 9,642 nested `svg:g` elements, made 4.7e7 walks up of 3,200 levels on
+/// average (arXiv 2605.19500, 2.1x the instructions of the whole conversion).
 #[inline(never)]
-fn is_within(mut node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
-  while !node.is_null() {
-    if node == ancestor {
+fn is_within(node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
+  if ancestor.is_null() {
+    return false; // As the walk up, which never compares a node with NULL.
+  }
+  let mut up = node;
+  let mut down = ancestor;
+  let mut above = xmlGetParent(ancestor);
+  loop {
+    // First, as a node is most often moved out from under its parent or grandparent.
+    if !above.is_null() {
+      if above == node {
+        return false;
+      }
+      above = xmlGetParent(above);
+    }
+    if up == ancestor {
       return true;
     }
-    node = xmlGetParent(node);
+    if up.is_null() {
+      return false;
+    }
+    up = xmlGetParent(up);
+    if down == node {
+      return true;
+    }
+    down = next_freed(ancestor, down);
+    if down.is_null() {
+      return false;
+    }
   }
-  false
 }
 
 /// Whether any node is under `node`, of type `node_type`: a child, or an attribute.
@@ -2599,3 +2626,99 @@ pub(crate) fn with_c_strs<R>(
 }
 
 mod c14n;
+
+#[cfg(test)]
+mod is_within_tests {
+  use super::*;
+  use crate::parser::Parser;
+
+  /// `is_within` as the walk up from `node` alone answers it.
+  fn climbs_to(mut node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
+    while !node.is_null() {
+      if node == ancestor {
+        return true;
+      }
+      node = xmlGetParent(node);
+    }
+    false
+  }
+
+  /// Every node of `node`'s subtree, in `for_each_freed_with`'s order, by plain recursion over the attribute and child
+  /// lists (an entity reference's children belong to its declaration): an oracle that shares no code with `next_freed`.
+  fn subtree_by_recursion(node: xmlNodePtr, out: &mut Vec<xmlNodePtr>) {
+    out.push(node);
+    let mut attr = xmlGetFirstProperty(node) as xmlNodePtr;
+    while !attr.is_null() {
+      subtree_by_recursion(attr, out);
+      attr = xmlNextPropertySibling(attr as xmlAttrPtr) as xmlNodePtr;
+    }
+    if xmlGetNodeType(node) != xmlElementType_XML_ENTITY_REF_NODE {
+      let mut child = xmlGetFirstChild(node);
+      while !child.is_null() {
+        subtree_by_recursion(child, out);
+        child = xmlNextSibling(child);
+      }
+    }
+  }
+
+  /// The three walks of `is_within` answer as the walk up alone, for every pair of nodes of a document with
+  /// attributes (an entity reference in one), entity references in content, a DTD with its declarations, comments,
+  /// processing instructions, CDATA, a deep chain, a target deep in a subtree's second branch after a long first one,
+  /// and a detached subtree (a small one, and a deep one). The nodes are listed by plain recursion, and
+  /// `for_each_freed_with` (`next_freed`, which the subtree walk uses) must list the same ones in the same order: a walk
+  /// that skipped nodes would otherwise drop them from both the list and the check.
+  #[test]
+  fn is_within_answers_as_the_walk_up() {
+    let doc = Parser::default()
+      .parse_string(
+        r#"<!DOCTYPE r [<!ENTITY e "EE"><!ENTITY f "<x a='1'>F<y/></x>"><!ATTLIST r d CDATA "dflt">]>
+<r a="x&e;y" b="2"><p q="1"><s>deep<t u="v"/></s>&f;<!--c--><?pi d?><![CDATA[cd]]></p><b1><b2><b3><b4/></b3></b2><b5><b6 z="1"/></b5></b1><w/>tail<k i="j"><l><m n="o">z</m></l></k><c1><c2><c3><c4><c5 h="1"><c6/></c5></c4></c3></c2></c1></r>"#,
+      )
+      .unwrap();
+    let root = doc.get_root_element().unwrap();
+    let mut detached = Vec::new();
+    for name in ["k", "c3"] {
+      let mut node = root.findnodes(&format!("//{name}")).unwrap().remove(0);
+      node.unlink_node();
+      detached.push(node);
+    }
+    let mut nodes = Vec::new();
+    let mut freed = Vec::new();
+    subtree_by_recursion(doc.doc_ptr() as xmlNodePtr, &mut nodes);
+    for_each_freed_with(doc.doc_ptr() as xmlNodePtr, |node| freed.push(node));
+    for node in &detached {
+      subtree_by_recursion(node.node_ptr(), &mut nodes);
+      for_each_freed_with(node.node_ptr(), |node| freed.push(node));
+    }
+    assert_eq!(
+      freed, nodes,
+      "for_each_freed_with lists the subtree as plain recursion does"
+    );
+    let types: HashSet<xmlElementType> = nodes.iter().map(|&node| xmlGetNodeType(node)).collect();
+    for node_type in [
+      xmlElementType_XML_ATTRIBUTE_NODE,
+      xmlElementType_XML_ENTITY_REF_NODE,
+      xmlElementType_XML_ENTITY_DECL,
+      xmlElementType_XML_DTD_NODE,
+      xmlElementType_XML_PI_NODE,
+      xmlElementType_XML_CDATA_SECTION_NODE,
+    ] {
+      assert!(types.contains(&node_type), "no node of type {node_type}");
+    }
+    nodes.push(ptr::null_mut());
+    let mut wrong = Vec::new();
+    for &node in &nodes {
+      for &ancestor in &nodes {
+        if is_within(node, ancestor) != climbs_to(node, ancestor) {
+          wrong.push((xmlGetNodeType(node), xmlGetNodeType(ancestor)));
+        }
+      }
+    }
+    assert!(
+      wrong.is_empty(),
+      "{} of {} pairs: {wrong:?}",
+      wrong.len(),
+      nodes.len().pow(2)
+    );
+  }
+}
