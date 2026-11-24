@@ -63,6 +63,13 @@
   `set_content`, `new_child`, `add_text_child`, `Namespace::new`, `Node::new`, `Node::new_text`, `Document::save_file`,
   `create_processing_instruction` and `canonicalize` (for an inclusive namespace prefix) return `Err` and change
   nothing.
+* A `Namespace` no longer reads its document after the document was freed. One from a `Node` (`get_namespace`,
+  `get_namespaces`, `get_namespace_declarations`, `get_properties_ns`), from `Namespace::new` or from
+  `RoNode::get_namespaces` keeps its document alive, as an XPath `Context` does. One from another `RoNode` method does
+  not know its `Document`, and must not outlive it, as before. `Node::new`, `new_child`, `add_text_child`,
+  `set_namespace` and `set_property_ns` / `set_attribute_ns` return `Err` for a namespace of another document, and for
+  any namespace on a node in no document. The node pointed into that document, and read it after it was freed. Declare
+  the namespace in the node's own document instead, with `Namespace::new`.
 
 ## [0.3.25] (2026-11-23)
 
