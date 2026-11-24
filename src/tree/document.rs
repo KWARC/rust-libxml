@@ -417,7 +417,7 @@ impl Document {
 
   /// Write document to `filename`
   pub fn save_file(&self, filename: &str) -> Result<c_int, ()> {
-    let c_filename = CString::new(filename).unwrap();
+    let c_filename = CString::new(filename).map_err(|_| ())?;
     unsafe {
       let retval = xmlSaveFile(c_filename.as_ptr(), self.doc_ptr());
       if retval < 0 {
@@ -810,9 +810,9 @@ impl Document {
   /// Creates a node for an XML processing instruction
   pub fn create_processing_instruction(&mut self, name: &str, content: &str) -> Result<Node, ()> {
     unsafe {
-      let c_name = CString::new(name).unwrap();
+      let c_name = CString::new(name).map_err(|_| ())?;
       let c_name_bytes = c_name.as_bytes();
-      let c_content = CString::new(content).unwrap();
+      let c_content = CString::new(content).map_err(|_| ())?;
       let c_content_bytes = c_content.as_bytes();
 
       let node_ptr: xmlNodePtr = xmlNewDocPI(

@@ -46,6 +46,13 @@
   no result.
 * A `Context` whose context node was freed forgets it, and evaluates without a node, as a new context does, instead of
   reading it. The context node is the one an evaluation at a node, or `set_context_node`, left.
+* A string with a NUL byte, which no C string holds, no longer panics in the methods that pass it to libxml2. The
+  property and namespace queries of `Node` and `RoNode` (`get_property*`, `get_property_node*`, `has_property*`,
+  `lookup_namespace_*` and their `attribute` aliases) read no such property or namespace, since no name libxml2 holds
+  has the byte. They do not read the string up to the byte. `set_property*`, `remove_property*`, `set_name`,
+  `set_content`, `new_child`, `add_text_child`, `Namespace::new`, `Node::new`, `Node::new_text`, `Document::save_file`,
+  `create_processing_instruction` and `canonicalize` (for an inclusive namespace prefix) return `Err` and change
+  nothing.
 
 ## [0.3.25] (2026-11-23)
 

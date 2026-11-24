@@ -39,8 +39,8 @@ impl Namespace {
     href: &str,
     node: &mut Node,
   ) -> Result<Self, Box<dyn Error + Send + Sync>> {
-    let c_href = CString::new(href).unwrap();
-    let c_prefix = CString::new(prefix).unwrap();
+    let c_href = CString::new(href)?;
+    let c_prefix = CString::new(prefix)?;
     let c_prefix_ptr = if prefix.is_empty() {
       ptr::null()
     } else {

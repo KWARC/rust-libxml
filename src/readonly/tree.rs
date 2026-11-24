@@ -9,7 +9,8 @@ use crate::c_helpers::*;
 use crate::tree::Document;
 use crate::tree::namespace::Namespace;
 use crate::tree::node::{
-  attr_node_value, single_text_value, with_c_str, with_property_copy, with_str_copy,
+  attr_node_value, single_text_value, with_c_str_or_else, with_c_strs_or_else, with_property_copy,
+  with_str_copy,
 };
 use crate::tree::nodetype::NodeType;
 use crate::xpath::Context;
@@ -227,7 +228,11 @@ impl RoNode {
 
   /// Returns the value of property `name`
   pub fn get_property(self, name: &str) -> Option<String> {
-    let value_ptr = with_c_str(name, |c_name| unsafe { xmlGetProp(self.0, c_name) });
+    let value_ptr = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlGetProp(self.0, c_name) },
+    );
     if value_ptr.is_null() {
       return None;
     }
@@ -239,9 +244,12 @@ impl RoNode {
 
   /// Returns the value of property `name` in namespace `ns`
   pub fn get_property_ns(self, name: &str, ns: &str) -> Option<String> {
-    let value_ptr = with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| unsafe { xmlGetNsProp(self.0, c_name, c_ns) })
-    });
+    let value_ptr = with_c_strs_or_else(
+      name,
+      ns,
+      |_| ptr::null_mut(),
+      |c_name, c_ns| unsafe { xmlGetNsProp(self.0, c_name, c_ns) },
+    );
     if value_ptr.is_null() {
       return None;
     }
@@ -253,7 +261,11 @@ impl RoNode {
 
   /// Returns the value of property `name` with no namespace
   pub fn get_property_no_ns(self, name: &str) -> Option<String> {
-    let value_ptr = with_c_str(name, |c_name| unsafe { xmlGetNoNsProp(self.0, c_name) });
+    let value_ptr = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlGetNoNsProp(self.0, c_name) },
+    );
     if value_ptr.is_null() {
       return None;
     }
@@ -265,23 +277,32 @@ impl RoNode {
 
   /// Return an attribute as a `Node` struct of type AttributeNode
   pub fn get_property_node(self, name: &str) -> Option<RoNode> {
-    let attr_node = with_c_str(name, |c_name| unsafe { xmlHasProp(self.0, c_name) });
+    let attr_node = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlHasProp(self.0, c_name) },
+    );
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
   pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
-    let attr_node = with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) })
-    });
+    let attr_node = with_c_strs_or_else(
+      name,
+      ns,
+      |_| ptr::null_mut(),
+      |c_name, c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) },
+    );
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
   pub fn get_property_node_no_ns(self, name: &str) -> Option<RoNode> {
-    let attr_node = with_c_str(name, |c_name| unsafe {
-      xmlHasNsProp(self.0, c_name, ptr::null())
-    });
+    let attr_node = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlHasNsProp(self.0, c_name, ptr::null()) },
+    );
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
@@ -396,23 +417,32 @@ impl RoNode {
 
   /// Check if a property has been defined, without allocating its value
   pub fn has_property(self, name: &str) -> bool {
-    let value_ptr = with_c_str(name, |c_name| unsafe { xmlHasProp(self.0, c_name) });
+    let value_ptr = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlHasProp(self.0, c_name) },
+    );
     !value_ptr.is_null()
   }
 
   /// Check if property `name` in namespace `ns` exists
   pub fn has_property_ns(self, name: &str, ns: &str) -> bool {
-    let value_ptr = with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) })
-    });
+    let value_ptr = with_c_strs_or_else(
+      name,
+      ns,
+      |_| ptr::null_mut(),
+      |c_name, c_ns| unsafe { xmlHasNsProp(self.0, c_name, c_ns) },
+    );
     !value_ptr.is_null()
   }
 
   /// Check if property `name` with no namespace exists
   pub fn has_property_no_ns(self, name: &str) -> bool {
-    let value_ptr = with_c_str(name, |c_name| unsafe {
-      xmlHasNsProp(self.0, c_name, ptr::null())
-    });
+    let value_ptr = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlHasNsProp(self.0, c_name, ptr::null()) },
+    );
     !value_ptr.is_null()
   }
 
@@ -483,9 +513,11 @@ impl RoNode {
     if href.is_empty() {
       return None;
     }
-    let ns_ptr = with_c_str(href, |c_href| unsafe {
-      xmlSearchNsByHref(xmlGetDoc(self.0), self.0, c_href)
-    });
+    let ns_ptr = with_c_str_or_else(
+      href,
+      |_| ptr::null_mut(),
+      |c_href| unsafe { xmlSearchNsByHref(xmlGetDoc(self.0), self.0, c_href) },
+    );
     if !ns_ptr.is_null() {
       let ns = Namespace { ns_ptr };
       let ns_prefix = ns.get_prefix();
@@ -500,9 +532,11 @@ impl RoNode {
     if prefix.is_empty() {
       return None;
     }
-    let ns_ptr = with_c_str(prefix, |c_prefix| unsafe {
-      xmlSearchNs(xmlGetDoc(self.0), self.0, c_prefix)
-    });
+    let ns_ptr = with_c_str_or_else(
+      prefix,
+      |_| ptr::null_mut(),
+      |c_prefix| unsafe { xmlSearchNs(xmlGetDoc(self.0), self.0, c_prefix) },
+    );
     if !ns_ptr.is_null() {
       let ns = Namespace { ns_ptr };
       let ns_prefix = ns.get_href();

@@ -327,23 +327,6 @@ fn set_and_remove_property_with_short_and_long_names_and_values() {
   assert!(!root.has_property_ns(&name, "urn:p"));
 }
 
-/// A name holding a NUL byte panics, as these methods always have (`CString::new(name).unwrap()`).
-#[test]
-#[should_panic(expected = "NulError")]
-fn get_property_with_a_nul_in_the_name_panics() {
-  let doc = Parser::default().parse_string(r#"<r a="1"/>"#).unwrap();
-  let root = doc.get_root_element().unwrap();
-  let _ = root.get_property("a\0b");
-}
-
-#[test]
-#[should_panic(expected = "NulError")]
-fn set_property_with_a_nul_in_the_value_panics() {
-  let doc = Parser::default().parse_string("<r/>").unwrap();
-  let mut root = doc.get_root_element().unwrap();
-  let _ = root.set_property("a", "x\0y");
-}
-
 #[test]
 fn child_lists_keep_document_order() {
   let doc = Parser::default()
