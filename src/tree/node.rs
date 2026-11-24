@@ -577,6 +577,9 @@ pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
 /// average (arXiv 2605.19500, 2.1x the instructions of the whole conversion).
 #[inline(never)]
 fn is_within(node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
+  if ancestor.is_null() {
+    return false; // As the walk up, which never compares a node with NULL.
+  }
   let mut up = node;
   let mut down = ancestor;
   let mut above = xmlGetParent(ancestor);
@@ -2706,7 +2709,7 @@ mod is_within_tests {
     let mut wrong = Vec::new();
     for &node in &nodes {
       for &ancestor in &nodes {
-        if !ancestor.is_null() && is_within(node, ancestor) != climbs_to(node, ancestor) {
+        if is_within(node, ancestor) != climbs_to(node, ancestor) {
           wrong.push((xmlGetNodeType(node), xmlGetNodeType(ancestor)));
         }
       }
