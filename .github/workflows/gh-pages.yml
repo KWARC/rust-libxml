@@ -9,6 +9,13 @@ name: Publish Docs
 permissions:
   contents: write
 
+# One deploy at a time: of two concurrent ones, the second to push to gh-pages was rejected (fetch first), even when it
+# was the newer main. A run waits for the one in progress, and a newer push replaces a waiting run, so the last push
+# to main is deployed last.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
 jobs:
   publish_docs:
     if: github.repository == 'KWARC/rust-libxml'
