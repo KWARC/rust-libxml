@@ -4,7 +4,7 @@ use libc::{c_char, c_void};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::error::Error;
-use std::ffi::{CStr, CString};
+use std::ffi::{CStr, CString, NulError};
 use std::hash::{Hash, Hasher};
 use std::ptr;
 use std::rc::{Rc, Weak};
@@ -614,7 +614,7 @@ impl Node {
   pub fn new(name: &str, ns: Option<Namespace>, doc: &Document) -> Result<Self, ()> {
     // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
 
-    let c_name = CString::new(name).unwrap();
+    let c_name = CString::new(name).map_err(|_| ())?;
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(ns) => ns.ns_ptr(),
@@ -713,7 +713,7 @@ impl Node {
   /// Create a new text node, bound to a given document
   pub fn new_text(content: &str, doc: &Document) -> Result<Self, ()> {
     // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
-    let c_content = CString::new(content).unwrap();
+    let c_content = CString::new(content).map_err(|_| ())?;
     unsafe {
       let node = xmlNewDocText(doc.doc_ptr(), c_content.as_bytes().as_ptr());
       if node.is_null() {
@@ -1036,7 +1036,7 @@ impl Node {
 
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let c_name = CString::new(name).unwrap();
+    let c_name = CString::new(name)?;
     unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
     Ok(())
   }
@@ -1068,7 +1068,7 @@ impl Node {
   /// wrappers, and those of their descendants, read as `Node::null()` afterwards. An entity reference is left alone,
   /// as libxml2 2.13 and later do: its child is the entity's declaration.
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let c_content = CString::new(content).unwrap();
+    let c_content = CString::new(content)?;
     let node_ptr = self.node_ptr_mut()?;
     let node_type = self.get_type();
     if node_type == Some(NodeType::EntityRefNode) {
@@ -1114,13 +1114,17 @@ impl Node {
 
   /// Returns the value of property `name`
   pub fn get_property(&self, name: &str) -> Option<String> {
-    with_c_str(name, |c_name| unsafe {
-      let node_ptr = self.node_ptr();
-      // (`xmlGetProp` is `xmlHasProp` and a copy of the value)
-      property_value(xmlHasProp(node_ptr, c_name), || {
-        xmlGetProp(node_ptr, c_name)
-      })
-    })
+    with_c_str_or_else(
+      name,
+      |_| None,
+      |c_name| unsafe {
+        let node_ptr = self.node_ptr();
+        // (`xmlGetProp` is `xmlHasProp` and a copy of the value)
+        property_value(xmlHasProp(node_ptr, c_name), || {
+          xmlGetProp(node_ptr, c_name)
+        })
+      },
+    )
   }
 
   /// Read property `name`, as [`Node::get_property`] does, and pass its value to `f`; unlike `get_property`, the common
@@ -1136,78 +1140,92 @@ impl Node {
 
   /// Returns the value of property `name` in namespace `ns`
   pub fn get_property_ns(&self, name: &str, ns: &str) -> Option<String> {
-    with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| unsafe {
+    with_c_strs_or_else(
+      name,
+      ns,
+      |_| None,
+      |c_name, c_ns| unsafe {
         let node_ptr = self.node_ptr();
         // (`xmlGetNsProp` is `xmlHasNsProp` and a copy of the value)
         property_value(xmlHasNsProp(node_ptr, c_name, c_ns), || {
           xmlGetNsProp(node_ptr, c_name, c_ns)
         })
-      })
-    })
+      },
+    )
   }
 
   /// Returns the value of property `name` with no namespace
   pub fn get_property_no_ns(&self, name: &str) -> Option<String> {
-    with_c_str(name, |c_name| unsafe {
-      let node_ptr = self.node_ptr();
-      // (`xmlGetNoNsProp` is `xmlHasNsProp` with no namespace and a copy of the value)
-      property_value(xmlHasNsProp(node_ptr, c_name, ptr::null()), || {
-        xmlGetNoNsProp(node_ptr, c_name)
-      })
-    })
+    with_c_str_or_else(
+      name,
+      |_| None,
+      |c_name| unsafe {
+        let node_ptr = self.node_ptr();
+        // (`xmlGetNoNsProp` is `xmlHasNsProp` with no namespace and a copy of the value)
+        property_value(xmlHasNsProp(node_ptr, c_name, ptr::null()), || {
+          xmlGetNoNsProp(node_ptr, c_name)
+        })
+      },
+    )
   }
 
   /// Return an attribute as a `Node` struct of type AttributeNode
   pub fn get_property_node(&self, name: &str) -> Option<Node> {
-    let attr_node = with_c_str(name, |c_name| unsafe {
-      xmlHasProp(self.node_ptr(), c_name)
-    });
+    let attr_node = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlHasProp(self.node_ptr(), c_name) },
+    );
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
   pub fn get_property_node_ns(&self, name: &str, ns: &str) -> Option<Node> {
-    let attr_node = with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| unsafe {
-        xmlHasNsProp(self.node_ptr(), c_name, c_ns)
-      })
-    });
+    let attr_node = with_c_strs_or_else(
+      name,
+      ns,
+      |_| ptr::null_mut(),
+      |c_name, c_ns| unsafe { xmlHasNsProp(self.node_ptr(), c_name, c_ns) },
+    );
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
   pub fn get_property_node_no_ns(&self, name: &str) -> Option<Node> {
-    let attr_node = with_c_str(name, |c_name| unsafe {
-      xmlHasNsProp(self.node_ptr(), c_name, ptr::null())
-    });
+    let attr_node = with_c_str_or_else(
+      name,
+      |_| ptr::null_mut(),
+      |c_name| unsafe { xmlHasNsProp(self.node_ptr(), c_name, ptr::null()) },
+    );
     self.ptr_as_option(attr_node as xmlNodePtr)
   }
 
   /// Check if a property has been defined, without allocating its value
   pub fn has_property(&self, name: &str) -> bool {
-    let value_ptr = with_c_str(name, |c_name| unsafe {
-      xmlHasProp(self.node_ptr(), c_name)
-    });
-    !value_ptr.is_null()
+    with_c_str_or_else(
+      name,
+      |_| false,
+      |c_name| unsafe { !xmlHasProp(self.node_ptr(), c_name).is_null() },
+    )
   }
 
   /// Check if property `name` in namespace `ns` exists
   pub fn has_property_ns(&self, name: &str, ns: &str) -> bool {
-    let value_ptr = with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| unsafe {
-        xmlHasNsProp(self.node_ptr(), c_name, c_ns)
-      })
-    });
-    !value_ptr.is_null()
+    with_c_strs_or_else(
+      name,
+      ns,
+      |_| false,
+      |c_name, c_ns| unsafe { !xmlHasNsProp(self.node_ptr(), c_name, c_ns).is_null() },
+    )
   }
 
   /// Check if property `name` with no namespace exists
   pub fn has_property_no_ns(&self, name: &str) -> bool {
-    let value_ptr = with_c_str(name, |c_name| unsafe {
-      xmlHasNsProp(self.node_ptr(), c_name, ptr::null())
-    });
-    !value_ptr.is_null()
+    with_c_str_or_else(
+      name,
+      |_| false,
+      |c_name| unsafe { !xmlHasNsProp(self.node_ptr(), c_name, ptr::null()).is_null() },
+    )
   }
 
   /// Alias for has_property
@@ -1236,13 +1254,11 @@ impl Node {
     if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) || node_sets_live() {
       return self.set_property_neutralizing(name, value, None);
     }
-    with_c_str(name, |c_name| {
-      with_c_str(value, |c_value| {
-        let node_ptr = self.node_ptr_mut()?;
-        unsafe { xmlSetProp(node_ptr, c_name, c_value) };
-        Ok(())
-      })
-    })
+    with_c_strs(name, value, |c_name, c_value| {
+      let node_ptr = self.node_ptr_mut()?;
+      unsafe { xmlSetProp(node_ptr, c_name, c_value) };
+      Ok(())
+    })?
   }
   /// Sets a namespaced attribute
   ///
@@ -1257,13 +1273,11 @@ impl Node {
     if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) || node_sets_live() {
       return self.set_property_neutralizing(name, value, Some(ns));
     }
-    with_c_str(name, |c_name| {
-      with_c_str(value, |c_value| {
-        let node_ptr = self.node_ptr_mut()?;
-        unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) };
-        Ok(())
-      })
-    })
+    with_c_strs(name, value, |c_name, c_value| {
+      let node_ptr = self.node_ptr_mut()?;
+      unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) };
+      Ok(())
+    })?
   }
 
   /// `set_property` (no `ns`) or `set_property_ns`, once a value node may have been wrapped ([`VALUE_NODE_WRAPPED`]), or
@@ -1277,20 +1291,18 @@ impl Node {
     value: &str,
     ns: Option<&Namespace>,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    with_c_str(name, |c_name| {
-      with_c_str(value, |c_value| {
-        let node_ptr = self.node_ptr_mut()?;
-        let values = ValueNodes::collect(self, name, c_name, ns.is_none());
-        match ns {
-          None => unsafe { xmlSetProp(node_ptr, c_name, c_value) },
-          Some(ns) => unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) },
-        };
-        if let Some(values) = values {
-          values.neutralize_replaced(self);
-        }
-        Ok(())
-      })
-    })
+    with_c_strs(name, value, |c_name, c_value| {
+      let node_ptr = self.node_ptr_mut()?;
+      let values = ValueNodes::collect(self, name, c_name, ns.is_none());
+      match ns {
+        None => unsafe { xmlSetProp(node_ptr, c_name, c_value) },
+        Some(ns) => unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) },
+      };
+      if let Some(values) = values {
+        values.neutralize_replaced(self);
+      }
+      Ok(())
+    })?
   }
 
   /// Neutralizes the wrappers of the attribute `attr` and its value nodes, which libxml2 is about to free, once any may
@@ -1317,7 +1329,7 @@ impl Node {
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasProp(self.node_ptr_mut()?, c_name) })
-    })?;
+    })??;
     unsafe {
       if !attr_node.is_null() {
         self.neutralize_attribute(attr_node);
@@ -1345,11 +1357,13 @@ impl Node {
     name: &str,
     ns: &str,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    let attr_node = with_c_str(name, |c_name| {
-      with_c_str(ns, |c_ns| -> Result<_, Box<dyn Error + Send + Sync>> {
+    let attr_node = with_c_strs(
+      name,
+      ns,
+      |c_name, c_ns| -> Result<_, Box<dyn Error + Send + Sync>> {
         Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, c_ns) })
-      })
-    })?;
+      },
+    )??;
     unsafe {
       if !attr_node.is_null() {
         self.neutralize_attribute(attr_node);
@@ -1375,7 +1389,7 @@ impl Node {
   pub fn remove_property_no_ns(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, ptr::null()) })
-    })?;
+    })??;
     if !attr_node.is_null() {
       self.neutralize_attribute(attr_node);
       let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
@@ -1614,9 +1628,11 @@ impl Node {
       return None;
     }
     let ptr_mut = self.node_ptr();
-    let ns_ptr = with_c_str(href, |c_href| unsafe {
-      xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href)
-    });
+    let ns_ptr = with_c_str_or_else(
+      href,
+      |_| ptr::null_mut(),
+      |c_href| unsafe { xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href) },
+    );
     if !ns_ptr.is_null() {
       let ns = Namespace { ns_ptr };
       let ns_prefix = ns.get_prefix();
@@ -1631,9 +1647,11 @@ impl Node {
     if prefix.is_empty() {
       return None;
     }
-    let ns_ptr = with_c_str(prefix, |c_prefix| unsafe {
-      xmlSearchNs(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_prefix)
-    });
+    let ns_ptr = with_c_str_or_else(
+      prefix,
+      |_| ptr::null_mut(),
+      |c_prefix| unsafe { xmlSearchNs(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_prefix) },
+    );
     if !ns_ptr.is_null() {
       let ns = Namespace { ns_ptr };
       let ns_prefix = ns.get_href();
@@ -1742,7 +1760,7 @@ impl Node {
     ns: Option<Namespace>,
     name: &str,
   ) -> Result<Node, Box<dyn Error + Send + Sync>> {
-    let c_name = CString::new(name).unwrap();
+    let c_name = CString::new(name)?;
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(mut ns) => ns.ns_ptr_mut(),
@@ -1772,8 +1790,8 @@ impl Node {
     name: &str,
     content: &str,
   ) -> Result<Node, Box<dyn Error + Send + Sync>> {
-    let c_name = CString::new(name).unwrap();
-    let c_content = CString::new(content).unwrap();
+    let c_name = CString::new(name)?;
+    let c_content = CString::new(content)?;
     let ns_ptr = match ns {
       None => ptr::null_mut(),
       Some(mut ns) => ns.ns_ptr_mut(),
@@ -2427,9 +2445,14 @@ pub(crate) fn with_str_copy<R>(c: &CStr, f: impl FnOnce(&str) -> R) -> R {
 }
 
 /// Pass `s` to `f` as a NUL-terminated string for libxml2: copied to the stack when it is shorter than 128 bytes,
-/// otherwise through a `CString`. A string holding a NUL byte takes the `CString` path and panics there, as
-/// `CString::new(s).unwrap()` always has in these methods.
-pub(crate) fn with_c_str<R>(s: &str, f: impl FnOnce(*const xmlChar) -> R) -> R {
+/// otherwise through a `CString`. A string holding a NUL byte is no C string, and no name or value libxml2 holds: `nul`
+/// makes the result instead of `f`. The stack path already checks for the byte, and returns `f`'s value as it is.
+#[inline]
+pub(crate) fn with_c_str_or_else<R>(
+  s: &str,
+  nul: impl FnOnce(NulError) -> R,
+  f: impl FnOnce(*const xmlChar) -> R,
+) -> R {
   const STACK: usize = 128;
   let bytes = s.as_bytes();
   if bytes.len() < STACK && !bytes.contains(&0) {
@@ -2437,9 +2460,49 @@ pub(crate) fn with_c_str<R>(s: &str, f: impl FnOnce(*const xmlChar) -> R) -> R {
     buffer[..bytes.len()].copy_from_slice(bytes);
     f(buffer.as_ptr())
   } else {
-    let c_string = CString::new(s).unwrap();
-    f(c_string.as_bytes().as_ptr())
+    with_c_string(s, nul, f)
   }
+}
+
+/// [`with_c_str_or_else`]'s path for a long string or one holding a NUL byte, out of line.
+#[cold]
+#[inline(never)]
+fn with_c_string<R>(
+  s: &str,
+  nul: impl FnOnce(NulError) -> R,
+  f: impl FnOnce(*const xmlChar) -> R,
+) -> R {
+  match CString::new(s) {
+    Ok(c_string) => f(c_string.as_bytes().as_ptr()),
+    Err(error) => nul(error),
+  }
+}
+
+/// [`with_c_str_or_else`] for two strings.
+#[inline]
+pub(crate) fn with_c_strs_or_else<R>(
+  a: &str,
+  b: &str,
+  nul: impl Fn(NulError) -> R,
+  f: impl FnOnce(*const xmlChar, *const xmlChar) -> R,
+) -> R {
+  with_c_str_or_else(a, &nul, |a| with_c_str_or_else(b, &nul, |b| f(a, b)))
+}
+
+/// [`with_c_str_or_else`], with the `NulError` as `Err`.
+#[inline]
+pub(crate) fn with_c_str<R>(s: &str, f: impl FnOnce(*const xmlChar) -> R) -> Result<R, NulError> {
+  with_c_str_or_else(s, Err, |c| Ok(f(c)))
+}
+
+/// [`with_c_str`] for two strings.
+#[inline]
+pub(crate) fn with_c_strs<R>(
+  a: &str,
+  b: &str,
+  f: impl FnOnce(*const xmlChar, *const xmlChar) -> R,
+) -> Result<R, NulError> {
+  with_c_strs_or_else(a, b, Err, |a, b| Ok(f(a, b)))
 }
 
 mod c14n;

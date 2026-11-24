@@ -3,7 +3,6 @@
 
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::cell::Cell;
-use std::panic::{AssertUnwindSafe, catch_unwind};
 
 use libxml::parser::Parser;
 use libxml::readonly::RoNode;
@@ -143,102 +142,6 @@ fn ronode_name_reads_match_node_reads() {
   assert_eq!(ro.lookup_namespace_uri(""), None);
   assert_eq!(ro.lookup_namespace_prefix("urn:absent"), None);
   assert_eq!(ro.lookup_namespace_uri("absent"), None);
-}
-
-/// A read to run under `catch_unwind`.
-type Read<'a> = Box<dyn Fn() + 'a>;
-
-/// A name or namespace holding a NUL byte panics in every name-taking read, as in `Node`'s (`CString::new(..)
-/// .unwrap()`), whatever its length.
-#[test]
-fn ronode_name_reads_panic_on_a_nul_in_the_name() {
-  let doc = boundary_document();
-  let ro = doc.get_root_readonly().unwrap();
-  let long = format!("a\0{}", "x".repeat(200));
-  for name in ["a\0b", long.as_str()] {
-    let reads: [(&str, Read); 12] = [
-      (
-        "get_property",
-        Box::new(|| {
-          let _ = ro.get_property(name);
-        }),
-      ),
-      (
-        "get_property_ns",
-        Box::new(|| {
-          let _ = ro.get_property_ns("a", name);
-        }),
-      ),
-      (
-        "get_property_no_ns",
-        Box::new(|| {
-          let _ = ro.get_property_no_ns(name);
-        }),
-      ),
-      (
-        "get_property_node",
-        Box::new(|| {
-          let _ = ro.get_property_node(name);
-        }),
-      ),
-      (
-        "get_property_node_ns",
-        Box::new(|| {
-          let _ = ro.get_property_node_ns(name, "urn:1");
-        }),
-      ),
-      (
-        "get_property_node_no_ns",
-        Box::new(|| {
-          let _ = ro.get_property_node_no_ns(name);
-        }),
-      ),
-      (
-        "has_property",
-        Box::new(|| {
-          let _ = ro.has_property(name);
-        }),
-      ),
-      (
-        "has_property_ns",
-        Box::new(|| {
-          let _ = ro.has_property_ns(name, "urn:1");
-        }),
-      ),
-      (
-        "has_property_no_ns",
-        Box::new(|| {
-          let _ = ro.has_property_no_ns(name);
-        }),
-      ),
-      (
-        "get_attribute",
-        Box::new(|| {
-          let _ = ro.get_attribute(name);
-        }),
-      ),
-      (
-        "lookup_namespace_prefix",
-        Box::new(|| {
-          let _ = ro.lookup_namespace_prefix(name);
-        }),
-      ),
-      (
-        "lookup_namespace_uri",
-        Box::new(|| {
-          let _ = ro.lookup_namespace_uri(name);
-        }),
-      ),
-    ];
-    for (read, call) in reads {
-      let panic = catch_unwind(AssertUnwindSafe(call)).expect_err(read);
-      let message = panic
-        .downcast_ref::<String>()
-        .map(String::as_str)
-        .unwrap_or_default();
-      assert!(message.contains("NulError"), "{read}: {message}");
-    }
-  }
 }
 
 /// A name shorter than 128 bytes reaches libxml2 without a heap allocation: the reads that return no `String`

@@ -1,6 +1,6 @@
 //! Document canonicalization logic
 //!
-use std::ffi::{CString, c_int, c_void};
+use std::ffi::{CString, NulError, c_int, c_void};
 use std::os::raw;
 use std::ptr::null_mut;
 
@@ -21,7 +21,7 @@ impl Document {
     let document = (*self.0).borrow().doc_ptr;
 
     // `ns_strings` owns the prefixes until the end of this call; libxml2 only reads them.
-    let ns_strings = to_cstrings(options.inclusive_ns_prefixes);
+    let ns_strings = to_cstrings(options.inclusive_ns_prefixes).map_err(|_| ())?;
     let mut ns_list_c = to_xml_string_vec(&ns_strings);
     let inclusive_ns_prefixes = ns_list_c.as_mut_ptr();
     let with_comments = c_int::from(options.with_comments);
@@ -117,8 +117,9 @@ unsafe extern "C" fn xml_write_io(
   len
 }
 
-fn to_cstrings(vec: Vec<String>) -> Vec<CString> {
-  vec.into_iter().map(|s| CString::new(s).unwrap()).collect()
+/// `Err` if a string holds a NUL byte, which no C string does.
+fn to_cstrings(vec: Vec<String>) -> Result<Vec<CString>, NulError> {
+  vec.into_iter().map(CString::new).collect()
 }
 
 /// A NULL-terminated array of pointers into `strings`, which must outlive it.
