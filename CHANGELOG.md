@@ -1,5 +1,16 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixed
+
+* Linking a node that has children or attributes (`add_child`, `add_prev_sibling`, `add_next_sibling`) no longer walks
+  from the insertion point up to the top of the tree, which 0.3.25 added to refuse a loop: the check now costs the least
+  of the size of the subtree linked, the depth of the insertion point, and the distance from the node up to the
+  insertion point, when it is above the node. Moving nodes about deep in a tree is as fast as in 0.3.24 again
+  (latexml-oxide on arXiv 2605.19500, which moves the children of a chain of 9,642 nested elements: 1,966 G
+  instructions with 0.3.25 and 0.3.26, 920 G now). The same links are refused.
+
 ## [0.3.26] (2026-11-23)
 
 Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.25 builds unchanged
