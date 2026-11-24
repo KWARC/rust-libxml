@@ -1,6 +1,19 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.26] (2026-11-23)
+
+Compatibility: no public item was removed and no signature changed, so code that builds against 0.3.25 builds unchanged
+(cargo-semver-checks, default features: no semver update required). Calls behave differently only where 0.3.25 read
+freed memory, panicked, or passed libxml2 a truncated length (see Fixed). A string with a NUL byte gets `Err`, or `None`
+/ `false` from a query, instead of a panic, and so does an XPath expression with one. `Object`'s `Display` reads a
+result that is not UTF-8 lossily, and `SchemaValidationContext::validate_file` and `from_parser` return `Err`, where
+they panicked. `SchemaParserContext::from_buffer` panics for a buffer of 4 GiB or more, and `Node::append_text` returns
+`Err` for text of more than `i32::MAX` bytes, instead of truncating the length. A namespace of another document, or any
+namespace on a node in no document, is refused with `Err`: declare it in the node's own document, with `Namespace::new`.
+A `Namespace` from a `Node` keeps its document alive, as an XPath `Context` does. An XPath `Object` leaves out the nodes
+of its set that were freed while it was alive, and a `Context` forgets a freed context node.
+`SchemaParserContext::from_*` and `Document::new_ptr` are deprecated, for `try_from_*` and `Document::from_raw_ptr`;
+they are unchanged.
 
 ### Added
 
