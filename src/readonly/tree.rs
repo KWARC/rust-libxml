@@ -7,7 +7,7 @@ use std::str;
 use crate::bindings::*;
 use crate::c_helpers::*;
 use crate::tree::Document;
-use crate::tree::namespace::Namespace;
+use crate::tree::namespace::{self, Namespace};
 use crate::tree::node::{
   attr_node_value, single_text_value, with_c_str_or_else, with_c_strs_or_else, with_property_copy,
   with_str_copy,
@@ -393,7 +393,7 @@ impl RoNode {
         let value = self.get_property_no_ns(&name).unwrap_or_default();
         attributes.insert((name, None), value);
       } else {
-        let ns = Namespace { ns_ptr };
+        let ns = Namespace::of(ns_ptr, xmlGetDoc(self.0), None);
         let value = self
           .get_property_ns(&name, &ns.get_href())
           .unwrap_or_default();
@@ -467,21 +467,26 @@ impl RoNode {
     if ns_ptr.is_null() {
       None
     } else {
-      Some(Namespace { ns_ptr })
+      Some(Namespace::of(ns_ptr, xmlGetDoc(self.0), None))
     }
   }
 
   /// Gets a list of namespaces associated with this node
+  ///
+  /// The namespaces keep `doc` alive, as a `Node`'s do, when it is this node's document.
   pub fn get_namespaces(self, doc: &Document) -> Vec<Namespace> {
     let list_ptr_raw = unsafe { xmlGetNsList(doc.doc_ptr(), self.0) };
     if list_ptr_raw.is_null() {
       Vec::new()
     } else {
       let mut namespaces = Vec::new();
+      // The namespaces are this node's document's, which may not be `doc`.
+      let doc_ptr = xmlGetDoc(self.0);
+      let document = (doc_ptr == doc.doc_ptr()).then_some(&doc.0);
       let mut ptr_iter = list_ptr_raw as *mut xmlNsPtr;
       unsafe {
         while !ptr_iter.is_null() && !(*ptr_iter).is_null() {
-          namespaces.push(Namespace { ns_ptr: *ptr_iter });
+          namespaces.push(Namespace::of(*ptr_iter, doc_ptr, document.cloned()));
           ptr_iter = ptr_iter.add(1);
         }
       }
@@ -501,7 +506,7 @@ impl RoNode {
     let mut ns_ptr = xmlNodeNsDeclarations(self.0);
     while !ns_ptr.is_null() {
       if !xmlNsPrefix(ns_ptr).is_null() || !xmlNsHref(ns_ptr).is_null() {
-        namespaces.push(Namespace { ns_ptr });
+        namespaces.push(Namespace::of(ns_ptr, xmlGetDoc(self.0), None));
       }
       ns_ptr = xmlNextNsSibling(ns_ptr);
     }
@@ -519,9 +524,7 @@ impl RoNode {
       |c_href| unsafe { xmlSearchNsByHref(xmlGetDoc(self.0), self.0, c_href) },
     );
     if !ns_ptr.is_null() {
-      let ns = Namespace { ns_ptr };
-      let ns_prefix = ns.get_prefix();
-      Some(ns_prefix)
+      Some(namespace::prefix_of(ns_ptr))
     } else {
       None
     }
@@ -538,13 +541,7 @@ impl RoNode {
       |c_prefix| unsafe { xmlSearchNs(xmlGetDoc(self.0), self.0, c_prefix) },
     );
     if !ns_ptr.is_null() {
-      let ns = Namespace { ns_ptr };
-      let ns_prefix = ns.get_href();
-      if !ns_prefix.is_empty() {
-        Some(ns_prefix)
-      } else {
-        None
-      }
+      Some(namespace::href_of(ns_ptr)).filter(|href| !href.is_empty())
     } else {
       None
     }

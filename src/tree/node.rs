@@ -16,7 +16,7 @@ use crate::c_helpers::*;
 use crate::readonly::RoNode;
 use crate::readonly::walk_properties;
 use crate::tree::document::node_sets_live;
-use crate::tree::namespace::Namespace;
+use crate::tree::namespace::{self, Namespace};
 use crate::tree::nodetype::NodeType;
 use crate::tree::{Document, DocumentRef, DocumentWeak};
 use crate::xpath::Context;
@@ -616,10 +616,14 @@ impl Node {
     // We will only allow to work with document-bound nodes for now, to avoid the problems of memory management.
 
     let c_name = CString::new(name).map_err(|_| ())?;
-    let ns_ptr = match ns {
-      None => ptr::null_mut(),
-      Some(ns) => ns.ns_ptr(),
-    };
+    if ns
+      .as_ref()
+      .is_some_and(|ns| !ns.may_be_used_in(doc.doc_ptr()))
+    {
+      return Err(());
+    }
+    // (`ns` lives until the end, and with it its document.)
+    let ns_ptr = ns.as_ref().map_or(ptr::null_mut(), Namespace::ns_ptr);
     unsafe {
       let node = xmlNewDocRawNode(
         doc.doc_ptr(),
@@ -1271,6 +1275,7 @@ impl Node {
     value: &str,
     ns: &Namespace,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    self.refuse_foreign_namespace(Some(ns))?;
     if VALUE_NODE_WRAPPED.load(Ordering::Relaxed) || node_sets_live() {
       return self.set_property_neutralizing(name, value, Some(ns));
     }
@@ -1566,8 +1571,11 @@ impl Node {
   /// Get a copy of this node's attributes and their namespaces
   pub fn get_properties_ns(&self) -> HashMap<(String, Option<Namespace>), String> {
     let mut attributes = HashMap::new();
+    let node_ptr = self.node_ptr();
+    // The node's document, for its namespaces: upgraded at the first one.
+    let mut document = None;
 
-    let mut current_prop = xmlGetFirstProperty(self.node_ptr());
+    let mut current_prop = xmlGetFirstProperty(node_ptr);
     while !current_prop.is_null() {
       let name_ptr = xmlAttrName(current_prop);
       if name_ptr.is_null() {
@@ -1585,7 +1593,9 @@ impl Node {
       if ns_ptr.is_null() {
         attributes.insert((name, None), value);
       } else {
-        let ns = Namespace { ns_ptr };
+        let (doc_ptr, document) =
+          document.get_or_insert_with(|| (xmlGetDoc(node_ptr), self.upgrade_docref()));
+        let ns = Namespace::of(ns_ptr, *doc_ptr, document.clone());
         attributes.insert((name, Some(ns)), value);
       }
       current_prop = xmlNextPropertySibling(current_prop);
@@ -1606,11 +1616,16 @@ impl Node {
 
   /// Gets the active namespace associated of this node
   pub fn get_namespace(&self) -> Option<Namespace> {
-    let ns_ptr = xmlNodeNs(self.node_ptr());
+    let node = self.0.borrow();
+    let ns_ptr = xmlNodeNs(node.node_ptr);
     if ns_ptr.is_null() {
       None
     } else {
-      Some(Namespace { ns_ptr })
+      Some(Namespace::of(
+        ns_ptr,
+        xmlGetDoc(node.node_ptr),
+        node.document.upgrade(),
+      ))
     }
   }
 
@@ -1627,15 +1642,19 @@ impl Node {
   /// allocator shim (`bindgenFree` — NOT the `xmlFree` global, which is not
   /// a linkable symbol on MSVC).
   pub fn get_namespaces(&self, doc: &Document) -> Vec<Namespace> {
-    let list_ptr_raw = unsafe { xmlGetNsList(doc.doc_ptr(), self.node_ptr()) };
+    let node = self.0.borrow();
+    let list_ptr_raw = unsafe { xmlGetNsList(doc.doc_ptr(), node.node_ptr) };
     if list_ptr_raw.is_null() {
       Vec::new()
     } else {
       let mut namespaces = Vec::new();
+      // The node's own document, which may not be `doc`.
+      let doc_ptr = xmlGetDoc(node.node_ptr);
+      let document = node.document.upgrade();
       let mut ptr_iter = list_ptr_raw as *mut xmlNsPtr;
       unsafe {
         while !ptr_iter.is_null() && !(*ptr_iter).is_null() {
-          namespaces.push(Namespace { ns_ptr: *ptr_iter });
+          namespaces.push(Namespace::of(*ptr_iter, doc_ptr, document.clone()));
           ptr_iter = ptr_iter.add(1);
         }
       }
@@ -1651,10 +1670,15 @@ impl Node {
       return Vec::new();
     }
     let mut namespaces = Vec::new();
-    let mut ns_ptr = xmlNodeNsDeclarations(self.node_ptr());
+    let node = self.0.borrow();
+    // The node's document: upgraded at the first declaration.
+    let mut document = None;
+    let mut ns_ptr = xmlNodeNsDeclarations(node.node_ptr);
     while !ns_ptr.is_null() {
       if !xmlNsPrefix(ns_ptr).is_null() || !xmlNsHref(ns_ptr).is_null() {
-        namespaces.push(Namespace { ns_ptr });
+        let (doc_ptr, document) =
+          document.get_or_insert_with(|| (xmlGetDoc(node.node_ptr), node.document.upgrade()));
+        namespaces.push(Namespace::of(ns_ptr, *doc_ptr, document.clone()));
       }
       ns_ptr = xmlNextNsSibling(ns_ptr);
     }
@@ -1666,10 +1690,26 @@ impl Node {
     &mut self,
     namespace: &Namespace,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let node_ptr = self.node_ptr_mut()?;
+    if !namespace.may_be_used_in(xmlGetDoc(node_ptr)) {
+      return Err(foreign_namespace());
+    }
     unsafe {
-      xmlSetNs(self.node_ptr_mut()?, namespace.ns_ptr());
+      xmlSetNs(node_ptr, namespace.ns_ptr());
     }
     Ok(())
+  }
+
+  /// `Err` for a namespace that is not of this node's document, which the node would point into after it drops.
+  #[inline]
+  fn refuse_foreign_namespace(
+    &self,
+    namespace: Option<&Namespace>,
+  ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    match namespace {
+      Some(ns) if !ns.may_be_used_in(xmlGetDoc(self.node_ptr())) => Err(foreign_namespace()),
+      _ => Ok(()),
+    }
   }
 
   /// Looks up the prefix of a namespace from its URI, basedo around a given `Node`
@@ -1684,9 +1724,7 @@ impl Node {
       |c_href| unsafe { xmlSearchNsByHref(xmlGetDoc(ptr_mut), ptr_mut, c_href) },
     );
     if !ns_ptr.is_null() {
-      let ns = Namespace { ns_ptr };
-      let ns_prefix = ns.get_prefix();
-      Some(ns_prefix)
+      Some(namespace::prefix_of(ns_ptr))
     } else {
       None
     }
@@ -1703,13 +1741,7 @@ impl Node {
       |c_prefix| unsafe { xmlSearchNs(xmlGetDoc(self.node_ptr()), self.node_ptr(), c_prefix) },
     );
     if !ns_ptr.is_null() {
-      let ns = Namespace { ns_ptr };
-      let ns_prefix = ns.get_href();
-      if !ns_prefix.is_empty() {
-        Some(ns_prefix)
-      } else {
-        None
-      }
+      Some(namespace::href_of(ns_ptr)).filter(|href| !href.is_empty())
     } else {
       None
     }
@@ -1811,10 +1843,9 @@ impl Node {
     name: &str,
   ) -> Result<Node, Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name)?;
-    let ns_ptr = match ns {
-      None => ptr::null_mut(),
-      Some(mut ns) => ns.ns_ptr_mut(),
-    };
+    self.refuse_foreign_namespace(ns.as_ref())?;
+    // (`ns` lives until the end, and with it its document.)
+    let ns_ptr = ns.as_ref().map_or(ptr::null_mut(), Namespace::ns_ptr);
     unsafe {
       let new_ptr = xmlNewChild(
         self.node_ptr_mut()?,
@@ -1842,10 +1873,9 @@ impl Node {
   ) -> Result<Node, Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name)?;
     let c_content = CString::new(content)?;
-    let ns_ptr = match ns {
-      None => ptr::null_mut(),
-      Some(mut ns) => ns.ns_ptr_mut(),
-    };
+    self.refuse_foreign_namespace(ns.as_ref())?;
+    // (`ns` lives until the end, and with it its document.)
+    let ns_ptr = ns.as_ref().map_or(ptr::null_mut(), Namespace::ns_ptr);
     unsafe {
       let new_ptr = xmlNewTextChild(
         self.node_ptr_mut()?,
@@ -2496,6 +2526,15 @@ pub(crate) fn with_str_copy<R>(c: &CStr, f: impl FnOnce(&str) -> R) -> R {
     }
     None => f(&c_str_to_string(c)),
   }
+}
+
+/// The error for a namespace that is not of the node's document, which would point into its own document after that
+/// drops.
+#[cold]
+fn foreign_namespace() -> Box<dyn Error + Send + Sync> {
+  From::from(
+    "the namespace is not of this node's document: declare it in that document, with Namespace::new",
+  )
 }
 
 /// Pass `s` to `f` as a NUL-terminated string for libxml2: copied to the stack when it is shorter than 128 bytes,

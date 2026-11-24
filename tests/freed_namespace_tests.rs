@@ -97,6 +97,9 @@ fn freeing_an_element_keeps_its_namespace_declarations() {
     assert_eq!(declared[0].get_href(), "urn:p");
     assert_eq!(used.get_prefix(), "p");
     drop(doc);
+    // The namespaces keep their document alive.
+    assert!(!is_freed(ns_ptr), "{how}: freed under a held namespace");
+    drop((declared, used));
     assert!(is_freed(ns_ptr), "{how}: the namespace leaked");
     assert!(
       !double_freed(ns_ptr),
