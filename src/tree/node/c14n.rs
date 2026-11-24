@@ -12,11 +12,16 @@ use super::node_ancestors;
 
 impl Node {
   /// Canonicalize a document and return the results.
+  ///
+  /// `Err` for a null node, a node libxml2 freed, and a node whose `Document` was dropped.
   pub fn canonicalize(&mut self, options: CanonicalizationOptions) -> Result<String, ()> {
-    let doc_ref = self.get_docref().upgrade().unwrap();
+    let doc_ref = self.upgrade_docref().ok_or(())?;
+    let user_data = self.node_ptr_mut().map_err(|_| ())?;
+    if user_data.is_null() {
+      return Err(());
+    }
     let document = crate::tree::Document(doc_ref);
 
-    let user_data = self.node_ptr_mut().unwrap();
     let callback: xmlC14NIsVisibleCallback = Some(callback_wrapper);
 
     document.canonicalize(options, Some((user_data, callback)))

@@ -1,5 +1,16 @@
 # Change Log
 
+## [Unreleased]
+
+### Fixed
+
+* `Node::canonicalize` returns `Err(())` for a null node, a node libxml2 freed, and a node whose `Document` was dropped,
+  instead of panicking, or, for a freed node, canonicalizing nothing and returning `Ok("")`.
+* A node whose `Document` was dropped while it lived on no longer panics. Its child, sibling and parent getters
+  (`get_first_child`, `get_child_nodes` and the like) return none, and `new_child` and `add_text_child` return `Err`
+  without adding the child. Such a node is one made in a `Document` without a libxml2 document, which outlives the
+  `Document` once `dup_from` gives it one.
+
 ## [0.3.27] (2026-11-24)
 
 Compatibility: no public item changed (cargo-semver-checks against v0.3.26, default features: no semver update

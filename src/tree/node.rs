@@ -953,7 +953,10 @@ impl Node {
     }
     let mut children = Vec::with_capacity(count);
     if count > 0 {
-      let doc_ref = self.0.borrow().document.upgrade().unwrap();
+      // None once the `Document` dropped, for a node in no libxml2 document, which outlives it.
+      let Some(doc_ref) = self.0.borrow().document.upgrade() else {
+        return Vec::new();
+      };
       let mut child = first;
       while !child.is_null() {
         if keep(child) {
@@ -1863,7 +1866,8 @@ impl Node {
 
   /// Creates a new `Node` as child to the self `Node`
   ///
-  /// Returns `Err` if this node is not an element, a document or a fragment, which libxml2 makes no child under.
+  /// Returns `Err` if this node is not an element, a document or a fragment, which libxml2 makes no child under, and
+  /// if its `Document` was dropped.
   pub fn new_child(
     &mut self,
     ns: Option<Namespace>,
@@ -1873,6 +1877,7 @@ impl Node {
     self.refuse_foreign_namespace(ns.as_ref())?;
     // (`ns` lives until the end, and with it its document.)
     let ns_ptr = ns.as_ref().map_or(ptr::null_mut(), Namespace::ns_ptr);
+    let doc_ref = self.upgrade_docref().ok_or_else(no_document)?;
     unsafe {
       let new_ptr = xmlNewChild(
         self.node_ptr_mut()?,
@@ -1885,13 +1890,14 @@ impl Node {
           "xmlNewChild made no node: only an element, a document or a fragment takes a child",
         ));
       }
-      Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
+      Ok(Node::wrap(new_ptr, &doc_ref))
     }
   }
 
   /// Adds a new text child, to this `Node`
   ///
-  /// Returns `Err` if this node is not an element, a document or a fragment, which libxml2 makes no child under.
+  /// Returns `Err` if this node is not an element, a document or a fragment, which libxml2 makes no child under, and
+  /// if its `Document` was dropped.
   pub fn add_text_child(
     &mut self,
     ns: Option<Namespace>,
@@ -1903,6 +1909,7 @@ impl Node {
     self.refuse_foreign_namespace(ns.as_ref())?;
     // (`ns` lives until the end, and with it its document.)
     let ns_ptr = ns.as_ref().map_or(ptr::null_mut(), Namespace::ns_ptr);
+    let doc_ref = self.upgrade_docref().ok_or_else(no_document)?;
     unsafe {
       let new_ptr = xmlNewTextChild(
         self.node_ptr_mut()?,
@@ -1915,7 +1922,7 @@ impl Node {
           "xmlNewTextChild made no node: only an element, a document or a fragment takes a child",
         ));
       }
-      Ok(Node::wrap(new_ptr, &self.get_docref().upgrade().unwrap()))
+      Ok(Node::wrap(new_ptr, &doc_ref))
     }
   }
 
@@ -2273,10 +2280,10 @@ impl Node {
     if node_ptr.is_null() {
       None
     } else {
-      // (the document upgraded in place, not through a cloned `Weak`)
-      let doc_ref = self.0.borrow().document.upgrade().unwrap();
-      let new_node = Node::wrap(node_ptr, &doc_ref);
-      Some(new_node)
+      // (the document upgraded in place, not through a cloned `Weak`; none once the `Document` dropped, for a node in
+      // no libxml2 document, which outlives it)
+      let doc_ref = self.0.borrow().document.upgrade()?;
+      Some(Node::wrap(node_ptr, &doc_ref))
     }
   }
 
@@ -2553,6 +2560,12 @@ pub(crate) fn with_str_copy<R>(c: &CStr, f: impl FnOnce(&str) -> R) -> R {
     }
     None => f(&c_str_to_string(c)),
   }
+}
+
+/// The error of a method that wraps a new node, for a node whose `Document` was dropped.
+#[cold]
+fn no_document() -> Box<dyn Error + Send + Sync> {
+  From::from("the node's Document was dropped")
 }
 
 /// The error for a namespace that is not of the node's document, which would point into its own document after that
