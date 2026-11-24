@@ -580,6 +580,13 @@ fn is_within(node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
   let mut down = ancestor;
   let mut above = xmlGetParent(ancestor);
   loop {
+    // First, as a node is most often moved out from under its parent or grandparent.
+    if !above.is_null() {
+      if above == node {
+        return false;
+      }
+      above = xmlGetParent(above);
+    }
     if up == ancestor {
       return true;
     }
@@ -593,12 +600,6 @@ fn is_within(node: xmlNodePtr, ancestor: xmlNodePtr) -> bool {
     down = next_freed(ancestor, down);
     if down.is_null() {
       return false;
-    }
-    if !above.is_null() {
-      if above == node {
-        return false;
-      }
-      above = xmlGetParent(above);
     }
   }
 }
