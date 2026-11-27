@@ -265,6 +265,9 @@ struct InsertionCasualties {
   /// before `new` is added under a text node, which merges `new` away and would free them with it: a `Namespace`, or
   /// the namespace of a node elsewhere, may still point at one (#235).
   declarations: Vec<(xmlNodePtr, xmlNsPtr)>,
+  /// Namespace declarations taken from a replaced attribute's freed subtree; they must be
+  /// kept by the document, not restored to the (freed) declaring node.
+  kept_declarations: Vec<xmlNsPtr>,
 }
 
 impl InsertionCasualties {
@@ -296,6 +299,7 @@ impl InsertionCasualties {
     under_text: bool,
   ) -> Self {
     let mut declarations = Vec::new();
+    let mut kept_declarations = Vec::new();
     let merged_descendants = if under_text {
       let mut descendants = Vec::new();
       for_each_freed_with(new, |node_ptr| {
@@ -320,8 +324,16 @@ impl InsertionCasualties {
       while !attr.is_null() {
         // SAFETY: `attr` is a live attribute of `parent`; `xmlStrEqual` accepts NULL names.
         if attr as xmlNodePtr != new && unsafe { xmlStrEqual((*attr).name, name) } != 0 {
+          // Also keep the namespace declarations of every node in the replaced
+          // attribute's subtree: a Namespace obtained earlier would otherwise dangle.
           let mut subtree = Vec::new();
-          for_each_freed_with(attr as xmlNodePtr, |node_ptr| subtree.push(node_ptr));
+          for_each_freed_with(attr as xmlNodePtr, |node_ptr| {
+            let declared = xmlNodeTakeNsDeclarations(node_ptr);
+            if !declared.is_null() {
+              kept_declarations.push(declared);
+            }
+            subtree.push(node_ptr);
+          });
           replaced.push(subtree);
         }
         attr = xmlNextPropertySibling(attr);
@@ -333,6 +345,7 @@ impl InsertionCasualties {
       merged_descendants,
       replaced,
       declarations,
+      kept_declarations,
     }
   }
 
@@ -359,6 +372,7 @@ impl InsertionCasualties {
       None
     };
     let mut replaced = self.replaced;
+    let kept_declarations = self.kept_declarations;
     if !replaced.is_empty() {
       replaced.retain(|subtree| !has_attribute(self.element, subtree[0]));
     }
@@ -372,6 +386,13 @@ impl InsertionCasualties {
         .is_some_and(|first| Rc::ptr_eq(first, second))
     });
     let mut docs = [first.as_ref(), second.as_ref()].map(|doc| doc.map(|doc| doc.borrow_mut()));
+    if !kept_declarations.is_empty()
+      && let Some(doc) = docs.iter_mut().flatten().next()
+    {
+      for declared in kept_declarations {
+        doc.keep_declarations(declared);
+      }
+    }
     let mut neutralize = |node_ptr: xmlNodePtr| {
       for wrapper in wrappers {
         if wrapper.node_ptr() == node_ptr {
