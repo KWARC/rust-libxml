@@ -1365,6 +1365,13 @@ impl Node {
     })??;
     unsafe {
       if !attr_node.is_null() {
+        // xmlHasProp may return a DTD attribute declaration (XML_ATTRIBUTE_DECL) for a
+        // defaulted attribute; xmlRemoveProp expects an xmlAttr, so never pass a declaration.
+        if xmlGetNodeType(attr_node as xmlNodePtr) == xmlElementType_XML_ATTRIBUTE_DECL {
+          return Err(From::from(
+            "cannot remove a DTD attribute declaration".to_string(),
+          ));
+        }
         self.neutralize_attribute(attr_node);
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -1399,6 +1406,13 @@ impl Node {
     )??;
     unsafe {
       if !attr_node.is_null() {
+        // xmlHasProp may return a DTD attribute declaration (XML_ATTRIBUTE_DECL) for a
+        // defaulted attribute; xmlRemoveProp expects an xmlAttr, so never pass a declaration.
+        if xmlGetNodeType(attr_node as xmlNodePtr) == xmlElementType_XML_ATTRIBUTE_DECL {
+          return Err(From::from(
+            "cannot remove a DTD attribute declaration".to_string(),
+          ));
+        }
         self.neutralize_attribute(attr_node);
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -1424,6 +1438,13 @@ impl Node {
       Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, ptr::null()) })
     })??;
     if !attr_node.is_null() {
+      // xmlHasProp may return a DTD attribute declaration (XML_ATTRIBUTE_DECL) for a
+      // defaulted attribute; xmlRemoveProp expects an xmlAttr, so never pass a declaration.
+      if xmlGetNodeType(attr_node as xmlNodePtr) == xmlElementType_XML_ATTRIBUTE_DECL {
+        return Err(From::from(
+          "cannot remove a DTD attribute declaration".to_string(),
+        ));
+      }
       self.neutralize_attribute(attr_node);
       let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
       if remove_prop_status == 0 {
