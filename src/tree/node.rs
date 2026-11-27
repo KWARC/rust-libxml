@@ -1068,6 +1068,13 @@ impl Node {
 
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+    // Renaming a DTD declaration makes the native free functions release a dict-interned
+    // name with raw xmlFree; refuse declaration nodes.
+    if is_declaration(&self.get_type()) {
+      return Err(From::from(
+        "cannot rename a DTD declaration node".to_string(),
+      ));
+    }
     let c_name = CString::new(name)?;
     unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
     Ok(())
