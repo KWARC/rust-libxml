@@ -1110,7 +1110,14 @@ impl Node {
     }
     if matches!(
       node_type,
-      Some(NodeType::ElementNode | NodeType::AttributeNode | NodeType::DocumentFragNode)
+      Some(
+        NodeType::ElementNode
+          | NodeType::AttributeNode
+          | NodeType::DocumentFragNode
+          | NodeType::PiNode
+          | NodeType::CommentNode
+          | NodeType::CDataSectionNode
+      )
     ) && let Some(doc) = self.upgrade_docref()
     {
       let mut doc = doc.borrow_mut();
