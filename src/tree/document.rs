@@ -523,6 +523,11 @@ impl Document {
   /// On a rust-owned node, a node of another document, a document's own node, a DTD or a declaration in one, or an
   /// attribute.
   pub fn set_root_element(&mut self, root: &Node) {
+    // A Document from `from_raw_ptr(NULL)` is the documented "document without one"
+    // state; linking a root would dereference the NULL doc. Leave it unlinked.
+    if self.doc_ptr().is_null() {
+      return;
+    }
     assert!(
       !root.is_rust_owned(),
       "set_root_element called with a RustOwned node — linking it would set up a double free"

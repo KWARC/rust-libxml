@@ -265,6 +265,9 @@ struct InsertionCasualties {
   /// before `new` is added under a text node, which merges `new` away and would free them with it: a `Namespace`, or
   /// the namespace of a node elsewhere, may still point at one (#235).
   declarations: Vec<(xmlNodePtr, xmlNsPtr)>,
+  /// Namespace declarations taken from a replaced attribute's freed subtree; they must be
+  /// kept by the document, not restored to the (freed) declaring node.
+  kept_declarations: Vec<xmlNsPtr>,
 }
 
 impl InsertionCasualties {
@@ -296,6 +299,7 @@ impl InsertionCasualties {
     under_text: bool,
   ) -> Self {
     let mut declarations = Vec::new();
+    let mut kept_declarations = Vec::new();
     let merged_descendants = if under_text {
       let mut descendants = Vec::new();
       for_each_freed_with(new, |node_ptr| {
@@ -320,8 +324,16 @@ impl InsertionCasualties {
       while !attr.is_null() {
         // SAFETY: `attr` is a live attribute of `parent`; `xmlStrEqual` accepts NULL names.
         if attr as xmlNodePtr != new && unsafe { xmlStrEqual((*attr).name, name) } != 0 {
+          // Also keep the namespace declarations of every node in the replaced
+          // attribute's subtree: a Namespace obtained earlier would otherwise dangle.
           let mut subtree = Vec::new();
-          for_each_freed_with(attr as xmlNodePtr, |node_ptr| subtree.push(node_ptr));
+          for_each_freed_with(attr as xmlNodePtr, |node_ptr| {
+            let declared = xmlNodeTakeNsDeclarations(node_ptr);
+            if !declared.is_null() {
+              kept_declarations.push(declared);
+            }
+            subtree.push(node_ptr);
+          });
           replaced.push(subtree);
         }
         attr = xmlNextPropertySibling(attr);
@@ -333,6 +345,7 @@ impl InsertionCasualties {
       merged_descendants,
       replaced,
       declarations,
+      kept_declarations,
     }
   }
 
@@ -358,6 +371,7 @@ impl InsertionCasualties {
     } else {
       None
     };
+    let kept_declarations = self.kept_declarations;
     let mut replaced = self.replaced;
     if !replaced.is_empty() {
       replaced.retain(|subtree| !has_attribute(self.element, subtree[0]));
@@ -372,6 +386,13 @@ impl InsertionCasualties {
         .is_some_and(|first| Rc::ptr_eq(first, second))
     });
     let mut docs = [first.as_ref(), second.as_ref()].map(|doc| doc.map(|doc| doc.borrow_mut()));
+    if !kept_declarations.is_empty()
+      && let Some(doc) = docs.iter_mut().flatten().next()
+    {
+      for declared in kept_declarations {
+        doc.keep_declarations(declared);
+      }
+    }
     let mut neutralize = |node_ptr: xmlNodePtr| {
       for wrapper in wrappers {
         if wrapper.node_ptr() == node_ptr {
@@ -479,6 +500,21 @@ impl ValueNodes {
       attr = xmlNextPropertySibling(attr);
     }
     (!cached.is_empty()).then_some(ValueNodes { cached })
+  }
+
+  /// Keeps the namespace declarations of the collected (old) value nodes alive in the
+  /// document, before libxml2 frees them on replacement.
+  fn keep_namespaces(&self, element: &Node) {
+    let Some(doc) = element.upgrade_docref() else {
+      return;
+    };
+    let mut doc = doc.borrow_mut();
+    for (attr, _value, wrapped) in &self.cached {
+      doc.keep_namespaces(*attr);
+      for &node_ptr in wrapped {
+        doc.keep_namespaces(node_ptr);
+      }
+    }
   }
 
   /// Neutralizes the collected wrappers of each value node that is no longer its attribute's: libxml2 freed it.
@@ -1068,6 +1104,11 @@ impl Node {
 
   /// Sets the name of this `Node`
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
+    // Renaming a DTD declaration makes the native free functions release a dict-interned
+    // name with raw xmlFree; refuse declaration nodes.
+    if is_declaration(&self.get_type()) {
+      return Err(From::from("cannot rename a DTD declaration node".to_string()));
+    }
     let c_name = CString::new(name)?;
     unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
     Ok(())
@@ -1110,7 +1151,14 @@ impl Node {
     }
     if matches!(
       node_type,
-      Some(NodeType::ElementNode | NodeType::AttributeNode | NodeType::DocumentFragNode)
+      Some(
+        NodeType::ElementNode
+          | NodeType::AttributeNode
+          | NodeType::DocumentFragNode
+          | NodeType::PiNode
+          | NodeType::CommentNode
+          | NodeType::CDataSectionNode
+      )
     ) && let Some(doc) = self.upgrade_docref()
     {
       let mut doc = doc.borrow_mut();
@@ -1327,6 +1375,10 @@ impl Node {
     with_c_strs(name, value, |c_name, c_value| {
       let node_ptr = self.node_ptr_mut()?;
       let values = ValueNodes::collect(self, name, c_name, ns.is_none());
+      // Preserve the old value subtree's namespace declarations BEFORE xmlSetProp frees it.
+      if let Some(values) = &values {
+        values.keep_namespaces(self);
+      }
       match ns {
         None => unsafe { xmlSetProp(node_ptr, c_name, c_value) },
         Some(ns) => unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) },
@@ -1365,6 +1417,11 @@ impl Node {
     })??;
     unsafe {
       if !attr_node.is_null() {
+        // xmlHasProp may return a DTD attribute declaration (XML_ATTRIBUTE_DECL) for a
+        // defaulted attribute; xmlRemoveProp expects an xmlAttr, so never pass a declaration.
+        if xmlGetNodeType(attr_node as xmlNodePtr) == xmlElementType_XML_ATTRIBUTE_DECL {
+          return Err(From::from("cannot remove a DTD attribute declaration".to_string()));
+        }
         self.neutralize_attribute(attr_node);
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -1399,6 +1456,11 @@ impl Node {
     )??;
     unsafe {
       if !attr_node.is_null() {
+        // xmlHasProp may return a DTD attribute declaration (XML_ATTRIBUTE_DECL) for a
+        // defaulted attribute; xmlRemoveProp expects an xmlAttr, so never pass a declaration.
+        if xmlGetNodeType(attr_node as xmlNodePtr) == xmlElementType_XML_ATTRIBUTE_DECL {
+          return Err(From::from("cannot remove a DTD attribute declaration".to_string()));
+        }
         self.neutralize_attribute(attr_node);
         let remove_prop_status = xmlRemoveProp(attr_node);
         if remove_prop_status == 0 {
@@ -1424,6 +1486,11 @@ impl Node {
       Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, ptr::null()) })
     })??;
     if !attr_node.is_null() {
+      // xmlHasProp may return a DTD attribute declaration (XML_ATTRIBUTE_DECL) for a
+      // defaulted attribute; xmlRemoveProp expects an xmlAttr, so never pass a declaration.
+      if xmlGetNodeType(attr_node as xmlNodePtr) == xmlElementType_XML_ATTRIBUTE_DECL {
+        return Err(From::from("cannot remove a DTD attribute declaration".to_string()));
+      }
       self.neutralize_attribute(attr_node);
       let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
       if remove_prop_status == 0 {

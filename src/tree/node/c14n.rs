@@ -13,7 +13,10 @@ use super::node_ancestors;
 impl Node {
   /// Canonicalize a document and return the results.
   pub fn canonicalize(&mut self, options: CanonicalizationOptions) -> Result<String, ()> {
-    let doc_ref = self.get_docref().upgrade().unwrap();
+    let Some(doc_ref) = self.get_docref().upgrade() else {
+      // A wrapper whose document is gone reads as null; degrade like the rest of the API.
+      return Err(());
+    };
     let document = crate::tree::Document(doc_ref);
 
     let user_data = self.node_ptr_mut().unwrap();
