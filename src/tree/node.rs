@@ -481,6 +481,21 @@ impl ValueNodes {
     (!cached.is_empty()).then_some(ValueNodes { cached })
   }
 
+  /// Keeps the namespace declarations of the collected (old) value nodes alive in the
+  /// document, before libxml2 frees them on replacement.
+  fn keep_namespaces(&self, element: &Node) {
+    let Some(doc) = element.upgrade_docref() else {
+      return;
+    };
+    let mut doc = doc.borrow_mut();
+    for (attr, _value, wrapped) in &self.cached {
+      doc.keep_namespaces(*attr);
+      for &node_ptr in wrapped {
+        doc.keep_namespaces(node_ptr);
+      }
+    }
+  }
+
   /// Neutralizes the collected wrappers of each value node that is no longer its attribute's: libxml2 freed it.
   fn neutralize_replaced(self, element: &Node) {
     let Some(doc) = element.upgrade_docref() else {
@@ -1327,6 +1342,10 @@ impl Node {
     with_c_strs(name, value, |c_name, c_value| {
       let node_ptr = self.node_ptr_mut()?;
       let values = ValueNodes::collect(self, name, c_name, ns.is_none());
+      // Preserve the old value subtree's namespace declarations BEFORE xmlSetProp frees it.
+      if let Some(values) = &values {
+        values.keep_namespaces(self);
+      }
       match ns {
         None => unsafe { xmlSetProp(node_ptr, c_name, c_value) },
         Some(ns) => unsafe { xmlSetNsProp(node_ptr, ns.ns_ptr(), c_name, c_value) },
