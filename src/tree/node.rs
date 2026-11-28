@@ -566,6 +566,30 @@ pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
   }
 }
 
+/// Why a node of type `new_type` may not be a child of a node of type `parent_type`, if it may not, by the parent's
+/// content model, which libxml2 checks only by merging text. An attribute's value holds text and entity references, as
+/// a DOM `Attr` does and as libxml2 parses one: libxml2 frees an element there with the value (`set_property`, or an
+/// attribute of the same name added), and with it the namespaces it declares, which a `Namespace` may point at (#263,
+/// #264). A DTD holds comments and processing instructions besides its declarations, and writes any child into the
+/// internal subset; a declaration holds no linked node: `xmlFreeAttribute` and `xmlFreeElement` free no child, and an
+/// entity's children are its content.
+#[inline]
+fn content_refusal(parent_type: xmlElementType, new_type: xmlElementType) -> Option<&'static str> {
+  if parent_type == xmlElementType_XML_ATTRIBUTE_NODE {
+    (new_type != xmlElementType_XML_TEXT_NODE && new_type != xmlElementType_XML_ENTITY_REF_NODE)
+      .then_some("an attribute's value holds only text and entity references")
+  } else if parent_type == xmlElementType_XML_DTD_NODE {
+    (new_type != xmlElementType_XML_COMMENT_NODE && new_type != xmlElementType_XML_PI_NODE)
+      .then_some("a DTD holds only declarations, comments and processing instructions")
+  } else if (xmlElementType_XML_ELEMENT_DECL..=xmlElementType_XML_ENTITY_DECL)
+    .contains(&parent_type)
+  {
+    Some("a declaration holds no linked node")
+  } else {
+    None
+  }
+}
+
 /// Whether `node` is `ancestor`, or one of its descendants (an attribute of one, or under one, too). Three walks take
 /// turns, in this order, and the first to settle answers: up from `ancestor`'s parent, which may meet `node`, then a
 /// proper ancestor of `ancestor`, so not within it in a tree without loops; up from `node`, which meets `ancestor` or
@@ -985,12 +1009,14 @@ impl Node {
   /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
   /// read as `Node::null()` afterwards.
   ///
-  /// A node without a parent takes no sibling, and an attribute's siblings are attributes.
+  /// A node without a parent takes no sibling, and an attribute's siblings are attributes. The node's parent must have
+  /// room for `new_sibling`: an attribute's value holds only text and entity references, a DTD only declarations,
+  /// comments and processing instructions.
   pub fn add_prev_sibling(
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    if let Some(refusal) = self.link_refusal(new_sibling) {
+    if let Some(refusal) = self.link_refusal(new_sibling, false) {
       return Err(From::from(refusal));
     }
     let self_ptr = self.node_ptr_mut()?;
@@ -1018,12 +1044,14 @@ impl Node {
   /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
   /// read as `Node::null()` afterwards.
   ///
-  /// A node without a parent takes no sibling, and an attribute's siblings are attributes.
+  /// A node without a parent takes no sibling, and an attribute's siblings are attributes. The node's parent must have
+  /// room for `new_sibling`: an attribute's value holds only text and entity references, a DTD only declarations,
+  /// comments and processing instructions.
   pub fn add_next_sibling(
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    if let Some(refusal) = self.link_refusal(new_sibling) {
+    if let Some(refusal) = self.link_refusal(new_sibling, false) {
       return Err(From::from(refusal));
     }
     let self_ptr = self.node_ptr_mut()?;
@@ -1794,9 +1822,10 @@ impl Node {
   /// old parent's children too), unless it is this node's last child already, which libxml2 leaves in place. An
   /// attribute `child` is added to an element only, as libxml2 required before 2.13; since, it adds one to any node,
   /// at a field that a document's or a DTD's own data overlays. An entity reference takes no child: its child is its
-  /// entity's declaration, which libxml2 would link the new one after, among the DTD's children.
+  /// entity's declaration, which libxml2 would link the new one after, among the DTD's children. An attribute takes
+  /// only text and entity references, a DTD only comments and processing instructions, and a declaration no child.
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
-    if let Some(refusal) = self.link_refusal(child) {
+    if let Some(refusal) = self.link_refusal(child, true) {
       return Err(refusal.to_string());
     }
     let parent_ptr = self.node_ptr_mut()?;
@@ -2040,21 +2069,29 @@ impl Node {
     matches!(inner.linkage, Linkage::RustOwned).then_some(node_ptr)
   }
 
-  /// Why `new` may not be linked next to or under this node, if it may not: a rust-owned node would be freed by its
-  /// last wrapper's drop while linked, and a node of another document would be freed by that document while its
-  /// wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it instead).
-  /// No [`type_refusal`] type is linked (a document, or a DTD or a declaration in one), and no node under itself or
-  /// its attributes, which libxml2 would make a loop of.
+  /// Why `new` may not be linked under this node (`as_child`) or next to it, if it may not: a rust-owned node would be
+  /// freed by its last wrapper's drop while linked, and a node of another document would be freed by that document
+  /// while its wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it
+  /// instead). No [`type_refusal`] type is linked (a document, or a DTD or a declaration in one), no node where its
+  /// parent's [`content_refusal`] refuses it, and no node under itself or its attributes, which libxml2 would make a
+  /// loop of.
   #[inline(always)]
-  pub(crate) fn link_refusal(&self, new: &Node) -> Option<&'static str> {
+  pub(crate) fn link_refusal(&self, new: &Node, as_child: bool) -> Option<&'static str> {
     let this = self.0.borrow();
     let new = new.0.borrow();
     let new_type = xmlGetNodeType(new.node_ptr);
+    let parent = if as_child {
+      this.node_ptr
+    } else {
+      xmlGetParent(this.node_ptr)
+    };
     if matches!(new.linkage, Linkage::RustOwned) {
       Some("a rust-owned node cannot be linked: dropping its last wrapper frees it")
     } else if !Weak::ptr_eq(&this.document, &new.document) {
       Some("a node of another document cannot be linked; import_node copies it")
     } else if let Some(refusal) = type_refusal(new_type) {
+      Some(refusal)
+    } else if let Some(refusal) = content_refusal(xmlGetNodeType(parent), new_type) {
       Some(refusal)
     } else if new.node_ptr == this.node_ptr && !new.node_ptr.is_null()
       || has_descendants(new.node_ptr, new_type) && is_within(this.node_ptr, new.node_ptr)
