@@ -20,6 +20,11 @@ use crate::tree::node::Node;
 /// any other `RoNode` method does not, since an `RoNode` does not know its `Document`: it must not outlive the document,
 /// as before. The methods that set a namespace on a node refuse one of another document, which would point into that
 /// document after it drops.
+///
+/// Known caveat, as for an `RoNode` itself: a namespace from `RoNode::get_namespace`, `get_namespace_declarations` or
+/// `get_properties_ns` that outlives its document points into freed memory, and the refusal above, which compares
+/// document addresses, may take it for one of a later document at the same address. Lifetimes are to rule this out in
+/// 0.4, with the `RoNode` lifetime of #239.
 pub struct Namespace {
   ///libxml's xmlNsPtr
   pub(crate) ns_ptr: xmlNsPtr,

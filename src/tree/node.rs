@@ -566,6 +566,30 @@ pub(crate) fn type_refusal(node_type: xmlElementType) -> Option<&'static str> {
   }
 }
 
+/// Why a node of type `new_type` may not be a child of a node of type `parent_type`, if it may not, by the parent's
+/// content model, which libxml2 checks only by merging text. An attribute's value holds text and entity references, as
+/// a DOM `Attr` does and as libxml2 parses one: libxml2 frees an element there with the value (`set_property`, or an
+/// attribute of the same name added), and with it the namespaces it declares, which a `Namespace` may point at (#263,
+/// #264). A DTD holds comments and processing instructions besides its declarations, and writes any child into the
+/// internal subset; a declaration holds no linked node: `xmlFreeAttribute` and `xmlFreeElement` free no child, and an
+/// entity's children are its content.
+#[inline]
+fn content_refusal(parent_type: xmlElementType, new_type: xmlElementType) -> Option<&'static str> {
+  if parent_type == xmlElementType_XML_ATTRIBUTE_NODE {
+    (new_type != xmlElementType_XML_TEXT_NODE && new_type != xmlElementType_XML_ENTITY_REF_NODE)
+      .then_some("an attribute's value holds only text and entity references")
+  } else if parent_type == xmlElementType_XML_DTD_NODE {
+    (new_type != xmlElementType_XML_COMMENT_NODE && new_type != xmlElementType_XML_PI_NODE)
+      .then_some("a DTD holds only declarations, comments and processing instructions")
+  } else if (xmlElementType_XML_ELEMENT_DECL..=xmlElementType_XML_ENTITY_DECL)
+    .contains(&parent_type)
+  {
+    Some("a declaration holds no linked node")
+  } else {
+    None
+  }
+}
+
 /// Whether `node` is `ancestor`, or one of its descendants (an attribute of one, or under one, too). Three walks take
 /// turns, in this order, and the first to settle answers: up from `ancestor`'s parent, which may meet `node`, then a
 /// proper ancestor of `ancestor`, so not within it in a tree without loops; up from `node`, which meets `ancestor` or
@@ -985,12 +1009,14 @@ impl Node {
   /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
   /// read as `Node::null()` afterwards.
   ///
-  /// A node without a parent takes no sibling, and an attribute's siblings are attributes.
+  /// A node without a parent takes no sibling, and an attribute's siblings are attributes. The node's parent must have
+  /// room for `new_sibling`: an attribute's value holds only text and entity references, a DTD only declarations,
+  /// comments and processing instructions.
   pub fn add_prev_sibling(
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    if let Some(refusal) = self.link_refusal(new_sibling) {
+    if let Some(refusal) = self.link_refusal(new_sibling, false) {
       return Err(From::from(refusal));
     }
     let self_ptr = self.node_ptr_mut()?;
@@ -1018,12 +1044,14 @@ impl Node {
   /// `new_sibling` replaces (frees) the attribute of the same name, which may be this one. A freed node's wrappers
   /// read as `Node::null()` afterwards.
   ///
-  /// A node without a parent takes no sibling, and an attribute's siblings are attributes.
+  /// A node without a parent takes no sibling, and an attribute's siblings are attributes. The node's parent must have
+  /// room for `new_sibling`: an attribute's value holds only text and entity references, a DTD only declarations,
+  /// comments and processing instructions.
   pub fn add_next_sibling(
     &mut self,
     new_sibling: &mut Node,
   ) -> Result<(), Box<dyn Error + Send + Sync>> {
-    if let Some(refusal) = self.link_refusal(new_sibling) {
+    if let Some(refusal) = self.link_refusal(new_sibling, false) {
       return Err(From::from(refusal));
     }
     let self_ptr = self.node_ptr_mut()?;
@@ -1070,9 +1098,25 @@ impl Node {
   }
 
   /// Sets the name of this `Node`
+  ///
+  /// Only an element, an attribute, a processing instruction or an entity reference is renamed; any other node is
+  /// left alone, with `Ok`, as libxml2 2.13 and later do.
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name)?;
-    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
+    let node_ptr = self.node_ptr_mut()?;
+    // libxml2 before 2.13 renames a DTD, a document and a declaration too, with a name from the document's dictionary,
+    // which `xmlFreeElement` then frees with `xmlFree` (#265); 2.13 and later rename these four kinds only.
+    if matches!(
+      self.get_type(),
+      Some(
+        NodeType::ElementNode
+          | NodeType::AttributeNode
+          | NodeType::PiNode
+          | NodeType::EntityRefNode
+      )
+    ) {
+      unsafe { xmlNodeSetName(node_ptr, c_name.as_bytes().as_ptr()) }
+    }
     Ok(())
   }
 
@@ -1101,7 +1145,8 @@ impl Node {
   ///
   /// The content of an element, attribute or document fragment replaces its children, which libxml2 frees: their
   /// wrappers, and those of their descendants, read as `Node::null()` afterwards. An entity reference is left alone,
-  /// as libxml2 2.13 and later do: its child is the entity's declaration.
+  /// as libxml2 2.13 and later do: its child is the entity's declaration. A processing instruction, a comment or a
+  /// CDATA section keeps its children, as with libxml2 2.13 and later, which only set its text.
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_content = CString::new(content)?;
     let node_ptr = self.node_ptr_mut()?;
@@ -1122,6 +1167,23 @@ impl Node {
         doc.prepare_to_free(child);
         child = xmlNextSibling(child);
       }
+    }
+    if matches!(
+      node_type,
+      Some(NodeType::PiNode | NodeType::CommentNode | NodeType::CDataSectionNode)
+    ) {
+      // libxml2 before 2.13 frees the children of these nodes here (#261); 2.13 and later set the text only, and so
+      // does this: the children are out of libxml2's sight meanwhile.
+      // SAFETY: `node_ptr` is a live node, not NULL; its child list is put back as it was.
+      unsafe {
+        let (children, last) = ((*node_ptr).children, (*node_ptr).last);
+        (*node_ptr).children = ptr::null_mut();
+        (*node_ptr).last = ptr::null_mut();
+        xmlNodeSetContent(node_ptr, c_content.as_bytes().as_ptr());
+        (*node_ptr).children = children;
+        (*node_ptr).last = last;
+      }
+      return Ok(());
     }
     unsafe {
       xmlNodeSetContent(node_ptr, c_content.as_bytes().as_ptr());
@@ -1205,6 +1267,11 @@ impl Node {
   }
 
   /// Return an attribute as a `Node` struct of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`. The methods that change a node leave a
+  /// declaration alone, or refuse it; only a comment or a processing instruction may still be linked next to it, in its
+  /// DTD.
   pub fn get_property_node(&self, name: &str) -> Option<Node> {
     let attr_node = with_c_str_or_else(
       name,
@@ -1215,6 +1282,11 @@ impl Node {
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`. The methods that change a node leave a
+  /// declaration alone, or refuse it; only a comment or a processing instruction may still be linked next to it, in its
+  /// DTD.
   pub fn get_property_node_ns(&self, name: &str, ns: &str) -> Option<Node> {
     let attr_node = with_c_strs_or_else(
       name,
@@ -1226,6 +1298,11 @@ impl Node {
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`. The methods that change a node leave a
+  /// declaration alone, or refuse it; only a comment or a processing instruction may still be linked next to it, in its
+  /// DTD.
   pub fn get_property_node_no_ns(&self, name: &str) -> Option<Node> {
     let attr_node = with_c_str_or_else(
       name,
@@ -1342,8 +1419,7 @@ impl Node {
   }
 
   /// Neutralizes the wrappers of the attribute `attr` and its value nodes, which libxml2 is about to free, once any may
-  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]), and logs the frees while an XPath node set is live. A
-  /// DTD's default value, which `xmlHasProp` may also return, is not this element's to free and keeps its wrapper.
+  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]), and logs the frees while an XPath node set is live.
   fn neutralize_attribute(&self, attr: xmlAttrPtr) {
     if !ATTRIBUTE_WRAPPED.load(Ordering::Relaxed)
       && !VALUE_NODE_WRAPPED.load(Ordering::Relaxed)
@@ -1351,43 +1427,47 @@ impl Node {
     {
       return;
     }
-    let attr = attr as xmlNodePtr;
-    if xmlGetNodeType(attr) == xmlElementType_XML_ATTRIBUTE_NODE
-      && let Some(doc) = self.upgrade_docref()
-    {
-      doc.borrow_mut().prepare_to_free(attr);
+    if let Some(doc) = self.upgrade_docref() {
+      doc.borrow_mut().prepare_to_free(attr as xmlNodePtr);
+    }
+  }
+
+  /// Removes and frees `attr`, which `xmlHasProp` or `xmlHasNsProp` found on this element, for the `remove_property`
+  /// methods. Either may also return a DTD's default value, an attribute declaration in the DTD's tables, which is not
+  /// this element's to remove: as `xmlUnsetProp` finds none, it is left alone, with `Ok` (#262).
+  fn remove_attribute_node(&self, attr: xmlAttrPtr) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if xmlGetNodeType(attr as xmlNodePtr) != xmlElementType_XML_ATTRIBUTE_NODE {
+      // Not present (NULL), or a DTD's default: `xmlRemoveProp` would walk the DTD's attribute table as the
+      // element's attribute list.
+      return Ok(());
+    }
+    self.neutralize_attribute(attr);
+    let remove_prop_status = unsafe { xmlRemoveProp(attr) };
+    if remove_prop_status == 0 {
+      Ok(())
+    } else {
+      // Propagate libxml2 failure to remove
+      Err(From::from(format!(
+        "libxml2 failed to remove property with status: {remove_prop_status:?}"
+      )))
     }
   }
 
   /// Removes the property of given `name`
   ///
   /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
+  /// A property not present, or one only the DTD gives a default value, is left alone, with `Ok`.
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasProp(self.node_ptr_mut()?, c_name) })
     })??;
-    unsafe {
-      if !attr_node.is_null() {
-        self.neutralize_attribute(attr_node);
-        let remove_prop_status = xmlRemoveProp(attr_node);
-        if remove_prop_status == 0 {
-          Ok(())
-        } else {
-          // Propagate libxml2 failure to remove
-          Err(From::from(format!(
-            "libxml2 failed to remove property with status: {remove_prop_status:?}"
-          )))
-        }
-      } else {
-        // silently no-op if asked to remove a property which is not present
-        Ok(())
-      }
-    }
+    self.remove_attribute_node(attr_node)
   }
 
   /// Removes the property of given `name` and namespace (`ns`)
   ///
   /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
+  /// A property not present, or one only the DTD gives a default value, is left alone, with `Ok`.
   pub fn remove_property_ns(
     &mut self,
     name: &str,
@@ -1400,47 +1480,18 @@ impl Node {
         Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, c_ns) })
       },
     )??;
-    unsafe {
-      if !attr_node.is_null() {
-        self.neutralize_attribute(attr_node);
-        let remove_prop_status = xmlRemoveProp(attr_node);
-        if remove_prop_status == 0 {
-          Ok(())
-        } else {
-          // Propagate libxml2 failure to remove
-          Err(From::from(format!(
-            "libxml2 failed to remove property with status: {remove_prop_status:?}"
-          )))
-        }
-      } else {
-        // silently no-op if asked to remove a property which is not present
-        Ok(())
-      }
-    }
+    self.remove_attribute_node(attr_node)
   }
 
   /// Removes the property of given `name` with no namespace
   ///
   /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
+  /// A property not present, or one only the DTD gives a default value, is left alone, with `Ok`.
   pub fn remove_property_no_ns(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, ptr::null()) })
     })??;
-    if !attr_node.is_null() {
-      self.neutralize_attribute(attr_node);
-      let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
-      if remove_prop_status == 0 {
-        Ok(())
-      } else {
-        // Propagate libxml2 failure to remove
-        Err(From::from(format!(
-          "libxml2 failed to remove property with status: {remove_prop_status:?}"
-        )))
-      }
-    } else {
-      // silently no-op if asked to remove a property which is not present
-      Ok(())
-    }
+    self.remove_attribute_node(attr_node)
   }
 
   /// Alias for get_property
@@ -1820,9 +1871,10 @@ impl Node {
   /// old parent's children too), unless it is this node's last child already, which libxml2 leaves in place. An
   /// attribute `child` is added to an element only, as libxml2 required before 2.13; since, it adds one to any node,
   /// at a field that a document's or a DTD's own data overlays. An entity reference takes no child: its child is its
-  /// entity's declaration, which libxml2 would link the new one after, among the DTD's children.
+  /// entity's declaration, which libxml2 would link the new one after, among the DTD's children. An attribute takes
+  /// only text and entity references, a DTD only comments and processing instructions, and a declaration no child.
   pub fn add_child(&mut self, child: &mut Node) -> Result<(), String> {
-    if let Some(refusal) = self.link_refusal(child) {
+    if let Some(refusal) = self.link_refusal(child, true) {
       return Err(refusal.to_string());
     }
     let parent_ptr = self.node_ptr_mut()?;
@@ -2066,21 +2118,29 @@ impl Node {
     matches!(inner.linkage, Linkage::RustOwned).then_some(node_ptr)
   }
 
-  /// Why `new` may not be linked next to or under this node, if it may not: a rust-owned node would be freed by its
-  /// last wrapper's drop while linked, and a node of another document would be freed by that document while its
-  /// wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it instead).
-  /// No [`type_refusal`] type is linked (a document, or a DTD or a declaration in one), and no node under itself or
-  /// its attributes, which libxml2 would make a loop of.
+  /// Why `new` may not be linked under this node (`as_child`) or next to it, if it may not: a rust-owned node would be
+  /// freed by its last wrapper's drop while linked, and a node of another document would be freed by that document
+  /// while its wrapper, and before libxml2 2.12 its names, stayed with this one ([`Document::import_node`] copies it
+  /// instead). No [`type_refusal`] type is linked (a document, or a DTD or a declaration in one), no node where its
+  /// parent's [`content_refusal`] refuses it, and no node under itself or its attributes, which libxml2 would make a
+  /// loop of.
   #[inline(always)]
-  pub(crate) fn link_refusal(&self, new: &Node) -> Option<&'static str> {
+  pub(crate) fn link_refusal(&self, new: &Node, as_child: bool) -> Option<&'static str> {
     let this = self.0.borrow();
     let new = new.0.borrow();
     let new_type = xmlGetNodeType(new.node_ptr);
+    let parent = if as_child {
+      this.node_ptr
+    } else {
+      xmlGetParent(this.node_ptr)
+    };
     if matches!(new.linkage, Linkage::RustOwned) {
       Some("a rust-owned node cannot be linked: dropping its last wrapper frees it")
     } else if !Weak::ptr_eq(&this.document, &new.document) {
       Some("a node of another document cannot be linked; import_node copies it")
     } else if let Some(refusal) = type_refusal(new_type) {
+      Some(refusal)
+    } else if let Some(refusal) = content_refusal(xmlGetNodeType(parent), new_type) {
       Some(refusal)
     } else if new.node_ptr == this.node_ptr && !new.node_ptr.is_null()
       || has_descendants(new.node_ptr, new_type) && is_within(this.node_ptr, new.node_ptr)
@@ -2107,8 +2167,12 @@ impl Node {
   /// there and frees it, as [`add_next_sibling`](Self::add_next_sibling) does: its wrappers read as `Node::null()`
   /// afterwards.
   ///
-  /// Returns the root element this node replaced, which libxml2 unlinked, if any.
+  /// Returns the root element this node replaced, which libxml2 unlinked, if any. Without a libxml2 document (NULL
+  /// `doc_ptr`, from [`Document::from_raw_ptr`]) nothing is linked, and the node stays as it was (#266).
   pub(crate) fn link_as_root(&self, doc_ptr: xmlDocPtr) -> Option<xmlNodePtr> {
+    if doc_ptr.is_null() {
+      return None;
+    }
     let node_ptr = self.node_ptr();
     let casualties = InsertionCasualties::collect(node_ptr, doc_ptr as xmlNodePtr, false);
     let old_root = unsafe { xmlDocSetRootElement(doc_ptr, node_ptr) };

@@ -276,6 +276,9 @@ impl RoNode {
   }
 
   /// Return an attribute as a `Node` struct of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`.
   pub fn get_property_node(self, name: &str) -> Option<RoNode> {
     let attr_node = with_c_str_or_else(
       name,
@@ -286,6 +289,9 @@ impl RoNode {
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`.
   pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
     let attr_node = with_c_strs_or_else(
       name,
@@ -297,6 +303,9 @@ impl RoNode {
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`.
   pub fn get_property_node_no_ns(self, name: &str) -> Option<RoNode> {
     let attr_node = with_c_str_or_else(
       name,
@@ -374,6 +383,8 @@ impl RoNode {
   }
 
   /// Get a copy of this node's attributes and their namespaces
+  ///
+  /// The namespaces do not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_properties_ns(self) -> HashMap<(String, Option<Namespace>), String> {
     let mut attributes = HashMap::new();
 
@@ -462,6 +473,8 @@ impl RoNode {
   }
 
   /// Gets the active namespace associated of this node
+  ///
+  /// The namespace does not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_namespace(self) -> Option<Namespace> {
     let ns_ptr = xmlNodeNs(self.0);
     if ns_ptr.is_null() {
@@ -497,6 +510,8 @@ impl RoNode {
   }
 
   /// Get a list of namespaces declared with this node
+  ///
+  /// The namespaces do not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_namespace_declarations(self) -> Vec<Namespace> {
     if self.get_type() != Some(NodeType::ElementNode) {
       // only element nodes can have declarations
