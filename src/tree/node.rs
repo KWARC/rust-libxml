@@ -1342,8 +1342,7 @@ impl Node {
   }
 
   /// Neutralizes the wrappers of the attribute `attr` and its value nodes, which libxml2 is about to free, once any may
-  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]), and logs the frees while an XPath node set is live. A
-  /// DTD's default value, which `xmlHasProp` may also return, is not this element's to free and keeps its wrapper.
+  /// be cached ([`ATTRIBUTE_WRAPPED`], [`VALUE_NODE_WRAPPED`]), and logs the frees while an XPath node set is live.
   fn neutralize_attribute(&self, attr: xmlAttrPtr) {
     if !ATTRIBUTE_WRAPPED.load(Ordering::Relaxed)
       && !VALUE_NODE_WRAPPED.load(Ordering::Relaxed)
@@ -1351,43 +1350,47 @@ impl Node {
     {
       return;
     }
-    let attr = attr as xmlNodePtr;
-    if xmlGetNodeType(attr) == xmlElementType_XML_ATTRIBUTE_NODE
-      && let Some(doc) = self.upgrade_docref()
-    {
-      doc.borrow_mut().prepare_to_free(attr);
+    if let Some(doc) = self.upgrade_docref() {
+      doc.borrow_mut().prepare_to_free(attr as xmlNodePtr);
+    }
+  }
+
+  /// Removes and frees `attr`, which `xmlHasProp` or `xmlHasNsProp` found on this element, for the `remove_property`
+  /// methods. Either may also return a DTD's default value, an attribute declaration in the DTD's tables, which is not
+  /// this element's to remove: as `xmlUnsetProp` finds none, it is left alone, with `Ok` (#262).
+  fn remove_attribute_node(&self, attr: xmlAttrPtr) -> Result<(), Box<dyn Error + Send + Sync>> {
+    if xmlGetNodeType(attr as xmlNodePtr) != xmlElementType_XML_ATTRIBUTE_NODE {
+      // Not present (NULL), or a DTD's default: `xmlRemoveProp` would walk the DTD's attribute table as the
+      // element's attribute list.
+      return Ok(());
+    }
+    self.neutralize_attribute(attr);
+    let remove_prop_status = unsafe { xmlRemoveProp(attr) };
+    if remove_prop_status == 0 {
+      Ok(())
+    } else {
+      // Propagate libxml2 failure to remove
+      Err(From::from(format!(
+        "libxml2 failed to remove property with status: {remove_prop_status:?}"
+      )))
     }
   }
 
   /// Removes the property of given `name`
   ///
   /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
+  /// A property not present, or one only the DTD gives a default value, is left alone, with `Ok`.
   pub fn remove_property(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasProp(self.node_ptr_mut()?, c_name) })
     })??;
-    unsafe {
-      if !attr_node.is_null() {
-        self.neutralize_attribute(attr_node);
-        let remove_prop_status = xmlRemoveProp(attr_node);
-        if remove_prop_status == 0 {
-          Ok(())
-        } else {
-          // Propagate libxml2 failure to remove
-          Err(From::from(format!(
-            "libxml2 failed to remove property with status: {remove_prop_status:?}"
-          )))
-        }
-      } else {
-        // silently no-op if asked to remove a property which is not present
-        Ok(())
-      }
-    }
+    self.remove_attribute_node(attr_node)
   }
 
   /// Removes the property of given `name` and namespace (`ns`)
   ///
   /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
+  /// A property not present, or one only the DTD gives a default value, is left alone, with `Ok`.
   pub fn remove_property_ns(
     &mut self,
     name: &str,
@@ -1400,47 +1403,18 @@ impl Node {
         Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, c_ns) })
       },
     )??;
-    unsafe {
-      if !attr_node.is_null() {
-        self.neutralize_attribute(attr_node);
-        let remove_prop_status = xmlRemoveProp(attr_node);
-        if remove_prop_status == 0 {
-          Ok(())
-        } else {
-          // Propagate libxml2 failure to remove
-          Err(From::from(format!(
-            "libxml2 failed to remove property with status: {remove_prop_status:?}"
-          )))
-        }
-      } else {
-        // silently no-op if asked to remove a property which is not present
-        Ok(())
-      }
-    }
+    self.remove_attribute_node(attr_node)
   }
 
   /// Removes the property of given `name` with no namespace
   ///
   /// libxml2 frees the attribute: its wrappers, from `get_property_node` and the like, read as `Node::null()` afterwards.
+  /// A property not present, or one only the DTD gives a default value, is left alone, with `Ok`.
   pub fn remove_property_no_ns(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let attr_node = with_c_str(name, |c_name| -> Result<_, Box<dyn Error + Send + Sync>> {
       Ok(unsafe { xmlHasNsProp(self.node_ptr_mut()?, c_name, ptr::null()) })
     })??;
-    if !attr_node.is_null() {
-      self.neutralize_attribute(attr_node);
-      let remove_prop_status = unsafe { xmlRemoveProp(attr_node) };
-      if remove_prop_status == 0 {
-        Ok(())
-      } else {
-        // Propagate libxml2 failure to remove
-        Err(From::from(format!(
-          "libxml2 failed to remove property with status: {remove_prop_status:?}"
-        )))
-      }
-    } else {
-      // silently no-op if asked to remove a property which is not present
-      Ok(())
-    }
+    self.remove_attribute_node(attr_node)
   }
 
   /// Alias for get_property
