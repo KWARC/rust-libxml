@@ -1098,9 +1098,25 @@ impl Node {
   }
 
   /// Sets the name of this `Node`
+  ///
+  /// Only an element, an attribute, a processing instruction or an entity reference is renamed; any other node is
+  /// left alone, with `Ok`, as libxml2 2.13 and later do.
   pub fn set_name(&mut self, name: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_name = CString::new(name)?;
-    unsafe { xmlNodeSetName(self.node_ptr_mut()?, c_name.as_bytes().as_ptr()) }
+    let node_ptr = self.node_ptr_mut()?;
+    // libxml2 before 2.13 renames a DTD, a document and a declaration too, with a name from the document's dictionary,
+    // which `xmlFreeElement` then frees with `xmlFree` (#265); 2.13 and later rename these four kinds only.
+    if matches!(
+      self.get_type(),
+      Some(
+        NodeType::ElementNode
+          | NodeType::AttributeNode
+          | NodeType::PiNode
+          | NodeType::EntityRefNode
+      )
+    ) {
+      unsafe { xmlNodeSetName(node_ptr, c_name.as_bytes().as_ptr()) }
+    }
     Ok(())
   }
 
