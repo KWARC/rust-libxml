@@ -1129,7 +1129,8 @@ impl Node {
   ///
   /// The content of an element, attribute or document fragment replaces its children, which libxml2 frees: their
   /// wrappers, and those of their descendants, read as `Node::null()` afterwards. An entity reference is left alone,
-  /// as libxml2 2.13 and later do: its child is the entity's declaration.
+  /// as libxml2 2.13 and later do: its child is the entity's declaration. A processing instruction, a comment or a
+  /// CDATA section keeps its children, as with libxml2 2.13 and later, which only set its text.
   pub fn set_content(&mut self, content: &str) -> Result<(), Box<dyn Error + Send + Sync>> {
     let c_content = CString::new(content)?;
     let node_ptr = self.node_ptr_mut()?;
@@ -1150,6 +1151,23 @@ impl Node {
         doc.prepare_to_free(child);
         child = xmlNextSibling(child);
       }
+    }
+    if matches!(
+      node_type,
+      Some(NodeType::PiNode | NodeType::CommentNode | NodeType::CDataSectionNode)
+    ) {
+      // libxml2 before 2.13 frees the children of these nodes here (#261); 2.13 and later set the text only, and so
+      // does this: the children are out of libxml2's sight meanwhile.
+      // SAFETY: `node_ptr` is a live node, not NULL; its child list is put back as it was.
+      unsafe {
+        let (children, last) = ((*node_ptr).children, (*node_ptr).last);
+        (*node_ptr).children = ptr::null_mut();
+        (*node_ptr).last = ptr::null_mut();
+        xmlNodeSetContent(node_ptr, c_content.as_bytes().as_ptr());
+        (*node_ptr).children = children;
+        (*node_ptr).last = last;
+      }
+      return Ok(());
     }
     unsafe {
       xmlNodeSetContent(node_ptr, c_content.as_bytes().as_ptr());
