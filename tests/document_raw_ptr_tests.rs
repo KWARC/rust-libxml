@@ -4,7 +4,7 @@ mod common;
 
 use common::quarantine::{double_freed, is_freed, setup};
 use libxml::bindings::{xmlDocPtr, xmlReadMemory};
-use libxml::tree::Document;
+use libxml::tree::{Document, Node};
 
 fn read(xml: &str) -> xmlDocPtr {
   setup();
@@ -55,4 +55,42 @@ fn from_raw_ptr_of_null_is_a_document_without_one() {
   let doc = unsafe { Document::from_raw_ptr(std::ptr::null_mut()) };
   assert!(doc.doc_ptr().is_null());
   assert!(doc.get_root_element().is_none());
+}
+
+/// #266: a `Document` without a libxml2 document has no root to set: `set_root_element` leaves the node alone, where it
+/// read the NULL document's last child, and its refusals still panic.
+#[test]
+fn set_root_element_without_a_document_links_nothing() {
+  setup();
+  // SAFETY: NULL is allowed.
+  let mut doc = unsafe { Document::from_raw_ptr(std::ptr::null_mut()) };
+  let text = Node::new_text("t", &doc).unwrap();
+  doc.set_root_element(&text);
+  assert!(text.is_unlinked());
+  let element = Node::new("r", None, &doc).unwrap();
+  doc.set_root_element(&element);
+  assert!(element.is_unlinked());
+  assert!(doc.get_root_element().is_none());
+}
+
+#[test]
+#[should_panic(expected = "RustOwned")]
+fn set_root_element_without_a_document_refuses_a_rust_owned_node() {
+  setup();
+  // SAFETY: NULL is allowed.
+  let mut doc = unsafe { Document::from_raw_ptr(std::ptr::null_mut()) };
+  let element = Node::new("r", None, &doc).unwrap();
+  element.set_rust_owned();
+  doc.set_root_element(&element);
+}
+
+#[test]
+#[should_panic(expected = "another document")]
+fn set_root_element_without_a_document_refuses_another_documents_node() {
+  setup();
+  // SAFETY: NULL is allowed.
+  let mut doc = unsafe { Document::from_raw_ptr(std::ptr::null_mut()) };
+  let other = Document::new().unwrap();
+  let element = Node::new("r", None, &other).unwrap();
+  doc.set_root_element(&element);
 }

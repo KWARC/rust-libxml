@@ -518,6 +518,9 @@ impl Document {
   /// The root element that `root` replaces is unlinked, as by [`Node::unlink_node`], and left to the caller: the
   /// document does not free it, and [`Node::set_rust_owned`] on a wrapper of it frees it with the wrapper's last clone.
   ///
+  /// A `Document` without a libxml2 document ([`from_raw_ptr`](Self::from_raw_ptr) of NULL) has no root to set: `root`
+  /// is left as it was.
+  ///
   /// # Panics
   ///
   /// On a rust-owned node, a node of another document, a document's own node, a DTD or a declaration in one, or an

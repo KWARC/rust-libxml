@@ -2152,8 +2152,12 @@ impl Node {
   /// there and frees it, as [`add_next_sibling`](Self::add_next_sibling) does: its wrappers read as `Node::null()`
   /// afterwards.
   ///
-  /// Returns the root element this node replaced, which libxml2 unlinked, if any.
+  /// Returns the root element this node replaced, which libxml2 unlinked, if any. Without a libxml2 document (NULL
+  /// `doc_ptr`, from [`Document::from_raw_ptr`]) nothing is linked, and the node stays as it was (#266).
   pub(crate) fn link_as_root(&self, doc_ptr: xmlDocPtr) -> Option<xmlNodePtr> {
+    if doc_ptr.is_null() {
+      return None;
+    }
     let node_ptr = self.node_ptr();
     let casualties = InsertionCasualties::collect(node_ptr, doc_ptr as xmlNodePtr, false);
     let old_root = unsafe { xmlDocSetRootElement(doc_ptr, node_ptr) };
