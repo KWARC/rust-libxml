@@ -276,6 +276,9 @@ impl RoNode {
   }
 
   /// Return an attribute as a `Node` struct of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`.
   pub fn get_property_node(self, name: &str) -> Option<RoNode> {
     let attr_node = with_c_str_or_else(
       name,
@@ -286,6 +289,9 @@ impl RoNode {
   }
 
   /// Return an attribute in a namespace `ns` as a `Node` of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`.
   pub fn get_property_node_ns(self, name: &str, ns: &str) -> Option<RoNode> {
     let attr_node = with_c_strs_or_else(
       name,
@@ -297,6 +303,9 @@ impl RoNode {
   }
 
   /// Return an attribute with no namespace as a `Node` of type AttributeNode
+  ///
+  /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
+  /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`.
   pub fn get_property_node_no_ns(self, name: &str) -> Option<RoNode> {
     let attr_node = with_c_str_or_else(
       name,
