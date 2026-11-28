@@ -383,6 +383,8 @@ impl RoNode {
   }
 
   /// Get a copy of this node's attributes and their namespaces
+  ///
+  /// The namespaces do not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_properties_ns(self) -> HashMap<(String, Option<Namespace>), String> {
     let mut attributes = HashMap::new();
 
@@ -471,6 +473,8 @@ impl RoNode {
   }
 
   /// Gets the active namespace associated of this node
+  ///
+  /// The namespaces do not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_namespace(self) -> Option<Namespace> {
     let ns_ptr = xmlNodeNs(self.0);
     if ns_ptr.is_null() {
@@ -506,6 +510,8 @@ impl RoNode {
   }
 
   /// Get a list of namespaces declared with this node
+  ///
+  /// The namespaces do not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_namespace_declarations(self) -> Vec<Namespace> {
     if self.get_type() != Some(NodeType::ElementNode) {
       // only element nodes can have declarations

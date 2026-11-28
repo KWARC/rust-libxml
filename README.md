@@ -8,11 +8,13 @@ Rust wrapper for [libxml2](http://xmlsoft.org/).
 
 The main goal of this project is to benefit from libxml2's maturity and stability while the native Rust XML crates mature to be near-drop-in replacements.
 
-As of the `0.2.0` release of the crate, there are some modest safety guarantees:
+**Safety**: no safe method, and no `unsafe fn` whose contract is upheld, causes memory unsafety, with libxml2 2.9 through 2.15. `Node` and `Document` keep their libxml2 data in `Rc<RefCell<T>>` wrappers, which check mutability and ownership at run time and free the data on drop. Three exceptions are documented:
 
- * Mutability, as well as ownership - we use `Rc<RefCell<T>>` wrappers to ensure runtime safety of libxml2 operations already in the Rust layer.
- * Memory safety guarantees - in particular `Node` and `Document` objects have automatic bookkeeping and deallocation on drop, for leak-free wrapper use.
- * No thread safety - libxml2's global memory management is a challenge to adapt in a thread-safe way with minimal intervention
+ * `RoNode`, the read-only handle, is a bare pointer: it is valid while its document is alive and its node is not freed, and a `Namespace` from one must not outlive the document either. Lifetimes are to check both in `0.4` ([#239](https://github.com/KWARC/rust-libxml/pull/239)).
+ * Threads: libxml2's global state is not adapted for threads. The thread that owns a document must not modify it while another thread reads it through an `RoNode`.
+ * Leaks: a node unlinked and neither linked again nor `set_rust_owned`, and a node made in a `Document` without a libxml2 document, are not freed.
+
+**libxml2**: version 2.9 or later.
 
 **Coverage**: Only covers a subset of libxml2 at the moment, contributions are welcome. We try to increase support with each release.
 

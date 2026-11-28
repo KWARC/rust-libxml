@@ -1,15 +1,47 @@
 # Change Log
 
-## [Unreleased]
+## [0.3.28] (unreleased)
+
+Scope, now in the README: no safe method, and no `unsafe fn` whose contract is upheld, causes memory unsafety, with
+libxml2 2.9 through 2.15. The documented exceptions are `RoNode`'s validity (and a `Namespace` from an `RoNode`
+outliving its document, for 0.4 with #239), threads, and leaks. No signature changed. A link `add_child`,
+`add_prev_sibling` or `add_next_sibling` made before into an attribute's value, a DTD or a declaration returns `Err`
+now (see Fixed); `remove_property*` on a DTD default, and `set_name` on a node libxml2 2.13 does not rename, return
+`Ok` and change nothing.
 
 ### Fixed
 
+* `set_content` and `set_text_content` on a processing instruction, a comment or a CDATA section keep its children,
+  as libxml2 2.13 and later do; before 2.13, libxml2 freed them, and their wrappers and namespaces pointed at freed
+  memory (#261, reported by fairfairfair-210).
+* `remove_property`, `remove_property_ns` and `remove_property_no_ns` leave a property alone that only the DTD gives a
+  default value, and return `Ok`, as `xmlUnsetProp` does: `xmlRemoveProp` read past the DTD's attribute table
+  (#262, reported by fairfairfair-210). `get_property_node*` still return such a default as its declaration, of type
+  `AttributeDecl`, which every method leaves alone or refuses; their documentation says so.
+* An attribute's value takes only text and entity references, as a DOM `Attr`: `add_child` under an attribute, and
+  the sibling adders next to one's value node, return `Err` for any other node. libxml2 freed an element there with
+  the value (`set_property`) or with the attribute (one of the same name added), and a `Namespace` it declared
+  pointed at a freed namespace (#263, #264, reported by fairfairfair-210). A DTD takes only comments and processing
+  instructions besides its declarations, and a declaration no child or sibling but those: an element there leaked,
+  or was written into the internal subset.
+* `set_name` renames only an element, an attribute, a processing instruction or an entity reference, as libxml2 2.13
+  and later do, and leaves any other node alone with `Ok`: before 2.13, renaming an element declaration of a parsed
+  document freed a dictionary name when the document dropped (#265, reported by fairfairfair-210).
+* `Document::set_root_element` on a `Document` without a libxml2 document (`from_raw_ptr` of NULL) leaves the node
+  alone, where it read the NULL document for a text node, and marked an element linked (#266, reported by
+  fairfairfair-210).
 * `Node::canonicalize` returns `Err(())` for a null node, a node libxml2 freed, and a node whose `Document` was dropped,
-  instead of panicking, or, for a freed node, canonicalizing nothing and returning `Ok("")`.
+  instead of panicking, or, for a freed node, canonicalizing nothing and returning `Ok("")` (#267, reported by
+  fairfairfair-210).
 * A node whose `Document` was dropped while it lived on no longer panics. Its child, sibling and parent getters
   (`get_first_child`, `get_child_nodes` and the like) return none, and `new_child` and `add_text_child` return `Err`
   without adding the child. Such a node is one made in a `Document` without a libxml2 document, which outlives the
   `Document` once `dup_from` gives it one.
+
+### Changed
+
+* CI runs the test suite under valgrind with libxml2 2.12.9 too, the last version before 2.13's changes to
+  `xmlNodeSetContent` and `xmlNodeSetName`.
 
 ## [0.3.27] (2026-11-24)
 

@@ -102,3 +102,14 @@ jobs:
         run: cargo test
         env:
           LD_LIBRARY_PATH: /usr/local/lib
+      # The last libxml2 before 2.13, which changed what xmlNodeSetContent frees and what xmlNodeSetName renames:
+      # memory errors there fail the job, as on the system libxml2 (test-valgrind).
+      - name: install valgrind
+        if: ${{ matrix.libxml_version == '2.12.9' }}
+        run: sudo apt-get install -y valgrind
+      - name: run tests under valgrind
+        if: ${{ matrix.libxml_version == '2.12.9' }}
+        run: cargo test
+        env:
+          LD_LIBRARY_PATH: /usr/local/lib
+          CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: valgrind -q --error-exitcode=101
