@@ -1,6 +1,9 @@
 # Change Log
 
-## [0.3.28] (unreleased)
+## [0.3.28] (2026-11-28)
+
+Compatibility: no public item changed (cargo-semver-checks against v0.3.27, default features: no semver update
+required); the behaviour changes are the refusals and no-ops below.
 
 Scope, now in the README: no safe method, and no `unsafe fn` whose contract is upheld, causes memory unsafety, with
 libxml2 2.9 through 2.15. The documented exceptions are `RoNode`'s validity (and a `Namespace` from an `RoNode`
