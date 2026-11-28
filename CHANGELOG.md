@@ -22,8 +22,8 @@ now (see Fixed); `remove_property*` on a DTD default, and `set_name` on a node l
   the sibling adders next to one's value node, return `Err` for any other node. libxml2 freed an element there with
   the value (`set_property`) or with the attribute (one of the same name added), and a `Namespace` it declared
   pointed at a freed namespace (#263, #264, reported by fairfairfair-210). A DTD takes only comments and processing
-  instructions besides its declarations, and a declaration no child or sibling but those: an element there leaked,
-  or was written into the internal subset.
+  instructions besides its declarations, and a declaration no child or sibling but those: an element linked under a
+  declaration leaked, and one linked under the DTD or next to a declaration was written into the internal subset.
 * `set_name` renames only an element, an attribute, a processing instruction or an entity reference, as libxml2 2.13
   and later do, and leaves any other node alone with `Ok`: before 2.13, renaming an element declaration of a parsed
   document freed a dictionary name when the document dropped (#265, reported by fairfairfair-210).

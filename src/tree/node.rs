@@ -1270,7 +1270,8 @@ impl Node {
   ///
   /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
   /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`. The methods that change a node leave a
-  /// declaration alone, or refuse it.
+  /// declaration alone, or refuse it; only a comment or a processing instruction may still be linked next to it, in its
+  /// DTD.
   pub fn get_property_node(&self, name: &str) -> Option<Node> {
     let attr_node = with_c_str_or_else(
       name,
@@ -1284,7 +1285,8 @@ impl Node {
   ///
   /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
   /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`. The methods that change a node leave a
-  /// declaration alone, or refuse it.
+  /// declaration alone, or refuse it; only a comment or a processing instruction may still be linked next to it, in its
+  /// DTD.
   pub fn get_property_node_ns(&self, name: &str, ns: &str) -> Option<Node> {
     let attr_node = with_c_strs_or_else(
       name,
@@ -1299,7 +1301,8 @@ impl Node {
   ///
   /// A property that only the DTD gives a default value is returned as libxml2 finds it (`xmlHasProp`,
   /// `xmlHasNsProp`): as its declaration in the DTD, of type `AttributeDecl`. The methods that change a node leave a
-  /// declaration alone, or refuse it.
+  /// declaration alone, or refuse it; only a comment or a processing instruction may still be linked next to it, in its
+  /// DTD.
   pub fn get_property_node_no_ns(&self, name: &str) -> Option<Node> {
     let attr_node = with_c_str_or_else(
       name,

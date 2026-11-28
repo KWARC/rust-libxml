@@ -474,7 +474,7 @@ impl RoNode {
 
   /// Gets the active namespace associated of this node
   ///
-  /// The namespaces do not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
+  /// The namespace does not keep the document alive, and must not outlive it: see [`Namespace`]'s known caveat.
   pub fn get_namespace(self) -> Option<Namespace> {
     let ns_ptr = xmlNodeNs(self.0);
     if ns_ptr.is_null() {
